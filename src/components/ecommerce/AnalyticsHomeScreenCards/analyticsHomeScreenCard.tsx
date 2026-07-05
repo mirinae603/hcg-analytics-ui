@@ -193,7 +193,7 @@ const AnalyticsDashboardLayout: React.FC = () => {
                     <h1 className="text-4xl mt-8 font-semibold text-slate-500 group-hover:text-blue-400 transform group-hover:scale-105 
                                    transition-all duration-500 relative drop-shadow-sm"
                         style={{ letterSpacing: '-0.02em' }}>
-                      Analytics KPI's
+                      Inventory KPI's
 
                       {/* Underline effect */}
                       <div className="absolute -bottom-1 mt-2 left-1/2 transform -translate-x-1/2 w-8 h-0.5 
