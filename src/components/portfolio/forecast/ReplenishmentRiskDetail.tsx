@@ -22,6 +22,75 @@ const cover = (m: number) => (m >= 999 ? "no demand" : m < 1 ? `${Math.round(m *
 function Card({ children, className = "", style = {}, pad = "p-6" }: any) {
   return <div className={`vm-card rounded-[20px] ${pad} ${className}`} style={{ background: CARD, border: `1px solid ${BORDER}`, ...style }}>{children}</div>;
 }
+const topBar = (x: number, y: number, w: number, h: number, r: number) => { r = Math.max(0, Math.min(r, w / 2, h)); return `M${x} ${y + h} L${x} ${y + r} Q${x} ${y} ${x + r} ${y} L${x + w - r} ${y} Q${x + w} ${y} ${x + w} ${y + r} L${x + w} ${y + h} Z`; };
+
+// Reorder pressure by department — a clean column chart (the hero chart).
+function ReorderByCategory({ rows }: { rows: any[] }) {
+  const data = (rows || []).slice(0, 7);
+  const [active, setActive] = useState(-1);
+  const W = 840, H = 320, PADX = 30, PADT = 54, BY = H - 62;
+  const n = data.length || 1;
+  const slot = (W - 2 * PADX) / n;
+  const X = (i: number) => PADX + slot * (i + 0.5);
+  const max = Math.max(...data.map((r) => r.reorder_value), 1) * 1.2;
+  const Y = (v: number) => BY - (v / max) * (BY - PADT);
+  const bw = Math.min(slot * 0.5, 52);
+  return (
+    <Card className="h-full flex flex-col" pad="p-6">
+      <div className="flex items-baseline justify-between mb-1">
+        <h2 className="text-[17px] font-bold" style={{ color: INK }}>Reorder pressure by department</h2>
+        <span className="text-[12.5px] font-medium" style={{ color: MUT }}>cash needed to restock</span>
+      </div>
+      <p className="text-[12.5px] mb-3" style={{ color: MUT }}>Which departments need the most spend to get back to healthy stock.</p>
+      <div className="flex-1" style={{ minHeight: 300 }}>
+        {!data.length ? <div className="flex items-center justify-center h-full text-[13px]" style={{ color: MUT }}>Loading…</div> : (
+          <svg viewBox={`0 0 ${W} ${H}`} width="100%" height="100%" preserveAspectRatio="none" style={{ display: "block", overflow: "visible" }} onMouseLeave={() => setActive(-1)}>
+            <line x1={PADX - 6} y1={BY} x2={W - PADX + 6} y2={BY} stroke={LINE} strokeWidth="1.5" />
+            {data.map((r, i) => { const x = X(i) - bw / 2, y = Y(r.reorder_value), h = BY - y, isA = i === active;
+              return <path key={`b${i}`} d={topBar(x, y, bw, h, 7)} fill={isA ? "#c98a26" : AMBER} style={{ transformBox: "fill-box", transformOrigin: "bottom", animation: `vmGrow .7s cubic-bezier(.22,1,.36,1) ${120 + i * 80}ms both`, transition: "fill .15s ease" }} />; })}
+            {data.map((r, i) => <text key={`v${i}`} x={X(i)} y={Y(r.reorder_value) - 10} textAnchor="middle" style={{ fontSize: 12.5, fontWeight: 700, fill: INK, animation: `vmFade .5s ease ${560 + i * 80}ms both` }}>{inr(r.reorder_value)}</text>)}
+            {data.map((r, i) => (
+              <g key={`l${i}`} style={{ animation: `vmFade .5s ease ${640 + i * 80}ms both` }}>
+                <text x={X(i)} y={BY + 20} textAnchor="middle" style={{ fontSize: 11, fontWeight: 600, fill: INK2 }}>{nm(r.group, 13)}</text>
+                <text x={X(i)} y={BY + 35} textAnchor="middle" style={{ fontSize: 10.5, fill: MUT }}>{num(r.reorder_count)} items</text>
+              </g>
+            ))}
+            {data.map((r, i) => <rect key={`h${i}`} x={X(i) - slot / 2} y={0} width={slot} height={H} fill="transparent" onMouseEnter={() => setActive(i)} style={{ cursor: "pointer" }} />)}
+          </svg>
+        )}
+      </div>
+    </Card>
+  );
+}
+
+// Compact status breakdown — thin spectrum bar + the five bands.
+function StatusBreakdown({ spectrum, total }: { spectrum: any[]; total: number }) {
+  const on = useMount(180);
+  const segs = spectrum || [];
+  const tot = segs.reduce((s, r) => s + r.count, 0) || 1;
+  return (
+    <Card className="h-full flex flex-col" pad="p-6">
+      <div className="mb-1"><h3 className="text-[16px] font-bold" style={{ color: INK }}>Where every item sits</h3></div>
+      <p className="text-[12px] mb-4" style={{ color: MUT }}>{num(total)} item·locations, too little → too much.</p>
+      <div className="flex gap-0.5 h-3 mb-1.5 rounded-full overflow-hidden">
+        {segs.map((s, i) => <div key={i} title={`${s.status} · ${num(s.count)}`} style={{ width: on ? `${Math.max((s.count / tot) * 100, 2)}%` : "0%", background: SC[s.status], transition: `width .9s cubic-bezier(.22,1,.36,1) ${i * 70}ms` }} />)}
+      </div>
+      <div className="flex items-center justify-between text-[10px] font-semibold uppercase tracking-wide mb-4" style={{ color: MUT }}>
+        <span style={{ color: RED }}>◄ too little</span><span style={{ color: SLATE }}>too much ►</span>
+      </div>
+      <div className="flex flex-col gap-2.5 flex-1 justify-center">
+        {segs.map((s, i) => (
+          <div key={i} className="flex items-center gap-2.5">
+            <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: SC[s.status] }} />
+            <span className="text-[12.5px] flex-1" style={{ color: INK2 }}>{s.status}</span>
+            <span className="text-[13.5px] font-bold tabular-nums" style={{ color: INK }}>{num(s.count)}</span>
+            <span className="text-[11px] tabular-nums w-16 text-right" style={{ color: MUT }}>{inr(s.value)}</span>
+          </div>
+        ))}
+      </div>
+    </Card>
+  );
+}
 
 function StatTile({ icon: Icon, color, bg, label, value, sub }: any) {
   return (
@@ -31,47 +100,6 @@ function StatTile({ icon: Icon, color, bg, label, value, sub }: any) {
         <div className="text-[11px] uppercase tracking-wide font-semibold" style={{ color: MUT }}>{label}</div>
         <div className="text-[24px] font-extrabold tabular-nums leading-tight" style={{ color: INK }}>{value}</div>
         <div className="text-[12px]" style={{ color: MUT }}>{sub}</div>
-      </div>
-    </Card>
-  );
-}
-
-// Horizontal stock-health spectrum: segments sized by SKU count, understock→overstock.
-function Spectrum({ spectrum, total }: { spectrum: any[]; total: number }) {
-  const on = useMount(180);
-  const segs = spectrum || [];
-  const tot = segs.reduce((s, r) => s + r.count, 0) || 1;
-  return (
-    <Card>
-      <div className="flex items-baseline justify-between mb-1">
-        <h2 className="text-[18px] font-bold" style={{ color: INK }}>Stock health across the catalogue</h2>
-        <span className="text-[12.5px] font-medium" style={{ color: MUT }}>{num(total)} item·locations</span>
-      </div>
-      <p className="text-[12.5px] mb-5" style={{ color: MUT }}>Every item placed on a spectrum from too little stock to too much — so you can see both risks at once.</p>
-      {/* segmented spectrum */}
-      <div className="flex gap-1 h-14 mb-2">
-        {segs.map((s, i) => (
-          <div key={i} className="rounded-lg relative flex items-center justify-center overflow-hidden group" title={`${s.status} · ${num(s.count)} · ${inr(s.value)}`}
-            style={{ width: on ? `${Math.max((s.count / tot) * 100, 3)}%` : "0%", background: SC[s.status], transition: `width .9s cubic-bezier(.22,1,.36,1) ${i * 70}ms`, minWidth: 34 }}>
-            <span className="text-[12px] font-bold text-white tabular-nums px-1 truncate">{(s.count / tot) >= 0.05 ? num(s.count) : ""}</span>
-          </div>
-        ))}
-      </div>
-      {/* direction scale */}
-      <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-wide mb-5" style={{ color: MUT }}>
-        <span style={{ color: RED }}>◄ Too little (buy)</span>
-        <span style={{ color: GREEN }}>Healthy</span>
-        <span style={{ color: SLATE }}>Too much (hold) ►</span>
-      </div>
-      {/* legend */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-        {segs.map((s, i) => (
-          <div key={i} className="rounded-xl px-3.5 py-3" style={{ background: SC_BG[s.status] }}>
-            <div className="flex items-center gap-1.5 mb-1"><span className="w-2.5 h-2.5 rounded-full" style={{ background: SC[s.status] }} /><span className="text-[11.5px] font-semibold" style={{ color: INK2 }}>{s.status}</span></div>
-            <div className="text-[18px] font-extrabold tabular-nums leading-none" style={{ color: INK }}>{num(s.count)}</div>
-            <div className="text-[11px] mt-1 tabular-nums" style={{ color: MUT }}>{inr(s.value)} value</div>
-          </div>
-        ))}
       </div>
     </Card>
   );
@@ -250,6 +278,7 @@ export default function ReplenishmentRiskDetail() {
         @keyframes vmRow{from{opacity:0;transform:translateX(8px)}to{opacity:1;transform:translateX(0)}}
         .vm-row{animation:vmRow .5s cubic-bezier(.22,1,.36,1) both}
         @keyframes vmFade{from{opacity:0}to{opacity:1}}.vm-fade{animation:vmFade .4s ease both}
+        @keyframes vmGrow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
       `}</style>
 
       <div className="max-w-[1500px] mx-auto">
@@ -268,7 +297,10 @@ export default function ReplenishmentRiskDetail() {
           <StatTile icon={TbHourglassHigh} color={SLATE} bg="#e9ebef" label="Cash in aging stock" value={inr(Number(t.aging_value ?? 0))} sub={`${num(Number(t.aging_skus ?? 0))} items over 6 months`} />
         </div>
 
-        <div className="mb-5"><Spectrum spectrum={data?.spectrum || []} total={Number(t.total_skus ?? 0)} /></div>
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-stretch mb-5">
+          <div className="xl:col-span-8"><ReorderByCategory rows={data?.by_category || []} /></div>
+          <div className="xl:col-span-4"><StatusBreakdown spectrum={data?.spectrum || []} total={Number(t.total_skus ?? 0)} /></div>
+        </div>
 
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-5 items-stretch mb-5">
           <OrderNow rows={data?.order_now || []} />
