@@ -9,6 +9,8 @@ import { useEffect, useState } from "react";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 
 const BASE = (DASHBOARD_API_BASE_URL || "").replace(/\/+$/, "");
+const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
+const COLD = new Set([502, 503, 504]); // Render's "service still waking" responses
 
 type GlState = { active: number; subs: Set<() => void> };
 type WGL = Window & { __gl?: GlState; __glPatched?: boolean };
@@ -29,12 +31,34 @@ if (typeof window !== "undefined" && BASE && !(window as WGL).__glPatched) {
     let url = "";
     try { url = typeof input === "string" ? input : (input as Request)?.url || String(input); } catch { /* noop */ }
     const track = !!url && url.startsWith(BASE);
-    if (track) { st.active += 1; notify(); }
-    const p = orig(input, init);
-    if (track) {
-      const done = () => { st.active = Math.max(0, st.active - 1); notify(); };
+    if (!track) return orig(input, init);
+
+    st.active += 1; notify();
+    const done = () => { st.active = Math.max(0, st.active - 1); notify(); };
+
+    let method = "GET";
+    try { method = String(init?.method || (typeof input !== "string" && (input as Request).method) || "GET").toUpperCase(); } catch { /* noop */ }
+
+    // Only idempotent GETs self-heal the cold start (never retry POST like /signin).
+    if (method !== "GET") {
+      const p = orig(input, init);
       p.then(done, done);
+      return p;
     }
+    // Retry a waking backend (502/503/504 or network error) for up to ~50s, keeping
+    // the loader up, so pages get real data instead of falling back to zeros.
+    const attempt = async (left: number): Promise<Response> => {
+      try {
+        const res = await orig(input, init);
+        if (COLD.has(res.status) && left > 0) { await wait(3000); return attempt(left - 1); }
+        return res;
+      } catch (e) {
+        if (left > 0) { await wait(3000); return attempt(left - 1); }
+        throw e;
+      }
+    };
+    const p = attempt(16);
+    p.then(done, done);
     return p;
   } as typeof window.fetch;
 }
@@ -81,7 +105,7 @@ export default function GlobalLoader() {
         </div>
         <div style={{ textAlign: "center", maxWidth: 230 }}>
           <div style={{ fontSize: 13.5, fontWeight: 600, color: "#1b1c22" }}>{slow ? "Waking up the server…" : "Loading…"}</div>
-          <div style={{ fontSize: 11.5, color: "#8a8f9d", marginTop: 4, lineHeight: 1.5 }}>{slow ? "The free server sleeps after a break — the first load can take up to a minute." : "Fetching your data."}</div>
+          <div style={{ fontSize: 11.5, color: "#8a8f9d", marginTop: 4, lineHeight: 1.5 }}>Fetching your data.</div>
         </div>
       </div>
     </div>
