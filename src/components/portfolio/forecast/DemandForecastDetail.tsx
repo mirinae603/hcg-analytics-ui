@@ -21,6 +21,19 @@ const PAL = [
 const TILE_ICONS = [TbFileText, TbBox, TbDroplet, TbVaccine, TbClipboardList];
 const nm = (s: string, n = 28) => (s && s.length > n ? s.slice(0, n - 1) + "…" : s || "—");
 
+// smooth catmull-rom → cubic-bezier path through points
+function smooth(pts: { x: number; y: number }[]) {
+  if (pts.length < 2) return "";
+  let d = `M ${pts[0].x} ${pts[0].y}`;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
+    const c1x = p1.x + (p2.x - p0.x) / 6, c1y = p1.y + (p2.y - p0.y) / 6;
+    const c2x = p2.x - (p3.x - p1.x) / 6, c2y = p2.y - (p3.y - p1.y) / 6;
+    d += ` C ${c1x} ${c1y}, ${c2x} ${c2y}, ${p2.x} ${p2.y}`;
+  }
+  return d;
+}
+
 function Card({ children, className = "", style = {}, pad = "p-6" }: any) {
   return <div className={`vm-card rounded-[20px] ${pad} ${className}`} style={{ background: CARD, border: `1px solid ${BORDER}`, ...style }}>{children}</div>;
 }
@@ -39,10 +52,35 @@ function Lollipop({ timeline, height = 288 }: { timeline: any[]; height?: number
   const Y = (v: number) => BY - (Math.max(v, 0) / max) * (BY - PADT);
   if (!data.length) return <div className="flex items-center justify-center" style={{ height: H, color: MUT }}>Loading…</div>;
   const act = active >= 0 ? active : firstF;
+  // line/area point sets — forecast line bridges from the last actual point
+  const actPts = data.map((d, i) => (d.actual != null ? { x: X(i), y: Y(d.actual) } : null)).filter(Boolean) as { x: number; y: number }[];
+  const lastActIdx = data.map((d) => d.actual != null).lastIndexOf(true);
+  const fcPts = data.map((d, i) => {
+    if (d.is_forecast) return { x: X(i), y: Y(d.forecast) };
+    if (i === lastActIdx) return { x: X(i), y: Y(d.actual) };
+    return null;
+  }).filter(Boolean) as { x: number; y: number }[];
+  const areaOf = (pts: { x: number; y: number }[]) => pts.length < 2 ? "" : `${smooth(pts)} L ${pts[pts.length - 1].x} ${BY} L ${pts[0].x} ${BY} Z`;
   return (
     <svg viewBox={`0 0 ${W} ${H}`} width="100%" height="100%" preserveAspectRatio="none" style={{ display: "block", overflow: "visible" }} onMouseLeave={() => setActive(firstF)}>
+      <defs>
+        <linearGradient id="vmActFill" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={STEEL} stopOpacity="0.20" />
+          <stop offset="100%" stopColor={STEEL} stopOpacity="0" />
+        </linearGradient>
+        <linearGradient id="vmFcFill" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#b9bfcc" stopOpacity="0.16" />
+          <stop offset="100%" stopColor="#b9bfcc" stopOpacity="0" />
+        </linearGradient>
+      </defs>
       {/* raised cream highlight column */}
       {act >= 0 && <rect x={X(act) - 26} y={PADT - 20} width={52} height={BY - PADT + 34} rx={26} fill={CREAM} style={{ opacity: on ? 1 : 0, transition: "opacity .5s ease .3s, x .35s cubic-bezier(.22,1,.36,1)" }} />}
+      {/* soft area fills */}
+      <path d={areaOf(actPts)} fill="url(#vmActFill)" style={{ opacity: on ? 1 : 0, transition: "opacity .9s ease .5s" }} />
+      <path d={areaOf(fcPts)} fill="url(#vmFcFill)" style={{ opacity: on ? 1 : 0, transition: "opacity .9s ease .8s" }} />
+      {/* trend lines — actual solid, forecast dashed, both self-drawing */}
+      <path d={smooth(actPts)} fill="none" stroke={STEEL} strokeWidth="2.5" strokeLinecap="round" pathLength={1} strokeDasharray={1} strokeDashoffset={on ? 0 : 1} style={{ transition: "stroke-dashoffset 1.1s cubic-bezier(.5,0,.2,1) .2s" }} />
+      <path d={smooth(fcPts)} fill="none" stroke="#aab3c5" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="6 6" style={{ opacity: on ? 1 : 0, transition: "opacity .8s ease 1s" }} />
       {data.map((d, i) => {
         const isF = d.is_forecast; const v = isF ? d.forecast : d.actual; if (v == null) return null;
         const x = X(i), y = Y(v), isAct = i === act;
