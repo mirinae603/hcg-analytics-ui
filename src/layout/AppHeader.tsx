@@ -6,7 +6,6 @@ import RegionFilter from "@/components/header/RegionFilter";
 import { useSidebar } from "@/context/SidebarContext";
 import Image from "next/image";
 import Link from "next/link";
-import { TbBuildingHospital, TbBolt } from "react-icons/tb";
 import React, { useState ,useEffect,useRef} from "react";
 
 const AppHeader: React.FC = () => {
@@ -188,26 +187,13 @@ const AppHeader: React.FC = () => {
         <Link href="/">
           { (
            
-              <span className="flex items-center gap-3 select-none">
-                {/* Bidezy — the platform that built it */}
-                <span className="flex items-center gap-2">
-                  <span className="w-9 h-9 rounded-[10px] flex items-center justify-center" style={{ background: "linear-gradient(135deg,#6d5efc 0%,#8b7dff 100%)", boxShadow: "0 4px 12px -3px rgba(109,94,252,0.5)" }}>
-                    <TbBolt size={19} color="#fff" />
-                  </span>
-                  <span className="text-[15px] font-extrabold tracking-tight" style={{ color: "#6d5efc" }}>bidezy</span>
-                </span>
+              <span className="flex items-center gap-3.5 select-none">
+                {/* Bidezy — the platform that built it (actual brand icon) */}
+                <Image src="/images/logo/logo-icon.jpg" alt="Bidezy" width={34} height={34} className="rounded-lg shrink-0" unoptimized />
                 {/* built for */}
-                <span className="text-[16px] font-medium" style={{ color: "#c6cad8" }}>×</span>
-                {/* HCG — the hospital group */}
-                <span className="flex items-center gap-2.5">
-                  <span className="w-9 h-9 rounded-[10px] flex items-center justify-center" style={{ background: "linear-gradient(135deg,#0d9488 0%,#14b8a6 100%)", boxShadow: "0 4px 12px -3px rgba(13,148,136,0.45)" }}>
-                    <TbBuildingHospital size={20} color="#fff" />
-                  </span>
-                  <span className="leading-none">
-                    <span className="block text-[16px] font-extrabold tracking-tight" style={{ color: "#101828" }}>HCG</span>
-                    <span className="block text-[9.5px] font-semibold tracking-[0.04em] mt-0.5" style={{ color: "#8a90a3" }}>Supply Chain Analytics</span>
-                  </span>
-                </span>
+                <span className="text-[17px] font-normal" style={{ color: "#c6cad8" }}>×</span>
+                {/* HCG — Supply Chain Analytics lockup */}
+                <Image src="/images/logo/logo.svg" alt="HCG Supply Chain Analytics" width={175} height={46} className="shrink-0" unoptimized />
               </span>
              
           )}

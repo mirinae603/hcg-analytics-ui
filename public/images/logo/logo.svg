@@ -1,6 +1,7 @@
 <svg width="180" height="48" viewBox="0 0 180 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect x="2" y="8" width="34" height="34" rx="9" fill="#0d9488"/>
-  <path d="M19 17v16M11 25h16" stroke="#fff" stroke-width="3.4" stroke-linecap="round"/>
+  <rect x="2" y="8" width="34" height="34" rx="9" fill="#465fff"/>
+  <path d="M12 16v18M12 25h8M20 16v18" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/>
+  <path d="M30 19a5 5 0 100 12" stroke="#9ecbff" stroke-width="2.6" stroke-linecap="round" fill="none"/>
   <text x="46" y="27" font-family="Outfit, Arial, sans-serif" font-size="21" font-weight="700" fill="#101828">HCG</text>
   <text x="46" y="40" font-family="Outfit, Arial, sans-serif" font-size="9" font-weight="500" letter-spacing="0.4" fill="#667085">Supply Chain Analytics</text>
 </svg>
