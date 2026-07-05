@@ -3,6 +3,7 @@ import './globals.css';
 import { SidebarProvider } from '@/context/SidebarContext';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { RegionProvider } from '@/context/RegionContext'; // ✅ import your new RegionProvider
+import GlobalLoader from '@/components/common/GlobalLoader';
 
 // Outfit is loaded via a runtime stylesheet link (not next/font's build-time fetch)
 // so the production build never depends on reaching Google Fonts. Same font, same look.
@@ -25,6 +26,7 @@ export default function RootLayout({
         className="dark:bg-gray-900"
         style={{ fontFamily: "'Outfit', system-ui, -apple-system, 'Segoe UI', sans-serif" }}
       >
+        <GlobalLoader />
         <ThemeProvider>
           <SidebarProvider>
             <RegionProvider>
