@@ -15,7 +15,7 @@ interface RegionContextType {
 }
 
 const defaultRegion: Region = {
- id: 0, name: 'All Plants', code: 'ALL', avatar: 'https://img.icons8.com/?size=100&id=Bj7eZ3vQ0z9F&format=png&color=000000',
+ id: 0, name: 'All Plants', code: 'ALL', avatar: '',
 }
 
 const RegionContext = createContext<RegionContextType | undefined>(undefined)
