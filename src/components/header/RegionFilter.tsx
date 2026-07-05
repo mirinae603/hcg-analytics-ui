@@ -3,45 +3,72 @@
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/react'
 import { ChevronUpDownIcon } from '@heroicons/react/16/solid'
 import { useEffect, useState } from 'react'
+import { usePathname } from 'next/navigation'
 import { TbBuildingHospital, TbBuildings } from 'react-icons/tb'
 import { useRegion } from '@/context/RegionContext'
+import { byKey } from '@/lib/kpiRegistry'
 import { DASHBOARD_API_BASE_URL } from '@/utils/config'
 
-// Inline, self-contained hospital icon — no external image (the old icons8 URL was
-// blocked by the browser, showing broken "?" placeholders).
+type Plant = { id: number; name: string; code: string; avatar: string; domains: string[] }
+
+// Which data domain the current page belongs to — so we only offer plants that
+// actually have data for it (a corporate office has no inventory, etc.).
+const FC_PATHS = ['/salesQuantityForecast', '/cashFlowForecast', '/stockReplenishmentForecast']
+function sectionDomain(pathname: string): string | null {
+  if (pathname.startsWith('/kpi/')) return byKey(pathname.split('/')[2] || '')?.portfolio ?? null
+  if (pathname.startsWith('/inventory')) return 'inventory'
+  if (pathname.startsWith('/procurement')) return 'procurement'
+  if (pathname.startsWith('/consumption')) return 'consumption'
+  if (pathname.startsWith('/forecasting') || FC_PATHS.includes(pathname)) return 'forecasting'
+  return null   // executive summary etc. → show every plant
+}
+
+// Inline hospital icon — no external image (the old icons8 URL was blocked).
 function PlantIcon({ code, size = 24 }: { code?: string; size?: number }) {
   const isAll = !code || code === 'ALL'
   const Icon = isAll ? TbBuildings : TbBuildingHospital
   return (
-    <span
-      className="shrink-0 flex items-center justify-center rounded-md"
-      style={{ width: size, height: size, background: '#eef1ff', color: '#4f5bd5' }}
-    >
+    <span className="shrink-0 flex items-center justify-center rounded-md"
+      style={{ width: size, height: size, background: '#eef1ff', color: '#4f5bd5' }}>
       <Icon size={Math.round(size * 0.6)} />
     </span>
   )
 }
 
+const ALL_PLANTS: Plant = { id: -1, name: 'All Plants', code: 'ALL', avatar: '', domains: [] }
+
 export default function RegionFilter() {
   const { selectedRegion, setSelectedRegion } = useRegion()
-  const [regions, setRegions] = useState([{ id: 0, name: 'All Plants', code: 'ALL', avatar: '' }])
+  const [regions, setRegions] = useState<Plant[]>([ALL_PLANTS])
   const [query, setQuery] = useState('')
+  const pathname = usePathname() || ''
+  const domain = sectionDomain(pathname)
 
   useEffect(() => {
     fetch(`${DASHBOARD_API_BASE_URL}/meta/plants`)
       .then((r) => r.json())
       .then((d) => {
-        const list = (d.plants || []).map((p: any, i: number) => ({
-          id: i, name: p.name, code: p.code, avatar: '',
+        const list: Plant[] = (d.plants || []).map((p: any, i: number) => ({
+          id: i, name: p.name, code: p.code, avatar: '', domains: p.domains || [],
         }))
-        if (list.length) setRegions([{ id: -1, name: 'All Plants', code: 'ALL', avatar: '' }, ...list.filter((r: any) => r.code !== 'ALL')])
+        if (list.length) setRegions(list.some((r) => r.code === 'ALL') ? list : [ALL_PLANTS, ...list])
       })
       .catch(() => {})
   }, [])
 
-  const filtered = query
-    ? regions.filter((r) => r.name.toLowerCase().includes(query.toLowerCase()) || r.code?.toLowerCase().includes(query.toLowerCase()))
-    : regions
+  // If the selected plant has no data for the section we're now on, fall back to
+  // All Plants so the page never shows a confusing wall of zeros.
+  useEffect(() => {
+    if (!domain || selectedRegion.code === 'ALL') return
+    const r = regions.find((x) => x.code === selectedRegion.code)
+    if (r && r.domains.length && !r.domains.includes(domain)) setSelectedRegion(ALL_PLANTS as any)
+  }, [domain, regions]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const filtered = regions.filter((r) => {
+    if (r.code !== 'ALL' && domain && r.domains.length && !r.domains.includes(domain)) return false
+    if (!query) return true
+    return r.name.toLowerCase().includes(query.toLowerCase()) || r.code?.toLowerCase().includes(query.toLowerCase())
+  })
 
   return (
     <Listbox value={selectedRegion} onChange={setSelectedRegion}>
@@ -76,7 +103,7 @@ export default function RegionFilter() {
               </div>
             </ListboxOption>
           ))}
-          {!filtered.length && <div className="px-4 py-3 text-sm text-gray-400">No hospital found.</div>}
+          {!filtered.length && <div className="px-4 py-3 text-sm text-gray-400">No hospital with data here.</div>}
         </ListboxOptions>
       </div>
     </Listbox>
