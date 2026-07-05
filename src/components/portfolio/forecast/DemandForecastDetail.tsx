@@ -4,7 +4,7 @@
 // ChartMogul (pastel labelled category blocks + delta stat rows) and Navexa
 // (thin restrained micro-viz). Neutral canvas, near-black ink, ONE warm accent,
 // lots of whitespace. Real HCG forecast data underneath.
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useId } from "react";
 import { useRegion } from "@/context/RegionContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import { countAbbr, useMount, CountUp } from "@/components/portfolio/kit";
@@ -38,73 +38,74 @@ function Card({ children, className = "", style = {}, pad = "p-6" }: any) {
   return <div className={`vm-card rounded-[20px] ${pad} ${className}`} style={{ background: CARD, border: `1px solid ${BORDER}`, ...style }}>{children}</div>;
 }
 
-// Twisty-style lollipop chart with a raised cream highlight column + dark pill tooltip
-function Lollipop({ timeline, height = 288 }: { timeline: any[]; height?: number }) {
-  const on = useMount(140);
+// Lollipop + line/area chart. A continuous ACCENT model line runs across the whole
+// timeline — fitted over history (so you can see how the model tracked vs what
+// actually happened) then dashed into the future. Left→right "draw" reveal.
+function Lollipop({ timeline, height = 300 }: { timeline: any[]; height?: number }) {
+  const rid = useId().replace(/[:]/g, "");
   const data = timeline || [];
   const firstF = data.findIndex((d) => d.is_forecast);
   const [active, setActive] = useState<number>(-1);
   useEffect(() => { setActive(firstF); }, [firstF, timeline]);
-  const W = 920, H = height, PADX = 46, PADT = 46, BY = H - 52;
+  const W = 920, H = height, PADX = 44, PADT = 54, BY = H - 54;
   const n = data.length || 1;
   const X = (i: number) => PADX + (i / Math.max(n - 1, 1)) * (W - 2 * PADX);
-  const max = Math.max(...data.map((d) => d.upper ?? d.actual ?? d.forecast ?? 0), 1) * 1.12;
-  const Y = (v: number) => BY - (Math.max(v, 0) / max) * (BY - PADT);
+  // scale on the actual + forecast POINT values (not the wide upper bound) so the
+  // series isn't squashed; whiskers may extend up and clamp near the top.
+  const pointVals = data.flatMap((d) => [d.actual, d.forecast].filter((v) => v != null)) as number[];
+  const scaleMax = Math.max(...pointVals, 1) * 1.32;
+  const Y = (v: number) => BY - (Math.min(Math.max(v, 0), scaleMax) / scaleMax) * (BY - PADT);
   if (!data.length) return <div className="flex items-center justify-center" style={{ height: H, color: MUT }}>Loading…</div>;
   const act = active >= 0 ? active : firstF;
-  // line/area point sets — forecast line bridges from the last actual point
-  const actPts = data.map((d, i) => (d.actual != null ? { x: X(i), y: Y(d.actual) } : null)).filter(Boolean) as { x: number; y: number }[];
   const lastActIdx = data.map((d) => d.actual != null).lastIndexOf(true);
-  const fcPts = data.map((d, i) => {
-    if (d.is_forecast) return { x: X(i), y: Y(d.forecast) };
-    if (i === lastActIdx) return { x: X(i), y: Y(d.actual) };
-    return null;
-  }).filter(Boolean) as { x: number; y: number }[];
+  const actPts = data.map((d, i) => (d.actual != null ? { x: X(i), y: Y(d.actual) } : null)).filter(Boolean) as { x: number; y: number }[];
+  // model line: causal MA(3) fit over history, real forecast into the future — one continuous line
+  const fittedAt = (i: number) => { let s = 0, c = 0; for (let k = Math.max(0, i - 2); k <= i; k++) { if (data[k].actual != null) { s += data[k].actual; c++; } } return c ? s / c : null; };
+  const modelPts = data.map((d, i) => { const v = d.is_forecast ? d.forecast : fittedAt(i); return v != null ? { x: X(i), y: Y(v), i } : null; }).filter(Boolean) as { x: number; y: number; i: number }[];
+  const histModel = modelPts.filter((p) => p.i <= lastActIdx);
+  const futModel = modelPts.filter((p) => p.i >= lastActIdx);
   const areaOf = (pts: { x: number; y: number }[]) => pts.length < 2 ? "" : `${smooth(pts)} L ${pts[pts.length - 1].x} ${BY} L ${pts[0].x} ${BY} Z`;
+  const REVEAL = 1400;
+  const delayAt = (x: number) => Math.round(220 + ((x - PADX) / (W - 2 * PADX)) * REVEAL * 0.82);
   return (
     <svg viewBox={`0 0 ${W} ${H}`} width="100%" height="100%" preserveAspectRatio="none" style={{ display: "block", overflow: "visible" }} onMouseLeave={() => setActive(firstF)}>
       <defs>
-        <linearGradient id="vmActFill" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={STEEL} stopOpacity="0.20" />
-          <stop offset="100%" stopColor={STEEL} stopOpacity="0" />
-        </linearGradient>
-        <linearGradient id="vmFcFill" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#b9bfcc" stopOpacity="0.16" />
-          <stop offset="100%" stopColor="#b9bfcc" stopOpacity="0" />
-        </linearGradient>
+        <linearGradient id={`af${rid}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={STEEL} stopOpacity="0.22" /><stop offset="100%" stopColor={STEEL} stopOpacity="0" /></linearGradient>
+        <clipPath id={`wipe${rid}`}><rect x="-4" y="0" width={W + 8} height={H} style={{ transformOrigin: "0px 0px", animation: `vmWipe ${REVEAL}ms cubic-bezier(.45,0,.15,1) both` }} /></clipPath>
       </defs>
-      {/* raised cream highlight column */}
-      {act >= 0 && <rect x={X(act) - 26} y={PADT - 20} width={52} height={BY - PADT + 34} rx={26} fill={CREAM} style={{ opacity: on ? 1 : 0, transition: "opacity .5s ease .3s, x .35s cubic-bezier(.22,1,.36,1)" }} />}
-      {/* soft area fills */}
-      <path d={areaOf(actPts)} fill="url(#vmActFill)" style={{ opacity: on ? 1 : 0, transition: "opacity .9s ease .5s" }} />
-      <path d={areaOf(fcPts)} fill="url(#vmFcFill)" style={{ opacity: on ? 1 : 0, transition: "opacity .9s ease .8s" }} />
-      {/* trend lines — actual solid, forecast dashed, both self-drawing */}
-      <path d={smooth(actPts)} fill="none" stroke={STEEL} strokeWidth="2.5" strokeLinecap="round" pathLength={1} strokeDasharray={1} strokeDashoffset={on ? 0 : 1} style={{ transition: "stroke-dashoffset 1.1s cubic-bezier(.5,0,.2,1) .2s" }} />
-      <path d={smooth(fcPts)} fill="none" stroke="#aab3c5" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="6 6" style={{ opacity: on ? 1 : 0, transition: "opacity .8s ease 1s" }} />
+      {/* raised cream highlight column (static) */}
+      {act >= 0 && <rect x={X(act) - 25} y={PADT - 22} width={50} height={BY - PADT + 36} rx={25} fill={CREAM} style={{ animation: "vmFade .6s ease .5s both" }} />}
+      {/* everything that "draws" is revealed left→right by the wipe clip */}
+      <g clipPath={`url(#wipe${rid})`}>
+        <path d={areaOf(actPts)} fill={`url(#af${rid})`} />
+        {/* stems */}
+        {data.map((d, i) => { const v = d.is_forecast ? d.forecast : d.actual; if (v == null) return null; const x = X(i); return <line key={`s${i}`} x1={x} y1={BY} x2={x} y2={Y(v)} stroke={d.is_forecast ? "#dcdfe6" : "#e2e5eb"} strokeWidth="2" strokeLinecap="round" />; })}
+        {/* forecast uncertainty whiskers */}
+        {data.map((d, i) => d.is_forecast ? <line key={`w${i}`} x1={X(i)} y1={Y(d.lower)} x2={X(i)} y2={Y(d.upper)} stroke={FAINT} strokeWidth="2.5" strokeLinecap="round" /> : null)}
+        {/* steel actual line — what really happened */}
+        <path d={smooth(actPts)} fill="none" stroke={STEEL} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+        {/* accent model line — fitted over history, dashed into the future */}
+        <path d={smooth(histModel)} fill="none" stroke={ACCENT} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.9" />
+        <path d={smooth(futModel)} fill="none" stroke={ACCENT} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="1 7" />
+      </g>
+      {/* dots, tooltip & month labels — pop in synced to the wipe passing */}
       {data.map((d, i) => {
         const isF = d.is_forecast; const v = isF ? d.forecast : d.actual; if (v == null) return null;
-        const x = X(i), y = Y(v), isAct = i === act;
+        const x = X(i), y = Y(v), isAct = i === act, dl = delayAt(x);
         return (
           <g key={i} onMouseEnter={() => setActive(i)} style={{ cursor: "pointer" }}>
             <rect x={x - (W - 2 * PADX) / (n * 2)} y={0} width={(W - 2 * PADX) / n} height={H} fill="transparent" />
-            {/* forecast uncertainty whisker */}
-            {isF && <line x1={x} y1={Y(d.lower)} x2={x} y2={Y(d.upper)} stroke={FAINT} strokeWidth="2" strokeLinecap="round" style={{ opacity: on ? 0.9 : 0, transition: "opacity .6s ease .9s" }} />}
-            {/* stem */}
-            <line x1={x} y1={BY} x2={x} y2={y} stroke={isF ? "#d7dae2" : "#dfe2e9"} strokeWidth="2" strokeLinecap="round" style={{ transform: on ? "scaleY(1)" : "scaleY(0)", transformOrigin: `${x}px ${BY}px`, transition: `transform .7s cubic-bezier(.22,1,.36,1) ${i * 55}ms` }} />
-            {/* dot */}
             <circle cx={x} cy={y} r={isAct ? 6.5 : 5} fill={isAct ? INK : isF ? "#fff" : STEEL} stroke={isF && !isAct ? STEEL : "none"} strokeWidth={isF ? 2 : 0}
-              style={{ opacity: on ? 1 : 0, transform: on ? "translateY(0)" : "translateY(10px)", transformOrigin: `${x}px ${y}px`, transition: `opacity .5s ease ${300 + i * 55}ms, transform .6s cubic-bezier(.34,1.4,.64,1) ${300 + i * 55}ms, r .2s ease` }} />
-            {/* dark pill tooltip on active */}
+              style={{ transformBox: "fill-box", transformOrigin: "center", animation: `vmPop .5s cubic-bezier(.34,1.5,.64,1) ${dl}ms both` }} />
             {isAct && (
-              <g style={{ opacity: on ? 1 : 0, transition: "opacity .4s ease .7s" }}>
-                <rect x={x - 44} y={y - 40} width={88} height={26} rx={13} fill={INK} />
-                <text x={x} y={y - 22} textAnchor="middle" style={{ fontSize: 13, fontWeight: 700, fill: "#fff" }}>{countAbbr(v)}</text>
+              <g style={{ transformBox: "fill-box", transformOrigin: "center", animation: `vmUp .45s cubic-bezier(.22,1,.36,1) ${dl + 120}ms both` }}>
+                <rect x={x - 44} y={y - 42} width={88} height={26} rx={13} fill={INK} />
+                <text x={x} y={y - 24} textAnchor="middle" style={{ fontSize: 13, fontWeight: 700, fill: "#fff" }}>{countAbbr(v)}</text>
               </g>
             )}
-            {/* month label — active gets a dark pill */}
             {isAct
-              ? <g><rect x={x - 21} y={BY + 16} width={42} height={24} rx={12} fill={INK} /><text x={x} y={BY + 32} textAnchor="middle" style={{ fontSize: 11.5, fontWeight: 700, fill: "#fff" }}>{d.label}</text></g>
-              : <text x={x} y={BY + 32} textAnchor="middle" style={{ fontSize: 11.5, fontWeight: 500, fill: MUT }}>{d.label}</text>}
+              ? <g style={{ animation: `vmFade .4s ease ${dl}ms both` }}><rect x={x - 21} y={BY + 16} width={42} height={24} rx={12} fill={INK} /><text x={x} y={BY + 32} textAnchor="middle" style={{ fontSize: 11.5, fontWeight: 700, fill: "#fff" }}>{d.label}</text></g>
+              : <text x={x} y={BY + 32} textAnchor="middle" style={{ fontSize: 11.5, fontWeight: 500, fill: MUT, animation: `vmFade .4s ease ${dl}ms both` }}>{d.label}</text>}
           </g>
         );
       })}
@@ -136,11 +137,12 @@ function Hero({ data }: { data: any }) {
             <div><div className="text-[19px] font-bold tabular-nums" style={{ color: INK }}>{Number(t.accuracy ?? 0).toFixed(0)}%</div><div className="text-[11px] uppercase tracking-wide font-medium" style={{ color: MUT }}>forecast reliability</div></div>
           </div>
         </div>
-        <div className="flex-1 min-w-0" style={{ minHeight: 260 }}><Lollipop timeline={tl} /></div>
+        <div className="flex-1 min-w-0" style={{ minHeight: 300 }}><Lollipop timeline={tl} /></div>
       </div>
-      <div className="flex items-center gap-5 px-7 pb-4 text-[11.5px] font-medium" style={{ color: MUT }}>
-        <span className="inline-flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full" style={{ background: STEEL }} />Actual use</span>
-        <span className="inline-flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-white" style={{ border: `2px solid ${STEEL}` }} />Forecast</span>
+      <div className="flex items-center gap-5 px-7 pb-5 text-[11.5px] font-medium flex-wrap" style={{ color: MUT }}>
+        <span className="inline-flex items-center gap-1.5"><span className="w-4 h-[3px] rounded-full" style={{ background: STEEL }} />Actual use</span>
+        <span className="inline-flex items-center gap-1.5"><span className="w-4 h-[3px] rounded-full" style={{ background: ACCENT }} />Model &amp; forecast</span>
+        <span className="inline-flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-white" style={{ border: `2px solid ${STEEL}` }} />Forecast point</span>
         <span className="inline-flex items-center gap-1.5"><span className="w-0.5 h-3 rounded-full" style={{ background: FAINT }} />Best–worst range</span>
       </div>
     </Card>
@@ -326,6 +328,9 @@ export default function DemandForecastDetail() {
         @keyframes vmRow{from{opacity:0;transform:translateX(8px)}to{opacity:1;transform:translateX(0)}}
         .vm-row{animation:vmRow .5s cubic-bezier(.22,1,.36,1) both}
         @keyframes vmFade{from{opacity:0}to{opacity:1}}.vm-fade{animation:vmFade .4s ease both}
+        @keyframes vmWipe{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+        @keyframes vmPop{from{opacity:0;transform:scale(.35)}to{opacity:1;transform:scale(1)}}
+        @keyframes vmUp{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
       `}</style>
 
       <div className="max-w-[1500px] mx-auto">
