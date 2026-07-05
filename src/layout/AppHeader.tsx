@@ -192,8 +192,13 @@ const AppHeader: React.FC = () => {
                 <Image src="/images/logo/logo-icon.jpg" alt="Bidezy" width={34} height={34} className="rounded-lg shrink-0" unoptimized />
                 {/* built for */}
                 <span className="text-[17px] font-normal" style={{ color: "#c6cad8" }}>×</span>
-                {/* HCG — Supply Chain Analytics lockup */}
-                <Image src="/images/logo/logo.svg" alt="HCG Supply Chain Analytics" width={175} height={46} className="shrink-0" unoptimized />
+                {/* HCG — real brand logo */}
+                <Image src="/images/logo/hcg-logo.svg" alt="HCG — adding life to years" width={94} height={47} className="shrink-0" unoptimized />
+                {/* product name */}
+                <span className="hidden xl:flex items-center gap-2.5 pl-0.5">
+                  <span className="w-px h-7" style={{ background: "#e5e7eb" }} />
+                  <span className="text-[12px] font-semibold leading-[1.15]" style={{ color: "#6b7280" }}>Supply&nbsp;Chain<br />Analytics</span>
+                </span>
               </span>
              
           )}
