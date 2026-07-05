@@ -66,49 +66,60 @@ function Lollipop({ timeline, height = 300 }: { timeline: any[]; height?: number
   const futModel = modelPts.filter((p) => p.i >= lastActIdx);
   const areaOf = (pts: { x: number; y: number }[]) => pts.length < 2 ? "" : `${smooth(pts)} L ${pts[pts.length - 1].x} ${BY} L ${pts[0].x} ${BY} Z`;
   const REVEAL = 1400;
-  const delayAt = (x: number) => Math.round(220 + ((x - PADX) / (W - 2 * PADX)) * REVEAL * 0.82);
+  const colW = (W - 2 * PADX) / Math.max(n - 1, 1);
+  const actV = data[act] ? (data[act].is_forecast ? data[act].forecast : data[act].actual) : 0;
   return (
     <svg viewBox={`0 0 ${W} ${H}`} width="100%" height="100%" preserveAspectRatio="none" style={{ display: "block", overflow: "visible" }} onMouseLeave={() => setActive(firstF)}>
       <defs>
         <linearGradient id={`af${rid}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={STEEL} stopOpacity="0.22" /><stop offset="100%" stopColor={STEEL} stopOpacity="0" /></linearGradient>
         <clipPath id={`wipe${rid}`}><rect x="-4" y="0" width={W + 8} height={H} style={{ transformOrigin: "0px 0px", animation: `vmWipe ${REVEAL}ms cubic-bezier(.45,0,.15,1) both` }} /></clipPath>
       </defs>
-      {/* raised cream highlight column (static) */}
-      {act >= 0 && <rect x={X(act) - 25} y={PADT - 22} width={50} height={BY - PADT + 36} rx={25} fill={CREAM} style={{ animation: "vmFade .6s ease .5s both" }} />}
+      {/* raised cream highlight column — glides to the hovered month */}
+      {act >= 0 && (
+        <g style={{ animation: "vmFade .6s ease .4s both" }}>
+          <g style={{ transform: `translateX(${X(act)}px)`, transition: "transform .3s cubic-bezier(.22,1,.36,1)" }}>
+            <rect x={-25} y={PADT - 22} width={50} height={BY - PADT + 36} rx={25} fill={CREAM} />
+          </g>
+        </g>
+      )}
       {/* everything that "draws" is revealed left→right by the wipe clip */}
       <g clipPath={`url(#wipe${rid})`}>
         <path d={areaOf(actPts)} fill={`url(#af${rid})`} />
-        {/* stems */}
         {data.map((d, i) => { const v = d.is_forecast ? d.forecast : d.actual; if (v == null) return null; const x = X(i); return <line key={`s${i}`} x1={x} y1={BY} x2={x} y2={Y(v)} stroke={d.is_forecast ? "#dcdfe6" : "#e2e5eb"} strokeWidth="2" strokeLinecap="round" />; })}
-        {/* forecast uncertainty whiskers */}
         {data.map((d, i) => d.is_forecast ? <line key={`w${i}`} x1={X(i)} y1={Y(d.lower)} x2={X(i)} y2={Y(d.upper)} stroke={FAINT} strokeWidth="2.5" strokeLinecap="round" /> : null)}
-        {/* steel actual line — what really happened */}
         <path d={smooth(actPts)} fill="none" stroke={STEEL} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-        {/* accent model line — fitted over history, dashed into the future */}
         <path d={smooth(histModel)} fill="none" stroke={ACCENT} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.9" />
         <path d={smooth(futModel)} fill="none" stroke={ACCENT} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="1 7" />
+        {/* dots — revealed by the wipe, recolour smoothly on hover */}
+        {data.map((d, i) => {
+          const isF = d.is_forecast; const v = isF ? d.forecast : d.actual; if (v == null) return null;
+          const x = X(i), y = Y(v), isAct = i === act;
+          return <circle key={`d${i}`} cx={x} cy={y} r={isAct ? 6.5 : 5} fill={isAct ? INK : isF ? "#fff" : STEEL} stroke={isF && !isAct ? STEEL : "none"} strokeWidth={isF ? 2 : 0} style={{ transition: "r .18s ease, fill .18s ease" }} />;
+        })}
       </g>
-      {/* dots, tooltip & month labels — pop in synced to the wipe passing */}
-      {data.map((d, i) => {
-        const isF = d.is_forecast; const v = isF ? d.forecast : d.actual; if (v == null) return null;
-        const x = X(i), y = Y(v), isAct = i === act, dl = delayAt(x);
-        return (
-          <g key={i} onMouseEnter={() => setActive(i)} style={{ cursor: "pointer" }}>
-            <rect x={x - (W - 2 * PADX) / (n * 2)} y={0} width={(W - 2 * PADX) / n} height={H} fill="transparent" />
-            <circle cx={x} cy={y} r={isAct ? 6.5 : 5} fill={isAct ? INK : isF ? "#fff" : STEEL} stroke={isF && !isAct ? STEEL : "none"} strokeWidth={isF ? 2 : 0}
-              style={{ transformBox: "fill-box", transformOrigin: "center", animation: `vmPop .5s cubic-bezier(.34,1.5,.64,1) ${dl}ms both` }} />
-            {isAct && (
-              <g style={{ transformBox: "fill-box", transformOrigin: "center", animation: `vmUp .45s cubic-bezier(.22,1,.36,1) ${dl + 120}ms both` }}>
-                <rect x={x - 44} y={y - 42} width={88} height={26} rx={13} fill={INK} />
-                <text x={x} y={y - 24} textAnchor="middle" style={{ fontSize: 13, fontWeight: 700, fill: "#fff" }}>{countAbbr(v)}</text>
-              </g>
-            )}
-            {isAct
-              ? <g style={{ animation: `vmFade .4s ease ${dl}ms both` }}><rect x={x - 21} y={BY + 16} width={42} height={24} rx={12} fill={INK} /><text x={x} y={BY + 32} textAnchor="middle" style={{ fontSize: 11.5, fontWeight: 700, fill: "#fff" }}>{d.label}</text></g>
-              : <text x={x} y={BY + 32} textAnchor="middle" style={{ fontSize: 11.5, fontWeight: 500, fill: MUT, animation: `vmFade .4s ease ${dl}ms both` }}>{d.label}</text>}
+      {/* month labels — stable structure (no remount on hover), one-time fade-in */}
+      <g style={{ animation: "vmFade .6s ease 1.05s both" }}>
+        {data.map((d, i) => {
+          const x = X(i), isAct = i === act;
+          return (
+            <g key={`l${i}`}>
+              <rect x={x - 21} y={BY + 16} width={42} height={24} rx={12} fill={INK} style={{ opacity: isAct ? 1 : 0, transition: "opacity .2s ease" }} />
+              <text x={x} y={BY + 32} textAnchor="middle" style={{ fontSize: 11.5, fontWeight: isAct ? 700 : 500, fill: isAct ? "#fff" : MUT, transition: "fill .2s ease" }}>{d.label}</text>
+            </g>
+          );
+        })}
+      </g>
+      {/* value tooltip — one element that glides to the active month */}
+      {act >= 0 && (
+        <g style={{ animation: "vmFade .5s ease .95s both" }}>
+          <g style={{ transform: `translate(${X(act)}px, ${Y(actV)}px)`, transition: "transform .28s cubic-bezier(.22,1,.36,1)" }}>
+            <rect x={-44} y={-42} width={88} height={26} rx={13} fill={INK} />
+            <text x={0} y={-24} textAnchor="middle" style={{ fontSize: 13, fontWeight: 700, fill: "#fff" }}>{countAbbr(actV)}</text>
           </g>
-        );
-      })}
+        </g>
+      )}
+      {/* transparent hit columns on top — always interactive */}
+      {data.map((d, i) => <rect key={`h${i}`} x={X(i) - colW / 2} y={0} width={colW} height={H} fill="transparent" onMouseEnter={() => setActive(i)} style={{ cursor: "pointer" }} />)}
     </svg>
   );
 }
@@ -128,17 +139,18 @@ function Hero({ data }: { data: any }) {
         </div>
         <div className="flex items-center gap-1.5 rounded-full px-3.5 py-2 text-[12.5px] font-semibold flex-shrink-0" style={{ background: CREAM, color: INK2, border: `1px solid ${BORDER}` }}>Next {t.horizon ?? 3} months <TbChevronDown size={14} style={{ color: MUT }} /></div>
       </div>
-      <div className="flex-1 flex flex-col md:flex-row gap-2 px-4 pb-3 pt-2">
-        <div className="md:w-[220px] flex-shrink-0 flex flex-col justify-end px-3 pb-6">
-          <div className="text-[46px] font-extrabold leading-none tracking-tight tabular-nums" style={{ color: INK }}>{up ? "+" : "−"}<CountUp value={Math.abs(Math.round(delta))} format={(v: number) => `${Math.round(v)}%`} /></div>
-          <div className="text-[12.5px] mt-2 leading-relaxed" style={{ color: MUT }}>Next month's expected usage is <b style={{ color: INK2 }}>{Math.abs(Math.round(delta))}% {up ? "higher" : "lower"}</b> than last month.</div>
-          <div className="mt-5 pt-4 space-y-3" style={{ borderTop: `1px solid ${LINE}` }}>
-            <div><div className="text-[19px] font-bold tabular-nums" style={{ color: INK }}>{countAbbr(Number(t.next_lower ?? 0))}–{countAbbr(Number(t.next_upper ?? 0))}</div><div className="text-[11px] uppercase tracking-wide font-medium" style={{ color: MUT }}>likely range · units</div></div>
-            <div><div className="text-[19px] font-bold tabular-nums" style={{ color: INK }}>{Number(t.accuracy ?? 0).toFixed(0)}%</div><div className="text-[11px] uppercase tracking-wide font-medium" style={{ color: MUT }}>forecast reliability</div></div>
-          </div>
+      {/* stat row above the chart — lets the chart run edge-to-edge below */}
+      <div className="flex items-end gap-x-10 gap-y-3 flex-wrap px-7 pt-5 pb-1">
+        <div className="mr-2">
+          <div className="text-[44px] font-extrabold leading-none tracking-tight tabular-nums" style={{ color: INK }}>{up ? "+" : "−"}<CountUp value={Math.abs(Math.round(delta))} format={(v: number) => `${Math.round(v)}%`} /></div>
+          <div className="text-[12.5px] mt-2 leading-relaxed max-w-xs" style={{ color: MUT }}>Next month's expected usage is <b style={{ color: INK2 }}>{Math.abs(Math.round(delta))}% {up ? "higher" : "lower"}</b> than last month.</div>
         </div>
-        <div className="flex-1 min-w-0" style={{ minHeight: 300 }}><Lollipop timeline={tl} /></div>
+        <div className="flex items-end gap-x-10 pb-1 ml-auto">
+          <div><div className="text-[20px] font-bold tabular-nums leading-none" style={{ color: INK }}>{countAbbr(Number(t.next_lower ?? 0))}–{countAbbr(Number(t.next_upper ?? 0))}</div><div className="text-[11px] uppercase tracking-wide font-medium mt-1.5" style={{ color: MUT }}>likely range · units</div></div>
+          <div style={{ borderLeft: `1px solid ${LINE}`, paddingLeft: 40 }}><div className="text-[20px] font-bold tabular-nums leading-none" style={{ color: INK }}>{Number(t.accuracy ?? 0).toFixed(0)}%</div><div className="text-[11px] uppercase tracking-wide font-medium mt-1.5" style={{ color: MUT }}>forecast reliability</div></div>
+        </div>
       </div>
+      <div className="flex-1 min-w-0 px-3 pt-1" style={{ minHeight: 320 }}><Lollipop timeline={tl} /></div>
       <div className="flex items-center gap-5 px-7 pb-5 text-[11.5px] font-medium flex-wrap" style={{ color: MUT }}>
         <span className="inline-flex items-center gap-1.5"><span className="w-4 h-[3px] rounded-full" style={{ background: STEEL }} />Actual use</span>
         <span className="inline-flex items-center gap-1.5"><span className="w-4 h-[3px] rounded-full" style={{ background: ACCENT }} />Model &amp; forecast</span>
