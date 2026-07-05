@@ -3,7 +3,7 @@
 // demand page (for section consistency) but its OWN chart language: monthly spend
 // COLUMNS + a cumulative cash-out line (combo), a budget DONUT, a spend leaderboard,
 // and a TEAL money accent. Values are forecast consumption cost = cash to restock.
-import React, { useEffect, useState, useId } from "react";
+import React, { useEffect, useState } from "react";
 import { useRegion } from "@/context/RegionContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import { useMount, CountUp } from "@/components/portfolio/kit";
@@ -21,75 +21,59 @@ const inr = (v: number) => { v = Number(v) || 0; const a = Math.abs(v), s = v < 
 function Card({ children, className = "", style = {}, pad = "p-6" }: any) {
   return <div className={`vm-card rounded-[20px] ${pad} ${className}`} style={{ background: CARD, border: `1px solid ${BORDER}`, ...style }}>{children}</div>;
 }
-function smooth(pts: { x: number; y: number }[]) {
-  if (pts.length < 2) return ""; let d = `M ${pts[0].x} ${pts[0].y}`;
-  for (let i = 0; i < pts.length - 1; i++) { const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2; d += ` C ${p1.x + (p2.x - p0.x) / 6} ${p1.y + (p2.y - p0.y) / 6}, ${p2.x - (p3.x - p1.x) / 6} ${p2.y - (p3.y - p1.y) / 6}, ${p2.x} ${p2.y}`; }
-  return d;
-}
 const topBar = (x: number, y: number, w: number, h: number, r: number) => { r = Math.max(0, Math.min(r, w / 2, h)); return `M${x} ${y + h} L${x} ${y + r} Q${x} ${y} ${x + r} ${y} L${x + w - r} ${y} Q${x + w} ${y} ${x + w} ${y + r} L${x + w} ${y + h} Z`; };
 
-// Monthly spend columns (spent → forecast budget) + cumulative cash-out line.
-function SpendChart({ timeline, height = 306 }: { timeline: any[]; height?: number }) {
-  const rid = useId().replace(/[:]/g, "");
+// Simple, readable monthly spend bars: grey = already spent, teal = forecast
+// budget. Each bar labelled with its rupee value; a soft divider marks where the
+// forecast begins. No second axis, no whiskers — just "what we spend each month".
+function SpendChart({ timeline, height = 306, small = false }: { timeline: any[]; height?: number; small?: boolean }) {
   const data = timeline || [];
   const firstF = data.findIndex((d) => d.is_forecast);
   const [active, setActive] = useState<number>(-1);
-  useEffect(() => { setActive(firstF); }, [firstF, timeline]);
-  const W = 920, H = height, PADX = 50, PADT = 56, BY = H - 52;
+  const lastActIdx = data.map((d) => d.actual != null).lastIndexOf(true);
+  const W = 920, H = height, PADX = 52, PADT = 46, BY = H - 52;
   const n = data.length || 1;
   const step = (W - 2 * PADX) / Math.max(n - 1, 1);
   const X = (i: number) => PADX + i * step;
   const vals = data.flatMap((d) => [d.actual, d.forecast].filter((v) => v != null)) as number[];
-  const barMax = Math.max(...vals, 1) * 1.26;
+  const barMax = Math.max(...vals, 1) * 1.22;
   const Y = (v: number) => BY - (Math.min(Math.max(v, 0), barMax) / barMax) * (BY - PADT);
-  const cumVals = data.map((d) => d.cumulative).filter((v) => v != null) as number[];
-  const cumMax = Math.max(...cumVals, 1) * 1.08;
-  const Yc = (v: number) => BY - (Math.min(Math.max(v, 0), cumMax) / cumMax) * (BY - PADT);
   if (!data.length) return <div className="flex items-center justify-center" style={{ height: H, color: MUT }}>Loading…</div>;
-  const bw = Math.min(step * 0.46, 40);
-  const act = active >= 0 ? active : firstF;
-  const actV = data[act] ? (data[act].is_forecast ? data[act].forecast : data[act].actual) : 0;
-  const cumPts = data.map((d, i) => (d.cumulative != null ? { x: X(i), y: Yc(d.cumulative) } : null)).filter(Boolean) as { x: number; y: number }[];
-  const lastCum = data.filter((d) => d.cumulative != null).slice(-1)[0];
+  const bw = Math.min(step * 0.5, 44);
+  const act = active;
+  const divX = firstF > 0 ? (X(lastActIdx) + X(firstF)) / 2 : -100;
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} width="100%" height="100%" preserveAspectRatio="none" style={{ display: "block", overflow: "visible" }} onMouseLeave={() => setActive(firstF)}>
+    <svg viewBox={`0 0 ${W} ${H}`} width="100%" height="100%" preserveAspectRatio="none" style={{ display: "block", overflow: "visible" }} onMouseLeave={() => setActive(-1)}>
+      {/* forecast divider + tag */}
+      {firstF > 0 && (
+        <g style={{ animation: "vmFade .6s ease .5s both" }}>
+          <line x1={divX} y1={PADT - 18} x2={divX} y2={BY} stroke={FAINT} strokeWidth="1.5" strokeDasharray="4 5" />
+          <rect x={divX + 6} y={PADT - 28} width={64} height={19} rx={9.5} fill="#e2f2ef" />
+          <text x={divX + 38} y={PADT - 15} textAnchor="middle" style={{ fontSize: 10.5, fontWeight: 700, fill: TEALD, letterSpacing: 0.3 }}>FORECAST</text>
+        </g>
+      )}
       {/* baseline */}
-      <line x1={PADX - 10} y1={BY} x2={W - PADX + 10} y2={BY} stroke={LINE} strokeWidth="1.5" />
-      {/* columns */}
+      <line x1={PADX - 12} y1={BY} x2={W - PADX + 12} y2={BY} stroke={LINE} strokeWidth="1.5" />
+      {/* bars */}
       {data.map((d, i) => {
         const isF = d.is_forecast; const v = isF ? d.forecast : d.actual; if (v == null) return null;
         const x = X(i) - bw / 2, y = Y(v), h = BY - y, isAct = i === act;
         const fill = isF ? (isAct ? TEALD : TEAL) : (isAct ? "#8c95a8" : STEEL);
         return <path key={`b${i}`} d={topBar(x, y, bw, h, 7)} fill={fill} style={{ transformBox: "fill-box", transformOrigin: "bottom", animation: `vmGrow .7s cubic-bezier(.22,1,.36,1) ${120 + i * 70}ms both`, transition: "fill .18s ease" }} />;
       })}
-      {/* forecast range caps (I-beam) */}
-      {data.map((d, i) => { if (!d.is_forecast) return null; const x = X(i); return (
-        <g key={`c${i}`} style={{ animation: `vmFade .5s ease ${700 + i * 70}ms both` }}>
-          <line x1={x} y1={Y(d.lower)} x2={x} y2={Y(d.upper)} stroke={TEALD} strokeWidth="1.6" opacity="0.55" />
-          <line x1={x - 6} y1={Y(d.upper)} x2={x + 6} y2={Y(d.upper)} stroke={TEALD} strokeWidth="1.6" opacity="0.55" />
-          <line x1={x - 6} y1={Y(d.lower)} x2={x + 6} y2={Y(d.lower)} stroke={TEALD} strokeWidth="1.6" opacity="0.55" />
-        </g>); })}
-      {/* cumulative cash-out line (secondary scale) */}
-      <path d={smooth(cumPts)} fill="none" stroke={TEALD} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="1" pathLength={1} style={{ animation: "vmDraw 1s cubic-bezier(.5,0,.2,1) 1s both" }} />
-      {cumPts.map((p, i) => <circle key={`cp${i}`} cx={p.x} cy={p.y} r={4} fill="#fff" stroke={TEALD} strokeWidth={2} style={{ animation: `vmPop .4s cubic-bezier(.34,1.5,.64,1) ${1200 + i * 140}ms both`, transformBox: "fill-box", transformOrigin: "center" }} />)}
-      {lastCum && <g style={{ animation: "vmFade .5s ease 1.7s both" }}><rect x={X(n - 1) - 74} y={Yc(lastCum.cumulative) - 30} width={70} height={22} rx={11} fill={TEALD} /><text x={X(n - 1) - 39} y={Yc(lastCum.cumulative) - 15} textAnchor="middle" style={{ fontSize: 11.5, fontWeight: 700, fill: "#fff" }}>{inr(lastCum.cumulative)}</text></g>}
-      {/* month labels — stable structure */}
-      <g style={{ animation: "vmFade .6s ease 1.05s both" }}>
+      {/* value labels above each bar */}
+      {!small && data.map((d, i) => {
+        const isF = d.is_forecast; const v = isF ? d.forecast : d.actual; if (v == null) return null;
+        return <text key={`v${i}`} x={X(i)} y={Y(v) - 10} textAnchor="middle" style={{ fontSize: 11.5, fontWeight: 700, fill: isF ? TEALD : INK2, animation: `vmFade .5s ease ${520 + i * 70}ms both` }}>{inr(v)}</text>;
+      })}
+      {/* month labels */}
+      <g style={{ animation: "vmFade .6s ease .9s both" }}>
         {data.map((d, i) => { const x = X(i), isAct = i === act; return (
           <g key={`l${i}`}>
             <rect x={x - 21} y={BY + 16} width={42} height={24} rx={12} fill={INK} style={{ opacity: isAct ? 1 : 0, transition: "opacity .2s ease" }} />
             <text x={x} y={BY + 32} textAnchor="middle" style={{ fontSize: 11.5, fontWeight: isAct ? 700 : 500, fill: isAct ? "#fff" : MUT, transition: "fill .2s ease" }}>{d.label}</text>
           </g>); })}
       </g>
-      {/* value tooltip — glides to active month */}
-      {act >= 0 && (
-        <g style={{ animation: "vmFade .5s ease .95s both" }}>
-          <g style={{ transform: `translate(${X(act)}px, ${Y(actV)}px)`, transition: "transform .28s cubic-bezier(.22,1,.36,1)" }}>
-            <rect x={-46} y={-42} width={92} height={26} rx={13} fill={INK} />
-            <text x={0} y={-24} textAnchor="middle" style={{ fontSize: 12.5, fontWeight: 700, fill: "#fff" }}>{inr(actV)}</text>
-          </g>
-        </g>
-      )}
       {/* hit columns */}
       {data.map((d, i) => <rect key={`h${i}`} x={X(i) - step / 2} y={0} width={step} height={H} fill="transparent" onMouseEnter={() => setActive(i)} style={{ cursor: "pointer" }} />)}
     </svg>
@@ -126,8 +110,8 @@ function Hero({ data }: { data: any }) {
       <div className="flex items-center gap-5 px-7 pb-5 text-[11.5px] font-medium flex-wrap" style={{ color: MUT }}>
         <span className="inline-flex items-center gap-1.5"><span className="w-3 h-2.5 rounded-[3px]" style={{ background: STEEL }} />Already spent</span>
         <span className="inline-flex items-center gap-1.5"><span className="w-3 h-2.5 rounded-[3px]" style={{ background: TEAL }} />Forecast budget</span>
-        <span className="inline-flex items-center gap-1.5"><span className="w-0.5 h-3 rounded-full" style={{ background: TEALD, opacity: 0.6 }} />Best–worst range</span>
-        <span className="inline-flex items-center gap-1.5"><span className="w-4 h-[3px] rounded-full" style={{ background: TEALD }} />Cumulative cash-out</span>
+        <span style={{ color: FAINT }}>·</span>
+        <span>each bar = the cash you'll spend that month</span>
       </div>
     </Card>
   );
