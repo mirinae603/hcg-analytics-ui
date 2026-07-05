@@ -1,0 +1,5382 @@
+[
+  {
+    "Material": "403112",
+    "Material Description": "LETTER HEAD (HOSPITAL) -GEN"
+  },
+  {
+    "Material": "303002",
+    "Material Description": "FDG CONSUMABLES SET"
+  },
+  {
+    "Material": "414623",
+    "Material Description": "PAPER CUP 75ML PLAIN-GEN"
+  },
+  {
+    "Material": "414622",
+    "Material Description": "PAPER CUP 100ML PLAIN-GEN"
+  },
+  {
+    "Material": "302980",
+    "Material Description": "FACE MASK LOOP-GEN"
+  },
+  {
+    "Material": "408665",
+    "Material Description": "PAPER CUP 200ML"
+  },
+  {
+    "Material": "412585",
+    "Material Description": "HIGH ALERT STICKER PINK(1 CM DIA)-GEN"
+  },
+  {
+    "Material": "402738",
+    "Material Description": "IN PATIENT PROGRESS NOTES -GEN"
+  },
+  {
+    "Material": "305803",
+    "Material Description": "MICROCENTER FUGE TUBE -GEN"
+  },
+  {
+    "Material": "302198",
+    "Material Description": "DISP SURGEON CAP FEMALE-RK"
+  },
+  {
+    "Material": "311815",
+    "Material Description": "TISSUE CASSETTE-WHITE 1X500"
+  },
+  {
+    "Material": "401614",
+    "Material Description": "DISPOSABLE GLASS 300ML -GEN"
+  },
+  {
+    "Material": "404250",
+    "Material Description": "PLASTIC PROTECTOR SHEET -GEN"
+  },
+  {
+    "Material": "401581",
+    "Material Description": "DIET ORDER SHEET -GEN"
+  },
+  {
+    "Material": "410305",
+    "Material Description": "STICKER BARCODE(A4) IPD-GEN"
+  },
+  {
+    "Material": "410710",
+    "Material Description": "FORM-EARLY WARNING SCORE"
+  },
+  {
+    "Material": "308466",
+    "Material Description": "SYRINGE WITH NEEDLE 10ML-BD"
+  },
+  {
+    "Material": "403110",
+    "Material Description": "LETTER HEAD (H.C.G) -GEN"
+  },
+  {
+    "Material": "411860",
+    "Material Description": "SILVER POUCH 5X8"
+  },
+  {
+    "Material": "316844",
+    "Material Description": "EDTA TUBE K2 2ML-GEN"
+  },
+  {
+    "Material": "403894",
+    "Material Description": "PAMPHLET -GEN"
+  },
+  {
+    "Material": "407785",
+    "Material Description": "VISITING CARD -GEN"
+  },
+  {
+    "Material": "300493",
+    "Material Description": "AQUAFINA WATER 1000ML-GEN"
+  },
+  {
+    "Material": "314577",
+    "Material Description": "CLOT ACTIVATOR SAFETY BIOTEC-100TUBES"
+  },
+  {
+    "Material": "410233",
+    "Material Description": "FORM-NUTRITION MONITORING IPD/13A"
+  },
+  {
+    "Material": "302201",
+    "Material Description": "DISP SURGEON CAP-GEN"
+  },
+  {
+    "Material": "313900",
+    "Material Description": "BLOOD GLUCO STRIPS-ALERE"
+  },
+  {
+    "Material": "410235",
+    "Material Description": "FORM-NUTRITION MONITORING IPD/13C"
+  },
+  {
+    "Material": "410234",
+    "Material Description": "FORM-NUTRITION MONITORING IPD/13B"
+  },
+  {
+    "Material": "410677",
+    "Material Description": "SHEET-TREATMENT"
+  },
+  {
+    "Material": "403967",
+    "Material Description": "PATIENT ASSESSMENT FORM -GEN"
+  },
+  {
+    "Material": "401615",
+    "Material Description": "DISPOSABLE GLASS 90ML -GEN"
+  },
+  {
+    "Material": "308488",
+    "Material Description": "SYRINGE WITH NEEDLE 5ML-BD"
+  },
+  {
+    "Material": "411694",
+    "Material Description": "SHEET-DRUG PREPARATION"
+  },
+  {
+    "Material": "402168",
+    "Material Description": "FOLDER BAG FOR PET CT -GEN"
+  },
+  {
+    "Material": "403978",
+    "Material Description": "PATIENT FILE -GEN"
+  },
+  {
+    "Material": "409314",
+    "Material Description": "RIA TEST TUBES"
+  },
+  {
+    "Material": "413317",
+    "Material Description": "SHEET-HCG PATIENT FACT"
+  },
+  {
+    "Material": "308478",
+    "Material Description": "SYRINGE WITH NEEDLE 2ML-BD"
+  },
+  {
+    "Material": "409534",
+    "Material Description": "MINERAL WATER 200ML"
+  },
+  {
+    "Material": "410237",
+    "Material Description": "STICKER FOR IV SOLUTION ADDITIVES"
+  },
+  {
+    "Material": "302978",
+    "Material Description": "FACE MASK 3PLY-3M"
+  },
+  {
+    "Material": "412424",
+    "Material Description": "FORM-INTRA HOSPITAL PATIENT TRANSFER"
+  },
+  {
+    "Material": "403395",
+    "Material Description": "MEDICATION ADMINISTRATION RECORD -GEN"
+  },
+  {
+    "Material": "313906",
+    "Material Description": "MEDIPRESS WRIST BAND-XL"
+  },
+  {
+    "Material": "411788",
+    "Material Description": "FORM-CONSENT FOR BLOOD TEST"
+  },
+  {
+    "Material": "408860",
+    "Material Description": "CONSENT FOR CT / PET CT"
+  },
+  {
+    "Material": "404343",
+    "Material Description": "ENVELOP PLASTIC 9X4"
+  },
+  {
+    "Material": "412911",
+    "Material Description": "FORM8-BILLING DISCOUNT AUTHORIZATION NON"
+  },
+  {
+    "Material": "410287",
+    "Material Description": "FORM-NURS INITIAL ASSESMENT&REASSESSMENT"
+  },
+  {
+    "Material": "312210",
+    "Material Description": "URINE CONTAINER STERILE-30ML-GEN"
+  },
+  {
+    "Material": "403754",
+    "Material Description": "NUTRITIONAL ASSESSMENT SCREENING FORM"
+  },
+  {
+    "Material": "300667",
+    "Material Description": "BAND AID ROUND-J&J"
+  },
+  {
+    "Material": "402560",
+    "Material Description": "HISTORY SHEET -GEN"
+  },
+  {
+    "Material": "400983",
+    "Material Description": "CHEMOTHERAPY CONSENT FORM-NEW FORMAT"
+  },
+  {
+    "Material": "308494",
+    "Material Description": "SYRINGE DISCARDIT WITH NEEDLE 20ML-BD"
+  },
+  {
+    "Material": "409636",
+    "Material Description": "STICKER ROUND SMALL"
+  },
+  {
+    "Material": "407322",
+    "Material Description": "TISSUE PAPER -GEN"
+  },
+  {
+    "Material": "406310",
+    "Material Description": "RECORDERS FOR DAY CARE -GEN"
+  },
+  {
+    "Material": "400129",
+    "Material Description": "ALERT STICKER -GEN"
+  },
+  {
+    "Material": "306143",
+    "Material Description": "PLASTIC APRON-GEN"
+  },
+  {
+    "Material": "310507",
+    "Material Description": "STERILE SWAB STICK"
+  },
+  {
+    "Material": "300275",
+    "Material Description": "ALCOHOL SWAB-BD"
+  },
+  {
+    "Material": "308699",
+    "Material Description": "THREE WAY STOPCOCK CONNECTOR-EV3"
+  },
+  {
+    "Material": "401506",
+    "Material Description": "DEATH REPORT FOR BROUGHT DEAD -GEN"
+  },
+  {
+    "Material": "414390",
+    "Material Description": "FORM FOR PATIENT AND FAMILY EDUC"
+  },
+  {
+    "Material": "412599",
+    "Material Description": "CONSENT-FOR MRI SCAN"
+  },
+  {
+    "Material": "315373",
+    "Material Description": "WRAPING SHEET 50GSM 80X80CM-GEN"
+  },
+  {
+    "Material": "401608",
+    "Material Description": "DISCHARGE PLANNING SHEET -GEN"
+  },
+  {
+    "Material": "413372",
+    "Material Description": "FORM-HISTOPATOLOGY REQUISTION"
+  },
+  {
+    "Material": "302489",
+    "Material Description": "EASY FIX-DYNAMIC"
+  },
+  {
+    "Material": "402555",
+    "Material Description": "HISTORY & PHYSICAL EXAMINATION ADULT-GEN"
+  },
+  {
+    "Material": "410288",
+    "Material Description": "FORM-INVESTIGATION PROCED&CONSULTANT REC"
+  },
+  {
+    "Material": "311349",
+    "Material Description": "GASTROSCAN SOLUTION 30ML-GEN"
+  },
+  {
+    "Material": "410238",
+    "Material Description": "CHECKLIST-ADMISSION PROCESS&ORIENTATION"
+  },
+  {
+    "Material": "401794",
+    "Material Description": "DVD BLANK -GEN"
+  },
+  {
+    "Material": "403933",
+    "Material Description": "PAPER TRAY -GEN"
+  },
+  {
+    "Material": "402712",
+    "Material Description": "ICU CHART BIG -GEN"
+  },
+  {
+    "Material": "401421",
+    "Material Description": "FORM-ALTERNATIVE SITE MARKING"
+  },
+  {
+    "Material": "411116",
+    "Material Description": "FORM-WOUND CERTIFICATE"
+  },
+  {
+    "Material": "410506",
+    "Material Description": "INFORMED CONSENT ENGLISH -GEN"
+  },
+  {
+    "Material": "401725",
+    "Material Description": "FORM-ADVERSE EVENTS IN ANESTHESIA"
+  },
+  {
+    "Material": "409806",
+    "Material Description": "MEDICATION RECONCILIATION FORM-HCG/MUM/D"
+  },
+  {
+    "Material": "412910",
+    "Material Description": "FORM7- BILLING DISCOUNT AUTHORIZATION AS"
+  },
+  {
+    "Material": "320838",
+    "Material Description": "EDTA TUBE K2 TUBES 10ML VACCUME-LABTECH"
+  },
+  {
+    "Material": "410378",
+    "Material Description": "SHEET-OT REPLACEMENT"
+  },
+  {
+    "Material": "400452",
+    "Material Description": "FORM-DVT RISK ASSESSMENT"
+  },
+  {
+    "Material": "303625",
+    "Material Description": "GAUZE SWAB 7.5X7.5CM-DATT"
+  },
+  {
+    "Material": "400256",
+    "Material Description": "BATHROOM CHECK LIST -GEN"
+  },
+  {
+    "Material": "702680",
+    "Material Description": "SODIUM CRIT.(BLUE TUBE)-3ML"
+  },
+  {
+    "Material": "411283",
+    "Material Description": "FORM-OPERATION THERATRE CLEARANCE"
+  },
+  {
+    "Material": "410372",
+    "Material Description": "FORM-FEEDBACK FOR IPD(MARATHI)"
+  },
+  {
+    "Material": "402050",
+    "Material Description": "FEEDBACK FORM FOR INPATIENT -GEN"
+  },
+  {
+    "Material": "414794",
+    "Material Description": "DEFICIENCY CHECKLIST - ACTIVE FILE AUDIT"
+  },
+  {
+    "Material": "410350",
+    "Material Description": "FORM-HIGH RISK MEDICATION MONITORING"
+  },
+  {
+    "Material": "413091",
+    "Material Description": "FILE-MEDICLAIM DEPARTMENT"
+  },
+  {
+    "Material": "411061",
+    "Material Description": "FORM-CONSENT FOR MAMOGRAPHY"
+  },
+  {
+    "Material": "407087",
+    "Material Description": "SURGICAL SAFETY CHECK LIST -GEN"
+  },
+  {
+    "Material": "311021",
+    "Material Description": "WRAPP SHEET NW SMS 50GSM 100X100CM-GEN"
+  },
+  {
+    "Material": "309426",
+    "Material Description": "VENFLON 20G-BD"
+  },
+  {
+    "Material": "307158",
+    "Material Description": "SCALP VEIN SET 20G-ROMSONS"
+  },
+  {
+    "Material": "401253",
+    "Material Description": "CONSENT FOR TESTING FOR HIV -GEN"
+  },
+  {
+    "Material": "308305",
+    "Material Description": "SURGICAL BLADE NO.22-GEN"
+  },
+  {
+    "Material": "400836",
+    "Material Description": "CD-GEN"
+  },
+  {
+    "Material": "404028",
+    "Material Description": "PEN (USE & THROW) -GEN"
+  },
+  {
+    "Material": "403752",
+    "Material Description": "NUTRITION SCREENING FORM -GEN"
+  },
+  {
+    "Material": "310481",
+    "Material Description": "BLOOD LANCET(IMP)-SD"
+  },
+  {
+    "Material": "409495",
+    "Material Description": "ZIP LOCK COVER 5X7\" (100'S) -GEN"
+  },
+  {
+    "Material": "409857",
+    "Material Description": "PRE ANAESTHESIA EVALUATION FORM"
+  },
+  {
+    "Material": "404350",
+    "Material Description": "PRE OPERATIVE CHECK LIST -GEN"
+  },
+  {
+    "Material": "413181",
+    "Material Description": "REQUISTION FORM-CYTOLOGY"
+  },
+  {
+    "Material": "403735",
+    "Material Description": "NURSING INITIAL ASSESMENT FORM -GEN"
+  },
+  {
+    "Material": "400834",
+    "Material Description": "CD COVER -GEN"
+  },
+  {
+    "Material": "414795",
+    "Material Description": "DEFICIENCY CHECKLIST- PASSIVE FILE AUDIT"
+  },
+  {
+    "Material": "208115",
+    "Material Description": "NS (DENIS) 0.9% INJ 100ML GB"
+  },
+  {
+    "Material": "402051",
+    "Material Description": "FEEDBACK FORM FOR OPD -GEN"
+  },
+  {
+    "Material": "315895",
+    "Material Description": "CONTRAPAQUE 350MG 200ML-UNIMED"
+  },
+  {
+    "Material": "412405",
+    "Material Description": "FORM-CARDIOVAS EVALUATION NONCARDIAN SUR"
+  },
+  {
+    "Material": "308755",
+    "Material Description": "TISSUE PAPER ROLL-GEN"
+  },
+  {
+    "Material": "410281",
+    "Material Description": "FORM-ELECTROCARDIOGRAM"
+  },
+  {
+    "Material": "313977",
+    "Material Description": "STEAM INDICATOR-TYPE 6-GKE C-S-P-6SV1"
+  },
+  {
+    "Material": "310030",
+    "Material Description": "NITRILE GLOVES MEDIUM-ROMSONS"
+  },
+  {
+    "Material": "408010",
+    "Material Description": "XEROX PAPER A4 SIZE -GEN"
+  },
+  {
+    "Material": "401210",
+    "Material Description": "CONFERENCE PAD -GEN"
+  },
+  {
+    "Material": "315154",
+    "Material Description": "BLOOD COLLECTION TUBE 3.5ML-KRUPA"
+  },
+  {
+    "Material": "410672",
+    "Material Description": "FORM-FITNESS FOR SURGERY/PROCEDURE"
+  },
+  {
+    "Material": "402171",
+    "Material Description": "FOLDER PLASTIC WITH FLAP (LARGE) -GEN"
+  },
+  {
+    "Material": "408849",
+    "Material Description": "CONSENT FOR SURGICAL PROCEDURE"
+  },
+  {
+    "Material": "401939",
+    "Material Description": "ENVELOPE COVER (GREEN) A3 SIZE -GEN"
+  },
+  {
+    "Material": "308286",
+    "Material Description": "SURGICAL BLADE NO.11-GEN"
+  },
+  {
+    "Material": "303569",
+    "Material Description": "GAMMEX GLOVES POW SIZE.7.5-ANSEL"
+  },
+  {
+    "Material": "401259",
+    "Material Description": "CONSENT FORM -GEN"
+  },
+  {
+    "Material": "412987",
+    "Material Description": "CAT 6 NETWORKING CABLE-D-LINK"
+  },
+  {
+    "Material": "413300",
+    "Material Description": "FORM-PHLEBITIS PREVENTION TRACKER"
+  },
+  {
+    "Material": "406649",
+    "Material Description": "SERVICES PROVIDE TO PATIENT -GEN"
+  },
+  {
+    "Material": "315835",
+    "Material Description": "COVER SLIP 22X60MM-GEN"
+  },
+  {
+    "Material": "301818",
+    "Material Description": "COVER SLIP 22X50MM-GEN"
+  },
+  {
+    "Material": "309427",
+    "Material Description": "VENFLON 22G-BD"
+  },
+  {
+    "Material": "408932",
+    "Material Description": "SAMMTI PATRAK FORM"
+  },
+  {
+    "Material": "403807",
+    "Material Description": "OPERATIVE NOTES -GEN"
+  },
+  {
+    "Material": "407274",
+    "Material Description": "THERMAL PRINTER PAPER ROLL-60MM"
+  },
+  {
+    "Material": "213125",
+    "Material Description": "WATER FOR INJ 10ML AMP"
+  },
+  {
+    "Material": "316541",
+    "Material Description": "GADOMAX INJ 10ML VIAL-GENETEK"
+  },
+  {
+    "Material": "309862",
+    "Material Description": "BACTORUB 500ML BOTTLE"
+  },
+  {
+    "Material": "401245",
+    "Material Description": "CNSNT FOR MAJOR SURGL PRCDRE FORM-GEN"
+  },
+  {
+    "Material": "306041",
+    "Material Description": "PFT MOUTH PIECE-AIRWAYS"
+  },
+  {
+    "Material": "308808",
+    "Material Description": "TONGUE DEPRESSOR WOODEN-GEN"
+  },
+  {
+    "Material": "410720",
+    "Material Description": "GARBAGE BAG BLACK 20X24"
+  },
+  {
+    "Material": "313895",
+    "Material Description": "MEDITAPE (310)-JMS"
+  },
+  {
+    "Material": "304125",
+    "Material Description": "HAND BAG-GEN"
+  },
+  {
+    "Material": "314582",
+    "Material Description": "SLIDE FROSTED BLUESTAR 1BOX"
+  },
+  {
+    "Material": "305775",
+    "Material Description": "KAFAN CLOTH FOR DEAD BODY-GEN"
+  },
+  {
+    "Material": "302190",
+    "Material Description": "DISP NEEDLE 26GX1.5\"-BD"
+  },
+  {
+    "Material": "401747",
+    "Material Description": "DURACELL AA"
+  },
+  {
+    "Material": "401247",
+    "Material Description": "CNSNT FOR OF BLOOD/BLOOD COMPNTS TRNSFSN"
+  },
+  {
+    "Material": "308295",
+    "Material Description": "SURGICAL BLADE NO.15-GEN"
+  },
+  {
+    "Material": "408998",
+    "Material Description": "SURGICAL SITE INFECTION FORM A4"
+  },
+  {
+    "Material": "403301",
+    "Material Description": "MARKER (CD) -GEN"
+  },
+  {
+    "Material": "307721",
+    "Material Description": "SPINAL NEEDLE 18G-BD"
+  },
+  {
+    "Material": "311853",
+    "Material Description": "HBSAG HEPACARD - 100 TEST -J.MITRA"
+  },
+  {
+    "Material": "411859",
+    "Material Description": "SILVER POUCH 7X9"
+  },
+  {
+    "Material": "410541",
+    "Material Description": "MINERAL WATER 500ML"
+  },
+  {
+    "Material": "325962",
+    "Material Description": "UTI AGAR PLATE-CHETANA"
+  },
+  {
+    "Material": "409637",
+    "Material Description": "COTTON HAND BAG 12 X 13"
+  },
+  {
+    "Material": "410600",
+    "Material Description": "DEFICIENCY CHECK LIST FOR DISCHARGE FILE"
+  },
+  {
+    "Material": "706266",
+    "Material Description": "QUALPRO HCV 50TEST-TULIP"
+  },
+  {
+    "Material": "403994",
+    "Material Description": "PATIENT REGISTRATION FORM -GEN"
+  },
+  {
+    "Material": "400121",
+    "Material Description": "AIR FRESHNER TIN (CONCORD) -GEN"
+  },
+  {
+    "Material": "400790",
+    "Material Description": "CASE SHEET FOR EMERGENCY PATIENTS -GEN"
+  },
+  {
+    "Material": "409570",
+    "Material Description": "EMPLOYEE TRAINING CARD"
+  },
+  {
+    "Material": "407395",
+    "Material Description": "TONER POWDER -GEN"
+  },
+  {
+    "Material": "408823",
+    "Material Description": "CNSNT USE OF GENERAL ANAESTHESIA(K)"
+  },
+  {
+    "Material": "410222",
+    "Material Description": "GARBAGE BAG YELLOW 33X24"
+  },
+  {
+    "Material": "401748",
+    "Material Description": "DURACELL AAA"
+  },
+  {
+    "Material": "414062",
+    "Material Description": "GARBAGE BAGS BLACK-30X40-GEN"
+  },
+  {
+    "Material": "414627",
+    "Material Description": "WOODEN SPOON(BIG)-GEN"
+  },
+  {
+    "Material": "214532",
+    "Material Description": "LASIX 40MG INJ 4ML AMP"
+  },
+  {
+    "Material": "410220",
+    "Material Description": "GARBAGE BAG BLACK 24X33"
+  },
+  {
+    "Material": "307678",
+    "Material Description": "RETROQUICK HIV TEST KIT 100TEST -TULIP"
+  },
+  {
+    "Material": "307156",
+    "Material Description": "SCALP VEIN SET 18G-ROMSONS"
+  },
+  {
+    "Material": "311175",
+    "Material Description": "EXTENSION TUBE 150CM S.HEAD-MEDRAD"
+  },
+  {
+    "Material": "408647",
+    "Material Description": "PHYSIOTHERAPY ASSESSMENT FORM"
+  },
+  {
+    "Material": "401788",
+    "Material Description": "DUSTER -GEN"
+  },
+  {
+    "Material": "301398",
+    "Material Description": "CHEST LEAD ADULT-3M"
+  },
+  {
+    "Material": "705621",
+    "Material Description": "HIV REAG 100TEST PACK-GEN"
+  },
+  {
+    "Material": "406925",
+    "Material Description": "STAPLER PIN SMALL -KANGAROO"
+  },
+  {
+    "Material": "410218",
+    "Material Description": "GARBAGE BAG RED 24X33"
+  },
+  {
+    "Material": "409761",
+    "Material Description": "ANTI SKID DOOR MAT 2X4"
+  },
+  {
+    "Material": "410221",
+    "Material Description": "GARBAGE BAG YELLOW 18X24"
+  },
+  {
+    "Material": "400504",
+    "Material Description": "BOX FILE BIG-GEN"
+  },
+  {
+    "Material": "325966",
+    "Material Description": "SABORAUD'S CHLROMPHENI DEXT AGAR PLATE-C"
+  },
+  {
+    "Material": "406884",
+    "Material Description": "SPRING FILE -GEN"
+  },
+  {
+    "Material": "400154",
+    "Material Description": "ANAESTHESIA RECORD -GEN"
+  },
+  {
+    "Material": "305931",
+    "Material Description": "PATIENT KIT POUCH -GEN"
+  },
+  {
+    "Material": "403953",
+    "Material Description": "PASS FOR VISITOR ATTENDOR &SPECIAL -GEN"
+  },
+  {
+    "Material": "403386",
+    "Material Description": "MEDICAL EMERGENCY/ARREST EVENT RECORD"
+  },
+  {
+    "Material": "410308",
+    "Material Description": "FORM-DOCTOR INITIAL CLINICAL ASSESMENT"
+  },
+  {
+    "Material": "413073",
+    "Material Description": "FORM-PSYCHO-ONCOLOGY PROGRESS NOTE"
+  },
+  {
+    "Material": "410377",
+    "Material Description": "NCCN DISTRESS THRMOMETRE&PROBLEM LIST"
+  },
+  {
+    "Material": "410696",
+    "Material Description": "FORM-ADVERSE DRUG REACTION REPORTING"
+  },
+  {
+    "Material": "307732",
+    "Material Description": "SPINAL NEEDLE 23G-BD"
+  },
+  {
+    "Material": "402434",
+    "Material Description": "HAND TOWEL -GEN"
+  },
+  {
+    "Material": "411077",
+    "Material Description": "GLOSSY PAPER 180GSMX50 -GEN"
+  },
+  {
+    "Material": "400738",
+    "Material Description": "CARD HOLDER -GEN"
+  },
+  {
+    "Material": "318614",
+    "Material Description": "VIV-BUTROL INJ 5ML VIAL"
+  },
+  {
+    "Material": "307357",
+    "Material Description": "SHOES COVERS-ROMSONS"
+  },
+  {
+    "Material": "410569",
+    "Material Description": "CD PRINTED WITH HOSPITAL LOGO"
+  },
+  {
+    "Material": "409970",
+    "Material Description": "HIGH RISK CONSENT FORM"
+  },
+  {
+    "Material": "306331",
+    "Material Description": "PREGTEST STRIP-GEN"
+  },
+  {
+    "Material": "403998",
+    "Material Description": "PATIENT VALUABLE FORM -GEN"
+  },
+  {
+    "Material": "400083",
+    "Material Description": "ADHENSIVE TAP -GEN"
+  },
+  {
+    "Material": "313596",
+    "Material Description": "DERMARK SKIN MARKER-ROMSONS"
+  },
+  {
+    "Material": "311136",
+    "Material Description": "CYTOLOGY BRUSH-GEN"
+  },
+  {
+    "Material": "412703",
+    "Material Description": "I-CARD RIBBON-GEN"
+  },
+  {
+    "Material": "400664",
+    "Material Description": "CABLE TIE 100MM -GEN"
+  },
+  {
+    "Material": "313155",
+    "Material Description": "MEDRAD SYRINGE 190ML (ZY6322)"
+  },
+  {
+    "Material": "302471",
+    "Material Description": "DYNAPLAST 10CM-3M"
+  },
+  {
+    "Material": "401229",
+    "Material Description": "CONNECTOR RJ45 -GEN"
+  },
+  {
+    "Material": "414564",
+    "Material Description": "MULTICORE 2.50X4C CU FLEX CABLE-GEN"
+  },
+  {
+    "Material": "407023",
+    "Material Description": "SUBJECTIVE OBJECTIVE ASS PLANFORM-GEN"
+  },
+  {
+    "Material": "308493",
+    "Material Description": "SYRINGE DISCARDIT WITH NEEDLE 10ML-BD"
+  },
+  {
+    "Material": "308310",
+    "Material Description": "VIRUCHECK HBSAG CARD TEST (25'S) -GEN"
+  },
+  {
+    "Material": "412432",
+    "Material Description": "CARD-SPOT RECONGNIZATION SAMPLE"
+  },
+  {
+    "Material": "312165",
+    "Material Description": "HEPARINE TUBES -JK"
+  },
+  {
+    "Material": "408070",
+    "Material Description": "AMPULE CUTTER STAINLESS STEEL -GEN"
+  },
+  {
+    "Material": "411311",
+    "Material Description": "DISH WASH LIQUID 1LTR-GEN"
+  },
+  {
+    "Material": "308503",
+    "Material Description": "SYRINGE LUER LOCK 10ML-BD"
+  },
+  {
+    "Material": "410290",
+    "Material Description": "FORM-NONDANI ARJ(MARATHI) -FORM"
+  },
+  {
+    "Material": "314426",
+    "Material Description": "CLARISCAN INJ 10ML PFS-GE"
+  },
+  {
+    "Material": "300636",
+    "Material Description": "BACILLOL SPRAY 250ML-RAMAN & WEIL"
+  },
+  {
+    "Material": "410577",
+    "Material Description": "RFID CARD-GEN"
+  },
+  {
+    "Material": "411501",
+    "Material Description": "MAGNETIC ROD FOR PRINTER 12A-GEN"
+  },
+  {
+    "Material": "406973",
+    "Material Description": "STICK NOTES (THREE COLOUR) -GEN"
+  },
+  {
+    "Material": "407861",
+    "Material Description": "WET MOP REFILL -GEN"
+  },
+  {
+    "Material": "306751",
+    "Material Description": "RAMADINE 5% 500ML-RAMAN & WEIL"
+  },
+  {
+    "Material": "300974",
+    "Material Description": "BOWIE DICK TEST-PHARMALABEL"
+  },
+  {
+    "Material": "411499",
+    "Material Description": "DOCTOR BLADE FOR PRINTER 12A-GEN"
+  },
+  {
+    "Material": "406336",
+    "Material Description": "REGISTER 200PAGE -GEN"
+  },
+  {
+    "Material": "217436",
+    "Material Description": "BEVAC-B 20MCG INJ 1ML VIAL"
+  },
+  {
+    "Material": "402978",
+    "Material Description": "L FOLDER A/4 -GEN"
+  },
+  {
+    "Material": "302423",
+    "Material Description": "DTPA KIT-DRAXIMAGE"
+  },
+  {
+    "Material": "400141",
+    "Material Description": "ALUMINIUM FOIL -GEN"
+  },
+  {
+    "Material": "302183",
+    "Material Description": "DISPOSABLE NEEDLE 18G-BD"
+  },
+  {
+    "Material": "401786",
+    "Material Description": "DUSTER CLOTH -GEN"
+  },
+  {
+    "Material": "402019",
+    "Material Description": "FACE TISSUE -PREMIER"
+  },
+  {
+    "Material": "309975",
+    "Material Description": "COTTON ROLL 500 GM-GEN"
+  },
+  {
+    "Material": "411201",
+    "Material Description": "BATTERY 12V/65AH-GEN"
+  },
+  {
+    "Material": "314833",
+    "Material Description": "DISTILLED WATER 1LTR"
+  },
+  {
+    "Material": "205680",
+    "Material Description": "LOX 2% INJ 30ML VIAL"
+  },
+  {
+    "Material": "407192",
+    "Material Description": "TASKI (R7) FLOOR CLEANER 5LTR-GEN"
+  },
+  {
+    "Material": "315731",
+    "Material Description": "STERIL WATER 10ML-GEN"
+  },
+  {
+    "Material": "401831",
+    "Material Description": "ECG ROLL DEFIBRILLATOR -GEN"
+  },
+  {
+    "Material": "326583",
+    "Material Description": "SILICON RING WASHER-DEENA"
+  },
+  {
+    "Material": "407602",
+    "Material Description": "URINAL SCREEN -GEN"
+  },
+  {
+    "Material": "308510",
+    "Material Description": "SYRINGE WITH LUER LOCK 10ML-BD"
+  },
+  {
+    "Material": "314538",
+    "Material Description": "SHARP CONTAINER 10LTR-GEN"
+  },
+  {
+    "Material": "408955",
+    "Material Description": "HAND WASH LIQUID"
+  },
+  {
+    "Material": "411503",
+    "Material Description": "CARTRIDGE TONER DRUM 88A-GEN"
+  },
+  {
+    "Material": "401303",
+    "Material Description": "COPPER CABLE (POLYCAB) 1SQMM 3CORE -GEN"
+  },
+  {
+    "Material": "407156",
+    "Material Description": "TAG WHITE -GEN"
+  },
+  {
+    "Material": "400873",
+    "Material Description": "CELLO TAP 3\" -GEN"
+  },
+  {
+    "Material": "400608",
+    "Material Description": "BUTTER SHEET -GEN"
+  },
+  {
+    "Material": "325958",
+    "Material Description": "CANDIDA CHROME AGAR PLATE 55MM-CHETANA"
+  },
+  {
+    "Material": "320133",
+    "Material Description": "HIV 1-2 AB QUADRO RAPID KIT 50TEST-MERIL"
+  },
+  {
+    "Material": "205681",
+    "Material Description": "LOX 2% JELLY 30GM TUBE"
+  },
+  {
+    "Material": "413129",
+    "Material Description": "SPRAY BOTTLE 1L-GEN"
+  },
+  {
+    "Material": "414167",
+    "Material Description": "PF 25MM MMS PIPE"
+  },
+  {
+    "Material": "408866",
+    "Material Description": "PRESCRIPTION PADS MULTI COLOUR"
+  },
+  {
+    "Material": "406705",
+    "Material Description": "SKETCH PEN -GEN"
+  },
+  {
+    "Material": "311410",
+    "Material Description": "PROTHROMINE TIME REAGENT - SYSMAX"
+  },
+  {
+    "Material": "310956",
+    "Material Description": "SHARP CONTAINER SMALL WITHLID 1.5LTR-MED"
+  },
+  {
+    "Material": "705118",
+    "Material Description": "BUTTON WAX ISTOS 1KG"
+  },
+  {
+    "Material": "404363",
+    "Material Description": "PRESCRIPTION PAD -GEN"
+  },
+  {
+    "Material": "800519",
+    "Material Description": "MULTI CTRL LVL 2 (MQ CLINCHEM M 262)-MIN"
+  },
+  {
+    "Material": "408673",
+    "Material Description": "WHITE APRONS FULL SLEEVES"
+  },
+  {
+    "Material": "216165",
+    "Material Description": "BETT 1.5MG INJ 0.5ML AMP"
+  },
+  {
+    "Material": "408808",
+    "Material Description": "ECG 6208 VIEW ROLLS"
+  },
+  {
+    "Material": "409016",
+    "Material Description": "CHEMICAL INDICATOR EO STRIP CLASS 5 REGI"
+  },
+  {
+    "Material": "402353",
+    "Material Description": "GLUESTICK -GEN"
+  },
+  {
+    "Material": "201023",
+    "Material Description": "ATROPINE 1% INJ 1ML AMP"
+  },
+  {
+    "Material": "212955",
+    "Material Description": "VISIPAQUE INJ 100ML BOTTLE"
+  },
+  {
+    "Material": "309914",
+    "Material Description": "SODIUM HYPOCHLORIDE 10% 5LTR"
+  },
+  {
+    "Material": "304537",
+    "Material Description": "HYDROGEN PEROXIDE SOL 400ML-GE"
+  },
+  {
+    "Material": "409116",
+    "Material Description": "KITCHEN GLOVES"
+  },
+  {
+    "Material": "307724",
+    "Material Description": "SPINAL NEEDLE 20G-BD"
+  },
+  {
+    "Material": "400119",
+    "Material Description": "AIR FRESHNER DAGA -GEN"
+  },
+  {
+    "Material": "401060",
+    "Material Description": "CLAMP -GEN"
+  },
+  {
+    "Material": "314588",
+    "Material Description": "WET TASK WITH BACILLOL WIPING SYSTEM-R&W"
+  },
+  {
+    "Material": "400020",
+    "Material Description": "3 CORE COPPER CABLE 1.5SQ MM -GEN"
+  },
+  {
+    "Material": "404253",
+    "Material Description": "PLASTIC TRAY -GEN"
+  },
+  {
+    "Material": "319397",
+    "Material Description": "DETTOL HANDWASH 1500ML-RECKITT"
+  },
+  {
+    "Material": "400021",
+    "Material Description": "3 CORE COPPER CABLE 2.5SQ MM -GEN"
+  },
+  {
+    "Material": "411684",
+    "Material Description": "LED LIGHT 22W"
+  },
+  {
+    "Material": "408937",
+    "Material Description": "ELBOW BRASS 3/4\" X 1/2"
+  },
+  {
+    "Material": "412092",
+    "Material Description": "COUPLING 25MM-GEN"
+  },
+  {
+    "Material": "302448",
+    "Material Description": "DURAPORE 1\" (1538)-3M"
+  },
+  {
+    "Material": "303570",
+    "Material Description": "GAMMEX GLOVES POW SIZE.7-ANSEL"
+  },
+  {
+    "Material": "216246",
+    "Material Description": "RAMADINE 7.5% SCRUB 500ML BOTTLE"
+  },
+  {
+    "Material": "325845",
+    "Material Description": "FLUORIDE FOAM TRAY 30PCS-GG"
+  },
+  {
+    "Material": "408669",
+    "Material Description": "NURSING SHOE MALE -GEN"
+  },
+  {
+    "Material": "706920",
+    "Material Description": "FINECARE PCT 25 TEST(W210)-WONDFO"
+  },
+  {
+    "Material": "410276",
+    "Material Description": "BEDSHEET-SKY BLUE COLOUR"
+  },
+  {
+    "Material": "404235",
+    "Material Description": "PLASTIC BAG 12X18\" -GEN"
+  },
+  {
+    "Material": "324224",
+    "Material Description": "SINGLE PATIENT KIT PSMA-ESENTE"
+  },
+  {
+    "Material": "411444",
+    "Material Description": "WATER FILTER 1000LPH (20\"X4\")"
+  },
+  {
+    "Material": "302240",
+    "Material Description": "DISSECTING FORCEP 6\"-BSCO"
+  },
+  {
+    "Material": "313897",
+    "Material Description": "MEDITAPE (330)-JMS"
+  },
+  {
+    "Material": "303442",
+    "Material Description": "FUJI FILM 14X17\"-FUJI"
+  },
+  {
+    "Material": "407343",
+    "Material Description": "TOILET CLEANER -GEN"
+  },
+  {
+    "Material": "411683",
+    "Material Description": "LED LIGHT 15W"
+  },
+  {
+    "Material": "303087",
+    "Material Description": "FIXOMULL STERTCH 10CMX10MT-BSN"
+  },
+  {
+    "Material": "403415",
+    "Material Description": "MENU CARD BACK TO BACK DIGITAL PRINT-GEN"
+  },
+  {
+    "Material": "325957",
+    "Material Description": "BI-PLATE 02 10'S-CHETANA"
+  },
+  {
+    "Material": "402169",
+    "Material Description": "FOLDER FILE -GEN"
+  },
+  {
+    "Material": "402875",
+    "Material Description": "JUNCTION BOX (PVC) 25MM -GEN"
+  },
+  {
+    "Material": "400743",
+    "Material Description": "CARRY BAG 50MICRON -GEN"
+  },
+  {
+    "Material": "201179",
+    "Material Description": "BANDY 400MG TAB"
+  },
+  {
+    "Material": "307419",
+    "Material Description": "SILICON LEDER TUBE-GEN"
+  },
+  {
+    "Material": "401113",
+    "Material Description": "COBRA FILE -GEN"
+  },
+  {
+    "Material": "215865",
+    "Material Description": "BIOVAC A 0.5ML INJ VIAL"
+  },
+  {
+    "Material": "314650",
+    "Material Description": "KIT FOR 99M TC-EC INJ(TCK-43)-BRIT"
+  },
+  {
+    "Material": "303364",
+    "Material Description": "FORMALINE CAN 4.5LTR-GEN"
+  },
+  {
+    "Material": "314270",
+    "Material Description": "THERMAL PAPER ROLL 100X18MM-GEN"
+  },
+  {
+    "Material": "408670",
+    "Material Description": "NURSING SHOE FEMALE -GEN"
+  },
+  {
+    "Material": "402784",
+    "Material Description": "INSULATION TAPE -GEN"
+  },
+  {
+    "Material": "325956",
+    "Material Description": "BLOOD AGAR PLATES 10'S-CHETANA"
+  },
+  {
+    "Material": "200193",
+    "Material Description": "ADRENALINE INJ 1ML AMP"
+  },
+  {
+    "Material": "402874",
+    "Material Description": "JUNCTION BOX (PVC) 19MM -GEN"
+  },
+  {
+    "Material": "400624",
+    "Material Description": "CABINET FILE -GEN"
+  },
+  {
+    "Material": "400379",
+    "Material Description": "BINDING PAPER -GEN"
+  },
+  {
+    "Material": "410321",
+    "Material Description": "EYE WASH CUP PLASTIC-GEN"
+  },
+  {
+    "Material": "414617",
+    "Material Description": "LG MYLINK SWITCH 6A 1 WAY-LEGRAND"
+  },
+  {
+    "Material": "302508",
+    "Material Description": "ECG JELLY 250ML-BPL"
+  },
+  {
+    "Material": "401935",
+    "Material Description": "ENVELOPE COVER 10X12-GEN"
+  },
+  {
+    "Material": "411500",
+    "Material Description": "DOCTOR BLADE FOR PRINTER 88A-GEN"
+  },
+  {
+    "Material": "319280",
+    "Material Description": "KIDNEY TRAY STEEL 10''-GEN"
+  },
+  {
+    "Material": "409785",
+    "Material Description": "LED LIGHT FITTING CEILING-15W"
+  },
+  {
+    "Material": "400553",
+    "Material Description": "BROWN SHEET (COVER FOR REGISTER) -GEN"
+  },
+  {
+    "Material": "311100",
+    "Material Description": "BMS ETO INDICATORS(ABPCD)- BROWNIE"
+  },
+  {
+    "Material": "404423",
+    "Material Description": "PVC BENDS 19MM -GEN"
+  },
+  {
+    "Material": "409493",
+    "Material Description": "JAR WITH CAP PLASTIC 2LTR"
+  },
+  {
+    "Material": "408646",
+    "Material Description": "GLASS WIPER -GEN"
+  },
+  {
+    "Material": "410227",
+    "Material Description": "DRAW SHEET 60X90\""
+  },
+  {
+    "Material": "310776",
+    "Material Description": "COMPOUND/TISSUE FREEZING MEDIUM 125ML"
+  },
+  {
+    "Material": "410217",
+    "Material Description": "GARBAGE BAGS RED-18X24"
+  },
+  {
+    "Material": "311540",
+    "Material Description": "XLD AGAR PLATES"
+  },
+  {
+    "Material": "702344",
+    "Material Description": "TROP-T-5NOS-ROCHE"
+  },
+  {
+    "Material": "203740",
+    "Material Description": "EPSOLIN 100MG INJ 2ML AMP"
+  },
+  {
+    "Material": "404277",
+    "Material Description": "PENCIL -APSARA"
+  },
+  {
+    "Material": "314418",
+    "Material Description": "LIGA CLIPS MEDIUM (MLT200)-MERIL"
+  },
+  {
+    "Material": "706513",
+    "Material Description": "TRYPTONE BROTH 5ML-CHETANA"
+  },
+  {
+    "Material": "317332",
+    "Material Description": "FACE MASK SN95 (SURGICAL)-VENUS"
+  },
+  {
+    "Material": "325969",
+    "Material Description": "MH AGAR WITH 2% GLUCOSE 10'S-CHETANA"
+  },
+  {
+    "Material": "324225",
+    "Material Description": "SINGLE PATIENT KIT DOTANOC-ESENTE"
+  },
+  {
+    "Material": "409455",
+    "Material Description": "TONER CARTRIDGE 337 -GEN"
+  },
+  {
+    "Material": "312309",
+    "Material Description": "BLOOD LANCET 100PC-ASPEN"
+  },
+  {
+    "Material": "408911",
+    "Material Description": "PLASTIC BASKET"
+  },
+  {
+    "Material": "407474",
+    "Material Description": "TRANSPERENT CELLO TAPE 2\" -GEN"
+  },
+  {
+    "Material": "308832",
+    "Material Description": "TOURNIQUET BELT-GEN"
+  },
+  {
+    "Material": "311299",
+    "Material Description": "FACE MASK WITH FLUID SHIELD-GEN"
+  },
+  {
+    "Material": "325954",
+    "Material Description": "MACCONKEY AGAR PLATES 10'S-HIMEDIA"
+  },
+  {
+    "Material": "705162",
+    "Material Description": "HEMATOXALIN PATHOZYME 500ML"
+  },
+  {
+    "Material": "401735",
+    "Material Description": "DRY MOP REFILL -GEN"
+  },
+  {
+    "Material": "300635",
+    "Material Description": "BACILLOCID EXTRA 500ML-RAMAN & WEIL"
+  },
+  {
+    "Material": "410419",
+    "Material Description": "LED LIGHT SQUARE WARM WHITE 24W"
+  },
+  {
+    "Material": "203903",
+    "Material Description": "EVION 400MG CAP"
+  },
+  {
+    "Material": "407318",
+    "Material Description": "TISSUE PAPER (M-FOLD) -GEN"
+  },
+  {
+    "Material": "800518",
+    "Material Description": "MULTI CTRL LVL 1 (MQ CLINCHEM M 162)-MIN"
+  },
+  {
+    "Material": "308421",
+    "Material Description": "SUTURE CUTTING NEEDLE NO.9-CHABARA"
+  },
+  {
+    "Material": "414616",
+    "Material Description": "LG MYLINK SWITCH 16A 1 WAY INDICATOR-LEG"
+  },
+  {
+    "Material": "414652",
+    "Material Description": "FUSER FILM PLASTIC-GEN"
+  },
+  {
+    "Material": "402517",
+    "Material Description": "HEAVY DUTY RUBBER GLOVES -GEN"
+  },
+  {
+    "Material": "414651",
+    "Material Description": "FUSER PRESSUR ROLLER(FOAM LPR 1007)-GEN"
+  },
+  {
+    "Material": "327679",
+    "Material Description": "FLUORIDE GEL 200GM-ZODENTA"
+  },
+  {
+    "Material": "407863",
+    "Material Description": "WET MOP STICK -GEN"
+  },
+  {
+    "Material": "706914",
+    "Material Description": "BENESPHERA BS CLEANER 1L(BENP15001545)-M"
+  },
+  {
+    "Material": "411502",
+    "Material Description": "MAGNETIC ROD FOR PRINTER 88A-GEN"
+  },
+  {
+    "Material": "705143",
+    "Material Description": "EOSIN PATHOZYME 500ML"
+  },
+  {
+    "Material": "326301",
+    "Material Description": "DISPOSABLE STERILE LOOP LP-20S-CHETANA"
+  },
+  {
+    "Material": "410224",
+    "Material Description": "SELF ADHESIVE LABELS 48X24-GEN"
+  },
+  {
+    "Material": "401072",
+    "Material Description": "CLING FILM ROLL -GEN"
+  },
+  {
+    "Material": "402536",
+    "Material Description": "HILIGHTER PEN -GEN"
+  },
+  {
+    "Material": "203230",
+    "Material Description": "DOMIN 200MG INJ 5ML VIAL"
+  },
+  {
+    "Material": "308408",
+    "Material Description": "SUTURE CUTTING NEEDLE NO.11-CHABARA"
+  },
+  {
+    "Material": "401609",
+    "Material Description": "DISCHARGE SUMMARY -GEN"
+  },
+  {
+    "Material": "310195",
+    "Material Description": "GRAM STAIN KIT (4X100ML)"
+  },
+  {
+    "Material": "408681",
+    "Material Description": "UNIFORM FOR DRIVERS"
+  },
+  {
+    "Material": "401653",
+    "Material Description": "DOOR MATTS HARD QUALITY (GREEN CLR)-GEN"
+  },
+  {
+    "Material": "402071",
+    "Material Description": "FEVIQUICK -GEN"
+  },
+  {
+    "Material": "705147",
+    "Material Description": "FLEX IHC MICROSCOPE SLIDES 5X100DAKO"
+  },
+  {
+    "Material": "314075",
+    "Material Description": "BIOLOGICAL INDICATOR ETO- GKE"
+  },
+  {
+    "Material": "400031",
+    "Material Description": "3 PIN TOP 16AMP -CONA"
+  },
+  {
+    "Material": "407872",
+    "Material Description": "WHEEL POWDER 1KG -GEN"
+  },
+  {
+    "Material": "408951",
+    "Material Description": "NIPPLE (GI) 1/2\" X 3'"
+  },
+  {
+    "Material": "320665",
+    "Material Description": "GA 68 FAPI SINGLE PATIENT KIT FULL SET-E"
+  },
+  {
+    "Material": "401907",
+    "Material Description": "EMERGENCY LIGHT -GEN"
+  },
+  {
+    "Material": "407824",
+    "Material Description": "WASHER -GEN"
+  },
+  {
+    "Material": "410320",
+    "Material Description": "UNIFORM ONCO FEMALE NURSING"
+  },
+  {
+    "Material": "412824",
+    "Material Description": "SOCKET 6 AMP TOP 3PIN-GEN"
+  },
+  {
+    "Material": "414615",
+    "Material Description": "LG MYLINK SOCKET 6/16C COMBINED-LEGRAND"
+  },
+  {
+    "Material": "200523",
+    "Material Description": "AMLOGARD 5MG TAB"
+  },
+  {
+    "Material": "406907",
+    "Material Description": "STAMP PAD INK -GEN"
+  },
+  {
+    "Material": "402315",
+    "Material Description": "GIFT ADDRESS CARD -GEN"
+  },
+  {
+    "Material": "406611",
+    "Material Description": "SCRUB PAD (BIG) -GEN"
+  },
+  {
+    "Material": "403770",
+    "Material Description": "ODONIL -GEN"
+  },
+  {
+    "Material": "411375",
+    "Material Description": "UNIFORM ONCO MALE NURSING"
+  },
+  {
+    "Material": "400857",
+    "Material Description": "CELL C R 2032 -GEN"
+  },
+  {
+    "Material": "705737",
+    "Material Description": "VITEK 2 ID GN 20 TEST KIT-BIOMERIX"
+  },
+  {
+    "Material": "313898",
+    "Material Description": "GAUZE CLOTH 90CMX16MT-RELAXO"
+  },
+  {
+    "Material": "313272",
+    "Material Description": "SHOES FOR MAINTAINANCE-GEN"
+  },
+  {
+    "Material": "325953",
+    "Material Description": "MUELLER HINTON AGAR PLATES 10'S-CHETANA"
+  },
+  {
+    "Material": "205687",
+    "Material Description": "LOX WITH ADRENALINE 2% INJ 30ML VIAL"
+  },
+  {
+    "Material": "706042",
+    "Material Description": "STARTER KIT 1 PAIR(130299004M)-SNIBE"
+  },
+  {
+    "Material": "401671",
+    "Material Description": "DOUBLE SIDE TAPE -GEN"
+  },
+  {
+    "Material": "401971",
+    "Material Description": "ERESOR X (WHITNER) -GEN"
+  },
+  {
+    "Material": "401129",
+    "Material Description": "UNIFORM MSW & GRE FEMALE"
+  },
+  {
+    "Material": "407542",
+    "Material Description": "TUBELIGHT 1FEET 10W -GEN"
+  },
+  {
+    "Material": "307673",
+    "Material Description": "SOLVENT ETHER 500ML-GEN"
+  },
+  {
+    "Material": "320666",
+    "Material Description": "GA 68 FAPI MULTI PATIENT KIT FULL SET-ES"
+  },
+  {
+    "Material": "410236",
+    "Material Description": "FORM-CONSENT FOR NUCLEAR MEDICINE"
+  },
+  {
+    "Material": "409829",
+    "Material Description": "FALSE CELING TILES 2X2-GEN"
+  },
+  {
+    "Material": "310088",
+    "Material Description": "BACTO SCRUB 500ML-RAMAN & WEIL"
+  },
+  {
+    "Material": "408421",
+    "Material Description": "PRINTER RIBBON"
+  },
+  {
+    "Material": "202180",
+    "Material Description": "CIPLADINE 5% OINT 125GM TUBE"
+  },
+  {
+    "Material": "307111",
+    "Material Description": "SAFETY GOGGLES-GEN"
+  },
+  {
+    "Material": "410325",
+    "Material Description": "ELBOW (CPVC) 3/4\""
+  },
+  {
+    "Material": "410718",
+    "Material Description": "DOUBLE MOP WRINGER TROLLEY 24LTR"
+  },
+  {
+    "Material": "702711",
+    "Material Description": "APTT 2ML-J.MITRA"
+  },
+  {
+    "Material": "701816",
+    "Material Description": "COOKED MEAT MEDIUM- LQ080-25X10ML-HIMDIA"
+  },
+  {
+    "Material": "307792",
+    "Material Description": "SS KIDNEY TRAY SIZE.8-GEN"
+  },
+  {
+    "Material": "401641",
+    "Material Description": "DOOR CLOSER -GEN"
+  },
+  {
+    "Material": "404401",
+    "Material Description": "PROVISIONAL BILL REGISTER -GEN"
+  },
+  {
+    "Material": "411318",
+    "Material Description": "FETHER BRUSH-GEN"
+  },
+  {
+    "Material": "404051",
+    "Material Description": "PENCIL -NATRAJ"
+  },
+  {
+    "Material": "308865",
+    "Material Description": "TRACHEAL TUBE CUF 6.5MM-PORTEX"
+  },
+  {
+    "Material": "308849",
+    "Material Description": "TRACHEAL TUBE 7.0MM-PORTEX"
+  },
+  {
+    "Material": "305255",
+    "Material Description": "NASOPHARYNGEAL AIRWAY 8MM-ROMSONS"
+  },
+  {
+    "Material": "706888",
+    "Material Description": "CREA-S (MIND105-004614-00)-M"
+  },
+  {
+    "Material": "411395",
+    "Material Description": "LUGS PIN TYPE 6SQMM -GEN"
+  },
+  {
+    "Material": "410442",
+    "Material Description": "BATTERY MICRO (LR-41)"
+  },
+  {
+    "Material": "401132",
+    "Material Description": "UNIFORM MSW & GRE MALE"
+  },
+  {
+    "Material": "401775",
+    "Material Description": "DUST PAN -GEN"
+  },
+  {
+    "Material": "303914",
+    "Material Description": "GUEDEL AIRWAY NO.0-ROMSONS"
+  },
+  {
+    "Material": "305249",
+    "Material Description": "NASOPHARYNGEAL AIRWAY 7MM-ROMSONS"
+  },
+  {
+    "Material": "303922",
+    "Material Description": "GUEDEL AIRWAY NO.4-ROMSONS"
+  },
+  {
+    "Material": "407220",
+    "Material Description": "TEE (CPVC) 3/4\" -GEN"
+  },
+  {
+    "Material": "308846",
+    "Material Description": "TRACHEAL TUBE 5MM-PORTEX"
+  },
+  {
+    "Material": "407180",
+    "Material Description": "TAPELON TAPE -GEN"
+  },
+  {
+    "Material": "305285",
+    "Material Description": "NEBULIZER SET PAED-HARSON"
+  },
+  {
+    "Material": "305245",
+    "Material Description": "NASOPHARYNGEAL AIRWAY 7.5MM-PORTEX"
+  },
+  {
+    "Material": "308853",
+    "Material Description": "TRACHEAL TUBE 8.0MM-PORTEX"
+  },
+  {
+    "Material": "308195",
+    "Material Description": "SUCTION TUBE CONNECTOR-CONMED"
+  },
+  {
+    "Material": "308851",
+    "Material Description": "TRACHEAL TUBE 7.5MM-PORTEX"
+  },
+  {
+    "Material": "303916",
+    "Material Description": "GUEDEL AIRWAY NO.1-ROMSONS"
+  },
+  {
+    "Material": "303920",
+    "Material Description": "GUEDEL AIRWAY NO.3-ROMSONS"
+  },
+  {
+    "Material": "310466",
+    "Material Description": "SODA SORB 800 PLUS"
+  },
+  {
+    "Material": "310920",
+    "Material Description": "OXYGEN FACE MASK PAEDIATRIC-VINJOH"
+  },
+  {
+    "Material": "401444",
+    "Material Description": "CUTTER -GEN"
+  },
+  {
+    "Material": "401951",
+    "Material Description": "ENVELOPE COVER PLAIN-GEN"
+  },
+  {
+    "Material": "413809",
+    "Material Description": "REGISTER-ACUITY BASED STAFF ALLCOATION"
+  },
+  {
+    "Material": "313896",
+    "Material Description": "MEDITAPE (320)-JMS"
+  },
+  {
+    "Material": "311522",
+    "Material Description": "THERMAL PAPER ROLL 57MM"
+  },
+  {
+    "Material": "325968",
+    "Material Description": "TRI-PLATE 02 10'S-CHETANA"
+  },
+  {
+    "Material": "408880",
+    "Material Description": "POWER CABLE"
+  },
+  {
+    "Material": "310277",
+    "Material Description": "LARYNGIOSCOPE ULTRA BRIGHT LED BULB"
+  },
+  {
+    "Material": "408259",
+    "Material Description": "LABELS ( SIZE :- 50 M.M. X 25 M.M )"
+  },
+  {
+    "Material": "411259",
+    "Material Description": "REGISTER-RADIOLOGY WT/TAT"
+  },
+  {
+    "Material": "411003",
+    "Material Description": "ECG ROLL FOR PFT MACHINE -GEN"
+  },
+  {
+    "Material": "706043",
+    "Material Description": "WASH BUFFER (130299005M)-SNIBE"
+  },
+  {
+    "Material": "311345",
+    "Material Description": "ACETONE 100ML-GEN"
+  },
+  {
+    "Material": "404510",
+    "Material Description": "WET MOP CLIP"
+  },
+  {
+    "Material": "313144",
+    "Material Description": "MEASURING JAR 250ML-GEN"
+  },
+  {
+    "Material": "311506",
+    "Material Description": "SLIDE STORAGE BOX PLASTIC 100PLACE"
+  },
+  {
+    "Material": "206684",
+    "Material Description": "MEZOLAM INJ 5ML VIAL"
+  },
+  {
+    "Material": "312669",
+    "Material Description": "BILEAGARSLANTIN TUBE 1 EACH  HIMEDIA"
+  },
+  {
+    "Material": "401754",
+    "Material Description": "DURACELL MEDIUM -GEN"
+  },
+  {
+    "Material": "406631",
+    "Material Description": "UNIFORM SECURITY STAFF"
+  },
+  {
+    "Material": "314785",
+    "Material Description": "CUVETTE&STR HEMOSTAR-XF"
+  },
+  {
+    "Material": "410033",
+    "Material Description": "LAB REQUISITION FORM"
+  },
+  {
+    "Material": "400583",
+    "Material Description": "BULB -GEN"
+  },
+  {
+    "Material": "410209",
+    "Material Description": "PVC GRIP-GEN"
+  },
+  {
+    "Material": "409491",
+    "Material Description": "JAR WITH CAP PLASTIC 500ML"
+  },
+  {
+    "Material": "409490",
+    "Material Description": "JAR WITH CAP PLASTIC 250ML"
+  },
+  {
+    "Material": "407338",
+    "Material Description": "TOILET BRUSH (PLASTIC) -GEN"
+  },
+  {
+    "Material": "406559",
+    "Material Description": "SCOTCH BRUSH -GEN"
+  },
+  {
+    "Material": "414890",
+    "Material Description": "INSTRU BEDSIDE UNIT DRAPE STD(20101)-CMR"
+  },
+  {
+    "Material": "211086",
+    "Material Description": "SORBITRATE 5MG TAB"
+  },
+  {
+    "Material": "304686",
+    "Material Description": "INFANT FEEDING TUBE FG-8-ROMSONS"
+  },
+  {
+    "Material": "304688",
+    "Material Description": "INFANT FEEDING TUBE FG-9-ROMSONS"
+  },
+  {
+    "Material": "309879",
+    "Material Description": "FEEDING TUBE FG-10-RMS"
+  },
+  {
+    "Material": "400035",
+    "Material Description": "3 PIN TOP 6AMP -CONA"
+  },
+  {
+    "Material": "413166",
+    "Material Description": "TONER 4125 INK BLACK-KYOCERA"
+  },
+  {
+    "Material": "700030",
+    "Material Description": "RAPID PAP"
+  },
+  {
+    "Material": "203180",
+    "Material Description": "DOBUSTAT 250MG INJ 5ML VIAL"
+  },
+  {
+    "Material": "205542",
+    "Material Description": "LOPEZ 2MG INJ 2ML AMP"
+  },
+  {
+    "Material": "208145",
+    "Material Description": "NS 0.9% INJ 100ML PLASTIC BOTTLE-BAXTER"
+  },
+  {
+    "Material": "700011",
+    "Material Description": "XYLENE (SULPHUR FREE)"
+  },
+  {
+    "Material": "705445",
+    "Material Description": "VITEK 2 ID GP 20 CARD 20 TEST PCK-BIOMRX"
+  },
+  {
+    "Material": "408674",
+    "Material Description": "WHITE APRONS HALF SLEEVES"
+  },
+  {
+    "Material": "705354",
+    "Material Description": "P16-INK4 (MX007) 3ML-MASTER"
+  },
+  {
+    "Material": "406928",
+    "Material Description": "STAPLER SMALL NO 10 1M -KANGAROO"
+  },
+  {
+    "Material": "410581",
+    "Material Description": "ANGULAR STOP COCK-GEN"
+  },
+  {
+    "Material": "310747",
+    "Material Description": "FUJI FILM 8X10\"-FUJI"
+  },
+  {
+    "Material": "401776",
+    "Material Description": "DUST PAN WITH BRUSH GALA -GEN"
+  },
+  {
+    "Material": "317563",
+    "Material Description": "OMNIPAQUE 350MG INJ 500ML BOTTLE"
+  },
+  {
+    "Material": "411093",
+    "Material Description": "SPRINKLERS FOR FIRE PROTECTION-GEN"
+  },
+  {
+    "Material": "314449",
+    "Material Description": "FORCEPS DISSECTING PLAIN 6\"-GEN"
+  },
+  {
+    "Material": "401834",
+    "Material Description": "ECG SILICON BULB WITH METAL ELECTRODE"
+  },
+  {
+    "Material": "403306",
+    "Material Description": "MARKER PEN PERMANENT -GEN"
+  },
+  {
+    "Material": "301639",
+    "Material Description": "COMPOUND BENZOIN TINCTURE 100ML-GEN"
+  },
+  {
+    "Material": "308166",
+    "Material Description": "SUCTION CATH FG 12-POLYMED"
+  },
+  {
+    "Material": "706977",
+    "Material Description": "IPA REAGENT 25LTRS-FISHER"
+  },
+  {
+    "Material": "308487",
+    "Material Description": "SYRINGE 50ML CATHETER TIP-TOP"
+  },
+  {
+    "Material": "217240",
+    "Material Description": "TYPBAR 25MCG INJ 2.5ML VIAL"
+  },
+  {
+    "Material": "413426",
+    "Material Description": "GPS TRACKER-WHEELS EYE"
+  },
+  {
+    "Material": "706018",
+    "Material Description": "TSH REA (130203001M)100TEST-SNIBE"
+  },
+  {
+    "Material": "414613",
+    "Material Description": "LG MYLINK PLATE 2 MODULE-LEGRAND"
+  },
+  {
+    "Material": "414612",
+    "Material Description": "LG MYLINK PLATE 3 MODULE-LEGRAND"
+  },
+  {
+    "Material": "407019",
+    "Material Description": "STRIP CONNECTOR (PVC) -GEN"
+  },
+  {
+    "Material": "408999",
+    "Material Description": "COUPLER (CPVC) 3/4\""
+  },
+  {
+    "Material": "410540",
+    "Material Description": "MINERAL WATER 1LTR"
+  },
+  {
+    "Material": "414611",
+    "Material Description": "LG MYLINK PLATE 6 MODULE-LEGRAND"
+  },
+  {
+    "Material": "307062",
+    "Material Description": "RYLES TUBE 12FR-POLYMED"
+  },
+  {
+    "Material": "409509",
+    "Material Description": "SPINDLE JAGUAR"
+  },
+  {
+    "Material": "410828",
+    "Material Description": "FLOOR SPRING-GEN"
+  },
+  {
+    "Material": "315463",
+    "Material Description": "BIPOLAR FORCEP NON STICK-GEN"
+  },
+  {
+    "Material": "411124",
+    "Material Description": "CPVC PIPE 11SDR ASH-1 1/2\""
+  },
+  {
+    "Material": "314926",
+    "Material Description": "SDS GEN M099-TC99M RADIONUCLIDE 324MCI"
+  },
+  {
+    "Material": "408606",
+    "Material Description": "NARCOTICS DRUG REGISTER"
+  },
+  {
+    "Material": "302303",
+    "Material Description": "DMSA KIT-GE HEALTHCARE"
+  },
+  {
+    "Material": "705304",
+    "Material Description": "P40-CLONE ZR8 3ML-MASTER"
+  },
+  {
+    "Material": "707094",
+    "Material Description": "DS DILUENT 20L TANK(105-012283-00)-MINDR"
+  },
+  {
+    "Material": "414154",
+    "Material Description": "LED DRIVER 10A-STAURLITE"
+  },
+  {
+    "Material": "314077",
+    "Material Description": "3LINE LABLE STEAM STICKER-GKE"
+  },
+  {
+    "Material": "314078",
+    "Material Description": "3LINE LABLE ETO STICKER-GKE"
+  },
+  {
+    "Material": "706268",
+    "Material Description": "PR-PROGESTERONE RECEPTOR 12ML-DAKO"
+  },
+  {
+    "Material": "311326",
+    "Material Description": "BARBOUR SUTURE NO.40"
+  },
+  {
+    "Material": "410763",
+    "Material Description": "CARPET BRUSH-GEN"
+  },
+  {
+    "Material": "308164",
+    "Material Description": "SUCTION CATHETER FG-8-ROMSONS"
+  },
+  {
+    "Material": "900277",
+    "Material Description": "SPECIFIC PROTEIN CALIB-1X5ML- MINDRAY"
+  },
+  {
+    "Material": "401986",
+    "Material Description": "METAL BOX 3M-LEGRAND"
+  },
+  {
+    "Material": "308163",
+    "Material Description": "SUCTION CATHETER FG-10-ROMSONS"
+  },
+  {
+    "Material": "414614",
+    "Material Description": "LG MYLINK PLATE 1 MODULE-LEGRAND"
+  },
+  {
+    "Material": "404443",
+    "Material Description": "WHEEL FOR CARDIAC TABLE"
+  },
+  {
+    "Material": "414574",
+    "Material Description": "METAL BOX 1/2M-LEGRAND"
+  },
+  {
+    "Material": "414573",
+    "Material Description": "METAL BOX 06M-LEGRAND"
+  },
+  {
+    "Material": "306705",
+    "Material Description": "Q SYTE (385100)-BD"
+  },
+  {
+    "Material": "306148",
+    "Material Description": "PLASTIC BOX SMALL-LCS"
+  },
+  {
+    "Material": "322886",
+    "Material Description": "BP CUFF MED CR24-OMRON"
+  },
+  {
+    "Material": "305523",
+    "Material Description": "ENEMA SET -GEN"
+  },
+  {
+    "Material": "214139",
+    "Material Description": "TACHYBAN 6MG INJ 2ML AMP"
+  },
+  {
+    "Material": "202383",
+    "Material Description": "CLOPIVAS 75MG TAB"
+  },
+  {
+    "Material": "400869",
+    "Material Description": "CELLO TAP 1\" -GEN"
+  },
+  {
+    "Material": "706290",
+    "Material Description": "USER FILLABLE REAGENT DENMARK-12ML-DAKO"
+  },
+  {
+    "Material": "403702",
+    "Material Description": "NOTE BOOK (SMALL) 200PAGE -GEN"
+  },
+  {
+    "Material": "706044",
+    "Material Description": "REACTION MODULES(630003)-SNIBE"
+  },
+  {
+    "Material": "211454",
+    "Material Description": "SYLATE 250MG INJ 2ML AMP"
+  },
+  {
+    "Material": "317359",
+    "Material Description": "WHEEL FOR CASTER IABP"
+  },
+  {
+    "Material": "304814",
+    "Material Description": "IOBAN (6650)-3M"
+  },
+  {
+    "Material": "706883",
+    "Material Description": "BIL-D(DSA) BILIRUBIN KIT (MINDDBI0102)-M"
+  },
+  {
+    "Material": "320143",
+    "Material Description": "STRAIGHT FISSURED BUR 703  SS WHITE-GEN"
+  },
+  {
+    "Material": "303567",
+    "Material Description": "GAMMEX GLOVES POW SIZE.6.5-ANSEL"
+  },
+  {
+    "Material": "310068",
+    "Material Description": "GAMMEX GLOVES PF SIZE.7.5-ANSEL"
+  },
+  {
+    "Material": "310256",
+    "Material Description": "PROCTOSCOPE LARGE"
+  },
+  {
+    "Material": "702389",
+    "Material Description": "GATA3-CLONE-L50-823 000632QD 3ML"
+  },
+  {
+    "Material": "407893",
+    "Material Description": "WHITE BOARD MARKER PEN -GEN"
+  },
+  {
+    "Material": "324374",
+    "Material Description": "BEARING 2-MANMAN"
+  },
+  {
+    "Material": "410299",
+    "Material Description": "LEATHER BELT(STAFF)-GEN"
+  },
+  {
+    "Material": "319131",
+    "Material Description": "AST-N406 TEST KT 20CARDS-BIOMERIUX"
+  },
+  {
+    "Material": "407224",
+    "Material Description": "TEFLON TAPE -GEN"
+  },
+  {
+    "Material": "314898",
+    "Material Description": "APPROXYMETER-GEN"
+  },
+  {
+    "Material": "316526",
+    "Material Description": "FORCEPS SWAN BODY ANGLE UP TIPS 5\""
+  },
+  {
+    "Material": "317433",
+    "Material Description": "FORCEP JEWELLER PLATFORM TIPS 5\"-GEN"
+  },
+  {
+    "Material": "315605",
+    "Material Description": "WATER LOCK-DRAGER"
+  },
+  {
+    "Material": "407284",
+    "Material Description": "THERMOSTAT -GEN"
+  },
+  {
+    "Material": "315609",
+    "Material Description": "FORCEP JEWELLER PLAIN 5\"-GEN"
+  },
+  {
+    "Material": "706976",
+    "Material Description": "LIPIDS CALIBRATOR 5X1ML(MSL161)-MIN"
+  },
+  {
+    "Material": "315611",
+    "Material Description": "MICRO VESSEL CLAMP SINGLE 1-2MM"
+  },
+  {
+    "Material": "413263",
+    "Material Description": "REGISTER-PATHOLOGY SAMPLE DISCARD"
+  },
+  {
+    "Material": "307684",
+    "Material Description": "SONOGRAPHY JELLY-GEN"
+  },
+  {
+    "Material": "309315",
+    "Material Description": "URISTIX STRIPS (100'S)-GEN"
+  },
+  {
+    "Material": "318025",
+    "Material Description": "MYOVIEW KIT 1KITX5VIAL-GE"
+  },
+  {
+    "Material": "319130",
+    "Material Description": "AST-N405 TEST KT 20CARDS-BIOMERIUX"
+  },
+  {
+    "Material": "706267",
+    "Material Description": "ER-ESTROGEN RECEPTOR 12ML-DAKO"
+  },
+  {
+    "Material": "800091",
+    "Material Description": "FNPLUSANAEROBICADULT-410852-100T-BIOM"
+  },
+  {
+    "Material": "322801",
+    "Material Description": "I-131 SODIUM IODIDE SOLUTION 25MCI-BRIT"
+  },
+  {
+    "Material": "310775",
+    "Material Description": "HIGH PROFILE DISPO.BLADE 818 (50NOS)"
+  },
+  {
+    "Material": "207938",
+    "Material Description": "NITROPLUS 25MG INJ 5ML VIAL"
+  },
+  {
+    "Material": "400802",
+    "Material Description": "CASH VOUCHER -GEN"
+  },
+  {
+    "Material": "412366",
+    "Material Description": "SADDLE 25MM-GEN"
+  },
+  {
+    "Material": "301789",
+    "Material Description": "COTTON BANDAGE 6INCH-GEN"
+  },
+  {
+    "Material": "412367",
+    "Material Description": "SADDLE 20MM-GEN"
+  },
+  {
+    "Material": "325960",
+    "Material Description": "SIMMON'S CITRATE AGAR SLANT 5'S-CHETANA"
+  },
+  {
+    "Material": "304684",
+    "Material Description": "INFANT FEEDING TUBE FG-6-ROMSONS"
+  },
+  {
+    "Material": "401863",
+    "Material Description": "ELBOW 4\" -GEN"
+  },
+  {
+    "Material": "706909",
+    "Material Description": "IRON KIT(MINDFE0102)-M"
+  },
+  {
+    "Material": "411750",
+    "Material Description": "REGISTER-SAMPLE TRANSPORTAION(LAB)"
+  },
+  {
+    "Material": "312313",
+    "Material Description": "BLUE TIPS 500 NOS-GEN"
+  },
+  {
+    "Material": "325961",
+    "Material Description": "UREA AGAR BASE SLANT 5'S-CHETANA"
+  },
+  {
+    "Material": "303062",
+    "Material Description": "FILTER PAPER SHEETS"
+  },
+  {
+    "Material": "312219",
+    "Material Description": "DIGITAL HYGROMETERS WITH PROBE"
+  },
+  {
+    "Material": "412382",
+    "Material Description": "PRINTER INK BOT(BLACK)73-CANON"
+  },
+  {
+    "Material": "706029",
+    "Material Description": "CEA REA(130201003M)100TEST-SNIBE"
+  },
+  {
+    "Material": "205678",
+    "Material Description": "LOX 10% SPRAY 50ML BOTTLE"
+  },
+  {
+    "Material": "314076",
+    "Material Description": "BIOLOGICAL INDICATOR STEAM-GKE"
+  },
+  {
+    "Material": "406550",
+    "Material Description": "SCALE STEEL -GEN"
+  },
+  {
+    "Material": "303322",
+    "Material Description": "FORCEP BIOPSY COLON WITH SPIKE 230CM-HAL"
+  },
+  {
+    "Material": "705368",
+    "Material Description": "CARCINOEM ANTIGEN(CEAM) COL-1 3ML-MASTER"
+  },
+  {
+    "Material": "706910",
+    "Material Description": "LIPASE KIT (MINDLIP0102)-M"
+  },
+  {
+    "Material": "408700",
+    "Material Description": "SCISSORS-GEN"
+  },
+  {
+    "Material": "706882",
+    "Material Description": "BIL-T(DSA) BILIRUBIN KIT (MINDTBI0102)-M"
+  },
+  {
+    "Material": "406904",
+    "Material Description": "STAMP PAD (BLUE) -GEN"
+  },
+  {
+    "Material": "402080",
+    "Material Description": "NURSING HANDOVER REGISTER"
+  },
+  {
+    "Material": "705613",
+    "Material Description": "NITRIC ACID REAG 500ML-FISHER"
+  },
+  {
+    "Material": "706019",
+    "Material Description": "T4 REA(130203002M)100TEST-SNIBE"
+  },
+  {
+    "Material": "403822",
+    "Material Description": "OT DRESS FOR STAFFS -GEN"
+  },
+  {
+    "Material": "407539",
+    "Material Description": "TUBELESS TYRE-GEN"
+  },
+  {
+    "Material": "414155",
+    "Material Description": "LED DRIVER 5A-STAURLITE"
+  },
+  {
+    "Material": "309428",
+    "Material Description": "VENFLON 24G-BD"
+  },
+  {
+    "Material": "705373",
+    "Material Description": "DESMIN (D33) 3ML-MASTER"
+  },
+  {
+    "Material": "300147",
+    "Material Description": "ABGEL REGULAR 80X50X10MM-SGKL"
+  },
+  {
+    "Material": "400362",
+    "Material Description": "BIB COCK (STEEL TAP) -GEN"
+  },
+  {
+    "Material": "409170",
+    "Material Description": "LAMINATION POUCH A3-GEN"
+  },
+  {
+    "Material": "411561",
+    "Material Description": "DEAD LOCK 278 TYPE 1 PACKAGE-DORMA"
+  },
+  {
+    "Material": "414186",
+    "Material Description": "REGISTER-OPD SURGERY FINAL RECORD"
+  },
+  {
+    "Material": "410289",
+    "Material Description": "BOOK-MEDICLAIM DEPARTMENT"
+  },
+  {
+    "Material": "411118",
+    "Material Description": "PRINTER GEAR-GEN"
+  },
+  {
+    "Material": "705320",
+    "Material Description": "PAX-8(MD-50/MRQ50) 3ML-MASTER"
+  },
+  {
+    "Material": "706893",
+    "Material Description": "HDL-C HDL CHOLESTROL KIT (MINDHDL0102)-M"
+  },
+  {
+    "Material": "205907",
+    "Material Description": "MAGNESIUM SULPHATE POW 20GM CONTAINER"
+  },
+  {
+    "Material": "301193",
+    "Material Description": "CAUTERY PENCIL-VALLY LAB"
+  },
+  {
+    "Material": "705313",
+    "Material Description": "TTF-1 (SPT24) 3ML-MASTER"
+  },
+  {
+    "Material": "707169",
+    "Material Description": "CREATININE KINASE KIT(CK1102)-SHENZHEN"
+  },
+  {
+    "Material": "705136",
+    "Material Description": "CYTOCHROME(LEICH) BIOLAB 2X500ML"
+  },
+  {
+    "Material": "206235",
+    "Material Description": "HUMAN ACTRAPID 40IU INJ 10ML VIAL"
+  },
+  {
+    "Material": "705299",
+    "Material Description": "CDX 2 EP25 CLONE 3ML-MASTER"
+  },
+  {
+    "Material": "312392",
+    "Material Description": "FENESTRATED BIPOLAR FORCEPS -420205"
+  },
+  {
+    "Material": "706017",
+    "Material Description": "VITAMIN B12 REA(130213002M)100TEST-SNIBE"
+  },
+  {
+    "Material": "406347",
+    "Material Description": "REGISTER NO.4 -GEN"
+  },
+  {
+    "Material": "410225",
+    "Material Description": "SELF ADHESIVE LABELS 34X64-GEN"
+  },
+  {
+    "Material": "706289",
+    "Material Description": "USER FILLABLE REAGENT DENMARK 5ML-DAKO"
+  },
+  {
+    "Material": "401975",
+    "Material Description": "EXAM PAD -GEN"
+  },
+  {
+    "Material": "706912",
+    "Material Description": "UNSATURATED IRON-BINDING (MINDUIB0302)-M"
+  },
+  {
+    "Material": "408698",
+    "Material Description": "MAXELL LR44 CELL"
+  },
+  {
+    "Material": "702503",
+    "Material Description": "HCV TRIST 50TESTS-JMITRA"
+  },
+  {
+    "Material": "205900",
+    "Material Description": "MAGNEON 50% INJ 2ML AMP"
+  },
+  {
+    "Material": "707096",
+    "Material Description": "M-6 FD DYE 12MLX4 BOT(105-012298-00)-M"
+  },
+  {
+    "Material": "800571",
+    "Material Description": "HEMATOLOGY CONTROL TRI LEVEL(51622012)-A"
+  },
+  {
+    "Material": "413614",
+    "Material Description": "CARTRIDGE TONER DRUM 137-GEN"
+  },
+  {
+    "Material": "307065",
+    "Material Description": "RYLES TUBE FG-10-ROMSONS"
+  },
+  {
+    "Material": "313488",
+    "Material Description": "GRASPER FORCEPS"
+  },
+  {
+    "Material": "325970",
+    "Material Description": "NUTRIENT AGAR PLATE 10'S-CHETANA"
+  },
+  {
+    "Material": "412270",
+    "Material Description": "MTA (PVC)1''-GEN"
+  },
+  {
+    "Material": "407921",
+    "Material Description": "WIPER BIG (WHITE) -GEN"
+  },
+  {
+    "Material": "705868",
+    "Material Description": "KI 67 REAG-12ML MASTER"
+  },
+  {
+    "Material": "313087",
+    "Material Description": "BP CUFF PEADIATRIC SMALL-NIHON KOHDEN"
+  },
+  {
+    "Material": "706031",
+    "Material Description": "CA 125 REA(130201009M)100TEST-SNIBE"
+  },
+  {
+    "Material": "328472",
+    "Material Description": "RW OPA 2.45% LIQ 5LT JAR-R&W"
+  },
+  {
+    "Material": "203423",
+    "Material Description": "DURON 150MG INJ 3ML AMP"
+  },
+  {
+    "Material": "408671",
+    "Material Description": "WD 40 100ML SPRAY"
+  },
+  {
+    "Material": "304913",
+    "Material Description": "IV SET-JMS"
+  },
+  {
+    "Material": "410484",
+    "Material Description": "LEGAL PAPER 21.5X34.5 CM(GREEN)"
+  },
+  {
+    "Material": "318511",
+    "Material Description": "RYLES TUBE 16FR-ROMSONS"
+  },
+  {
+    "Material": "410330",
+    "Material Description": "REGISTER-OT STERILE MATERIAL RECEIVED"
+  },
+  {
+    "Material": "406579",
+    "Material Description": "SCREW 35/8\" -GEN"
+  },
+  {
+    "Material": "403963",
+    "Material Description": "PATHOLOGY MUST REGISTER -GEN"
+  },
+  {
+    "Material": "706108",
+    "Material Description": "TLE (1F5) 3ML-MASTER"
+  },
+  {
+    "Material": "705358",
+    "Material Description": "P53 (SP5) 3ML-MASTER"
+  },
+  {
+    "Material": "705871",
+    "Material Description": "CARBON DIOXIDE ESTI KIT ML 2X10ML-PROTON"
+  },
+  {
+    "Material": "706889",
+    "Material Description": "CRP C-REACTIVE PROTEIN (MINDCRP0102)-M"
+  },
+  {
+    "Material": "705315",
+    "Material Description": "NAPSIN A (BS10) 3ML-MASTER"
+  },
+  {
+    "Material": "403531",
+    "Material Description": "MOUSE FOR COMPUTER -GEN"
+  },
+  {
+    "Material": "402926",
+    "Material Description": "KEYBOARD P/S2 (LOGITECH) -GEN"
+  },
+  {
+    "Material": "414891",
+    "Material Description": "VISUAL BEDSIDE UNIT DRAPE STD(20201)-CMR"
+  },
+  {
+    "Material": "407068",
+    "Material Description": "SURFACE BOX (AR) 2M -GEN"
+  },
+  {
+    "Material": "325789",
+    "Material Description": "ROUND CONDENSER-ADSCO"
+  },
+  {
+    "Material": "410223",
+    "Material Description": "SELF ADHESIVE LABELS 100X44-GEN"
+  },
+  {
+    "Material": "409891",
+    "Material Description": "BREAD BOX-GEN"
+  },
+  {
+    "Material": "403053",
+    "Material Description": "LEAVE FORM -GEN"
+  },
+  {
+    "Material": "706890",
+    "Material Description": "GGT GAMMA CT KIT(MINDGGT0102)-M"
+  },
+  {
+    "Material": "310921",
+    "Material Description": "OXYGEN FACE MASK ADULT-VINJOH"
+  },
+  {
+    "Material": "408270",
+    "Material Description": "FUJI FILM 11X14\"-FUJI"
+  },
+  {
+    "Material": "705696",
+    "Material Description": "SGOT-AST REAG 1038TEST PACK-MINDRAY"
+  },
+  {
+    "Material": "325967",
+    "Material Description": "SABORAUD'S C DEXTROSE AGAR SLANT 5'S-CHE"
+  },
+  {
+    "Material": "706020",
+    "Material Description": "T3 REA(130203003M)100TEST-SNIBE"
+  },
+  {
+    "Material": "705321",
+    "Material Description": "CYTOKERATIN20 (KS20.8) 3ML-MASTER"
+  },
+  {
+    "Material": "205691",
+    "Material Description": "LOXICARD 2% INJ 50ML VIAL"
+  },
+  {
+    "Material": "706906",
+    "Material Description": "UREA KIT (MINDURE0102)-M"
+  },
+  {
+    "Material": "705302",
+    "Material Description": "CYTOKERATIN 19 (BA17) 3ML-MASTER"
+  },
+  {
+    "Material": "705375",
+    "Material Description": "BCL-2 3ML-MASTER"
+  },
+  {
+    "Material": "706023",
+    "Material Description": "THYROGLOBULIN(130203006M)100TEST-SNIBE"
+  },
+  {
+    "Material": "706021",
+    "Material Description": "FT4 REA (130203004M)100TEST-SNIBE"
+  },
+  {
+    "Material": "706022",
+    "Material Description": "FT3 REA(130203005M)100TEST-SNIBE"
+  },
+  {
+    "Material": "706027",
+    "Material Description": "HCG/βHCG REA(130202003M)100TEST-SNIBE"
+  },
+  {
+    "Material": "414892",
+    "Material Description": "INSULATING SLEEVE ACCES STERILE(10002)-C"
+  },
+  {
+    "Material": "706025",
+    "Material Description": "ESTRADIOL E2 REA(130202007M)100TEST-SNIB"
+  },
+  {
+    "Material": "707107",
+    "Material Description": "VITEK 2 AST N477 TEST KIT 20 CARDS-BIOME"
+  },
+  {
+    "Material": "312393",
+    "Material Description": "MONOPOLAR CURVED SCISSORS-420179"
+  },
+  {
+    "Material": "300975",
+    "Material Description": "BOX SS FOR INSTRUMENTS"
+  },
+  {
+    "Material": "410769",
+    "Material Description": "KEY FOROXYGEN CYLINDER"
+  },
+  {
+    "Material": "706905",
+    "Material Description": "URIC ACID KIT (MINDUA0102)-M"
+  },
+  {
+    "Material": "307075",
+    "Material Description": "S S TRAY 12X8\"-IMP"
+  },
+  {
+    "Material": "412352",
+    "Material Description": "REGISTER-OT SWAB"
+  },
+  {
+    "Material": "311275",
+    "Material Description": "ANAESTHESIC FACE MASK NO.3-GEN"
+  },
+  {
+    "Material": "408033",
+    "Material Description": "YELLOW TIPS-1000S -GEN"
+  },
+  {
+    "Material": "409118",
+    "Material Description": "MEDICO LEGAL CASE REGISTER"
+  },
+  {
+    "Material": "900686",
+    "Material Description": "CK-MB CALIBRATOR(105-001132-00)-M"
+  },
+  {
+    "Material": "705308",
+    "Material Description": "SYNAPTOPHYSIN (EP158)3ML-MASTER"
+  },
+  {
+    "Material": "410331",
+    "Material Description": "REGISTER-OT RECOVERY ROOM"
+  },
+  {
+    "Material": "706891",
+    "Material Description": "GLU-GOD GLUCOSE KIT(MINDGLU0102)-M"
+  },
+  {
+    "Material": "209338",
+    "Material Description": "POTCL INJ 10ML AMP"
+  },
+  {
+    "Material": "412861",
+    "Material Description": "MEMORY CARD 64GB-GEN"
+  },
+  {
+    "Material": "310315",
+    "Material Description": "COUS COUS SPECULUM LARGE -GEN"
+  },
+  {
+    "Material": "310316",
+    "Material Description": "COUS COUS SPECULUM MEDIUM -GEN"
+  },
+  {
+    "Material": "707179",
+    "Material Description": "ESTROGEN RECEPTOR 7ML-QUARTETT"
+  },
+  {
+    "Material": "706876",
+    "Material Description": "ALP ALKALINE PHOSPHATASE (MINDALP0102)-M"
+  },
+  {
+    "Material": "310317",
+    "Material Description": "COUS COUS SPECULUM SMALL -GEN"
+  },
+  {
+    "Material": "705768",
+    "Material Description": "URINE STRIP H10 SNLR  RAPHA 100TEST-DURE"
+  },
+  {
+    "Material": "300181",
+    "Material Description": "ACETIC ACID GLACIAL 500ML-MERCK"
+  },
+  {
+    "Material": "408605",
+    "Material Description": "MRD ENTRY IN-OUT REGISTER"
+  },
+  {
+    "Material": "310323",
+    "Material Description": "SIMS SPECULAM -GEN"
+  },
+  {
+    "Material": "310338",
+    "Material Description": "AIR GUN FOR INSTRUMENT DRYER"
+  },
+  {
+    "Material": "307906",
+    "Material Description": "SPUTUM MUG PLASTIC -GEN"
+  },
+  {
+    "Material": "311276",
+    "Material Description": "ANAESTHESIC FACE MASK NO.4-GEN"
+  },
+  {
+    "Material": "706016",
+    "Material Description": "FERRITIN REA (130201001M) 100TEST-SNIBE"
+  },
+  {
+    "Material": "303735",
+    "Material Description": "LIGASURE SMALL JAW (LF1212)-COVI"
+  },
+  {
+    "Material": "408423",
+    "Material Description": "STOP WATCH -GEN"
+  },
+  {
+    "Material": "706030",
+    "Material Description": "PSA REA(130201004M)100TEST-SNIBE"
+  },
+  {
+    "Material": "411052",
+    "Material Description": "FORM-RESTRICTED ANTIMICROBIAL APPROVAL"
+  },
+  {
+    "Material": "706032",
+    "Material Description": "CA 15-3 REA(130201010M)100TEST-SNIBE"
+  },
+  {
+    "Material": "410015",
+    "Material Description": "CLAMP SET FOR ECG MACHINE"
+  },
+  {
+    "Material": "707087",
+    "Material Description": "EX-D/DS STANDARD SOLUTION 1-470ML-JOKOH"
+  },
+  {
+    "Material": "315494",
+    "Material Description": "GLUCOMETER-ALERE"
+  },
+  {
+    "Material": "705932",
+    "Material Description": "C-ERB-2/HER2/NEU 7ML -DAKO"
+  },
+  {
+    "Material": "707157",
+    "Material Description": "CD117 REAGENT 7ML(QR012)-QUARTETT"
+  },
+  {
+    "Material": "317713",
+    "Material Description": "LIGASURE MARYLAND JAW 23CM(LF1923)-COVI"
+  },
+  {
+    "Material": "707170",
+    "Material Description": "HBA1C REA &CALIB KIT(HBA1402)-SHENZHEN"
+  },
+  {
+    "Material": "414386",
+    "Material Description": "REGISTER-OPD FOLLOW UP"
+  },
+  {
+    "Material": "308625",
+    "Material Description": "BP APPARATUS (DIGITAL) -GEN"
+  },
+  {
+    "Material": "707165",
+    "Material Description": "P16 REAGENT 7ML(QR019)-QUARTETT"
+  },
+  {
+    "Material": "706383",
+    "Material Description": "TTF1 7ML- MASTER"
+  },
+  {
+    "Material": "706229",
+    "Material Description": "HEAT SHOCK PROTEIN70(HSP70)(W27)3ML-DAKO"
+  },
+  {
+    "Material": "707159",
+    "Material Description": "CDX2 REAGENT 7ML(QR045)-QUARTETT"
+  },
+  {
+    "Material": "706033",
+    "Material Description": "CA 19-9 REA (130201011M)100TEST-SNIBE"
+  },
+  {
+    "Material": "705307",
+    "Material Description": "GLYPICAN-3 (1G12)3ML-MASTER"
+  },
+  {
+    "Material": "208122",
+    "Material Description": "NS (FK) 0.9% INJ 500ML PB"
+  },
+  {
+    "Material": "406351",
+    "Material Description": "REGISTER RULLED 3Q -GEN"
+  },
+  {
+    "Material": "308063",
+    "Material Description": "STIFF GUIDE WIRE 260CM-BOSTON SCIENTIFIC"
+  },
+  {
+    "Material": "414072",
+    "Material Description": "TENSION SPRING (14050229555)-LEICA"
+  },
+  {
+    "Material": "325965",
+    "Material Description": "GLUCOSE PHOSPHATE BROTH 10X5ML-CHETANA"
+  },
+  {
+    "Material": "412535",
+    "Material Description": "CPVC SOLVENT 100ML-GEN"
+  },
+  {
+    "Material": "305132",
+    "Material Description": "MOUTH GAG-GEN"
+  },
+  {
+    "Material": "412072",
+    "Material Description": "METAL STRIP FOR DOOR LOCK(XLC1012A)-DORM"
+  },
+  {
+    "Material": "409339",
+    "Material Description": "PIL POUCH FOR CSSD INTRUMENT PACKING 200"
+  },
+  {
+    "Material": "413565",
+    "Material Description": "BATTERY FOR DEFIBRILLATOR(DF-2509)-BPL"
+  },
+  {
+    "Material": "305419",
+    "Material Description": "CAPILLARY TUBE -GEN"
+  },
+  {
+    "Material": "409338",
+    "Material Description": "PIL POUCH FOR CSSD INTRUMENT PACKING 150"
+  },
+  {
+    "Material": "413063",
+    "Material Description": "SOLVENT PVC NEOSEAL 500ML(105)TIN P-GEN"
+  },
+  {
+    "Material": "323042",
+    "Material Description": "METZENBAUM SCISSOR CURV TC 7\"-DOWNZ"
+  },
+  {
+    "Material": "410387",
+    "Material Description": "FLAT BELT-GEN"
+  },
+  {
+    "Material": "410629",
+    "Material Description": "END CAP 4\"-GEN"
+  },
+  {
+    "Material": "407189",
+    "Material Description": "TASKI (R6) TOILET CLEANER 5LTR-GEN"
+  },
+  {
+    "Material": "312737",
+    "Material Description": "PEPTONE WATER 1 EACH BOTTLE HIMEDIA"
+  },
+  {
+    "Material": "705137",
+    "Material Description": "DIAMOND PENCIL MI 1"
+  },
+  {
+    "Material": "705774",
+    "Material Description": "FLEX WASH BUFFER  1LTR-DAKO"
+  },
+  {
+    "Material": "404241",
+    "Material Description": "PLASTIC BOX SMALL -GEN"
+  },
+  {
+    "Material": "405586",
+    "Material Description": "TASKI (R5) INTACARE 5LTR-DIVERSEY"
+  },
+  {
+    "Material": "315654",
+    "Material Description": "LUTETIUM INJ LU-177 DOTA TATE(LUM3)-BRIT"
+  },
+  {
+    "Material": "407187",
+    "Material Description": "TASKI (R2) HYGIENIC HARD SURFACE CLEANER"
+  },
+  {
+    "Material": "407188",
+    "Material Description": "TASKI (R3) GLASS CLEANER 5LTR-GEN"
+  },
+  {
+    "Material": "408257",
+    "Material Description": "TASKI (R1) BATHROOM CLEANER 5LTR"
+  },
+  {
+    "Material": "706721",
+    "Material Description": "L-ARGININE BROTH 5ML-CHETANA"
+  },
+  {
+    "Material": "406986",
+    "Material Description": "STICKER -GEN"
+  },
+  {
+    "Material": "705695",
+    "Material Description": "SGPT-ALT REAG 1038TEST PACK-MINDRAY"
+  },
+  {
+    "Material": "324373",
+    "Material Description": "BEARING 7-MANMAN"
+  },
+  {
+    "Material": "706024",
+    "Material Description": "FSH REA(130202001M)100TEST-SNIBE"
+  },
+  {
+    "Material": "706918",
+    "Material Description": "FINECARE NT-PRO BNP 25 TEST (W202)-WONDF"
+  },
+  {
+    "Material": "702698",
+    "Material Description": "HBA1C FC-25TESTP-FINECARE"
+  },
+  {
+    "Material": "411840",
+    "Material Description": "DEFIBRILLATOR ROLL 20MMX50MTR-GEN"
+  },
+  {
+    "Material": "705138",
+    "Material Description": "DPX MOUNTEANT THERMO FISCHER 250ML"
+  },
+  {
+    "Material": "409341",
+    "Material Description": "LIQUIZIME 1 GALLON-CHEMICAL"
+  },
+  {
+    "Material": "705867",
+    "Material Description": "CA 19.9 REAG 3ML-MASTER"
+  },
+  {
+    "Material": "207812",
+    "Material Description": "NIKORAN 5MG TAB 20'S CONTAINER"
+  },
+  {
+    "Material": "410383",
+    "Material Description": "PAPER A4 COLOUR -GEN"
+  },
+  {
+    "Material": "707095",
+    "Material Description": "M-6 LD LYSE 1LX4 BOTTLE(105-012288-00)-M"
+  },
+  {
+    "Material": "319132",
+    "Material Description": "AST-N407 TEST KIT 20CARDS-BIOMERIUX"
+  },
+  {
+    "Material": "706417",
+    "Material Description": "AMMONIA-6X5ML-DIASYS"
+  },
+  {
+    "Material": "319216",
+    "Material Description": "AST-YS08 TEST KT 20CARDS-BIOMERIUX"
+  },
+  {
+    "Material": "319215",
+    "Material Description": "VITEK2 YST TEST KIT 20CARDS-BIOMERIUX"
+  },
+  {
+    "Material": "406923",
+    "Material Description": "STAPLER PIN -GEN"
+  },
+  {
+    "Material": "406849",
+    "Material Description": "SPIKE GUARD -GEN"
+  },
+  {
+    "Material": "706288",
+    "Material Description": "FLEX HEMATOXYLIN LINK 45ML(K800821)-DAKO"
+  },
+  {
+    "Material": "706875",
+    "Material Description": "ALB ALBUMIN KIT(MINDALB0102)-M"
+  },
+  {
+    "Material": "706103",
+    "Material Description": "CARBON ANHYDRASE (EP161)3ML-MASTER"
+  },
+  {
+    "Material": "706149",
+    "Material Description": "PMS2 (IR087)REA 12ML-DAKO"
+  },
+  {
+    "Material": "314734",
+    "Material Description": "CADIERE FORCEP-470049"
+  },
+  {
+    "Material": "411866",
+    "Material Description": "REDUCER (PVC) 4\" X 2 1/2\" -GEN"
+  },
+  {
+    "Material": "409225",
+    "Material Description": "LED DOWN PANEL 2X2 SERIES LIGHT-40 WATT"
+  },
+  {
+    "Material": "413429",
+    "Material Description": "TONER CARTRIDGE (137)-CANON"
+  },
+  {
+    "Material": "706382",
+    "Material Description": "SMOOTH MUCLE ACTIN 7ML - MASTER"
+  },
+  {
+    "Material": "313351",
+    "Material Description": "HARMONIC ACE ERGONOMIC 36MM (HAR36)-J&J"
+  },
+  {
+    "Material": "410873",
+    "Material Description": "BRUSH SET(COLOUR)-GEN"
+  },
+  {
+    "Material": "413283",
+    "Material Description": "SOLENOID POWER SUPPLY BIG-CASTELLAR"
+  },
+  {
+    "Material": "403365",
+    "Material Description": "MCB FOUR POLE TPN 63AMP -GEN"
+  },
+  {
+    "Material": "409726",
+    "Material Description": "PEN DRIVE 128GB"
+  },
+  {
+    "Material": "400411",
+    "Material Description": "RCBO FP 100MA 63A DX(411374)-LEGRAND"
+  },
+  {
+    "Material": "410094",
+    "Material Description": "REGISTER FOR PROCEDURE"
+  },
+  {
+    "Material": "305360",
+    "Material Description": "BACILOID SPECIAL -GEN"
+  },
+  {
+    "Material": "211413",
+    "Material Description": "SUPRIDOL 50MG INJ 1ML AMP"
+  },
+  {
+    "Material": "404605",
+    "Material Description": "PRESSURE ROLLER FOR LBP 2900 PRINTER-HP"
+  },
+  {
+    "Material": "408369",
+    "Material Description": "HDMI CABLE"
+  },
+  {
+    "Material": "406645",
+    "Material Description": "SENSOR -GEN"
+  },
+  {
+    "Material": "319623",
+    "Material Description": "AST-P628 TEST KIT 20CARDS-BIOMERIUX"
+  },
+  {
+    "Material": "303800",
+    "Material Description": "GLYCERINE 100GM-GEN"
+  },
+  {
+    "Material": "701567",
+    "Material Description": "IHC-PAP PEN"
+  },
+  {
+    "Material": "412104",
+    "Material Description": "REGISETER-EMPLYEE MOVEMENT"
+  },
+  {
+    "Material": "705364",
+    "Material Description": "VIMENTIN (SP20) 3ML-MASTER"
+  },
+  {
+    "Material": "201075",
+    "Material Description": "AVIL INJ 2ML AMP"
+  },
+  {
+    "Material": "705939",
+    "Material Description": "CYTOKERATIN 7(OVTL12/30) RTU 3ML-DAKO"
+  },
+  {
+    "Material": "700162",
+    "Material Description": "OXIDASE DISCS (50 DISCS / VL)-DD018-1VL"
+  },
+  {
+    "Material": "705766",
+    "Material Description": "SATB2 DNA-BINDING 3ML(EP281)-MASTER"
+  },
+  {
+    "Material": "407071",
+    "Material Description": "SURFACE BOX 3M -AR"
+  },
+  {
+    "Material": "322802",
+    "Material Description": "I-131 SODIUM IODIDE SOLUTION 50MCI-BRIT"
+  },
+  {
+    "Material": "702402",
+    "Material Description": "SALINE SOLUTION-BIOMERIEUX-500ML-V1204"
+  },
+  {
+    "Material": "410609",
+    "Material Description": "BARACKETING TAPE-GEN"
+  },
+  {
+    "Material": "705538",
+    "Material Description": "ENV FLEX-MINI KIT-HIGH PH DAKO 120ML"
+  },
+  {
+    "Material": "203582",
+    "Material Description": "EMESET 4MG INJ 2ML AMP"
+  },
+  {
+    "Material": "706292",
+    "Material Description": "SLIDE LABEL KIT LARGE FLAP (S341730)-DAK"
+  },
+  {
+    "Material": "407607",
+    "Material Description": "UV LGHT TUBE FOR INSECT KILLER M/C1\"-GEN"
+  },
+  {
+    "Material": "401784",
+    "Material Description": "DUSTER (MAGNITCE) -GEN"
+  },
+  {
+    "Material": "409337",
+    "Material Description": "PIL POUCH FOR CSSD INTRUMENT PACKING 100"
+  },
+  {
+    "Material": "202888",
+    "Material Description": "DEXASONE 4MG INJ 2ML VIAL"
+  },
+  {
+    "Material": "706878",
+    "Material Description": "AMY A AMYLASE KIT(MINDAMY0102)-M"
+  },
+  {
+    "Material": "321847",
+    "Material Description": "METALOOP SS-4 FIXED NICHROME LOOP(LA014)"
+  },
+  {
+    "Material": "706886",
+    "Material Description": "CAL CALCIUM KIT(MINDCA0102)-M"
+  },
+  {
+    "Material": "314269",
+    "Material Description": "I-131 SOL 200 MCI-PARS"
+  },
+  {
+    "Material": "706901",
+    "Material Description": "PHO PHOSPHORUS KIT (MINDP0102)-M"
+  },
+  {
+    "Material": "413265",
+    "Material Description": "REGISTER-HISTOPATH INWARD"
+  },
+  {
+    "Material": "310058",
+    "Material Description": "CAUTERY PLATE (E-7507)-VALLY LAB"
+  },
+  {
+    "Material": "408426",
+    "Material Description": "STAPLER (BIG) -GEN"
+  },
+  {
+    "Material": "410606",
+    "Material Description": "PAPER BAG ( SIZE :- 15 X 10 )"
+  },
+  {
+    "Material": "324226",
+    "Material Description": "MULTI PATIENT KIT PSMA-ESENTE"
+  },
+  {
+    "Material": "311866",
+    "Material Description": "STAINING STAND S.S"
+  },
+  {
+    "Material": "404412",
+    "Material Description": "PURCHASE REQUISITION SLIP -GEN"
+  },
+  {
+    "Material": "706106",
+    "Material Description": "NKX3.1 (EP356)3ML-MASTER"
+  },
+  {
+    "Material": "707191",
+    "Material Description": "GATA 3 REAGENT 7ML(QR018)-QUARTETT"
+  },
+  {
+    "Material": "707187",
+    "Material Description": "CD34 REAGENT 7ML(QR093)-QUARTETT"
+  },
+  {
+    "Material": "314641",
+    "Material Description": "I-131 LABELIED MIBG-BRIT"
+  },
+  {
+    "Material": "411353",
+    "Material Description": "REGISTER-HIGH DOSE THERAPY PATIENT"
+  },
+  {
+    "Material": "411355",
+    "Material Description": "REGISTER-COLD KIT RECORD"
+  },
+  {
+    "Material": "316361",
+    "Material Description": "LUTETIUM INJ LU-177 PSMA 617(LUM5)-BRIT"
+  },
+  {
+    "Material": "411376",
+    "Material Description": "UNIFORM FOR ATTENDER"
+  },
+  {
+    "Material": "707198",
+    "Material Description": "BETA CATENIN REAGENT 7ML(QR095)-QUARTETT"
+  },
+  {
+    "Material": "410913",
+    "Material Description": "HARD DISK DRIVE 1TB-GEN"
+  },
+  {
+    "Material": "400545",
+    "Material Description": "BOOK-DEAD BODY HAND OVER"
+  },
+  {
+    "Material": "707197",
+    "Material Description": "NKX3.1 REAGENT 7ML(QR055)-QUARTETT"
+  },
+  {
+    "Material": "707196",
+    "Material Description": "SYNAPTOPHYSIN REAGENT 7ML(QR054)-QUARTET"
+  },
+  {
+    "Material": "302241",
+    "Material Description": "DISSECTING FORCEP TOOTHED 6\"-BSCO"
+  },
+  {
+    "Material": "411735",
+    "Material Description": "LOW PRESSURE TUBE-GEN"
+  },
+  {
+    "Material": "707195",
+    "Material Description": "HEPPAR 1 7ML REAGENT 7ML(QR122)-QUARTETT"
+  },
+  {
+    "Material": "707194",
+    "Material Description": "NKX2.2 REAGENT 7ML(QR077)-QUARTETT"
+  },
+  {
+    "Material": "707193",
+    "Material Description": "CA19.9 REAGENT 7ML(121SLE)-QUARTETT"
+  },
+  {
+    "Material": "707190",
+    "Material Description": "EMA REAGENT 7ML(QR118)-QUARTETT"
+  },
+  {
+    "Material": "707189",
+    "Material Description": "CD99 REAGENT 7ML(QR067)-QUARTETT"
+  },
+  {
+    "Material": "707188",
+    "Material Description": "CD56 REAGENT 7ML(QR044)-QUARTETT"
+  },
+  {
+    "Material": "400848",
+    "Material Description": "CELL (BIG) -GEN"
+  },
+  {
+    "Material": "412003",
+    "Material Description": "REGISTER-REPORT RECALL"
+  },
+  {
+    "Material": "705675",
+    "Material Description": "CALCITONIN 3ML (SP17)-MASTER"
+  },
+  {
+    "Material": "310309",
+    "Material Description": "ARTERY FORCEPS CURVED 6\" -GEN"
+  },
+  {
+    "Material": "705673",
+    "Material Description": "MYO D1 3ML(EP212)-MASTER"
+  },
+  {
+    "Material": "706331",
+    "Material Description": "MYOGENIN 3ML-MASTER"
+  },
+  {
+    "Material": "310305",
+    "Material Description": "LARYNGOSCOPE-PEIDIATRIC WITH BLADE -GEN"
+  },
+  {
+    "Material": "706804",
+    "Material Description": "BRAIN HEART INFUSION BROTH 20ML-CHETANA"
+  },
+  {
+    "Material": "319912",
+    "Material Description": "CONVEX PROBE (4C-RS)-GE"
+  },
+  {
+    "Material": "706761",
+    "Material Description": "TR ERG (9FY)RUO(MAD-000609QD-R-3)3ML-VIT"
+  },
+  {
+    "Material": "407800",
+    "Material Description": "W.C SHEET COVER CLAMP -GEN"
+  },
+  {
+    "Material": "322392",
+    "Material Description": "MICROWAVE PROBE ZIRCONIUM TIP-MIMA PRO"
+  },
+  {
+    "Material": "706926",
+    "Material Description": "BACT ALERT PF PLUS 100T(410853)-BIOMERIU"
+  },
+  {
+    "Material": "706384",
+    "Material Description": "SYNAPTOPHYSIN 7ML- MASTER"
+  },
+  {
+    "Material": "706141",
+    "Material Description": "ANDROGEN RECEPTOR 3ML-MASTER"
+  },
+  {
+    "Material": "705318",
+    "Material Description": "SALL4(EE-30) 3ML-MASTER"
+  },
+  {
+    "Material": "407235",
+    "Material Description": "TELEPHONE INDEX DAIRY -GEN"
+  },
+  {
+    "Material": "209022",
+    "Material Description": "PEDICLORYL 500MG SYR 30ML BOTTLE"
+  },
+  {
+    "Material": "706378",
+    "Material Description": "CD117 (C-KIT) 7ML- MASTER"
+  },
+  {
+    "Material": "705351",
+    "Material Description": "ALPHA FETOPROTEIN (EP209) 3ML-MASTER"
+  },
+  {
+    "Material": "705310",
+    "Material Description": "CALPONIN (EP63) 3ML-MASTER"
+  },
+  {
+    "Material": "413167",
+    "Material Description": "TONER DRUM 4125-KYOCERA"
+  },
+  {
+    "Material": "401125",
+    "Material Description": "COLIN -GEN"
+  },
+  {
+    "Material": "412312",
+    "Material Description": "HARD DISK DRIVE SSD 256GB-GEN"
+  },
+  {
+    "Material": "705355",
+    "Material Description": "WT1(WILMS TUMOR) 6F-H2 3ML-MASTER"
+  },
+  {
+    "Material": "706900",
+    "Material Description": "MG MAGNESIUM KIT(MINDMG0102)-M"
+  },
+  {
+    "Material": "705300",
+    "Material Description": "BETA CATENIN-I CLONE 3ML-MASTER"
+  },
+  {
+    "Material": "412061",
+    "Material Description": "BOOK-THIRD PARTY WORK PERMISSION"
+  },
+  {
+    "Material": "312194",
+    "Material Description": "CONCENTRATED HAEMO DIALYSIS SOL-10LTR"
+  },
+  {
+    "Material": "206998",
+    "Material Description": "JUSTIN-AQ 75MG INJ 1ML AMP"
+  },
+  {
+    "Material": "410780",
+    "Material Description": "PIL POUCH FOR CSSD INTRUMENT PACK 75MM"
+  },
+  {
+    "Material": "707167",
+    "Material Description": "P40 REA 7ML(QR020)-QUARTETT"
+  },
+  {
+    "Material": "414938",
+    "Material Description": "PIPE (PVC) 3IN-GEN"
+  },
+  {
+    "Material": "303566",
+    "Material Description": "GAMMEX GLOVES PF SIZE.8-ANSEL"
+  },
+  {
+    "Material": "701967",
+    "Material Description": "STREPTOMYCIN HLS-HLS-SD236-1VL-HIMEDIA"
+  },
+  {
+    "Material": "707168",
+    "Material Description": "PAX 8 REA 7ML(QR016)-QUARTETT"
+  },
+  {
+    "Material": "706214",
+    "Material Description": "CEFOTAXIME 30MCG(SD040) 1VL-HIMEDIA"
+  },
+  {
+    "Material": "707166",
+    "Material Description": "P53 REA 7ML(QR025)-QUARTETT"
+  },
+  {
+    "Material": "706634",
+    "Material Description": "MEROPENEM(SD727-1VL)-HIMEDIA"
+  },
+  {
+    "Material": "700169",
+    "Material Description": "POLYMYXIN-B 300 UNITS - SD029-1VL"
+  },
+  {
+    "Material": "702483",
+    "Material Description": "CHLORAMPHENICOL C 30 MCG-SD006-1VL-HIMED"
+  },
+  {
+    "Material": "700959",
+    "Material Description": "CEFOXITIN DISC 1X100 NOS-HIMEDIA"
+  },
+  {
+    "Material": "700167",
+    "Material Description": "LINEZOLID 30 MCG - SD215-1VL"
+  },
+  {
+    "Material": "707164",
+    "Material Description": "NAPSIN A REA 7ML(QR058)-QUARTETT"
+  },
+  {
+    "Material": "705303",
+    "Material Description": "EMA CLONE (E29) 3ML-MASTER"
+  },
+  {
+    "Material": "707154",
+    "Material Description": "AMACR REAG 7ML(QR108)-QUARTETT"
+  },
+  {
+    "Material": "707156",
+    "Material Description": "CALRETININ REAGENT 7ML(QR059)- QUARTETT"
+  },
+  {
+    "Material": "707158",
+    "Material Description": "CD30 REAGENT 7ML(QR109)-QUARTETT"
+  },
+  {
+    "Material": "705466",
+    "Material Description": "DORIPENEM SD283 1ML 1VAL-HIMEDIA"
+  },
+  {
+    "Material": "707155",
+    "Material Description": "BCL REAGENT 7ML(QR062)-QUARTETT"
+  },
+  {
+    "Material": "707160",
+    "Material Description": "CHROMOGRANIN A REA 7ML(QR096)-QUARTETT"
+  },
+  {
+    "Material": "707161",
+    "Material Description": "CYTOKERATIN 19 REAG 7ML(QR125)-QUARTETT"
+  },
+  {
+    "Material": "414557",
+    "Material Description": "CPVC SOLVENT 118ML-GEN"
+  },
+  {
+    "Material": "706621",
+    "Material Description": "AMPICILLIN/SULBACTAM(SD112-1VL)-HIMEDIA"
+  },
+  {
+    "Material": "707162",
+    "Material Description": "CYTOKERATIN 20 REA 7ML(KS20.8)-QUARTETT"
+  },
+  {
+    "Material": "414578",
+    "Material Description": "RR WIRE  1.5SQMM 90MT YELLOW-RR KABEL"
+  },
+  {
+    "Material": "707163",
+    "Material Description": "DESMIN REA 7ML(QR026)-QUARTETT"
+  },
+  {
+    "Material": "414579",
+    "Material Description": "RR WIRE  1.5SQMM 90MT BLACK-RR KABEL"
+  },
+  {
+    "Material": "414580",
+    "Material Description": "RR WIRE  1.5SQMM 90MT RED-RR KABEL"
+  },
+  {
+    "Material": "414581",
+    "Material Description": "RR WIRE  1.5SQMM 90MT GREEN-RR KABEL"
+  },
+  {
+    "Material": "700957",
+    "Material Description": "CEFEPIME DISC 1X100 NOS- HIMEDIA"
+  },
+  {
+    "Material": "900755",
+    "Material Description": "CK-MB CALIBRATOR(CKB1102)-SHENZHEN"
+  },
+  {
+    "Material": "307819",
+    "Material Description": "SKIN HOOK -GEN"
+  },
+  {
+    "Material": "312554",
+    "Material Description": "COAGULATION"
+  },
+  {
+    "Material": "319195",
+    "Material Description": "IMIPENEM 10MCG (SD073-1VL)-HIMEDIA"
+  },
+  {
+    "Material": "401886",
+    "Material Description": "ELECTRIC KETTLE -GEN"
+  },
+  {
+    "Material": "410075",
+    "Material Description": "NAILS FOR CONCRETE 1 1/2\""
+  },
+  {
+    "Material": "319194",
+    "Material Description": "GENTAMICIN 10MCG (SD016-1VL)-HIMEDIA"
+  },
+  {
+    "Material": "305475",
+    "Material Description": "NUNEB PRO NEBULIZER-NULIFE"
+  },
+  {
+    "Material": "319192",
+    "Material Description": "CIPROFLOXACIN 5MCG (SD060-1VL)-HIMEDIA"
+  },
+  {
+    "Material": "402782",
+    "Material Description": "INSTRUMENT TROLLEY WHEELS -GEN"
+  },
+  {
+    "Material": "325550",
+    "Material Description": "TICARCILLIN CLAVULANIC DISC 75/10MCG-HIM"
+  },
+  {
+    "Material": "325972",
+    "Material Description": "CEFTAZID/CLAVU ACID CAC 30 (SD207-1VL)-H"
+  },
+  {
+    "Material": "310445",
+    "Material Description": "MICRO PIPETTE 100-1000"
+  },
+  {
+    "Material": "310492",
+    "Material Description": "MONOPOLAR HOOK (STD SIZE -RIGHT ANGLE)"
+  },
+  {
+    "Material": "410643",
+    "Material Description": "TEE (PVC)-GEN"
+  },
+  {
+    "Material": "315641",
+    "Material Description": "DIAMOND BONE SAW-ISTOS"
+  },
+  {
+    "Material": "404173",
+    "Material Description": "PIPE SWR (PVC) 4\""
+  },
+  {
+    "Material": "307067",
+    "Material Description": "RYLES TUBE FG-14-ROMSONS"
+  },
+  {
+    "Material": "313592",
+    "Material Description": "RYLES TUBE 8FR-POLYMED"
+  },
+  {
+    "Material": "304364",
+    "Material Description": "MAXCORE BIOPSY GUN 16GX16CM-BARD"
+  },
+  {
+    "Material": "314425",
+    "Material Description": "I-131 SOL 250 MCI-PARS"
+  },
+  {
+    "Material": "309860",
+    "Material Description": "ACETONE 400ML BOTTLE"
+  },
+  {
+    "Material": "314624",
+    "Material Description": "I-131 SOL 100 MCI 3.70GBQ -PARS"
+  },
+  {
+    "Material": "403379",
+    "Material Description": "MEASURING TAP -GEN"
+  },
+  {
+    "Material": "412063",
+    "Material Description": "REGISTER-MORNING SHIFT PATIENT ROUND"
+  },
+  {
+    "Material": "706147",
+    "Material Description": "MSH2 (IR085)REA 12ML-DAKO"
+  },
+  {
+    "Material": "706148",
+    "Material Description": "MSH6 (IR086)REA 12ML-DAKO"
+  },
+  {
+    "Material": "402283",
+    "Material Description": "GATE PASS BOOK -GEN"
+  },
+  {
+    "Material": "408915",
+    "Material Description": "BLOOD TRANSFUSION REGISTER"
+  },
+  {
+    "Material": "705372",
+    "Material Description": "CD34 (QB-END/10) 3ML-MASTER"
+  },
+  {
+    "Material": "705374",
+    "Material Description": "DOG1(ANOCTAMIN-1) SP31 3ML-MASTER"
+  },
+  {
+    "Material": "706668",
+    "Material Description": "CEFTAZIDIME/AVIBACTUM CZA (SD309-1VL)-HI"
+  },
+  {
+    "Material": "319591",
+    "Material Description": "LUGOL'S IODINE SOLUTION 500 ML"
+  },
+  {
+    "Material": "706636",
+    "Material Description": "TOBRAMYCIN (SD044-1VL)-HIMEDIA"
+  },
+  {
+    "Material": "313076",
+    "Material Description": "STEAM INDICATOR TAPE"
+  },
+  {
+    "Material": "401729",
+    "Material Description": "DRUM CARTRIDGE FOR XEROX MACHINE -GEN"
+  },
+  {
+    "Material": "409693",
+    "Material Description": "TRAY WITH LID SS 14X10\""
+  },
+  {
+    "Material": "409727",
+    "Material Description": "PEN DRIVE 32GB"
+  },
+  {
+    "Material": "409787",
+    "Material Description": "ANTISKID TAP 2 INCH -3M"
+  },
+  {
+    "Material": "706982",
+    "Material Description": "URINALYSIS CONTROL LEVEL 2-BIORAD"
+  },
+  {
+    "Material": "706981",
+    "Material Description": "URINALYSIS CONTROL LEVEL 1-BIORAD"
+  },
+  {
+    "Material": "402509",
+    "Material Description": "HEATING ELEMENT (ELTEK) 3KW -GEN"
+  },
+  {
+    "Material": "206336",
+    "Material Description": "MEPHENTERMIN 30MG INJ 10ML VIAL"
+  },
+  {
+    "Material": "305641",
+    "Material Description": "ORTHO WEIGHT SET 8KG-VISSCO"
+  },
+  {
+    "Material": "705870",
+    "Material Description": "ADENOSINE DEAMINASE (ADA)75ML-PROTON"
+  },
+  {
+    "Material": "411254",
+    "Material Description": "WATER HARDNESS TESTING KIT"
+  },
+  {
+    "Material": "217857",
+    "Material Description": "DEXTROSE (B BRAUN) 5% INJ 500ML ECOFLAC"
+  },
+  {
+    "Material": "402157",
+    "Material Description": "FLUSH TANK -GEN"
+  },
+  {
+    "Material": "306946",
+    "Material Description": "RESTRAINT STRAP-VISSCO"
+  },
+  {
+    "Material": "413270",
+    "Material Description": "SHEET-AMSP DAILY TRACKING"
+  },
+  {
+    "Material": "307703",
+    "Material Description": "SAVLON 1LTR -GEN"
+  },
+  {
+    "Material": "402222",
+    "Material Description": "FRY PAN MEDIUM -GEN"
+  },
+  {
+    "Material": "402276",
+    "Material Description": "GASKET DOOR (AUTOCLAVE) -GEN"
+  },
+  {
+    "Material": "401978",
+    "Material Description": "EXCEL TRAY LARGE (PLASTIC) -GEN"
+  },
+  {
+    "Material": "314133",
+    "Material Description": "SURGICARE NEURO GLOVES PF 8.0-KANAM"
+  },
+  {
+    "Material": "402359",
+    "Material Description": "GOODKNIGHT LIQUID -GEN"
+  },
+  {
+    "Material": "200194",
+    "Material Description": "ADRENOR 4MG INJ 2ML AMP"
+  },
+  {
+    "Material": "305905",
+    "Material Description": "PEAK FLOW METER-ROMSONS"
+  },
+  {
+    "Material": "406345",
+    "Material Description": "REGISTER NO 6 -GEN"
+  },
+  {
+    "Material": "308134",
+    "Material Description": "STRAIGHT HAND PIECE (NSK)-BLS"
+  },
+  {
+    "Material": "401885",
+    "Material Description": "ELECTRIC CALL BELL -GEN"
+  },
+  {
+    "Material": "401822",
+    "Material Description": "ECG CABLE 5 LEAD -GEN"
+  },
+  {
+    "Material": "412105",
+    "Material Description": "REGISTER-SECURITY & DRIVER DEPLOYMENT"
+  },
+  {
+    "Material": "414670",
+    "Material Description": "ROTAMETER 1.5IN 7500 LPH (F7500L)-ASTER"
+  },
+  {
+    "Material": "415030",
+    "Material Description": "ROTAMETER 2IN 20000 LPH-ASTER"
+  },
+  {
+    "Material": "318022",
+    "Material Description": "ENDO LINEAR CUTTER 60MM (PLEE60A)-J&J"
+  },
+  {
+    "Material": "311791",
+    "Material Description": "UNSENSITIZED TUBES-BIOMERX"
+  },
+  {
+    "Material": "316773",
+    "Material Description": "LIGASURE EXACT DISSECTOR (LF2019)-COVI"
+  },
+  {
+    "Material": "408425",
+    "Material Description": "PUNCHING MACHINE BIG (DP500) -GEN"
+  },
+  {
+    "Material": "800481",
+    "Material Description": "URINALYSIS CONTROL LIQUICHEK 12ML-BIORAD"
+  },
+  {
+    "Material": "202850",
+    "Material Description": "DERIPHYLLIN INJ 2ML AMP"
+  },
+  {
+    "Material": "407948",
+    "Material Description": "WIRE CRIMPING TOOL -GEN"
+  },
+  {
+    "Material": "407881",
+    "Material Description": "WHITE BOARD 2X3\" -GEN"
+  },
+  {
+    "Material": "403840",
+    "Material Description": "OUTWARD REGISTER -GEN"
+  },
+  {
+    "Material": "706146",
+    "Material Description": "MLH1 (IR079)REA 12ML-DAKO"
+  },
+  {
+    "Material": "404002",
+    "Material Description": "PATILA WITH COVER STEEL -GEN"
+  },
+  {
+    "Material": "411226",
+    "Material Description": "REGISTER-ICU-PT ASST&EQUIPMENT UTILISATI"
+  },
+  {
+    "Material": "200656",
+    "Material Description": "ANAWIN 0.5% INJ 20ML VIAL"
+  },
+  {
+    "Material": "706014",
+    "Material Description": "PROCALCTIONIN REA 100TEST-SNIBE"
+  },
+  {
+    "Material": "314897",
+    "Material Description": "M3 CHAMPION MICRO MOTOR-MARATHON"
+  },
+  {
+    "Material": "313095",
+    "Material Description": "GENERATOR GA68/GE86 50MCI"
+  },
+  {
+    "Material": "403357",
+    "Material Description": "MCB 40AMP 4POLE -GEN"
+  },
+  {
+    "Material": "326771",
+    "Material Description": "WHITE FILTER CARD STRIPS(FC6R1T)MEDILAB"
+  },
+  {
+    "Material": "314557",
+    "Material Description": "HARMONIC FOCUS HAR17F-J&J"
+  },
+  {
+    "Material": "302007",
+    "Material Description": "CVC CATH SING LUMN 16GX20CM(CV50016)-ARW"
+  },
+  {
+    "Material": "415041",
+    "Material Description": "ROTAMETER 2IN 10000LPH (CWC-50)-CWC"
+  },
+  {
+    "Material": "411297",
+    "Material Description": "MCCB 100AMP 3POLE-GEN"
+  },
+  {
+    "Material": "310769",
+    "Material Description": "ASSAYED CHEMISTRY CONTROL LEVEL-2"
+  },
+  {
+    "Material": "331008",
+    "Material Description": "MULTI COMBINATION RACKS(P20209)-ABDOS"
+  },
+  {
+    "Material": "706227",
+    "Material Description": "GLUTAMINE SYNTHETASE (GS-6)3ML-DAKO"
+  },
+  {
+    "Material": "412062",
+    "Material Description": "REGISTER-NIGHT SHIFT PATIENT ROUND"
+  },
+  {
+    "Material": "410768",
+    "Material Description": "WD 40 420ML SPARAY"
+  },
+  {
+    "Material": "800554",
+    "Material Description": "PDL-1 22C3 CLONE DAKO(M365329)-OCD"
+  },
+  {
+    "Material": "201585",
+    "Material Description": "BUTODOL 1MG INJ 1ML AMP"
+  },
+  {
+    "Material": "403604",
+    "Material Description": "NAIL CUTTER -GEN"
+  },
+  {
+    "Material": "410226",
+    "Material Description": "SELF ADHESIVE LABELS 210X297-GEN"
+  },
+  {
+    "Material": "410332",
+    "Material Description": "REGISTER-PHYSIOTHERPHY HANDOVER"
+  },
+  {
+    "Material": "707099",
+    "Material Description": "BC-6D HEMATOLOGY CONTROL 4.5MLX6 VIAL-MI"
+  },
+  {
+    "Material": "400680",
+    "Material Description": "CALCULATOR 512T -GEN"
+  },
+  {
+    "Material": "705800",
+    "Material Description": "CA 125 REAG 3ML-MASTER"
+  },
+  {
+    "Material": "410300",
+    "Material Description": "SHOES MALE(STAFF)-GEN"
+  },
+  {
+    "Material": "403773",
+    "Material Description": "OT REGISTER"
+  },
+  {
+    "Material": "306661",
+    "Material Description": "PULSE OXYMETER-IMP"
+  },
+  {
+    "Material": "321263",
+    "Material Description": "AZTREONAM DISC 1X100TEST- HIMEDIA"
+  },
+  {
+    "Material": "406865",
+    "Material Description": "SPO2 PROBE ADULT -GEN"
+  },
+  {
+    "Material": "408412",
+    "Material Description": "FA VALVE WITH JFM"
+  },
+  {
+    "Material": "304475",
+    "Material Description": "HOT WATER BAG"
+  },
+  {
+    "Material": "706101",
+    "Material Description": "INI1 (BAF47/SNF5)3ML-MASTER"
+  },
+  {
+    "Material": "406474",
+    "Material Description": "RUBBER BAND -GEN"
+  },
+  {
+    "Material": "706376",
+    "Material Description": "P63 (4A4) 7ML -MASTER"
+  },
+  {
+    "Material": "411763",
+    "Material Description": "BATTERY FOR LAPTOP-GEN"
+  },
+  {
+    "Material": "400797",
+    "Material Description": "PET-CT NURSING REGISTER"
+  },
+  {
+    "Material": "706514",
+    "Material Description": "CADHERIN E 3ML-MASTER"
+  },
+  {
+    "Material": "706925",
+    "Material Description": "BACT ALERT FA PLUS 100T(410851)-BIOMERIU"
+  },
+  {
+    "Material": "408285",
+    "Material Description": "MSW UNIFORM BLAZER"
+  },
+  {
+    "Material": "410605",
+    "Material Description": "FEVICRYL COLOUR 15ML BOTTLE"
+  },
+  {
+    "Material": "320840",
+    "Material Description": "MAGLUMI LIGHT CHECK 2.5 ML-SNIBE"
+  },
+  {
+    "Material": "705316",
+    "Material Description": "CALRETININ (SP13) 3ML-MASTER"
+  },
+  {
+    "Material": "402739",
+    "Material Description": "REGISTER-MATERIAL INWARD"
+  },
+  {
+    "Material": "705369",
+    "Material Description": "S100 PROTEIN (4C4.9) 3ML-MASTER"
+  },
+  {
+    "Material": "209685",
+    "Material Description": "PYROLATE 0.2MG INJ 1ML AMP"
+  },
+  {
+    "Material": "403701",
+    "Material Description": "NOTE BOOK (SMALL) 100PAGE -GEN"
+  },
+  {
+    "Material": "402814",
+    "Material Description": "IPD PATIENT FILE -COBRA"
+  },
+  {
+    "Material": "412109",
+    "Material Description": "TONER CARTRIDGE (MAGENTA)NPG67-CANON"
+  },
+  {
+    "Material": "412110",
+    "Material Description": "TONER CARTRIDGE (YELLOW)NPG67-CANON"
+  },
+  {
+    "Material": "411820",
+    "Material Description": "UNIFORM MAINTENANCE"
+  },
+  {
+    "Material": "403897",
+    "Material Description": "PAN SAUCE ALUMINIUM -GEN"
+  },
+  {
+    "Material": "705306",
+    "Material Description": "CHROMOGRANIN-A (LK2H10)3ML-MASTER"
+  },
+  {
+    "Material": "705311",
+    "Material Description": "CD56/NACM-1(123C3) 3ML-MASTER"
+  },
+  {
+    "Material": "412108",
+    "Material Description": "TONER CARTRIDGE (CYAN)NPG67-CANON"
+  },
+  {
+    "Material": "400430",
+    "Material Description": "UNIFORM-STEWARD"
+  },
+  {
+    "Material": "316747",
+    "Material Description": "LIGASURE MARYLAND JAW 37CM(LF1937)-COVI"
+  },
+  {
+    "Material": "315390",
+    "Material Description": "I-131 SODIUM IODIDE SOLUTION 150MCI"
+  },
+  {
+    "Material": "410562",
+    "Material Description": "FORM-MRUTYU AHAVAL"
+  },
+  {
+    "Material": "210980",
+    "Material Description": "SODIUM BICARBONATE 20% INJ 10ML AMP"
+  },
+  {
+    "Material": "706028",
+    "Material Description": "AFP REA(130201002M)100TEST-SNIBE"
+  },
+  {
+    "Material": "410298",
+    "Material Description": "TIE(STAFF)-GEN"
+  },
+  {
+    "Material": "400454",
+    "Material Description": "FORM-PATIENT RESPONSE OUTCOME MEASUREMEN"
+  },
+  {
+    "Material": "409571",
+    "Material Description": "DOCTORS HANDINGOVER REGISTER"
+  },
+  {
+    "Material": "705933",
+    "Material Description": "WIDAL SLIDE REAG 10ML-BEACON"
+  },
+  {
+    "Material": "409994",
+    "Material Description": "TAPE ROLL BLUE 3''-BIOHAZARD"
+  },
+  {
+    "Material": "800568",
+    "Material Description": "TUMOR MARKER PLUS CTRL L1 6X2ML(367)-BIO"
+  },
+  {
+    "Material": "332159",
+    "Material Description": "FENESTRATED GRASPER PLATFORM(10300)-CMR"
+  },
+  {
+    "Material": "412107",
+    "Material Description": "TONER CARTRIDGE (BLACK)NPG67-CANON"
+  },
+  {
+    "Material": "800570",
+    "Material Description": "TUMOR MARKER PLUS CTRL L3 6X2ML(369)-BIO"
+  },
+  {
+    "Material": "800569",
+    "Material Description": "TUMOR MARKER PLUS CTRL L2 6X2ML(368)-BIO"
+  },
+  {
+    "Material": "707072",
+    "Material Description": "DILUENT (DX3) PLUS(54040003)-AGAPPE"
+  },
+  {
+    "Material": "705361",
+    "Material Description": "CD10(56C6) 3ML-MASTER"
+  },
+  {
+    "Material": "325964",
+    "Material Description": "NUTRIENT BROTH 5ML 10'S-CHETANA"
+  },
+  {
+    "Material": "706379",
+    "Material Description": "CYTOKERATIN7 7ML -MASTER"
+  },
+  {
+    "Material": "404219",
+    "Material Description": "PITAMBIRE PACK (SMALL) -GEN"
+  },
+  {
+    "Material": "400266",
+    "Material Description": "REGISTER-NEW PATIENT FOR RADIAT DEPT(TE)"
+  },
+  {
+    "Material": "403973",
+    "Material Description": "PATIENT DIAGNOSIS/TRTMNT RECORD REGISTER"
+  },
+  {
+    "Material": "314633",
+    "Material Description": "CITROSTERILE SOLUTION 5LTRS"
+  },
+  {
+    "Material": "400667",
+    "Material Description": "CABLE TIE 250MM -GEN"
+  },
+  {
+    "Material": "200477",
+    "Material Description": "AMINOPHYLLINE INJ 10ML AMP"
+  },
+  {
+    "Material": "800567",
+    "Material Description": "IMMUNOASSAY PLUS CTRL LV 3 12X5ML(373)-B"
+  },
+  {
+    "Material": "706026",
+    "Material Description": "VITAMIN D REA (130211004M)100TEST-SNIBE"
+  },
+  {
+    "Material": "400827",
+    "Material Description": "CAUSTIC SODA FLAKES -GEN"
+  },
+  {
+    "Material": "400385",
+    "Material Description": "BIOHAZARD STICKER -GEN"
+  },
+  {
+    "Material": "314708",
+    "Material Description": "DIASAFE PLUS FILTER-FRESENIUS"
+  },
+  {
+    "Material": "400184",
+    "Material Description": "ARALDITE -GEN"
+  },
+  {
+    "Material": "400085",
+    "Material Description": "ADM & DISCHARGE REGISTER -GEN"
+  },
+  {
+    "Material": "400859",
+    "Material Description": "CELL COUNTER -GEN"
+  },
+  {
+    "Material": "400068",
+    "Material Description": "CARTRIDGE INK 664 (BLACK)-EPSON"
+  },
+  {
+    "Material": "403736",
+    "Material Description": "NURSING INITIAL ASMNT FORM PAEDIARIC-GEN"
+  },
+  {
+    "Material": "900688",
+    "Material Description": "MULTI SERA CALIBRATOR 10X3ML(MSM162)-MIN"
+  },
+  {
+    "Material": "400708",
+    "Material Description": "CAP -GEN"
+  },
+  {
+    "Material": "900687",
+    "Material Description": "MULTI SERA CALIBRATOR 20X3ML(MSM161)-MIN"
+  },
+  {
+    "Material": "404507",
+    "Material Description": "CRAFT PAPER-GEN"
+  },
+  {
+    "Material": "400668",
+    "Material Description": "CABLE TIE 300MM -GEN"
+  },
+  {
+    "Material": "400448",
+    "Material Description": "FORM-APACHE MORTALITY PREDICTION"
+  },
+  {
+    "Material": "705745",
+    "Material Description": "D-DIMER REAG 25TEST PACK-FINECARE"
+  },
+  {
+    "Material": "404215",
+    "Material Description": "PIPE WR\" -GEN"
+  },
+  {
+    "Material": "400384",
+    "Material Description": "BIOFIX SPRAY -GEN"
+  },
+  {
+    "Material": "705944",
+    "Material Description": "GEIMSA'S BUFFER 500ML-PATHOZYME"
+  },
+  {
+    "Material": "404238",
+    "Material Description": "PLASTIC BOX BIG -GEN"
+  },
+  {
+    "Material": "404247",
+    "Material Description": "PLASTIC MUG -GEN"
+  },
+  {
+    "Material": "705943",
+    "Material Description": "GEIMSA'S STAIN 500ML-PATHOZYME"
+  },
+  {
+    "Material": "400369",
+    "Material Description": "TONER CARTRIDGE (326) -CANON"
+  },
+  {
+    "Material": "400970",
+    "Material Description": "UNIFORM CHEF COAT & PANT"
+  },
+  {
+    "Material": "400774",
+    "Material Description": "ADF ROLLER FOR SCANNER-GEN"
+  },
+  {
+    "Material": "404168",
+    "Material Description": "PIPE (UPVC) 3/4\" -GEN"
+  },
+  {
+    "Material": "800476",
+    "Material Description": "EQAS IMMUNOASSAY PROGRAM-BIORAD"
+  },
+  {
+    "Material": "404005",
+    "Material Description": "PATTI TUBE LIGHT FITTINGS 2FEET -GEN"
+  },
+  {
+    "Material": "314152",
+    "Material Description": "DIAPER ADULT LARGE-BAPUJI"
+  },
+  {
+    "Material": "315264",
+    "Material Description": "FLEX MONO E-CADHERIN(NCH-38)6ML VIAL-DAK"
+  },
+  {
+    "Material": "706015",
+    "Material Description": "NT-PRO BNP REA(130206004M)100TEST-SNIBE"
+  },
+  {
+    "Material": "800507",
+    "Material Description": "FINECARE CRP 25 TEST W201-WONDFO"
+  },
+  {
+    "Material": "706887",
+    "Material Description": "CK-MB CREATINE KINA(MIND105-004616-00)-M"
+  },
+  {
+    "Material": "202527",
+    "Material Description": "CORT-S 100MG INJ VIAL"
+  },
+  {
+    "Material": "321257",
+    "Material Description": "CHIBA BIOPSY NEEDLE 22G-MEDITECH"
+  },
+  {
+    "Material": "707088",
+    "Material Description": "EX-D/DS STANDARD SOLUTION 2-140ML-JOKOH"
+  },
+  {
+    "Material": "401736",
+    "Material Description": "DRY MOP SET -GEN"
+  },
+  {
+    "Material": "706385",
+    "Material Description": "VIMENTIN 7ML -MASTER"
+  },
+  {
+    "Material": "324227",
+    "Material Description": "MULTI PATIENT KIT DOTANOC-ESENTE"
+  },
+  {
+    "Material": "201654",
+    "Material Description": "CALCIUM GLUCONATE INJ 10ML AMP"
+  },
+  {
+    "Material": "706618",
+    "Material Description": "CEFTAZIDIME(SD062-1VL)-HIMEDIA"
+  },
+  {
+    "Material": "401753",
+    "Material Description": "DURACELL ULTRA 9V"
+  },
+  {
+    "Material": "323824",
+    "Material Description": "BP CUFF FOR OMRON BP APPARATUS-OMRON"
+  },
+  {
+    "Material": "706921",
+    "Material Description": "FINECARE TROP I 25 TEST(W223)-WONDFO"
+  },
+  {
+    "Material": "201550",
+    "Material Description": "BUDECORT 0.5MG RESP 2ML AMP"
+  },
+  {
+    "Material": "401933",
+    "Material Description": "ENVELOPE COVER (HCG)-GEN"
+  },
+  {
+    "Material": "319196",
+    "Material Description": "LEVOFLOXACIN 5MCG (SD216-1VL)-HIMEDIA"
+  },
+  {
+    "Material": "401726",
+    "Material Description": "DRUG MIXING REGISTER -GEN"
+  },
+  {
+    "Material": "706764",
+    "Material Description": "INSM1 (A-8)RUO(MAD-000777QD-R-3)3ML-VITR"
+  },
+  {
+    "Material": "706903",
+    "Material Description": "TG TRIGLYCERIDES KIT (MINDTG0102)-M"
+  },
+  {
+    "Material": "706902",
+    "Material Description": "CHOL TOTAL CHOLESTROL KIT(MINDP0102)-M"
+  },
+  {
+    "Material": "706816",
+    "Material Description": "IMMUNOASSAY PLUS CTRL LV 1 12X5ML(371)-B"
+  },
+  {
+    "Material": "706817",
+    "Material Description": "IMMUNOASSAY PLUS CTRL LV 2 12X5ML(372)-B"
+  },
+  {
+    "Material": "402278",
+    "Material Description": "GASKIT FOR VERTICAL AUTOCLAVE -GEN"
+  },
+  {
+    "Material": "319885",
+    "Material Description": "SILICON OIL BOTTLE-GEN"
+  },
+  {
+    "Material": "319721",
+    "Material Description": "DISTILLED WATER 20LTR CAN-GEN"
+  },
+  {
+    "Material": "402194",
+    "Material Description": "FORK -GEN"
+  },
+  {
+    "Material": "402173",
+    "Material Description": "FOLLOW UP NUTRITIONAL ASSESSMENT -GEN"
+  },
+  {
+    "Material": "402066",
+    "Material Description": "FEVICOL SR 500ML -GEN"
+  },
+  {
+    "Material": "402557",
+    "Material Description": "STAPLER HP-45"
+  },
+  {
+    "Material": "318932",
+    "Material Description": "LOCKING BOLT 4.9MM-GEN"
+  },
+  {
+    "Material": "400067",
+    "Material Description": "CARTRIDGE INK 664 (YELLOW)-EPSON"
+  },
+  {
+    "Material": "706201",
+    "Material Description": "FLEX MONO MO A HU KI-67 AG 12ML-DAKO"
+  },
+  {
+    "Material": "400066",
+    "Material Description": "CHARGER FOR LAPTOP -GEN"
+  },
+  {
+    "Material": "400065",
+    "Material Description": "CARTRIDGE INK 664 (MAGENTA)-EPSON"
+  },
+  {
+    "Material": "400059",
+    "Material Description": "CARTRIDGE INK (CYAN)664-EPSON"
+  },
+  {
+    "Material": "400016",
+    "Material Description": "FORM-DOCUMENTS DESTRUCTION LOG"
+  },
+  {
+    "Material": "317144",
+    "Material Description": "MANDIBLE PLATE TIT 2.5MMX3H"
+  },
+  {
+    "Material": "332162",
+    "Material Description": "YELLOWPORT ELITE S.U UNIVE SEAL 5-12MM-C"
+  },
+  {
+    "Material": "706109",
+    "Material Description": "CD45 LCA 7ML-MASTER"
+  },
+  {
+    "Material": "332161",
+    "Material Description": "YELLOWPORT ELITE S.U SEAL 5MM(EA05XL)-C"
+  },
+  {
+    "Material": "402154",
+    "Material Description": "FLUSH TANK BALL COCK -GEN"
+  },
+  {
+    "Material": "403324",
+    "Material Description": "MAT RUBBER -GEN"
+  },
+  {
+    "Material": "329422",
+    "Material Description": "PANA AIR AIRTOR HAND PIECE(FX-SUB2)-NSK"
+  },
+  {
+    "Material": "403265",
+    "Material Description": "M SEAL -GEN"
+  },
+  {
+    "Material": "402726",
+    "Material Description": "IMMERSION HEATER 3KW -GEN"
+  },
+  {
+    "Material": "325174",
+    "Material Description": "GA68 MULTI PATIENT KIT FOR DOTA EXENDIN"
+  },
+  {
+    "Material": "707097",
+    "Material Description": "M-6 LH LYSE 1LX4 BOTTLE(105-012292-00)-M"
+  },
+  {
+    "Material": "317603",
+    "Material Description": "NEEDLE HOLDER STR-GEN"
+  },
+  {
+    "Material": "403062",
+    "Material Description": "LENS FOR MICROSCOPE -GEN"
+  },
+  {
+    "Material": "317711",
+    "Material Description": "HORIZON LIGA CLIP APPLIER GREEN(337081)-"
+  },
+  {
+    "Material": "402919",
+    "Material Description": "KEY CHAIN -GEN"
+  },
+  {
+    "Material": "706287",
+    "Material Description": "RABBIT LINKER LINK 40ML(K800921)-DAKO"
+  },
+  {
+    "Material": "324589",
+    "Material Description": "EMERALD SINGLE USE SYRINGE 10ML-BD"
+  },
+  {
+    "Material": "402768",
+    "Material Description": "INITIAL ASSESSMENT CHART -GEN"
+  },
+  {
+    "Material": "706293",
+    "Material Description": "DAB AWAY CLEANING AGENT 30ML(S196730-2)"
+  },
+  {
+    "Material": "706375",
+    "Material Description": "P53 (SP5) 7ML-MASTER"
+  },
+  {
+    "Material": "401233",
+    "Material Description": "CNSNT FOR APPLYING VENTILATOR SUPPORT"
+  },
+  {
+    "Material": "303752",
+    "Material Description": "LINEAR CUTTER 75MM (NTLC75)-J&J"
+  },
+  {
+    "Material": "203153",
+    "Material Description": "DIXIN 0.5MG INJ 2ML AMP"
+  },
+  {
+    "Material": "305352",
+    "Material Description": "NEOFLON 26G-BD"
+  },
+  {
+    "Material": "412483",
+    "Material Description": "BATTERY 3V(CR2450)-PANASONIC"
+  },
+  {
+    "Material": "412476",
+    "Material Description": "RO ANTISCALANT FLOMAX 2222-METCON"
+  },
+  {
+    "Material": "300881",
+    "Material Description": "BLOOD SET-ROMSONS"
+  },
+  {
+    "Material": "410333",
+    "Material Description": "VISITING CARD RIBBON-GEN"
+  },
+  {
+    "Material": "305590",
+    "Material Description": "FLOW METER (OXYGEN) -GEN"
+  },
+  {
+    "Material": "412363",
+    "Material Description": "REGISTER-PET-CT PATIENT INFORMATION"
+  },
+  {
+    "Material": "410382",
+    "Material Description": "FORM-RESTAINT ASSESSMENT"
+  },
+  {
+    "Material": "410416",
+    "Material Description": "LED LIGHT ROUND 18W"
+  },
+  {
+    "Material": "412232",
+    "Material Description": "TROPHY WITH HCG LOGO-GEN"
+  },
+  {
+    "Material": "305709",
+    "Material Description": "OXYGEN METTALLIC REGULATOR-GM"
+  },
+  {
+    "Material": "412224",
+    "Material Description": "FLOOR TILES SCRAPER-GEN"
+  },
+  {
+    "Material": "412142",
+    "Material Description": "PVC SWR SHOOE 1.1/2\"-PRINCE"
+  },
+  {
+    "Material": "305265",
+    "Material Description": "NEBU KIT ADULT (3026)-VINJOH"
+  },
+  {
+    "Material": "412103",
+    "Material Description": "REGISTER-HOSPITAL VEHICLE MOVEMENT"
+  },
+  {
+    "Material": "301409",
+    "Material Description": "CHIBA BIOPSY NEEDLE (DCHN-22-20.0)-CK"
+  },
+  {
+    "Material": "412091",
+    "Material Description": "PVC RAWAL PLUG-GEN"
+  },
+  {
+    "Material": "412088",
+    "Material Description": "OXYGEN HOUSING-DRAGER"
+  },
+  {
+    "Material": "412065",
+    "Material Description": "REGISTER-DEPARTMENT ROUND"
+  },
+  {
+    "Material": "412516",
+    "Material Description": "PLUS FULL THREAD SCREW 100X10MM-GEN"
+  },
+  {
+    "Material": "412539",
+    "Material Description": "REDUCER UPVC 1-1/2'' X 1'' -GEN"
+  },
+  {
+    "Material": "413408",
+    "Material Description": "LED BATTEN LASER 24WATT-PHILIPS"
+  },
+  {
+    "Material": "410291",
+    "Material Description": "CHECK LIST FOR CRBSI BUNDLE"
+  },
+  {
+    "Material": "413370",
+    "Material Description": "REGISTER-VERSA HD PATIENT ADVANCE"
+  },
+  {
+    "Material": "307738",
+    "Material Description": "SPINAL NEEDLE 27G-BD"
+  },
+  {
+    "Material": "307736",
+    "Material Description": "SPINAL NEEDLE 25G-BD"
+  },
+  {
+    "Material": "413267",
+    "Material Description": "REGISTERE-QUIPMENT LOG"
+  },
+  {
+    "Material": "307346",
+    "Material Description": "SHAMPOO-GEN"
+  },
+  {
+    "Material": "413264",
+    "Material Description": "REGISTER-PATHOLOGY INWARD STOCK"
+  },
+  {
+    "Material": "413262",
+    "Material Description": "REGISTER-SAMPLE ACCEPTANCE AND REJECTION"
+  },
+  {
+    "Material": "410284",
+    "Material Description": "REGISTER-DAY CARE HANDING OVER/TAKING"
+  },
+  {
+    "Material": "413117",
+    "Material Description": "BATTERY FOR MINDRAY MONITOR-VISION"
+  },
+  {
+    "Material": "412553",
+    "Material Description": "FORM- EMERGENCY ROOM NURSING ASSESSMENT"
+  },
+  {
+    "Material": "413114",
+    "Material Description": "BALL BEARING-KIRLOSKAR"
+  },
+  {
+    "Material": "215665",
+    "Material Description": "NS 0.9% INJ 100ML ECOFLAC-B BRAUN"
+  },
+  {
+    "Material": "410301",
+    "Material Description": "SHOES FEMALE(STAFF)-GEN"
+  },
+  {
+    "Material": "218082",
+    "Material Description": "DEXTROSE (CLARIS) 25% INJ 100ML PB"
+  },
+  {
+    "Material": "225489",
+    "Material Description": "THROMBOPHOB OINT 30GM TUBE"
+  },
+  {
+    "Material": "306578",
+    "Material Description": "PROTECTIVE SHEET 20X20CM-GEN"
+  },
+  {
+    "Material": "300237",
+    "Material Description": "TOOTHED FORCEPS 6\"-GEN"
+  },
+  {
+    "Material": "300880",
+    "Material Description": "BLOOD SET-JMS"
+  },
+  {
+    "Material": "305217",
+    "Material Description": "NASAL CANNULA ADULT-POLYMED"
+  },
+  {
+    "Material": "412057",
+    "Material Description": "BROUCHURE-PET CT"
+  },
+  {
+    "Material": "410608",
+    "Material Description": "CARD SHEET PAPER-GEN"
+  },
+  {
+    "Material": "411349",
+    "Material Description": "STICKER-BIOMEDICAL WASTE RED"
+  },
+  {
+    "Material": "411419",
+    "Material Description": "HARD DISK DRIVE 4TB-GEN"
+  },
+  {
+    "Material": "411418",
+    "Material Description": "FORM-ICU PAT ADM&DISCH CRTERIA&TRANSFER"
+  },
+  {
+    "Material": "304428",
+    "Material Description": "MDP KIT-MDP BRACKO"
+  },
+  {
+    "Material": "411009",
+    "Material Description": "COUPLING(CPVC)3/4''"
+  },
+  {
+    "Material": "411030",
+    "Material Description": "CELL(CR123A)-PANASONIC"
+  },
+  {
+    "Material": "411374",
+    "Material Description": "OIL FOR MICROSCOPE 100ML-GEN"
+  },
+  {
+    "Material": "411065",
+    "Material Description": "REGISTER-DIET ORDER"
+  },
+  {
+    "Material": "411350",
+    "Material Description": "STICKER-BIOMEDICAL WASTE BLACK"
+  },
+  {
+    "Material": "411348",
+    "Material Description": "STICKER-BIO HAZARD WASTE YELLOW"
+  },
+  {
+    "Material": "410647",
+    "Material Description": "COUPLER (CPVC)-GEN"
+  },
+  {
+    "Material": "303688",
+    "Material Description": "LIGA CLIPS (LT-100)-J&J"
+  },
+  {
+    "Material": "303692",
+    "Material Description": "LIGA CLIPS APPLICATOR (LX210)-J&J"
+  },
+  {
+    "Material": "303693",
+    "Material Description": "LIGA CLIPS APPLICATOR (LX310)-J&J"
+  },
+  {
+    "Material": "411281",
+    "Material Description": "FORM-FORMRESTRAINT ASSESSMENT"
+  },
+  {
+    "Material": "411278",
+    "Material Description": "VERSA HD CARD-DEPT OF RADIATION ONCOLOGY"
+  },
+  {
+    "Material": "303758",
+    "Material Description": "LINEAR CUTTER SELECT 55MM (NTLC55)-J&J"
+  },
+  {
+    "Material": "411253",
+    "Material Description": "BALL VALVE (UPVC) 1X1/2\""
+  },
+  {
+    "Material": "411236",
+    "Material Description": "INK BOTTLE-GEN"
+  },
+  {
+    "Material": "411438",
+    "Material Description": "USB TO SERIAL CONVERTER-GEN"
+  },
+  {
+    "Material": "303362",
+    "Material Description": "FORMALIN TAB-GEN"
+  },
+  {
+    "Material": "411482",
+    "Material Description": "PLASTIC CRATE-GEN"
+  },
+  {
+    "Material": "411497",
+    "Material Description": "WIPER BLADE FOR PRINTER 12A-GEN"
+  },
+  {
+    "Material": "304717",
+    "Material Description": "INSULIN SYRINGE-BD"
+  },
+  {
+    "Material": "410781",
+    "Material Description": "PIL POUCH FOR CSSD INTRUMENT PACK 120MM"
+  },
+  {
+    "Material": "410787",
+    "Material Description": "REGISTER-RADIO THEORPHY"
+  },
+  {
+    "Material": "302935",
+    "Material Description": "EXAMINATION GLOVES POWDER -GEN"
+  },
+  {
+    "Material": "411665",
+    "Material Description": "FORM-BLOOD GLUCOSE&INSULINE LOG SHEET"
+  },
+  {
+    "Material": "411648",
+    "Material Description": "OXYGEN CYLINDER TROLLEY-GEN"
+  },
+  {
+    "Material": "411624",
+    "Material Description": "CONVERTOR DISPLAY PORT TO HDMI"
+  },
+  {
+    "Material": "411620",
+    "Material Description": "JET SPRAY TUBE-GEN"
+  },
+  {
+    "Material": "411596",
+    "Material Description": "PAPER POINT PROTECTOR-GEN"
+  },
+  {
+    "Material": "411584",
+    "Material Description": "JET SPRAY HANDLE PATTI -GEN"
+  },
+  {
+    "Material": "410825",
+    "Material Description": "WIRE MS 1.5SQMM-GEN"
+  },
+  {
+    "Material": "411505",
+    "Material Description": "BUTTERFLY VALVE-GEN"
+  },
+  {
+    "Material": "410914",
+    "Material Description": "CARTRIDGE TONER DRUM 12A-HP"
+  },
+  {
+    "Material": "303072",
+    "Material Description": "FINN PIPETTE F2 100-1000ML-TERUMO"
+  },
+  {
+    "Material": "303263",
+    "Material Description": "KORSOLEX SOL 500ML-RAMAN & WEIL"
+  },
+  {
+    "Material": "303281",
+    "Material Description": "KWIC FUSOR(GS-6021)500ML-ROMSONS"
+  },
+  {
+    "Material": "410945",
+    "Material Description": "EXHAUST FAN 200MM-CROMPTON"
+  },
+  {
+    "Material": "413386",
+    "Material Description": "STANDEE WITH PRINT-GEN"
+  },
+  {
+    "Material": "410232",
+    "Material Description": "FORM-PHYSIOTHERAPY TREATMENT"
+  },
+  {
+    "Material": "406718",
+    "Material Description": "SLIPPER -GEN"
+  },
+  {
+    "Material": "705173",
+    "Material Description": "TEDRO HCV MERIL-1TEST"
+  },
+  {
+    "Material": "407366",
+    "Material Description": "TONER CARTRIDGE CANON-925 -CANON"
+  },
+  {
+    "Material": "705309",
+    "Material Description": "HEPTAOCYTE SPECIFIC ANTIGEN(OCH1E5)3ML-M"
+  },
+  {
+    "Material": "407408",
+    "Material Description": "TOOTH PICK -GEN"
+  },
+  {
+    "Material": "407485",
+    "Material Description": "TREATMENT ORDER SHEET (DRP) -GEN"
+  },
+  {
+    "Material": "407531",
+    "Material Description": "TUBE LIGHT U V SMALL -GEN"
+  },
+  {
+    "Material": "312142",
+    "Material Description": "ESR PIPETTE 1X100 NOS"
+  },
+  {
+    "Material": "407608",
+    "Material Description": "VACCINATION CARD -GEN"
+  },
+  {
+    "Material": "407791",
+    "Material Description": "VISITORS BOOK -GEN"
+  },
+  {
+    "Material": "311542",
+    "Material Description": "AZITHROMYCIN DISC 1X100 NOS-HIMEDIA"
+  },
+  {
+    "Material": "407321",
+    "Material Description": "TISSUE PAPER DISPENSER SMALL(C-FOLD)-GEN"
+  },
+  {
+    "Material": "203402",
+    "Material Description": "DUOVIR-N TAB 30'S"
+  },
+  {
+    "Material": "311265",
+    "Material Description": "FA VALVE WITH GUAGE & HUMIDIFIER BOTTEL"
+  },
+  {
+    "Material": "408116",
+    "Material Description": "BUCKET (PLASTIC) 20LTR -GEN"
+  },
+  {
+    "Material": "203468",
+    "Material Description": "DYTOR 20MG INJ 2ML AMP"
+  },
+  {
+    "Material": "408143",
+    "Material Description": "CONTAINER -GEN"
+  },
+  {
+    "Material": "408173",
+    "Material Description": "PLATE FOR SNACKS KF 10\" -GEN"
+  },
+  {
+    "Material": "311152",
+    "Material Description": "OXYGEN SENSOR FOR DRAGER"
+  },
+  {
+    "Material": "311093",
+    "Material Description": "RB A HU C-ERB-2 ONCOPROT A048529-2 0.2ML"
+  },
+  {
+    "Material": "705312",
+    "Material Description": "P63 (4A4) 3ML-MASTER"
+  },
+  {
+    "Material": "407273",
+    "Material Description": "THERMAL PAPER ROLL (SNAP PACK) -GEN"
+  },
+  {
+    "Material": "307809",
+    "Material Description": "SILICON SEALENT -GEN"
+  },
+  {
+    "Material": "705366",
+    "Material Description": "CALDESMON (H-CALD) 3ML-MASTER"
+  },
+  {
+    "Material": "705534",
+    "Material Description": "POTASSIUM DIHYDROGEN(KH2PO4)1X500GM-LOBA"
+  },
+  {
+    "Material": "406730",
+    "Material Description": "SMPS ATX 450W -GEN"
+  },
+  {
+    "Material": "406806",
+    "Material Description": "SOLVENT (UPVC) 118ML -GEN"
+  },
+  {
+    "Material": "705413",
+    "Material Description": "CD99 CLONE EP8 3ML-MASTER"
+  },
+  {
+    "Material": "705371",
+    "Material Description": "CD117/C-KIT (EP10) 3ML-MASTER"
+  },
+  {
+    "Material": "705370",
+    "Material Description": "CYTOKERATIN (AE1/AE3) 3ML-MASTER"
+  },
+  {
+    "Material": "313197",
+    "Material Description": "VACUTAINER NA FLUORIDE-2ML(672020202)-PR"
+  },
+  {
+    "Material": "705367",
+    "Material Description": "PODOPLANIN (D2-40) 3ML-MASTER"
+  },
+  {
+    "Material": "705365",
+    "Material Description": "AMACR/P504S (13H4) 3ML-MASTER"
+  },
+  {
+    "Material": "312689",
+    "Material Description": "INDUCTION / HOT PLATE 1 EACH  GEN"
+  },
+  {
+    "Material": "407072",
+    "Material Description": "SURFACE BOX 6M -AR"
+  },
+  {
+    "Material": "705363",
+    "Material Description": "CYTOKERATIN 7 (OVTL12/30) 3ML-MASTER"
+  },
+  {
+    "Material": "705362",
+    "Material Description": "SMOOTH MUSCL ACTIN (1A4) 3ML-MASTER"
+  },
+  {
+    "Material": "705357",
+    "Material Description": "THYROGLOBULIN (EP250) 3ML-MASTER"
+  },
+  {
+    "Material": "407137",
+    "Material Description": "T SHAPE 0.5\" -GEN"
+  },
+  {
+    "Material": "407172",
+    "Material Description": "TAPE (BOTH SIDED) -GEN"
+  },
+  {
+    "Material": "705352",
+    "Material Description": "PLACENTAL ALKAL PHOSTPHA(SP15)3ML-MASTER"
+  },
+  {
+    "Material": "705322",
+    "Material Description": "MELANOMA(HMB45) 3ML-MASTER"
+  },
+  {
+    "Material": "408429",
+    "Material Description": "PLASTIC STOOL -GEN"
+  },
+  {
+    "Material": "702329",
+    "Material Description": "MICROPROTEIN (1X50ML)-1KIT-ERBA"
+  },
+  {
+    "Material": "702305",
+    "Material Description": "BENEDICT SOLUTION-500ML-ORGANO"
+  },
+  {
+    "Material": "414430",
+    "Material Description": "DRESSING TRAY WITH LID 11X7 304SS-DOWNZ"
+  },
+  {
+    "Material": "409577",
+    "Material Description": "PRE OP & POST OP CHECKLIST"
+  },
+  {
+    "Material": "409657",
+    "Material Description": "UNION (CPVC) 2\""
+  },
+  {
+    "Material": "409663",
+    "Material Description": "ELBOW (CPVC) 1 1/4\""
+  },
+  {
+    "Material": "409725",
+    "Material Description": "PEN DRIVE 64GB"
+  },
+  {
+    "Material": "308169",
+    "Material Description": "SUCTION CATHETER FG-14-ROMSONS"
+  },
+  {
+    "Material": "409815",
+    "Material Description": "ANTIBIOTIC STEWARDSHIP AUDIT FORM"
+  },
+  {
+    "Material": "409880",
+    "Material Description": "CPVC SOLVENT CEMENT 118ML TIN"
+  },
+  {
+    "Material": "409914",
+    "Material Description": "SPOON AP-GEN"
+  },
+  {
+    "Material": "209002",
+    "Material Description": "PAUSE 500MG INJ 5ML AMP"
+  },
+  {
+    "Material": "702241",
+    "Material Description": "ALBERT’S STAIN A-S001-125ML-HIMEDIA"
+  },
+  {
+    "Material": "308140",
+    "Material Description": "TEST TUBE HOLDER -GEN"
+  },
+  {
+    "Material": "414163",
+    "Material Description": "GLASSIO PLATES 2M-GOLDMEDAL"
+  },
+  {
+    "Material": "410196",
+    "Material Description": "BIOHAZARD STICKER 6X6CM-GEN"
+  },
+  {
+    "Material": "308057",
+    "Material Description": "STETHOSCOPE-MICORTONE"
+  },
+  {
+    "Material": "307880",
+    "Material Description": "SPIRIT LAMP -GEN"
+  },
+  {
+    "Material": "414033",
+    "Material Description": "REGISTER-ADVERSE EVENT&CONTRAST REACTION"
+  },
+  {
+    "Material": "413776",
+    "Material Description": "MECHANICAL SEAL SS304 FOR MODEL E25-STER"
+  },
+  {
+    "Material": "413607",
+    "Material Description": "PEDESTAL FAN 500 MM, CROMPTON"
+  },
+  {
+    "Material": "309704",
+    "Material Description": "WEIGHING MACHINE-GEN"
+  },
+  {
+    "Material": "207998",
+    "Material Description": "NORAD 4MG INJ 2ML AMP"
+  },
+  {
+    "Material": "409372",
+    "Material Description": "ZEBRA ZXP SERIES 3 COLOUR RIBBONS"
+  },
+  {
+    "Material": "207583",
+    "Material Description": "NEOMOL 250MG SUPP 5'S"
+  },
+  {
+    "Material": "408432",
+    "Material Description": "INK CARTRIDGE FOR AUTOCLAVE LABEL GUN"
+  },
+  {
+    "Material": "408549",
+    "Material Description": "TEE (UPVC) 2\""
+  },
+  {
+    "Material": "311040",
+    "Material Description": "FOLEY'S BALLOON CATHETER FG-14-RMS"
+  },
+  {
+    "Material": "310946",
+    "Material Description": "UNIPLASTIN 5ML"
+  },
+  {
+    "Material": "700171",
+    "Material Description": "FLUCONAZOLE 25 MCG - SD232-1VL"
+  },
+  {
+    "Material": "310421",
+    "Material Description": "HIV CARD 1X100 TEST"
+  },
+  {
+    "Material": "700159",
+    "Material Description": "LACTOPHENOL COTTON BLUE 100ML-S016-100ML"
+  },
+  {
+    "Material": "310260",
+    "Material Description": "RAPID AFB STAIN KIT (2X100ML)"
+  },
+  {
+    "Material": "408980",
+    "Material Description": "DOUBLE BURNER COOKING STOVE"
+  },
+  {
+    "Material": "408982",
+    "Material Description": "URINARY TRACT INFECTION FORM A4 SIZE"
+  },
+  {
+    "Material": "310255",
+    "Material Description": "MOSQUITO FORCEP 5\""
+  },
+  {
+    "Material": "409008",
+    "Material Description": "VENTILATOR ASSOCIATED PNEUMONIA FORM"
+  },
+  {
+    "Material": "310110",
+    "Material Description": "TEGADERM 8.5X11.5CM (1657)-3M"
+  },
+  {
+    "Material": "409174",
+    "Material Description": "MULTI DETERGENT LIQUID 1LTR-GEN"
+  },
+  {
+    "Material": "409301",
+    "Material Description": "MICROSCOPE SLIDES 76 MM X 26 MM"
+  },
+  {
+    "Material": "310059",
+    "Material Description": "DIGITAL THERMOMETER-GEN"
+  },
+  {
+    "Material": "414624",
+    "Material Description": "MEAL BOX AND LID 5CP SQUARE-GEN"
+  },
+  {
+    "Material": "312387",
+    "Material Description": "CAMERA HEAD DRAPE-420273"
+  }
+]

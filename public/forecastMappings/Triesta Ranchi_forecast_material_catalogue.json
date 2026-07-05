@@ -1,0 +1,702 @@
+[
+  {
+    "Material": "929565",
+    "Material Description": "REFERENCE ELECTRODE3149501001 9000TROCHE"
+  },
+  {
+    "Material": "920899",
+    "Material Description": "LEISHMAN STAIN (SPAN) 500ML-GEN"
+  },
+  {
+    "Material": "910164",
+    "Material Description": "LETTER HEAD (FOUR COLOUR PRINTING)-GEN"
+  },
+  {
+    "Material": "929504",
+    "Material Description": "POTASSIUM CAT-10825441001 9000T-ROCHE"
+  },
+  {
+    "Material": "929563",
+    "Material Description": "ISE INT STAND  5X600 ML-ROCHE"
+  },
+  {
+    "Material": "910417",
+    "Material Description": "SURGICAL SPIRIT 4.5LT-B.P"
+  },
+  {
+    "Material": "929492",
+    "Material Description": "CREATININE CAT-4810716190 700T-ROCHE"
+  },
+  {
+    "Material": "929514",
+    "Material Description": "UREA NITROGEN CAT-4460715190 500T-ROCHE"
+  },
+  {
+    "Material": "913294",
+    "Material Description": "GEL CLOT ACTIVATOR(NVGC)NVLH4-4ML NASMED"
+  },
+  {
+    "Material": "929488",
+    "Material Description": "CALCIUM TOTAL CAT-5061482190 300T-ROCHE"
+  },
+  {
+    "Material": "913293",
+    "Material Description": "K2 EDTA (NVK2) NVK23 - 3ML NASMED"
+  },
+  {
+    "Material": "929483",
+    "Material Description": "ALP  CAT-3333701190 400T-ROCHE"
+  },
+  {
+    "Material": "929503",
+    "Material Description": "PHOSPHARUS CAT-3183793122 250T-ROCHE"
+  },
+  {
+    "Material": "927205",
+    "Material Description": "H560 LYSE 2(121745)REA 1500ML-TRANSASIA"
+  },
+  {
+    "Material": "929515",
+    "Material Description": "URIC ACID CAT-3183807190 400T-ROCHE"
+  },
+  {
+    "Material": "929487",
+    "Material Description": "BILIRUBIN TOTAL CAT5795397190 250T-ROCHE"
+  },
+  {
+    "Material": "929486",
+    "Material Description": "BILIRUBIN DIRECT CAT5589061190 350TROCHE"
+  },
+  {
+    "Material": "929507",
+    "Material Description": "SGOT (AST) CAT-20764949322 500T-ROCHE"
+  },
+  {
+    "Material": "928038",
+    "Material Description": "ELITE H580LYSE3CAT-121749 3000ML-TRANS"
+  },
+  {
+    "Material": "929053",
+    "Material Description": "ADDI FOR WASH -CAT-58070676 2X250ML-SIE"
+  },
+  {
+    "Material": "929508",
+    "Material Description": "SGPT (ALT) CAT-20764957322  500T-ROCHE"
+  },
+  {
+    "Material": "927204",
+    "Material Description": "H560 LYSE 1(121744)REA 800ML-TRANSASIA"
+  },
+  {
+    "Material": "929511",
+    "Material Description": "TOTAL PROTEIN CAT-3183734190 300T-ROCHE"
+  },
+  {
+    "Material": "913358",
+    "Material Description": "CUVETTE CLEANING SOLUTION-CA-10112784-SI"
+  },
+  {
+    "Material": "929494",
+    "Material Description": "GGT CAT-3002721122 400T-ROCHE"
+  },
+  {
+    "Material": "929482",
+    "Material Description": "ALBUMINCAT-3183688122 300T -ROCHE"
+  },
+  {
+    "Material": "929045",
+    "Material Description": "HDC LYTEPLUS REA-CAT-SCLB1068-1150ML-SE"
+  },
+  {
+    "Material": "910315",
+    "Material Description": "SYRINGE 2ML-BD"
+  },
+  {
+    "Material": "910747",
+    "Material Description": "SYRINGE 5ML-NIPRO"
+  },
+  {
+    "Material": "927206",
+    "Material Description": "ELITE H CLEAN(121939)REA 200ML-TRANSASIA"
+  },
+  {
+    "Material": "929039",
+    "Material Description": "GLUCOSE  REA-CAT-58065288- 2X43ML-SIE"
+  },
+  {
+    "Material": "929495",
+    "Material Description": "GLUCOSE CAT-4404483190 800T-ROCHE"
+  },
+  {
+    "Material": "913295",
+    "Material Description": "SODIUM CITRATE3.2(NVSC)NVSC3G-3ML NASMED"
+  },
+  {
+    "Material": "929031",
+    "Material Description": "ALBUMIN REA- CAT-58065287- 5X22ML-SIE"
+  },
+  {
+    "Material": "929497",
+    "Material Description": "HDL CHOLESTEROL CAT7528566190 350T-ROCHE"
+  },
+  {
+    "Material": "924216",
+    "Material Description": "BILIRUBIN TOT& DIR 120244SNLR-240mL TRAN"
+  },
+  {
+    "Material": "929048",
+    "Material Description": "URIC ACID REAG 5X22ML-SIEMENS"
+  },
+  {
+    "Material": "929052",
+    "Material Description": "CLEANING SOLU-CAT-58070982 2X250ML-SIE"
+  },
+  {
+    "Material": "928035",
+    "Material Description": "ELITE H580DILUENTCAT-121746-20L-TRANS"
+  },
+  {
+    "Material": "929556",
+    "Material Description": "TSH CAT-8429324190 200T-ROCHE"
+  },
+  {
+    "Material": "929505",
+    "Material Description": "PROCALCITONIN CAT-9318712190 100T-ROCHE"
+  },
+  {
+    "Material": "910123",
+    "Material Description": "FACE MASK-GEN"
+  },
+  {
+    "Material": "913285",
+    "Material Description": "HEMOSTAR-CUVET-CAT-TULPXF1"
+  },
+  {
+    "Material": "926659",
+    "Material Description": "MERIL HIV1-2 ABHD4RPD-03 REA 50PAK-MERIL"
+  },
+  {
+    "Material": "926658",
+    "Material Description": "MERISCREEN HCV RPDHCV-01 REA 50PAK-MERIL"
+  },
+  {
+    "Material": "929554",
+    "Material Description": "TOTAL T4  CAT-9007741190 200T-ROCHE"
+  },
+  {
+    "Material": "910353",
+    "Material Description": "URINE CONTAINER STERILE 50ML"
+  },
+  {
+    "Material": "929708",
+    "Material Description": "PROBNP G2 COBAS E 9315268190 100T ROCHE"
+  },
+  {
+    "Material": "923300",
+    "Material Description": "BLOOD GROUPING ANTI ABD 5ML BOTTLE-TULIP"
+  },
+  {
+    "Material": "924209",
+    "Material Description": "Alkaline Phosphatase121018SNLR-110mL TRA"
+  },
+  {
+    "Material": "929493",
+    "Material Description": "CRP CAT-7876033190 250T-ROCHE"
+  },
+  {
+    "Material": "929523",
+    "Material Description": "BETA HCG CAT-3271749190 100T-ROCHE"
+  },
+  {
+    "Material": "910260",
+    "Material Description": "SLIDE BOX-GEN"
+  },
+  {
+    "Material": "929484",
+    "Material Description": "AMMONIA  CAT-7229593190 150T-ROCHE"
+  },
+  {
+    "Material": "929552",
+    "Material Description": "TOTAL PSA CAT-8791686190 100T-ROCHE"
+  },
+  {
+    "Material": "920258",
+    "Material Description": "CALCIUM 1 REAG 50 ML PACK TRANSASIA"
+  },
+  {
+    "Material": "929753",
+    "Material Description": "METHOTREXATE REA CAT-ETGSMTX  24ML GCELL"
+  },
+  {
+    "Material": "929553",
+    "Material Description": "TOTAL T3 CAT-9007725190 200T-ROCHE"
+  },
+  {
+    "Material": "929557",
+    "Material Description": "VITAMIN B12 CAT-7212771190  100T-ROCHE"
+  },
+  {
+    "Material": "910338",
+    "Material Description": "TISSUE PAPER ROLL-GEN"
+  },
+  {
+    "Material": "921240",
+    "Material Description": "ROCHE TROP T SENSITIVE"
+  },
+  {
+    "Material": "929047",
+    "Material Description": "CREAT- REAG- CAT58062028 4X14ML-SIE"
+  },
+  {
+    "Material": "930928",
+    "Material Description": "PC MULTIMARKER  5341787190 12ML ROCHE"
+  },
+  {
+    "Material": "927203",
+    "Material Description": "H560 DIL(121743)REA 20L-TRANSASIA"
+  },
+  {
+    "Material": "929496",
+    "Material Description": "HBA1C CAT-5336163190 150T-ROCHE"
+  },
+  {
+    "Material": "929042",
+    "Material Description": "ERBA CREAT REA-CAT-B072206- 4X60ML-TRANS"
+  },
+  {
+    "Material": "911139",
+    "Material Description": "NITRILE GLOVES MEDIUM -GEN"
+  },
+  {
+    "Material": "960036",
+    "Material Description": "PEN USE & THROW"
+  },
+  {
+    "Material": "930930",
+    "Material Description": "PC VARIA ELECSY CAT5618860190 12ML ROCHE"
+  },
+  {
+    "Material": "910072",
+    "Material Description": "COTTON ROLL 500 GM-GEN"
+  },
+  {
+    "Material": "920260",
+    "Material Description": "CALCIUM CHLORIDE REAG 10 ML PACK TULIP"
+  },
+  {
+    "Material": "929526",
+    "Material Description": "CA 19-9 CAT-11776193122  100T-ROCHE"
+  },
+  {
+    "Material": "913337",
+    "Material Description": "SMS CAT-4489225190 50ML-ROCHE"
+  },
+  {
+    "Material": "910378",
+    "Material Description": "YELLOW TIPS-1000S-GEN"
+  },
+  {
+    "Material": "930929",
+    "Material Description": "PC UNIVERSAL  CAT-11731416190 12ML ROCHE"
+  },
+  {
+    "Material": "960003",
+    "Material Description": "BARCODE LABEL"
+  },
+  {
+    "Material": "921517",
+    "Material Description": "UNIPLASTIN 5ML BOTTLE"
+  },
+  {
+    "Material": "913332",
+    "Material Description": "ISE CLEANINGSOLCLEAN-11298500316 5X100ML"
+  },
+  {
+    "Material": "930910",
+    "Material Description": "PC TM ELECSYS CAT-11776452122 12ML ROCHE"
+  },
+  {
+    "Material": "940815",
+    "Material Description": "T3 CAL CAT-11731548122 2X2X1ML-ROCHE"
+  },
+  {
+    "Material": "910344",
+    "Material Description": "TOURNIQUET BELT-GEN"
+  },
+  {
+    "Material": "929528",
+    "Material Description": "CEA CAT-11731629322 100T-ROCHE"
+  },
+  {
+    "Material": "940805",
+    "Material Description": "ISE STAND L CAL-11183974216 10X3ML-ROCHE"
+  },
+  {
+    "Material": "940804",
+    "Material Description": "ISE STAND H CAL-11183982216 10X3ML-ROCHE"
+  },
+  {
+    "Material": "910272",
+    "Material Description": "SODIUM HYPOCHLORITE SOL 5LTRS"
+  },
+  {
+    "Material": "960002",
+    "Material Description": "BARCODE CARBON"
+  },
+  {
+    "Material": "940822",
+    "Material Description": "TSH CAL CAT-8443459190 2X2X1.3ML-ROCHE"
+  },
+  {
+    "Material": "940807",
+    "Material Description": "NH3/ETH/CO2 CAL-20751995190 2X4ML-ROCHE"
+  },
+  {
+    "Material": "921549",
+    "Material Description": "URINE STRIPS 10 PARAMETER (100'S)-GEN"
+  },
+  {
+    "Material": "940785",
+    "Material Description": "CFAS CAL CAT-10759350190 12X3 ML-ROCHE"
+  },
+  {
+    "Material": "910034",
+    "Material Description": "BLUE TIPS 500 NOS-GEN"
+  },
+  {
+    "Material": "913335",
+    "Material Description": "PROCELL CAT-11662988122 6X380ML-ROCHE"
+  },
+  {
+    "Material": "913370",
+    "Material Description": "ECO-D COBAS C311 5422485190 1EA ROCHE"
+  },
+  {
+    "Material": "940821",
+    "Material Description": "TROP THS STATCAL-9315381190 2X2X1ML-ROCH"
+  },
+  {
+    "Material": "940823",
+    "Material Description": "VITAMIN B12 CAL-7212780190 2X2X1ML-ROCHE"
+  },
+  {
+    "Material": "923407",
+    "Material Description": "GRAM STAINING K001 KIT-HIMEDIA"
+  },
+  {
+    "Material": "940775",
+    "Material Description": "AFP CAL CAT-9227261190 2X2X1ML-ROCHE"
+  },
+  {
+    "Material": "940782",
+    "Material Description": "CA 19-9 CAL-11776215122 2X2X1ML -ROCHE"
+  },
+  {
+    "Material": "940787",
+    "Material Description": "CFAS LIPIDS CAL 12172623122 3X1ML-ROCHE"
+  },
+  {
+    "Material": "930935",
+    "Material Description": "METHOTREXATE CONTROL EGQ-MTX 1 EA GCELL"
+  },
+  {
+    "Material": "940789",
+    "Material Description": "CFAS PROTEINS CAL11355279216 5X1ML-ROCHE"
+  },
+  {
+    "Material": "940833",
+    "Material Description": "METHOTREXATE CAL CAT-EGC-MTX 1EA GCELL"
+  },
+  {
+    "Material": "960028",
+    "Material Description": "LOCK BAG 4 X 6"
+  },
+  {
+    "Material": "940799",
+    "Material Description": "HCG BETA CAL CAT3302652190 2X2X1ML-ROCHE"
+  },
+  {
+    "Material": "930912",
+    "Material Description": "PRECICONTROL THYROAB  5042666191 8ML ROC"
+  },
+  {
+    "Material": "913333",
+    "Material Description": "NACL 9 DILUENT-4489357190 50ML-ROCHE"
+  },
+  {
+    "Material": "910044",
+    "Material Description": "Centrifuge Tube 1.5ml"
+  },
+  {
+    "Material": "913334",
+    "Material Description": "NAOH-D CAT-4489241190 50ML-ROCHE"
+  },
+  {
+    "Material": "913356",
+    "Material Description": "SAMPLE CLEANER1-4708725190 12X59ML-ROCHE"
+  },
+  {
+    "Material": "913325",
+    "Material Description": "CELLWASH SOLU I-4880285214 2X1800MLROCHE"
+  },
+  {
+    "Material": "913321",
+    "Material Description": "ACID WASH SOLU-4880307190 2X1800ML-ROCHE"
+  },
+  {
+    "Material": "960049",
+    "Material Description": "STAPLER NO.10"
+  },
+  {
+    "Material": "940816",
+    "Material Description": "T4 CAL CAT-12017717122 2X2X1ML-ROCHE"
+  },
+  {
+    "Material": "913338",
+    "Material Description": "SYS WASH-11930346122 500ML-ROCHE"
+  },
+  {
+    "Material": "910409",
+    "Material Description": "STA-STEEL BALLS 1X1850-STAGO"
+  },
+  {
+    "Material": "913326",
+    "Material Description": "CLEANCELL CAT-11662970122 6X380ML-ROCHE"
+  },
+  {
+    "Material": "930905",
+    "Material Description": "PC CLINCHEM MULTI1 5117003190 20X5ML ROC"
+  },
+  {
+    "Material": "930906",
+    "Material Description": "PC CLINCHEM MULTI2 5117216190 20X5ML ROC"
+  },
+  {
+    "Material": "913353",
+    "Material Description": "ASSAYCUP CAT-11706802001 3600EA-ROCHE"
+  },
+  {
+    "Material": "920635",
+    "Material Description": "FORMALIN REAG 5 LTRS CAN FISHER"
+  },
+  {
+    "Material": "930918",
+    "Material Description": "NH3-ETH-CO2 CTRL A 20753009190 20ML ROCH"
+  },
+  {
+    "Material": "930917",
+    "Material Description": "NH3-ETH-CO2 CTRL N 20752401190 20ML ROCH"
+  },
+  {
+    "Material": "930916",
+    "Material Description": "TROPONIN PC ELECSYS 5095107190 8ML ROCHE"
+  },
+  {
+    "Material": "930915",
+    "Material Description": "PC CARDIAC G2 ELECSYS V4 4917049190 8ML"
+  },
+  {
+    "Material": "913292",
+    "Material Description": "SODIUM FLUORIDE (NVSF) NVSF3- 3ML NASMED"
+  },
+  {
+    "Material": "929051",
+    "Material Description": "UREA NITRO- REA-CAT-58062491- 2X24.5ML-S"
+  },
+  {
+    "Material": "910797",
+    "Material Description": "DE-IONIZED WATER REAG-5LTR-GEN"
+  },
+  {
+    "Material": "940780",
+    "Material Description": "CA 125 CAL CAT-7030207190 2X2X1ML-ROCHE"
+  },
+  {
+    "Material": "910332",
+    "Material Description": "THERMAL PAPER ROLL 57MM"
+  },
+  {
+    "Material": "910327",
+    "Material Description": "TEST TUBE PLASTIC(12X75)"
+  },
+  {
+    "Material": "910219",
+    "Material Description": "PARAFILM ROLLS 4X125"
+  },
+  {
+    "Material": "940811",
+    "Material Description": "PROBNP CAL CAT-9315292190 2X2X1ML-ROCHE"
+  },
+  {
+    "Material": "910175",
+    "Material Description": "MALARIA Ab Pf/PV"
+  },
+  {
+    "Material": "940820",
+    "Material Description": "TOTAL PSA CAL-8838534190 2X2X1ML-ROCHE"
+  },
+  {
+    "Material": "910160",
+    "Material Description": "K3 EDTA TUBE 1ML EACH"
+  },
+  {
+    "Material": "910148",
+    "Material Description": "HEAD CAP-GEN"
+  },
+  {
+    "Material": "910147",
+    "Material Description": "HANSAPLAST ROUND-J&J"
+  },
+  {
+    "Material": "960011",
+    "Material Description": "CELLO TAPE 2\""
+  },
+  {
+    "Material": "940786",
+    "Material Description": "CFAS HBA1C CAL CAT4528417190 3X2ML-ROCHE"
+  },
+  {
+    "Material": "930035",
+    "Material Description": "HAEMATOLOGY 5 PART CONT 10.5ML BIORAD"
+  },
+  {
+    "Material": "930755",
+    "Material Description": "ELITE H5 CON  H(HEM00026)-TRAN"
+  },
+  {
+    "Material": "929035",
+    "Material Description": "TOTAL BIL- REA-CAT-58068241-2X30ML-SIE"
+  },
+  {
+    "Material": "929501",
+    "Material Description": "LIPASE  CAT-3029590322 200T-ROCHE"
+  },
+  {
+    "Material": "929499",
+    "Material Description": "LDH CAT-3004732122 300T-ROCHE"
+  },
+  {
+    "Material": "928036",
+    "Material Description": "ELITE H580LYSE1CAT-1217471500ML-TRANS"
+  },
+  {
+    "Material": "928037",
+    "Material Description": "ELITE H580LYSE2CAT-121748 1500ML-TRANS"
+  },
+  {
+    "Material": "929033",
+    "Material Description": "ALKP REA-58066765- 2X24.5ML-SIE"
+  },
+  {
+    "Material": "929034",
+    "Material Description": "DIRECT BIL-REA-58062067- 2X30ML-SIE"
+  },
+  {
+    "Material": "929036",
+    "Material Description": "SGOT(AST) REA-CAT-58063180- 2X24.5ML-SIE"
+  },
+  {
+    "Material": "924586",
+    "Material Description": "Hbsag Card REA 30TET-01fk11-Alere"
+  },
+  {
+    "Material": "929489",
+    "Material Description": "CHLORIDE CAT-3246353001 9000T-ROCHE"
+  },
+  {
+    "Material": "929037",
+    "Material Description": "SGPT (ALT) REA-CAT-58062792 2X24.5ML-SIE"
+  },
+  {
+    "Material": "929040",
+    "Material Description": "PHOSPHORUS REA-58068148- 2X24ML-SIE"
+  },
+  {
+    "Material": "929043",
+    "Material Description": "HDC-LYTE ELECT  REAG-CAT-SCLB1065 650ML"
+  },
+  {
+    "Material": "929485",
+    "Material Description": "AMYLASE CAT-3183742122 300T-ROCHE"
+  },
+  {
+    "Material": "929046",
+    "Material Description": "ELECTROLYTE DAILY CLEANERS 6X15ML-HDC"
+  },
+  {
+    "Material": "929502",
+    "Material Description": "MAGNESIUM CAT-6481647190 250T-ROCHE"
+  },
+  {
+    "Material": "921512",
+    "Material Description": "TYPHOID IGG/IGM REAG 30TST CTKBIOTECH"
+  },
+  {
+    "Material": "930753",
+    "Material Description": "ELITE H5 CON  N(HEM00024)-TRAN"
+  },
+  {
+    "Material": "913355",
+    "Material Description": "INTSTAND INSERT-ISE5979854190 20EA-ROCHE"
+  },
+  {
+    "Material": "930045",
+    "Material Description": "IMMUNOASSAYTRILEVELCONT 60 ML PCK BIORAD"
+  },
+  {
+    "Material": "910035",
+    "Material Description": "BROWN TAPE 2\"-GEN"
+  },
+  {
+    "Material": "913327",
+    "Material Description": "SPLCELL CLEANINGSOL-4880994190 41.2MLROC"
+  },
+  {
+    "Material": "929700",
+    "Material Description": "CHOLESTEROL TOTAL -3039773190 400T-ROCHE"
+  },
+  {
+    "Material": "913329",
+    "Material Description": "HBA1C TQ REA-4528182190 2X22.5ML-ROCHE"
+  },
+  {
+    "Material": "913354",
+    "Material Description": "ASSAYTIP CAT-11706799001 3600EA-ROCHE"
+  },
+  {
+    "Material": "929525",
+    "Material Description": "CA 15-3 CAT-3045838122 100T-ROCHE"
+  },
+  {
+    "Material": "920687",
+    "Material Description": "GIEMSA STAIN 125ML-NICE"
+  },
+  {
+    "Material": "929524",
+    "Material Description": "CA 125 CAT-11776223190 100T-ROCHE"
+  },
+  {
+    "Material": "913357",
+    "Material Description": "UNIVERSAL DILUENT-3183971122 2X36ML-ROCH"
+  },
+  {
+    "Material": "929518",
+    "Material Description": "AFP CAT-9015060190 100T-ROCHE"
+  },
+  {
+    "Material": "920140",
+    "Material Description": "APTT REAG 2 ML PACK J MITRA"
+  },
+  {
+    "Material": "920524",
+    "Material Description": "DENGUE IGG/IGM RAPID CARD 10TPAK J MITRA"
+  },
+  {
+    "Material": "929509",
+    "Material Description": "SODIUM CAT-10825468001 9000T-ROCHE"
+  },
+  {
+    "Material": "960051",
+    "Material Description": "STAPLER PIN NO.10"
+  }
+]

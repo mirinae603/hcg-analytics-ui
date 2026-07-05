@@ -1,0 +1,4506 @@
+[
+  {
+    "Material": "961103",
+    "Material Description": "BARCODE LABEL SIZE: 22MM X 20MM"
+  },
+  {
+    "Material": "929060",
+    "Material Description": "TISSUE CASSETTE-YELLOW  1X500"
+  },
+  {
+    "Material": "910164",
+    "Material Description": "LETTER HEAD (FOUR COLOUR PRINTING)-GEN"
+  },
+  {
+    "Material": "921314",
+    "Material Description": "SODIUM DIHYDROGEN PHOSPHATE 500GMS MERCK"
+  },
+  {
+    "Material": "929785",
+    "Material Description": "HAEMATOXYLIN HARRIS CATS034-500ML HIMEDI"
+  },
+  {
+    "Material": "913293",
+    "Material Description": "K2 EDTA (NVK2) NVK23 - 3ML NASMED"
+  },
+  {
+    "Material": "913294",
+    "Material Description": "GEL CLOT ACTIVATOR(NVGC)NVLH4-4ML NASMED"
+  },
+  {
+    "Material": "929563",
+    "Material Description": "ISE INT STAND  5X600 ML-ROCHE"
+  },
+  {
+    "Material": "920537",
+    "Material Description": "DI SODIUM HYDROGEN ORTHO PHOS 500GMS-FIS"
+  },
+  {
+    "Material": "928814",
+    "Material Description": "IHC HEMATOXYLIN II CAT5277965001 ROCHE"
+  },
+  {
+    "Material": "929733",
+    "Material Description": "ISTOS RDO GOLD CAT-IMPL-RDO-G 3750ML"
+  },
+  {
+    "Material": "928003",
+    "Material Description": "IHC-ULTRALCS-5424534001CAT-27101990-85RO"
+  },
+  {
+    "Material": "913288",
+    "Material Description": "STA CUVETTESROLL CAT-38669 1000X6 -STAGO"
+  },
+  {
+    "Material": "910335",
+    "Material Description": "TISSUE CASSETTE-WHITE 1X500"
+  },
+  {
+    "Material": "910334",
+    "Material Description": "TISSUE CASSETTE-PINK 1X500"
+  },
+  {
+    "Material": "929492",
+    "Material Description": "CREATININE CAT-4810716190 700T-ROCHE"
+  },
+  {
+    "Material": "913369",
+    "Material Description": "COBAS SAMPLECUP 10394246001 5000PC ROCHE"
+  },
+  {
+    "Material": "910353",
+    "Material Description": "URINE CONTAINER STERILE 50ML"
+  },
+  {
+    "Material": "920322",
+    "Material Description": "CD34(PER CP CY 5.5)8G12-347203 1000 ULBD"
+  },
+  {
+    "Material": "929483",
+    "Material Description": "ALP  CAT-3333701190 400T-ROCHE"
+  },
+  {
+    "Material": "913297",
+    "Material Description": "FLASHBACK NEEDLES NFBN 100 NO NASMED"
+  },
+  {
+    "Material": "928024",
+    "Material Description": "LIAISON WASH/SYSTEM LIQUID CAT-319100"
+  },
+  {
+    "Material": "913295",
+    "Material Description": "SODIUM CITRATE3.2(NVSC)NVSC3G-3ML NASMED"
+  },
+  {
+    "Material": "929508",
+    "Material Description": "SGPT (ALT) CAT-20764957322  500T-ROCHE"
+  },
+  {
+    "Material": "912338",
+    "Material Description": "ACETIC ACID GLACIAL, 500 ML/EA"
+  },
+  {
+    "Material": "929487",
+    "Material Description": "BILIRUBIN TOTAL CAT5795397190 250T-ROCHE"
+  },
+  {
+    "Material": "921095",
+    "Material Description": "OPTIVIEW DAB IHC DETECTION 250T PACK-ROC"
+  },
+  {
+    "Material": "929482",
+    "Material Description": "ALBUMINCAT-3183688122 300T -ROCHE"
+  },
+  {
+    "Material": "929486",
+    "Material Description": "BILIRUBIN DIRECT CAT5589061190 350TROCHE"
+  },
+  {
+    "Material": "929515",
+    "Material Description": "URIC ACID CAT-3183807190 400T-ROCHE"
+  },
+  {
+    "Material": "929511",
+    "Material Description": "TOTAL PROTEIN CAT-3183734190 300T-ROCHE"
+  },
+  {
+    "Material": "929495",
+    "Material Description": "GLUCOSE CAT-4404483190 800T-ROCHE"
+  },
+  {
+    "Material": "929507",
+    "Material Description": "SGOT (AST) CAT-20764949322 500T-ROCHE"
+  },
+  {
+    "Material": "929494",
+    "Material Description": "GGT CAT-3002721122 400T-ROCHE"
+  },
+  {
+    "Material": "929514",
+    "Material Description": "UREA NITROGEN CAT-4460715190 500T-ROCHE"
+  },
+  {
+    "Material": "929488",
+    "Material Description": "CALCIUM TOTAL CAT-5061482190 300T-ROCHE"
+  },
+  {
+    "Material": "928023",
+    "Material Description": "LIAISON MODUULE CAT-319130"
+  },
+  {
+    "Material": "920314",
+    "Material Description": "CD200(PE) MRC OX104-552475  2000 ULBD"
+  },
+  {
+    "Material": "929503",
+    "Material Description": "PHOSPHARUS CAT-3183793122 250T-ROCHE"
+  },
+  {
+    "Material": "920310",
+    "Material Description": "CD13(PE)L138-347837 ABS 2000 UL VIAL BD"
+  },
+  {
+    "Material": "910147",
+    "Material Description": "HANSAPLAST ROUND-J&J"
+  },
+  {
+    "Material": "910098",
+    "Material Description": "APRON-GEN"
+  },
+  {
+    "Material": "927080",
+    "Material Description": "ULTRA FREEZE MEDIA(UF1000)118ML-CANCER D"
+  },
+  {
+    "Material": "928011",
+    "Material Description": "IHC-ULTRACC1-5424569001CAT-38229090-370R"
+  },
+  {
+    "Material": "929502",
+    "Material Description": "MAGNESIUM CAT-6481647190 250T-ROCHE"
+  },
+  {
+    "Material": "929556",
+    "Material Description": "TSH CAT-8429324190 200T-ROCHE"
+  },
+  {
+    "Material": "913263",
+    "Material Description": "TISSUE CASSETTE-CAT540 GREEN1X500"
+  },
+  {
+    "Material": "920317",
+    "Material Description": "CD23(FITC)EBVCS-5-656148 ABS 1000 UL VBD"
+  },
+  {
+    "Material": "928965",
+    "Material Description": "RPMI-1640-1X-LIQ1000ML-INVTRO-11875-085"
+  },
+  {
+    "Material": "924276",
+    "Material Description": "Papanicol-EA-36 SNLR 125ML P10271NICE"
+  },
+  {
+    "Material": "920441",
+    "Material Description": "COOLENT CAT-38640 REAG 1000 ML BTL STAGO"
+  },
+  {
+    "Material": "920595",
+    "Material Description": "ETHANOL ABSOLUTE REAG 500 ML BOTTLE GEN"
+  },
+  {
+    "Material": "924277",
+    "Material Description": "Papanicol-OG-6 SNLR 125ML P10171NICE"
+  },
+  {
+    "Material": "920688",
+    "Material Description": "GIEMSA STAIN REAG 100 ML BOTTLE HIMEDIA"
+  },
+  {
+    "Material": "929559",
+    "Material Description": "HIV CAT-8924163190 100T-ROCHE"
+  },
+  {
+    "Material": "920026",
+    "Material Description": "ACETONE REAG 500 ML BOTTLE MERCK"
+  },
+  {
+    "Material": "920547",
+    "Material Description": "DISPOSABLE LOOP PLASTIC (4MM)HIMEDIA"
+  },
+  {
+    "Material": "960014",
+    "Material Description": "CLOTH COVER 11 X 5"
+  },
+  {
+    "Material": "913264",
+    "Material Description": "TISSUE CASSETTE-CAT540 BLUE1X500"
+  },
+  {
+    "Material": "921058",
+    "Material Description": "MULTISTIX-10 SG  REAG TET 100 PACK SIEME"
+  },
+  {
+    "Material": "920313",
+    "Material Description": "CD20(V450) L27-642274 ABS 500 UL VIAL BD"
+  },
+  {
+    "Material": "929560",
+    "Material Description": "HBSAG CAT-8814856190 100T-ROCHE"
+  },
+  {
+    "Material": "920535",
+    "Material Description": "DESORB U REAG 360 ML KIT STAGO"
+  },
+  {
+    "Material": "920496",
+    "Material Description": "CYMPO(FITC) 5B8-340580 ABS 1000ULVIAL BD"
+  },
+  {
+    "Material": "920212",
+    "Material Description": "BLOOD AGAR PLATE 1 EACH  GEN"
+  },
+  {
+    "Material": "929564",
+    "Material Description": "ISE REFERENCE ELECTROLYTE 5X300 ML-ROCHE"
+  },
+  {
+    "Material": "929561",
+    "Material Description": "HCV 100T CAT-8836981190-ROCHE"
+  },
+  {
+    "Material": "920803",
+    "Material Description": "HYDROCHLORIC ACID SOLU 500 ML BTL FISHER"
+  },
+  {
+    "Material": "921077",
+    "Material Description": "NITRIC ACID REAG 500 ML BTL FISHER"
+  },
+  {
+    "Material": "920332",
+    "Material Description": "CD7(APC) MT701-653311 ABS 500 UL VIAL BD"
+  },
+  {
+    "Material": "929554",
+    "Material Description": "TOTAL T4  CAT-9007741190 200T-ROCHE"
+  },
+  {
+    "Material": "929553",
+    "Material Description": "TOTAL T3 CAT-9007725190 200T-ROCHE"
+  },
+  {
+    "Material": "920851",
+    "Material Description": "IPA REAG 25 LTRS CAN FISHER SCIENTIFIC"
+  },
+  {
+    "Material": "913291",
+    "Material Description": "SODIUM HEPARIN (NVSH) NVSH4- 4ML NASMED"
+  },
+  {
+    "Material": "920334",
+    "Material Description": "CD79B(PERCP CY5.5)B-LY6-6566441000 UL BD"
+  },
+  {
+    "Material": "927026",
+    "Material Description": "qPCR Buffer&Enzyme(3*288)-8343283-GENDX"
+  },
+  {
+    "Material": "920672",
+    "Material Description": "GAMMA GT(GGT) REAG SLD 50 PACK J&J"
+  },
+  {
+    "Material": "961612",
+    "Material Description": "TRIESTA DOCUMENT STICKER 1EA"
+  },
+  {
+    "Material": "961611",
+    "Material Description": "TRIESTA EQUIPMENT ID 1EA"
+  },
+  {
+    "Material": "961610",
+    "Material Description": "TRIESTA CALIBRATION PM STATUS STICKER 1E"
+  },
+  {
+    "Material": "961609",
+    "Material Description": "TRIESTA EQUIPMENT CHECKLIST 1EA"
+  },
+  {
+    "Material": "960055",
+    "Material Description": "TISSUE ROLL REGAL Stationery EA 1 EACH G"
+  },
+  {
+    "Material": "920072",
+    "Material Description": "ALKALIN PHOS(ALKP) REAG 60 SLD PCK J&J"
+  },
+  {
+    "Material": "911802",
+    "Material Description": "Disposable Face MaskSG1391Ramsons"
+  },
+  {
+    "Material": "920551",
+    "Material Description": "DPX MOUNT REAG 250 ML BOTTLE NICE"
+  },
+  {
+    "Material": "929505",
+    "Material Description": "PROCALCITONIN CAT-9318712190 100T-ROCHE"
+  },
+  {
+    "Material": "921356",
+    "Material Description": "SULPHURIC ACID 20% SOLU 500 ML BTL NICE"
+  },
+  {
+    "Material": "920955",
+    "Material Description": "MAC CONKEY AGAR PLATE"
+  },
+  {
+    "Material": "929496",
+    "Material Description": "HBA1C CAT-5336163190 150T-ROCHE"
+  },
+  {
+    "Material": "929528",
+    "Material Description": "CEA CAT-11731629322 100T-ROCHE"
+  },
+  {
+    "Material": "910166",
+    "Material Description": "LIQUID PARAFFIN OIL 500 ML BOTTLE MERCK"
+  },
+  {
+    "Material": "920603",
+    "Material Description": "FACS LYSING-349202 SOLU 100 ML BOTTLE BD"
+  },
+  {
+    "Material": "928571",
+    "Material Description": "DAPI ANTIFADE-250NG/ML(D-0902-500-DA)"
+  },
+  {
+    "Material": "910009",
+    "Material Description": "AEROBIC CULTURE BOTTLE-GREEN EA"
+  },
+  {
+    "Material": "920229",
+    "Material Description": "BUN/UREA REAG SLD 60 PACK J&J"
+  },
+  {
+    "Material": "913440",
+    "Material Description": "FROSTED SLIDES CAT-RH7109 1EA RH SCIENTI"
+  },
+  {
+    "Material": "928020",
+    "Material Description": "LIAISON  CONTROL ANTI-Tg CAT-319105"
+  },
+  {
+    "Material": "928021",
+    "Material Description": "LIAISON CONTROL ANTI-TPO CAT-319106"
+  },
+  {
+    "Material": "929557",
+    "Material Description": "VITAMIN B12 CAT-7212771190  100T-ROCHE"
+  },
+  {
+    "Material": "929552",
+    "Material Description": "TOTAL PSA CAT-8791686190 100T-ROCHE"
+  },
+  {
+    "Material": "910127",
+    "Material Description": "FILTER PAPER FOR LAB 110MM-GEN"
+  },
+  {
+    "Material": "920063",
+    "Material Description": "ALBUMIN(ALB) REAG SLD 50 PACK J&J"
+  },
+  {
+    "Material": "921614",
+    "Material Description": "XYLENE REAGENT 25LTRS-FISHER SCIENTIFIC"
+  },
+  {
+    "Material": "921730",
+    "Material Description": "ACID FAST DECOLORIZER-125ML-GEN"
+  },
+  {
+    "Material": "960003",
+    "Material Description": "BARCODE LABEL"
+  },
+  {
+    "Material": "928406",
+    "Material Description": "A1C SLIDES CAT 6844520 REA 250SLD—ORTHO"
+  },
+  {
+    "Material": "929700",
+    "Material Description": "CHOLESTEROL TOTAL -3039773190 400T-ROCHE"
+  },
+  {
+    "Material": "910046",
+    "Material Description": "CENTRIFUGE TUBE 15ML CONS 1 EA  TARSONS"
+  },
+  {
+    "Material": "929772",
+    "Material Description": "CD45(V500C)647449 2D1 REAG 100T-BD"
+  },
+  {
+    "Material": "929551",
+    "Material Description": "THYROGLOBULIN CAT-8906556190 100T-ROCHE"
+  },
+  {
+    "Material": "920130",
+    "Material Description": "ANTI-KI-67 (30-9) RABBIT MONOCLO 50T-ROC"
+  },
+  {
+    "Material": "921327",
+    "Material Description": "SODIUM(NA) REAG 50 SLIDES PACK J&J"
+  },
+  {
+    "Material": "920384",
+    "Material Description": "CHLORIDE(CL) REAG 50 SLIDES PACK J&J"
+  },
+  {
+    "Material": "924094",
+    "Material Description": "ETHANOL 99.9% CAT-100983 MERCK MILLIPORE"
+  },
+  {
+    "Material": "929499",
+    "Material Description": "LDH CAT-3004732122 300T-ROCHE"
+  },
+  {
+    "Material": "921138",
+    "Material Description": "PHOSPHOROUS(PHOS) REAG 60 SLIDES PCK J&J"
+  },
+  {
+    "Material": "920998",
+    "Material Description": "MAGNESIUM(MG) REAG 60 SLIDES PACK J&J"
+  },
+  {
+    "Material": "929484",
+    "Material Description": "AMMONIA  CAT-7229593190 150T-ROCHE"
+  },
+  {
+    "Material": "921586",
+    "Material Description": "VITEK 2 ID GN 20 CARD 20 TEST PCK BIOMRX"
+  },
+  {
+    "Material": "929558",
+    "Material Description": "VITAMIN D CAT-9038078190 100T-ROCHE"
+  },
+  {
+    "Material": "920605",
+    "Material Description": "FETAL BOVINE SERUM(16000044)REA500ML-THE"
+  },
+  {
+    "Material": "960013",
+    "Material Description": "CLOTH COVER 10 X 12"
+  },
+  {
+    "Material": "929501",
+    "Material Description": "LIPASE  CAT-3029590322 200T-ROCHE"
+  },
+  {
+    "Material": "927079",
+    "Material Description": "HISTOLOGY PARAFFIN WAX (WBS11) 2KG-SASOL"
+  },
+  {
+    "Material": "921519",
+    "Material Description": "UNSENSITIZED TUBES-BIOMERX"
+  },
+  {
+    "Material": "929532",
+    "Material Description": "FERRITIN CAT-3737551190  100T-ROCHE"
+  },
+  {
+    "Material": "929493",
+    "Material Description": "CRP CAT-7876033190 250T-ROCHE"
+  },
+  {
+    "Material": "929536",
+    "Material Description": "FREE T4 CAT-9043276190 200T-ROCHE"
+  },
+  {
+    "Material": "920019",
+    "Material Description": "ACETIC ACID GLACIAL  250ML BTL-FISHER"
+  },
+  {
+    "Material": "928012",
+    "Material Description": "IHC-ULTRACC2-5424542001CAT-38229090-100R"
+  },
+  {
+    "Material": "921308",
+    "Material Description": "SMCD3(APC H7) SK7-641397ABS 500UL VIALBD"
+  },
+  {
+    "Material": "920797",
+    "Material Description": "HU CD5 BV421 UCHT2-562646 ABS 500 UL BD"
+  },
+  {
+    "Material": "929236",
+    "Material Description": "LIAISON TG II GEN  317220 100T"
+  },
+  {
+    "Material": "929510",
+    "Material Description": "TIBC/UIBC CAT-4536355190 100T-ROCHE"
+  },
+  {
+    "Material": "920759",
+    "Material Description": "HCV REAG 100 WELLS PACK J&J"
+  },
+  {
+    "Material": "960028",
+    "Material Description": "LOCK BAG 4 X 6"
+  },
+  {
+    "Material": "920489",
+    "Material Description": "CRYSTAL VIOLET STAIN REAG 125ML BTL HIMD"
+  },
+  {
+    "Material": "929526",
+    "Material Description": "CA 19-9 CAT-11776193122  100T-ROCHE"
+  },
+  {
+    "Material": "929543",
+    "Material Description": "KAPPA CAT-8896534190 100T-ROCHE"
+  },
+  {
+    "Material": "920227",
+    "Material Description": "BUBC REAG SLD 60 PACK J&J"
+  },
+  {
+    "Material": "921287",
+    "Material Description": "SGOT-AST REAG SLD 60 PACK J&J"
+  },
+  {
+    "Material": "920699",
+    "Material Description": "GLUCOSE (GLU) REAG 60 SLIDES PACK J&J"
+  },
+  {
+    "Material": "920391",
+    "Material Description": "CHOLESTEROL REAG SLD 60 PACK J&J"
+  },
+  {
+    "Material": "920785",
+    "Material Description": "HIV REAG 100 WELLS PACK J&J"
+  },
+  {
+    "Material": "928059",
+    "Material Description": "GXMTB-RIF-ULTRA-10 CARTRIDGES- CEPHEID"
+  },
+  {
+    "Material": "910316",
+    "Material Description": "SYRINGE 2ML-NIPRO"
+  },
+  {
+    "Material": "929518",
+    "Material Description": "AFP CAT-9015060190 100T-ROCHE"
+  },
+  {
+    "Material": "929530",
+    "Material Description": "CORTISOL CAT-6687733190  100T-ROCHE"
+  },
+  {
+    "Material": "960036",
+    "Material Description": "PEN USE & THROW"
+  },
+  {
+    "Material": "920367",
+    "Material Description": "CELL PACK DCL REAG 20 LTRS PACK SYSMAX"
+  },
+  {
+    "Material": "929512",
+    "Material Description": "TRANSFERRIN CAT-3015050122 100T-ROCHE"
+  },
+  {
+    "Material": "961267",
+    "Material Description": "NANDANI MILK 500ML -ORANGE"
+  },
+  {
+    "Material": "921684",
+    "Material Description": "ANTI CARDIOLIPIN IGG DKO113 96W DIAMETRA"
+  },
+  {
+    "Material": "910302",
+    "Material Description": "STOOL COLLECTION POT-SLV"
+  },
+  {
+    "Material": "929535",
+    "Material Description": "FREE T3 CAT-9005803190 200T-ROCHE"
+  },
+  {
+    "Material": "929497",
+    "Material Description": "HDL CHOLESTEROL CAT7528566190 350T-ROCHE"
+  },
+  {
+    "Material": "926942",
+    "Material Description": "NEOPTIMAL 01164 REAGENT 120MLKIT-STAGO"
+  },
+  {
+    "Material": "910125",
+    "Material Description": "FACS TUBES 5M-352054 CONS 1000NOS PCK BD"
+  },
+  {
+    "Material": "928570",
+    "Material Description": "20XSSC(LIQUID)ML030-500ML-HIMEDIA"
+  },
+  {
+    "Material": "921699",
+    "Material Description": "PIPERACILLIN/TAZOBACTAM 10MCG -HIMEDIA"
+  },
+  {
+    "Material": "920361",
+    "Material Description": "CEFTRIAXONE 30MCG-HIMEDIA"
+  },
+  {
+    "Material": "920351",
+    "Material Description": "CEFOPERAZONE/ SULBACTAM 75/30MCG-HIMEDIA"
+  },
+  {
+    "Material": "920348",
+    "Material Description": "CEFAZIDIME 30MCG-HIMEDIA"
+  },
+  {
+    "Material": "920383",
+    "Material Description": "CHLORAMPHENICOL C 30 MCG-SD006-1VL-HIMED"
+  },
+  {
+    "Material": "929544",
+    "Material Description": "LAMBDA CAT-8896569190 100T-ROCHE"
+  },
+  {
+    "Material": "924873",
+    "Material Description": "OPTIVIEW AMPLIFICATION KIT-6718663001"
+  },
+  {
+    "Material": "921419",
+    "Material Description": "TOT PROTN (TP) REAG SLD 50 PACK J&J"
+  },
+  {
+    "Material": "921681",
+    "Material Description": "ANTI B2G PROTEIN IGG DKO110 96W DIAMETRA"
+  },
+  {
+    "Material": "920753",
+    "Material Description": "HBSAG REAG 100 WELLS PACK J&J"
+  },
+  {
+    "Material": "929519",
+    "Material Description": "AMH CAT-10059516190 100T-ROCHE"
+  },
+  {
+    "Material": "920270",
+    "Material Description": "CALCIUM(CA) REAG SLD 60 PACK J&J"
+  },
+  {
+    "Material": "920099",
+    "Material Description": "AMPICILLIN 10MCG 100DISC-HIMEDIA"
+  },
+  {
+    "Material": "927231",
+    "Material Description": "CD19 CLONE: SJ25C1(341093)REA 100T-BD"
+  },
+  {
+    "Material": "929120",
+    "Material Description": "AMD POTASSIUM HYDROXIDE 40% WV-500ml"
+  },
+  {
+    "Material": "920590",
+    "Material Description": "ESR PIPETTE 1X200 NOS"
+  },
+  {
+    "Material": "921682",
+    "Material Description": "ANTI B2G PROTEIN IGM DKO111 96W DIAMETRA"
+  },
+  {
+    "Material": "920936",
+    "Material Description": "LIQUOR AMMONIA SOLU 500 ML BOTTLE MERCK"
+  },
+  {
+    "Material": "920736",
+    "Material Description": "HARRIS HEMATOXYLINE REAG 125ML BTL MERCK"
+  },
+  {
+    "Material": "929524",
+    "Material Description": "CA 125 CAT-11776223190 100T-ROCHE"
+  },
+  {
+    "Material": "929523",
+    "Material Description": "BETA HCG CAT-3271749190 100T-ROCHE"
+  },
+  {
+    "Material": "929548",
+    "Material Description": "PROLACTIN CAT-3203093190 100T-ROCHE"
+  },
+  {
+    "Material": "920631",
+    "Material Description": "FORMALDEHYDE 5LITRS-FISHER"
+  },
+  {
+    "Material": "929804",
+    "Material Description": "TROP I PLUS CAT-CFPC-65 25T ICHROMA"
+  },
+  {
+    "Material": "928264",
+    "Material Description": "VITEK AST N405 423864 20T BIOMERIEUX"
+  },
+  {
+    "Material": "929498",
+    "Material Description": "IRON CAT-3183696122 200T-ROCHE"
+  },
+  {
+    "Material": "920722",
+    "Material Description": "GRAMS IODINE STAIN REAG 125 ML BTL HIMD"
+  },
+  {
+    "Material": "921021",
+    "Material Description": "METHYLENE BLUE STAIN REAG 125ML BTL HIMD"
+  },
+  {
+    "Material": "921683",
+    "Material Description": "ANTI CARDIOLIPIN IGM DKO112 96W DIAMETRA"
+  },
+  {
+    "Material": "929533",
+    "Material Description": "FOLATE  CAT-7559992190 100T-ROCHE"
+  },
+  {
+    "Material": "929539",
+    "Material Description": "IGG CAT-3507432190 150T-ROCHE"
+  },
+  {
+    "Material": "921043",
+    "Material Description": "MINICAP PROTEIN CAT:6- 2203-SEBIA"
+  },
+  {
+    "Material": "926897",
+    "Material Description": "SGPT (ALTV) 60 SLIDES-6844288-J&J"
+  },
+  {
+    "Material": "921417",
+    "Material Description": "TOT BILIRU(TBIL) REAG SLD 60 PACK J&J"
+  },
+  {
+    "Material": "921458",
+    "Material Description": "TRIGLYCERIDE (TGL) REAG 60 SLD PCK J&J"
+  },
+  {
+    "Material": "920545",
+    "Material Description": "DIRECT HDL CHOL REAG 60 SLIDES PACK J&J"
+  },
+  {
+    "Material": "929485",
+    "Material Description": "AMYLASE CAT-3183742122 300T-ROCHE"
+  },
+  {
+    "Material": "927254",
+    "Material Description": "CD81 CLONE: JS-81(656647)REA 100T-BD"
+  },
+  {
+    "Material": "921198",
+    "Material Description": "QIAMP RNA BLOOD MINI KIT CATNO:52304 50T"
+  },
+  {
+    "Material": "960984",
+    "Material Description": "TEST REQUEST FORMS GENERAL"
+  },
+  {
+    "Material": "929609",
+    "Material Description": "INTRASURE KIT CAT-641776 50 TESTS BD"
+  },
+  {
+    "Material": "910207",
+    "Material Description": "NITRILE GLOVES MEDIUM POWDERED-JK ANSEL"
+  },
+  {
+    "Material": "910099",
+    "Material Description": "DISPOSABLE GLASS 90ML-GEN"
+  },
+  {
+    "Material": "910184",
+    "Material Description": "MICRO CENTRIFUGE TUBE PP 0.5ML WHITE-TAR"
+  },
+  {
+    "Material": "910319",
+    "Material Description": "SYRINGE 5ML-HMD"
+  },
+  {
+    "Material": "921479",
+    "Material Description": "TRUPCR BCR-ABL QUANTITATIVE 48 REAC PCK"
+  },
+  {
+    "Material": "929525",
+    "Material Description": "CA 15-3 CAT-3045838122 100T-ROCHE"
+  },
+  {
+    "Material": "921196",
+    "Material Description": "QIAAMP DNA MINI REAG 250 REAC PCK QIAGEN"
+  },
+  {
+    "Material": "929625",
+    "Material Description": "MAY GRUNWALD STAIN  125 ML HIMEDIA"
+  },
+  {
+    "Material": "927208",
+    "Material Description": "TDT  E17-1519 APC(347196)REA 100T-BD"
+  },
+  {
+    "Material": "929516",
+    "Material Description": "URINE MICRO ALBUMIN CAT4469658190 100T R"
+  },
+  {
+    "Material": "920624",
+    "Material Description": "FLUOROCELL WDF REAG 84 ML PACK SYSMAX"
+  },
+  {
+    "Material": "928010",
+    "Material Description": "IHC-ISH REDCOUNTERSTAINIICAT-5272017001"
+  },
+  {
+    "Material": "921374",
+    "Material Description": "T3 REAG 100 WELLS PACK J&J"
+  },
+  {
+    "Material": "920643",
+    "Material Description": "FREE T3 REAG 100 TEST PACK J&J"
+  },
+  {
+    "Material": "920650",
+    "Material Description": "FREE T4 REAG 100 WELLS PACK J&J"
+  },
+  {
+    "Material": "927266",
+    "Material Description": "LAMBDA CLONE:1-155-2(656648)REA 100T-BD"
+  },
+  {
+    "Material": "928018",
+    "Material Description": "LIAISON  ANTI-TPO CAT-311701"
+  },
+  {
+    "Material": "928017",
+    "Material Description": "LIAISON  ANTI-TG CAT-311711"
+  },
+  {
+    "Material": "913454",
+    "Material Description": "BORIC ACID 1%URINE CULTURE 60ML LCSC60"
+  },
+  {
+    "Material": "929550",
+    "Material Description": "TESTOSTERONE CAT-8946353190 100T-ROCHE"
+  },
+  {
+    "Material": "920255",
+    "Material Description": "CACL2 (00367) REAG 360 ML KIT STAGO"
+  },
+  {
+    "Material": "927354",
+    "Material Description": "XL ERBB2(HER2/NEU)(D6010100OG)REA 100µL"
+  },
+  {
+    "Material": "927563",
+    "Material Description": "EZIPREP GYNAE CAT:EZIGYN00116"
+  },
+  {
+    "Material": "920355",
+    "Material Description": "CEFOXITIN 30 MCG-HIMEDIA"
+  },
+  {
+    "Material": "921816",
+    "Material Description": "CHROMOGRANIN ELISA CAT-KT-820 96W EPITOP"
+  },
+  {
+    "Material": "960002",
+    "Material Description": "BARCODE CARBON"
+  },
+  {
+    "Material": "928265",
+    "Material Description": "VITEK AST N406 423869  20T BIOMERIEUX"
+  },
+  {
+    "Material": "910134",
+    "Material Description": "FROSTED SLIDE - 50PC"
+  },
+  {
+    "Material": "929546",
+    "Material Description": "PIVKA CAT-9014985190 100T-ROCHE"
+  },
+  {
+    "Material": "920883",
+    "Material Description": "LACTOPHENOL COTTON BLUE 100ML-S016-100ML"
+  },
+  {
+    "Material": "920102",
+    "Material Description": "AMYLASE (AMY) REAG SLD 18 PACK J&J"
+  },
+  {
+    "Material": "920295",
+    "Material Description": "CARBOLIC FUCHIN STAIN REAG125ML BTL HIMD"
+  },
+  {
+    "Material": "929538",
+    "Material Description": "IGA CAT-3507343190 150T-ROCHE"
+  },
+  {
+    "Material": "910014",
+    "Material Description": "ALUMINIUM RACK-EA"
+  },
+  {
+    "Material": "929527",
+    "Material Description": "CALCITONINE CAT-9005668190 100T-ROCHE"
+  },
+  {
+    "Material": "921149",
+    "Material Description": "POTASSIUM(K) REAG 50 SLIDES PACK J&J"
+  },
+  {
+    "Material": "927241",
+    "Material Description": "CD38 CLONE: HB7(656646)REA 100T-BD"
+  },
+  {
+    "Material": "927226",
+    "Material Description": "CD14 CLONE: MΦP9(347493)REA 100T-BD"
+  },
+  {
+    "Material": "929542",
+    "Material Description": "IPTH CAT-8928380190 100T-ROCHE"
+  },
+  {
+    "Material": "928341",
+    "Material Description": "HU CD36 CAT-550956 APCCB38(NL07) 100TBD"
+  },
+  {
+    "Material": "921246",
+    "Material Description": "RPR REAG 50 TEST KIT GEN"
+  },
+  {
+    "Material": "929709",
+    "Material Description": "TPUC3 COBAS C INTEGRA 3333825190 150T RO"
+  },
+  {
+    "Material": "913441",
+    "Material Description": "PARAFFIN WAX CAT-IST-HF-P6001 1KG ISTOS"
+  },
+  {
+    "Material": "929522",
+    "Material Description": "BETA 2 MICROGLOBULIN 100T-8047430190ROCH"
+  },
+  {
+    "Material": "926984",
+    "Material Description": "STA CK-PREST-00597 REA 30MLKIT-STAGO"
+  },
+  {
+    "Material": "927253",
+    "Material Description": "CD79A CLONE:HM47(340579)REA 50T-BD"
+  },
+  {
+    "Material": "910208",
+    "Material Description": "NITRILE GLOVES SMALL-JK ANSEL"
+  },
+  {
+    "Material": "920091",
+    "Material Description": "AMMONIA (NH3) REAG 18 SLIDES PACK J&J"
+  },
+  {
+    "Material": "960818",
+    "Material Description": "PAPER A4-JK"
+  },
+  {
+    "Material": "929537",
+    "Material Description": "FSH CAT-8932352190 100T-ROCHE"
+  },
+  {
+    "Material": "929707",
+    "Material Description": "COBAS  CO2-L GEN2 3289923190 250T ROCHE"
+  },
+  {
+    "Material": "929520",
+    "Material Description": "ANTI THYROGLOBULIN-9004998190 100T-ROCHE"
+  },
+  {
+    "Material": "921565",
+    "Material Description": "VENTANA PD-L1 SP263-50 TEST"
+  },
+  {
+    "Material": "928354",
+    "Material Description": "CD34 APC 8G12 CAT 340441 100T BD RUO/GMP"
+  },
+  {
+    "Material": "929540",
+    "Material Description": "IGM CAT-3507190190 150T-ROCHE"
+  },
+  {
+    "Material": "920363",
+    "Material Description": "CELL CLEAN REAG 50 ML PACK TRANSASIA"
+  },
+  {
+    "Material": "929506",
+    "Material Description": "RA FACTOR CAT-20764574322 100T-ROCHE"
+  },
+  {
+    "Material": "921598",
+    "Material Description": "WBC DILUTING FLUID REAG 100 ML BTL GEN"
+  },
+  {
+    "Material": "929708",
+    "Material Description": "PROBNP G2 COBAS E 9315268190 100T ROCHE"
+  },
+  {
+    "Material": "921470",
+    "Material Description": "TROPONIN REAG 100 WELLS PACK J&J"
+  },
+  {
+    "Material": "961249",
+    "Material Description": "PAPPER CUP  250 ML"
+  },
+  {
+    "Material": "960032",
+    "Material Description": "OHP MARKER FABERCASTLE BLACK"
+  },
+  {
+    "Material": "929771",
+    "Material Description": "MINICAP IMMUNOTYPING CAT-2300 60T-SEBIA"
+  },
+  {
+    "Material": "920583",
+    "Material Description": "EOSINE POWD 25 GMS BOTTLE MERCK"
+  },
+  {
+    "Material": "960938",
+    "Material Description": "TEST REQUEST PADS MICROBIOLOGY"
+  },
+  {
+    "Material": "921296",
+    "Material Description": "SHANDON FILTER CARDS WHITE 1X200-THERMO"
+  },
+  {
+    "Material": "920088",
+    "Material Description": "AMIKACIN 30MCG 100DISC-HIMEDIA"
+  },
+  {
+    "Material": "920097",
+    "Material Description": "AMOXYCLAV 30 MCG 100DISC-HIMEDIA"
+  },
+  {
+    "Material": "920638",
+    "Material Description": "FOSFOMYCIN DISC 100 TEST BOTTLE HIMEDIA"
+  },
+  {
+    "Material": "926908",
+    "Material Description": "GENTAMICIN 120 MCG DISC-SD195-HI MEDIA"
+  },
+  {
+    "Material": "921079",
+    "Material Description": "NITROFURANTOIN 300MCG 100DISC-HIMEDIA"
+  },
+  {
+    "Material": "920362",
+    "Material Description": "CEFUROXIME DISC 100 NOS BOTTLE HIMEDIA"
+  },
+  {
+    "Material": "920680",
+    "Material Description": "GENTAMICIN 30 MCG DISC 100 TEST BTL HIMD"
+  },
+  {
+    "Material": "920589",
+    "Material Description": "ERYTHROMYCIN DISC 1X100 NOS- HIMEDIA"
+  },
+  {
+    "Material": "921698",
+    "Material Description": "PENICILLIN- G 10UNITS 100DISC-HIMEDIA"
+  },
+  {
+    "Material": "920445",
+    "Material Description": "CO-TRIMOXAZOLE 23.75 MCG 100DISC-HIMEDIA"
+  },
+  {
+    "Material": "920438",
+    "Material Description": "COLISTIN 10 MCG DISC 100 NOS BTL HIMEDIA"
+  },
+  {
+    "Material": "920418",
+    "Material Description": "CLARITHROMYCIN 100DISC-HIMEDIA"
+  },
+  {
+    "Material": "920399",
+    "Material Description": "CIPROFLOXACIN 5MCG 100DISC-HIMEDIA"
+  },
+  {
+    "Material": "921388",
+    "Material Description": "TEICOPLANIN 30MCG 100DISC-HIMEDIA"
+  },
+  {
+    "Material": "920907",
+    "Material Description": "LEVOFLOXACIN DISC 100 NOS BOTTLE HIMEDIA"
+  },
+  {
+    "Material": "920350",
+    "Material Description": "CEFEPIME DISC 100 NOS BOTTLE HIMEDIA"
+  },
+  {
+    "Material": "921558",
+    "Material Description": "VANCOMYCIN DISC 100 NOS- HIMEDIA"
+  },
+  {
+    "Material": "920922",
+    "Material Description": "LINEZOLID 30 MCG DISC 100 NOS BTL HIMD"
+  },
+  {
+    "Material": "912991",
+    "Material Description": "SLIDE BOX 26X76MM(CAT7101)50EA-KLEAN VIS"
+  },
+  {
+    "Material": "928342",
+    "Material Description": "CD64 CAT-657700APC-R700 MD22 RUO100TBD"
+  },
+  {
+    "Material": "928352",
+    "Material Description": "HU CD38 BV786 CAT563964 HIT2 100T BD"
+  },
+  {
+    "Material": "928344",
+    "Material Description": "HU CD123 CAT 564196 BV786 7G3 50T BD"
+  },
+  {
+    "Material": "929753",
+    "Material Description": "METHOTREXATE REA CAT-ETGSMTX  24ML GCELL"
+  },
+  {
+    "Material": "927498",
+    "Material Description": "HU CD15 APC MABCAT:551376 100T HI98"
+  },
+  {
+    "Material": "912781",
+    "Material Description": "IHC PLATINUM PRO 1 ADHESIVE SLIDES"
+  },
+  {
+    "Material": "927273",
+    "Material Description": "CD34 APC-R700 8G12(659123)REA 100T-BD"
+  },
+  {
+    "Material": "929529",
+    "Material Description": "CK-MB MASS CAT-5957648190 100T-ROCHE"
+  },
+  {
+    "Material": "926923",
+    "Material Description": "RNASE KIL ML162-250MLREA250MLBT1-HIMEDIA"
+  },
+  {
+    "Material": "960702",
+    "Material Description": "STAPLER PINS KANGROO HD-10D"
+  },
+  {
+    "Material": "921013",
+    "Material Description": "MEROPENEM 10MCG 100DISC-HIMEDIA"
+  },
+  {
+    "Material": "920843",
+    "Material Description": "IMIPENEM 10MCG 100DISC-HIMEDIA"
+  },
+  {
+    "Material": "921407",
+    "Material Description": "TICARCILLIN /CLAVINETS 100DISC-HIMEDIA"
+  },
+  {
+    "Material": "960939",
+    "Material Description": "TEST REQUEST PADS PATHOLOGY-CYTOLOGY"
+  },
+  {
+    "Material": "927261",
+    "Material Description": "CD304 CLONE: U21-1283(566038)REA 100T-BD"
+  },
+  {
+    "Material": "921548",
+    "Material Description": "URINE PROTEIN (UPRO) REAG 18 SLD PCK J&J"
+  },
+  {
+    "Material": "910714",
+    "Material Description": "PAS STAIN REAG 50ML-TULIP"
+  },
+  {
+    "Material": "928347",
+    "Material Description": "HU CD33 CAT 563171  BV711 WM53 50T BD"
+  },
+  {
+    "Material": "911123",
+    "Material Description": "HI CULTURE SWAB MS684 50TEST PACK-HIMEDI"
+  },
+  {
+    "Material": "926363",
+    "Material Description": "FOUCHEST REAGENT125 MLNICE"
+  },
+  {
+    "Material": "928263",
+    "Material Description": "CD14 PERCP-CLONE-MP9 340585 100T-BD"
+  },
+  {
+    "Material": "928001",
+    "Material Description": "IHC-IVIEWBLUEDETCTIONCAT5278511001E 200R"
+  },
+  {
+    "Material": "921584",
+    "Material Description": "VITEK 2 AST P628 CARD 20 TEST PCK BIOMRX"
+  },
+  {
+    "Material": "960030",
+    "Material Description": "LONG REGISTER 2QR"
+  },
+  {
+    "Material": "929541",
+    "Material Description": "IL-6  CAT -9015604190 100T-ROCHE"
+  },
+  {
+    "Material": "929531",
+    "Material Description": "CYCLOSPORINE CAT-5889014190  100T-ROCHE"
+  },
+  {
+    "Material": "960031",
+    "Material Description": "NJS 510 FILE"
+  },
+  {
+    "Material": "927263",
+    "Material Description": "HLA-DR CLONE:L243(642276)REA 100T-BD"
+  },
+  {
+    "Material": "928271",
+    "Material Description": "LIAISON CALCITONIN II-GEN 310650 100T-DI"
+  },
+  {
+    "Material": "923296",
+    "Material Description": "BARIUM CHOLORIDE 10% 500ML BOTTLE-SPAN"
+  },
+  {
+    "Material": "920946",
+    "Material Description": "LYSINGBUFFER10XCONCNTRTION-555899100MLBD"
+  },
+  {
+    "Material": "928527",
+    "Material Description": "PE MOUSE CYCD3-347347-CLONE SK7-BD"
+  },
+  {
+    "Material": "929521",
+    "Material Description": "ANTI THYROPEROXIDASE 100T-6368590190ROCH"
+  },
+  {
+    "Material": "928367",
+    "Material Description": "CD138 BD CLONE MI15 (RUO (GMP)CAT347193"
+  },
+  {
+    "Material": "921085",
+    "Material Description": "NUCLEASE FREE WATER-129114  500ML QIAGEN"
+  },
+  {
+    "Material": "927247",
+    "Material Description": "CD58CLONE:1C3/AICD58.6(555920)REA100T-BD"
+  },
+  {
+    "Material": "928356",
+    "Material Description": "HU CD3 BV711 CAT563725  UCHT1 100T BD"
+  },
+  {
+    "Material": "910405",
+    "Material Description": "PLASTIC BOX -GEN"
+  },
+  {
+    "Material": "920041",
+    "Material Description": "AEROBIC-PEDIATRIC BLOOD CULTURE REAG BTL"
+  },
+  {
+    "Material": "921278",
+    "Material Description": "SDA AGAR PLATE"
+  },
+  {
+    "Material": "960044",
+    "Material Description": "SPRING FILE"
+  },
+  {
+    "Material": "928008",
+    "Material Description": "IHC-INFORM EBER PROBE CAT-5278660001 -50"
+  },
+  {
+    "Material": "921477",
+    "Material Description": "TRUCOUNT ABSOLUTE COUNTING TUBES 50T-BD"
+  },
+  {
+    "Material": "921685",
+    "Material Description": "HBS REAGENT 100 WELLS-J&J"
+  },
+  {
+    "Material": "910340",
+    "Material Description": "TISSUE ROLL (KITCHEN)-GEN"
+  },
+  {
+    "Material": "921100",
+    "Material Description": "OXIDASE 100DISC-HIMEDIA"
+  },
+  {
+    "Material": "929186",
+    "Material Description": "IHC FOLATE RECEPTOR ALPHACAT37283S EPI"
+  },
+  {
+    "Material": "960043",
+    "Material Description": "SHEET PROTECTOR A/4"
+  },
+  {
+    "Material": "920602",
+    "Material Description": "FACS FLOW SHEATH FLUID-342003 20 LTRS BD"
+  },
+  {
+    "Material": "927948",
+    "Material Description": "TRUPCR BRAF QUALITATIVE KIT-3B1287-48REA"
+  },
+  {
+    "Material": "928351",
+    "Material Description": "HU CD22 BV711 CAT74775 HIB22 50UG BD"
+  },
+  {
+    "Material": "929699",
+    "Material Description": "LAMBDA APC-C750 CAT-CYT-LAC750-R  50T-BD"
+  },
+  {
+    "Material": "920844",
+    "Material Description": "INDIAN INK REAG 23 ML BOTTLE HIMEDIA"
+  },
+  {
+    "Material": "910196",
+    "Material Description": "MICROPORE 1INCH (1530)-3M"
+  },
+  {
+    "Material": "921588",
+    "Material Description": "VITEK 2 ID GP 20 CARD 20 TEST PCK BIOMRX"
+  },
+  {
+    "Material": "910313",
+    "Material Description": "SYRINGE 10ML-BD"
+  },
+  {
+    "Material": "910762",
+    "Material Description": "V CATH BUTTERFLY NEEDLE -GEN"
+  },
+  {
+    "Material": "921096",
+    "Material Description": "OPTOCHIN DISC 100 NOS BOTTLE HIMEDIA"
+  },
+  {
+    "Material": "923832",
+    "Material Description": "DNA ZAP SNLR 500mL-AM9890-THERMOFISHER"
+  },
+  {
+    "Material": "928355",
+    "Material Description": "CD7 APC-R700 CAT659124 100T BD (M-T701)"
+  },
+  {
+    "Material": "926944",
+    "Material Description": "BUFFER SOL PH 7.0 Q17335 550MLBT1-THERMO"
+  },
+  {
+    "Material": "927300",
+    "Material Description": "CD24 CLONE-ML5(555428)REA 100T-BD"
+  },
+  {
+    "Material": "926903",
+    "Material Description": "RETICULIN STAIN SD115 100MLKIT- AMD LABS"
+  },
+  {
+    "Material": "926966",
+    "Material Description": "XL BCR/ABL 1 PLUS (D-5052-100-OG)"
+  },
+  {
+    "Material": "960791",
+    "Material Description": "PENCIL CELL, AAA (EVE READY)"
+  },
+  {
+    "Material": "920157",
+    "Material Description": "BACITRACIN 100DISC-HIMEDIA"
+  },
+  {
+    "Material": "929330",
+    "Material Description": "TSLP PE-CAT563149 RAG 50UG-BD"
+  },
+  {
+    "Material": "924155",
+    "Material Description": "Buffer AL-264BOT-19075-Qiagen"
+  },
+  {
+    "Material": "927214",
+    "Material Description": "CD4 CLONE: SK3(341654)REA 50T-BD"
+  },
+  {
+    "Material": "927677",
+    "Material Description": "XLCDKN2C/CKS1BD-5099-100-O PROBEG-META"
+  },
+  {
+    "Material": "929747",
+    "Material Description": "ANTI-HBS-8498598190 100T-ROCHE"
+  },
+  {
+    "Material": "927497",
+    "Material Description": "HU CD16 APC MABCAT:561304 50T B73.1"
+  },
+  {
+    "Material": "927238",
+    "Material Description": "CD36 CLONE: CB38/NL07 (563518)REA 100T"
+  },
+  {
+    "Material": "928788",
+    "Material Description": "IHCULTRAVIEW SILVERWASH II CAT5446724001"
+  },
+  {
+    "Material": "927215",
+    "Material Description": "CD4 CLONE: SK3(651849)REA 100T-BD"
+  },
+  {
+    "Material": "960050",
+    "Material Description": "STAPLER PIN 24/6"
+  },
+  {
+    "Material": "960037",
+    "Material Description": "PENCIL NATRAJ"
+  },
+  {
+    "Material": "921828",
+    "Material Description": "HUMAN KIM1   ELK11098 96W ELK BIOTECH"
+  },
+  {
+    "Material": "961589",
+    "Material Description": "GARBAGE BAG RED SMALL 1KG"
+  },
+  {
+    "Material": "912835",
+    "Material Description": "CAP FOR 1.8ML CRYO VIALS-GENAXY"
+  },
+  {
+    "Material": "924106",
+    "Material Description": "Prem Grade Ethanol-500BOT-F204325-Hayman"
+  },
+  {
+    "Material": "961591",
+    "Material Description": "GARBAGE BAG BLUE SMALL 1KG"
+  },
+  {
+    "Material": "926920",
+    "Material Description": "KMRtrack® Monitoring Marker KMR047-GENDX"
+  },
+  {
+    "Material": "926961",
+    "Material Description": "CLOSTRIDIUM DIFFICILE GDH TOX A+ TOX B10"
+  },
+  {
+    "Material": "922046",
+    "Material Description": "PENICILIN STREPTOMYCIN REAG 100ML-THERMO"
+  },
+  {
+    "Material": "921608",
+    "Material Description": "XLD AGAR PLATES"
+  },
+  {
+    "Material": "928872",
+    "Material Description": "DROPLEX POLE MUTATION TEST CD008-32REA"
+  },
+  {
+    "Material": "910206",
+    "Material Description": "NITRILE GLOVES LARGE-BIOGEM"
+  },
+  {
+    "Material": "920838",
+    "Material Description": "IHC-REACTION BUFFER REAG 1 NOS PCK ROCHE"
+  },
+  {
+    "Material": "927619",
+    "Material Description": "TRUPCR MGMT METHYLATION DETECTION KIT3B1"
+  },
+  {
+    "Material": "928301",
+    "Material Description": "BDCS &TBEADS CAT:656504  50 TEST"
+  },
+  {
+    "Material": "928785",
+    "Material Description": "IHC HER2 DISH DNA CAT8314373001 PRB CKT"
+  },
+  {
+    "Material": "910072",
+    "Material Description": "COTTON ROLL 500 GM-GEN"
+  },
+  {
+    "Material": "928348",
+    "Material Description": "HU CD11B BV786 CAT 569703  ICRF44 50UG B"
+  },
+  {
+    "Material": "927319",
+    "Material Description": "KMRTRACK KMR054(8344342-54)REA 48REA-GEN"
+  },
+  {
+    "Material": "920828",
+    "Material Description": "IHC-BLUING REAGENT REAG 1 NOS PACK GEN"
+  },
+  {
+    "Material": "913388",
+    "Material Description": "EMBEDDING MD 15X15X6 IMPL-SM-15 12EA IST"
+  },
+  {
+    "Material": "913389",
+    "Material Description": "EMBEDDING MD 24X24X6 IMPL-SM-24 12EA IST"
+  },
+  {
+    "Material": "912877",
+    "Material Description": "MICROSEAL ADHESIVE SEALS (1X100)-BIORAD"
+  },
+  {
+    "Material": "960729",
+    "Material Description": "PERMANENT MARKER CAMLIN"
+  },
+  {
+    "Material": "921609",
+    "Material Description": "XLMLLPLUS-D-5060- REAG 100 TEST PACK GEN"
+  },
+  {
+    "Material": "928526",
+    "Material Description": "FITCMOUSE CD48-555759ClONE TÜ145 RUO-BD"
+  },
+  {
+    "Material": "928286",
+    "Material Description": "KAPPA-346601 50TEST PACK-BD (CLONE -TB28"
+  },
+  {
+    "Material": "926856",
+    "Material Description": "XL T(11;14) D-5111-100-OG REA ULKIT-META"
+  },
+  {
+    "Material": "928056",
+    "Material Description": "ZYTOLIGHT SPEC ROS1DUALPROBE -Z-2144-200"
+  },
+  {
+    "Material": "929534",
+    "Material Description": "FREE PSA  CAT-8828601190 100T-ROCHE"
+  },
+  {
+    "Material": "929338",
+    "Material Description": "CD200 PERCP-CY5.5 CAT-562124 REA 50T BD"
+  },
+  {
+    "Material": "911814",
+    "Material Description": "N95 Face Mask"
+  },
+  {
+    "Material": "928285",
+    "Material Description": "PG-SEQ INDEXING PRIMERS ILL (BC1-48)-434"
+  },
+  {
+    "Material": "928284",
+    "Material Description": "PG-SEQ RAPID KIT V2-4340-0248-48REA-PERK"
+  },
+  {
+    "Material": "928522",
+    "Material Description": "TRUPCR IDH1/2 DETEC-DIFFEREN KIT-24REA-3"
+  },
+  {
+    "Material": "928398",
+    "Material Description": "ASPERGILLUS GM LFA AF2003 50T KIT-ILLUM"
+  },
+  {
+    "Material": "926952",
+    "Material Description": "TRUPCR®PML/RARA QUANTITATIVE3B1259 24REA"
+  },
+  {
+    "Material": "929119",
+    "Material Description": "PA COLIFORM CAT 204160410001"
+  },
+  {
+    "Material": "921322",
+    "Material Description": "SODIUM HYPOCHLORITE SOLU 5 LTRS CAN BML"
+  },
+  {
+    "Material": "923578",
+    "Material Description": "W.B.C DILUTING 500ML BOTTEL-SPAN"
+  },
+  {
+    "Material": "927618",
+    "Material Description": "TRUPCR- DNA METHYLATION KIT3B215"
+  },
+  {
+    "Material": "921819",
+    "Material Description": "KMRTRACK KMR020 8344342-20 48T PAK-GENDX"
+  },
+  {
+    "Material": "961104",
+    "Material Description": "THERMAL TRANSFER RIBBON SIZE: 40MM X300M"
+  },
+  {
+    "Material": "920336",
+    "Material Description": "CD8(PE CY7)-335787 ABS 500 UL VIAL BD"
+  },
+  {
+    "Material": "924643",
+    "Material Description": "MULTITESTCD3CD8CD45CD4 340499REA50TPAKBD"
+  },
+  {
+    "Material": "928196",
+    "Material Description": "HU CD134 (OX-40 ANTIGEN) PE-CY7 ACT35-56"
+  },
+  {
+    "Material": "928262",
+    "Material Description": "CD25 APC-CLONE-M-A251 555434 100T-BD"
+  },
+  {
+    "Material": "928399",
+    "Material Description": "KMRTRACK KMR057 8344342-57 48T PAK GENDX"
+  },
+  {
+    "Material": "960283",
+    "Material Description": "REGISTER 4 QUIRE-GEN"
+  },
+  {
+    "Material": "924265",
+    "Material Description": "XL t(15;17) DF SNLR 100µL D-5086-100-OG"
+  },
+  {
+    "Material": "921481",
+    "Material Description": "TRUPCR KRAS QUALI KIT-REAL-TIME PCR"
+  },
+  {
+    "Material": "927196",
+    "Material Description": "XL DLEU/TP53(D-5067-100-OG)REA 100µL-MET"
+  },
+  {
+    "Material": "920748",
+    "Material Description": "HBSAG HEPACARD - 100 TEST -J.MITRA"
+  },
+  {
+    "Material": "921674",
+    "Material Description": "DRVV SCREEN CAT-333 60ML STAGO"
+  },
+  {
+    "Material": "921756",
+    "Material Description": "STA PTT AUTOMATE CAT-595 60ML STAGO"
+  },
+  {
+    "Material": "927234",
+    "Material Description": "CD27 CLONE: L128(656643)REA 50T-BD"
+  },
+  {
+    "Material": "910307",
+    "Material Description": "SURGICAL BLADE NO.22-GEN"
+  },
+  {
+    "Material": "927209",
+    "Material Description": "CD1A BV605 CLONE(663805)REA 100T-BD"
+  },
+  {
+    "Material": "927221",
+    "Material Description": "CD10 CLONE: HI10A (340923)REA 100T-BD"
+  },
+  {
+    "Material": "961607",
+    "Material Description": "TRIESTA GATE PASS PAD 50'S"
+  },
+  {
+    "Material": "930928",
+    "Material Description": "PC MULTIMARKER  5341787190 12ML ROCHE"
+  },
+  {
+    "Material": "961608",
+    "Material Description": "TRIESTA CASH VOUCHER PAD 50'S"
+  },
+  {
+    "Material": "928369",
+    "Material Description": "CD319 BV711 CAT750839  BD CLONE 235614 ("
+  },
+  {
+    "Material": "928523",
+    "Material Description": "TRUPCR MPN MUTATION KIT-24REA-3B"
+  },
+  {
+    "Material": "930662",
+    "Material Description": "Urine Chemistry control-L1 397 BIO-RAD"
+  },
+  {
+    "Material": "927195",
+    "Material Description": "14;16 IGH/MAF(D-5112-100-OG)REA100µL-MET"
+  },
+  {
+    "Material": "928981",
+    "Material Description": "IHCVENCLAUDIN 18.2(43-14A)CAT8504148001"
+  },
+  {
+    "Material": "927024",
+    "Material Description": "KMR044 Monitoring Marker-8344342-44-GEND"
+  },
+  {
+    "Material": "912876",
+    "Material Description": "96 WELL SKIRTED PCR PLATES 1X50-BIO-RAD"
+  },
+  {
+    "Material": "920423",
+    "Material Description": "CLEANER SOLUTION REAG 2.5 LTRS CAN STAGO"
+  },
+  {
+    "Material": "910213",
+    "Material Description": "OIL IMMERSION 30 ML BOTTLE MERCK"
+  },
+  {
+    "Material": "913326",
+    "Material Description": "CLEANCELL CAT-11662970122 6X380ML-ROCHE"
+  },
+  {
+    "Material": "961245",
+    "Material Description": "M FOLD TOWEL-KOSHER"
+  },
+  {
+    "Material": "913289",
+    "Material Description": "LITHIUM HEPARIN (NVSH) NVLH4-4ML NASMED"
+  },
+  {
+    "Material": "927193",
+    "Material Description": "4:14 FGFR3(D-5108-100-OG)REA 100µL-MET"
+  },
+  {
+    "Material": "913335",
+    "Material Description": "PROCELL CAT-11662988122 6X380ML-ROCHE"
+  },
+  {
+    "Material": "961495",
+    "Material Description": "ROOM FRESHENER FRESH LIME"
+  },
+  {
+    "Material": "910012",
+    "Material Description": "ALCOHOL SWAB-BD-EA"
+  },
+  {
+    "Material": "924871",
+    "Material Description": "ALK(D5F3) RABBIT MONO PRIMARY-6679072001"
+  },
+  {
+    "Material": "920561",
+    "Material Description": "EASY NRAS KIT CAT:RT004 24 TEST-MOLDIAG"
+  },
+  {
+    "Material": "920781",
+    "Material Description": "HIV CARD 1X100 TEST"
+  },
+  {
+    "Material": "930958",
+    "Material Description": "STA SYSTEM CONTROL N+P 678 24ML STAGO"
+  },
+  {
+    "Material": "961258",
+    "Material Description": "ODONIL AIR POCKET ZIPPER"
+  },
+  {
+    "Material": "920840",
+    "Material Description": "IHC-ULTRA VIEW DAB KIT REAG 1 PCK ROCHE"
+  },
+  {
+    "Material": "929688",
+    "Material Description": "CD303 BV786 CAT-748000 REA 50UG-BD"
+  },
+  {
+    "Material": "929686",
+    "Material Description": "CD371 BV786 CAT-742934 REA 50UG-BD"
+  },
+  {
+    "Material": "924800",
+    "Material Description": "CD123 340545 REA 50TETPAK-BD BIOSCIENCES"
+  },
+  {
+    "Material": "927131",
+    "Material Description": "MONITORING (8344342-53)REA 48REA-GENDX"
+  },
+  {
+    "Material": "920913",
+    "Material Description": "STA-LIQUID FIB-00673 REAGENT 12X4ML-STAG"
+  },
+  {
+    "Material": "960727",
+    "Material Description": "CUTTER SMALL"
+  },
+  {
+    "Material": "928534",
+    "Material Description": "IHC-PMS2 A16-4 CAT7905094 5ML -VENTANA"
+  },
+  {
+    "Material": "927256",
+    "Material Description": "CD117 CLONE:104D2(562687)REA 50T-BD"
+  },
+  {
+    "Material": "927732",
+    "Material Description": "IHC-CK7-OVTL12/30-LRTUCAT-HAM091-6mlPATH"
+  },
+  {
+    "Material": "928373",
+    "Material Description": "KMRTRACK KMR040 8344342-40 48T-GENDX"
+  },
+  {
+    "Material": "927248",
+    "Material Description": "CD61 CLONE:RUU-PL7F12(348093)REA 100T-BD"
+  },
+  {
+    "Material": "927064",
+    "Material Description": "KMRTRACK KMR049 8344342-49 48T PAK-GENDX"
+  },
+  {
+    "Material": "913334",
+    "Material Description": "NAOH-D CAT-4489241190 50ML-ROCHE"
+  },
+  {
+    "Material": "928184",
+    "Material Description": "KMRTRACK KMR035 8344342-35 48T-GENDX"
+  },
+  {
+    "Material": "926946",
+    "Material Description": "XLT(12;21)ETV6/RUNX1DFD-5115-100-OG-META"
+  },
+  {
+    "Material": "927821",
+    "Material Description": "IHC-CD3LN10CAT-PDM186RTU 6ML-DBS"
+  },
+  {
+    "Material": "920760",
+    "Material Description": "HCV SPOT CARDS - 100 TEST-TRIDOT"
+  },
+  {
+    "Material": "910628",
+    "Material Description": "CENTERIFUGE TUBE 50ML-GEN"
+  },
+  {
+    "Material": "921001",
+    "Material Description": "MALARIA AB PF/PV REAG 25 TEST PACK GEN"
+  },
+  {
+    "Material": "910243",
+    "Material Description": "PURELLIUM GEL 500ML-BIOSHIELDS"
+  },
+  {
+    "Material": "928997",
+    "Material Description": "TISSUE-FISH PETREATMENT D-0905-025-TF-ME"
+  },
+  {
+    "Material": "927874",
+    "Material Description": "IHC-MUM1 PROTEINMUM1PCAT-PDM420RTU6ML-DB"
+  },
+  {
+    "Material": "928787",
+    "Material Description": "IHC SILVER ISH DNP DETCAT8318883001 KIT"
+  },
+  {
+    "Material": "923596",
+    "Material Description": "VITEK2 AST YS08 CARD 20TEST-BIOMERIUEX"
+  },
+  {
+    "Material": "910262",
+    "Material Description": "SLIDE MAILER -GEN"
+  },
+  {
+    "Material": "929808",
+    "Material Description": "IMTEC-ANA-LIA XL CAT-ITC92007 24T HUMAN"
+  },
+  {
+    "Material": "927318",
+    "Material Description": "KMRTRACK KMR038(8344342-38)REA 48REA-GEN"
+  },
+  {
+    "Material": "929329",
+    "Material Description": "FMC-7 FITC-CAT-CYT-FMC7F REA 200T -BD"
+  },
+  {
+    "Material": "961585",
+    "Material Description": "GARBAGE BIO 48X60 YELLOW 51MICR 1KG"
+  },
+  {
+    "Material": "961584",
+    "Material Description": "GARBAGE BIO 48X60 BLUE 51MICR 1KG"
+  },
+  {
+    "Material": "961538",
+    "Material Description": "SCOTCH PAD BIG"
+  },
+  {
+    "Material": "929332",
+    "Material Description": "CD2 FITC CAT-347593 100T PACK-BD"
+  },
+  {
+    "Material": "603646",
+    "Material Description": "DESKTOP I5 8GB RAM 512GB SSD (C20-39)-LE"
+  },
+  {
+    "Material": "910082",
+    "Material Description": "COVER SLIPS (22X40MM)1X 20BOX-BLUE STAR"
+  },
+  {
+    "Material": "926845",
+    "Material Description": "LYSERCELL WDF 121530 REAG 5LTRSPAK-TRANS"
+  },
+  {
+    "Material": "930957",
+    "Material Description": "STA CONTROL LA1+2 CAT-201 6ML STAGO"
+  },
+  {
+    "Material": "927526",
+    "Material Description": "XL T8:21 PLUS CATD-5114-100-OG 100UL-MET"
+  },
+  {
+    "Material": "961246",
+    "Material Description": "SUGAR 5 KG PKT"
+  },
+  {
+    "Material": "921280",
+    "Material Description": "SELENITE F BROTH"
+  },
+  {
+    "Material": "921760",
+    "Material Description": "STA THROMBIN 2 CAT-611 24ML STAGO"
+  },
+  {
+    "Material": "927251",
+    "Material Description": "CD71 CLONE:M-A712(655408)REA 100T-BD"
+  },
+  {
+    "Material": "928353",
+    "Material Description": "CD16 PE-CY7 CAT 335788 B73.1 100T BD RUO"
+  },
+  {
+    "Material": "928713",
+    "Material Description": "IHC-MSH6 SP93 CAT833676001 5 ML ROCHE"
+  },
+  {
+    "Material": "923461",
+    "Material Description": "IHC-HER-2/NEU(4BP) RABBIT 50ML BTL-ROCHE"
+  },
+  {
+    "Material": "920523",
+    "Material Description": "DENGUE DUO NS1 AG IGG/IGM CARD 10TST PCK"
+  },
+  {
+    "Material": "960943",
+    "Material Description": "PHLEBOTOMY REGISTER"
+  },
+  {
+    "Material": "928789",
+    "Material Description": "IHC ISH PROTEASE 3 CAT 5273331001"
+  },
+  {
+    "Material": "928775",
+    "Material Description": "KMRTRACK KMR030 8344342-30 48T GENDX"
+  },
+  {
+    "Material": "927482",
+    "Material Description": "KMRTRACKMONITORING KMR009CAT:8344342-09"
+  },
+  {
+    "Material": "921480",
+    "Material Description": "TRUPCR JAK2 REAG 48 REAC PACK GEN"
+  },
+  {
+    "Material": "910163",
+    "Material Description": "LEICA H-PROFILE BLADES-(HIGH) -1X50"
+  },
+  {
+    "Material": "927680",
+    "Material Description": "XL 20Q12/20QTER/8CEN PLUS D-5122-100-TC"
+  },
+  {
+    "Material": "921153",
+    "Material Description": "PPD MANTOUX REAG 5 ML BOTTLE GEN"
+  },
+  {
+    "Material": "920604",
+    "Material Description": "FACS SHUT DOWN-334224 SOLU 5 LTRS PCK BD"
+  },
+  {
+    "Material": "928947",
+    "Material Description": "IHC-HER2 NEU (4B5) 5278368001 5 ML ROCHE"
+  },
+  {
+    "Material": "929698",
+    "Material Description": "KAPPA FITC CAT-CYT-KAPPF2-R REA 100T-BD"
+  },
+  {
+    "Material": "921705",
+    "Material Description": "KETODIA STIX 1X50TEST-SIEMENS"
+  },
+  {
+    "Material": "926919",
+    "Material Description": "KMRtrack® Monitoring Marker KMR045-GENDX"
+  },
+  {
+    "Material": "928357",
+    "Material Description": "HU CD8 BV786 CAT563823 RPA-T8 100T BD"
+  },
+  {
+    "Material": "930663",
+    "Material Description": "Urine Chemistry control-L2 398 BIO-RAD"
+  },
+  {
+    "Material": "927326",
+    "Material Description": "TRUPCR®ALL PANEL KIT(3B1405)REA 24REA-3B"
+  },
+  {
+    "Material": "929513",
+    "Material Description": "TRIGLYCERIDES CAT-20767107322 250T-ROCHE"
+  },
+  {
+    "Material": "923434",
+    "Material Description": "METHANOL 2.5LTRS CAN-FISHER"
+  },
+  {
+    "Material": "910261",
+    "Material Description": "SLIDE MAILER 5PLACE"
+  },
+  {
+    "Material": "920448",
+    "Material Description": "C-REACTIVE PROTIEN (CRP) REAG SLD 18 PAC"
+  },
+  {
+    "Material": "921793",
+    "Material Description": "ADA REAG CAT-EGS8001G 30 MLGCELL"
+  },
+  {
+    "Material": "928521",
+    "Material Description": "TRUPCR AML COMPREHENSIVE KIT-24REA-3B"
+  },
+  {
+    "Material": "927246",
+    "Material Description": "CD56 CLONE: NCAM16.2(335791)REA 100T-BD"
+  },
+  {
+    "Material": "960942",
+    "Material Description": "OUTSTATION COURIER REGISTER"
+  },
+  {
+    "Material": "921675",
+    "Material Description": "DRVV CONFIRM CAT-334 24ML STAGO"
+  },
+  {
+    "Material": "927819",
+    "Material Description": "IHC-CD20 B-CELLL26CAT-PDM004RTU 6ML-DBS"
+  },
+  {
+    "Material": "928777",
+    "Material Description": "XL T(1;19) PBX1- TCF3 DF [D-5153-100-OG]"
+  },
+  {
+    "Material": "927836",
+    "Material Description": "IHC-CDX2EP25CAT-RMPD059RTU 6ML-DBS"
+  },
+  {
+    "Material": "929690",
+    "Material Description": "CD103 BV711 CAT-563162 REA 50T PACK-BD"
+  },
+  {
+    "Material": "961598",
+    "Material Description": "SHARP COLLECTOR 5LITER"
+  },
+  {
+    "Material": "910083",
+    "Material Description": "COVER SLIPS (22X50MM) 1X20BOX-BLUE STAR"
+  },
+  {
+    "Material": "927000",
+    "Material Description": "XL BCL2 BA [D-6018-100-OG]-100ul- META"
+  },
+  {
+    "Material": "927907",
+    "Material Description": "IHC-WILMSTUMORT16F-H2CAT-PDM177RTU6ML-DB"
+  },
+  {
+    "Material": "920835",
+    "Material Description": "IHC-LCS REAG 1 NOS PACK ROCHE"
+  },
+  {
+    "Material": "926999",
+    "Material Description": "XL BCL6 BA [D-6016-100-OG]-100ul- META"
+  },
+  {
+    "Material": "929321",
+    "Material Description": "KMRTRACK KMR034 8344342-34 48T PAK-GENDX"
+  },
+  {
+    "Material": "920154",
+    "Material Description": "AZITHROMYCIN DISC 1X100 NOS-HIMEDIA"
+  },
+  {
+    "Material": "961306",
+    "Material Description": "HP 12A TONER CARTRIDGE REFFLING"
+  },
+  {
+    "Material": "921410",
+    "Material Description": "TIGECYCLINE DISC  100 - HIMEDIA"
+  },
+  {
+    "Material": "913337",
+    "Material Description": "SMS CAT-4489225190 50ML-ROCHE"
+  },
+  {
+    "Material": "913266",
+    "Material Description": "MULTI PURPOSE TUBE (SERUM TUBE) 100 NOS."
+  },
+  {
+    "Material": "960026",
+    "Material Description": "LOCK BAG 12 X 16"
+  },
+  {
+    "Material": "927882",
+    "Material Description": "IHC-P53DO-7CAT-PDM013RTU 6ML-DBS"
+  },
+  {
+    "Material": "921818",
+    "Material Description": "KMRTRACK KMR010 8344342-10 48T PAK-GENDX"
+  },
+  {
+    "Material": "920490",
+    "Material Description": "CSF PROTEIN REAG SLD 18 PACK J&J"
+  },
+  {
+    "Material": "928292",
+    "Material Description": "KMRTRACK KMR042 8344342-42 48T PAK-GENDX"
+  },
+  {
+    "Material": "927355",
+    "Material Description": "XCE X/YQH XCYTING(D0832050OG)REA 50µL-ME"
+  },
+  {
+    "Material": "921362",
+    "Material Description": "SYPHILIS RAPID CARD 50 TEST PACK GEN"
+  },
+  {
+    "Material": "927957",
+    "Material Description": "IHC-GFAP-EP13-RTUCAT-HAR046-3ml-PATHINSI"
+  },
+  {
+    "Material": "927681",
+    "Material Description": "XL T(3;3) GATA2/MECOM DFD-5124-100-OG"
+  },
+  {
+    "Material": "910378",
+    "Material Description": "YELLOW TIPS-1000S-GEN"
+  },
+  {
+    "Material": "927840",
+    "Material Description": "IHC-CYTOKERATIN CAT-PDM049RTU 6ML-DBS"
+  },
+  {
+    "Material": "913370",
+    "Material Description": "ECO-D COBAS C311 5422485190 1EA ROCHE"
+  },
+  {
+    "Material": "929752",
+    "Material Description": "ADA REAG CAT-EGS8001G 60 MLGCELL"
+  },
+  {
+    "Material": "910343",
+    "Material Description": "TORNIQUET-GEN"
+  },
+  {
+    "Material": "927864",
+    "Material Description": "IHC-LCAPD&2-6-26+2B11CAT-PDM009RTU6ML-DB"
+  },
+  {
+    "Material": "929549",
+    "Material Description": "TACROLIMUS CAT-5889057190 100T-ROCHE"
+  },
+  {
+    "Material": "923597",
+    "Material Description": "VITEK 2 AST ST03 CARD 20TESTP-BIOMERIUEX"
+  },
+  {
+    "Material": "927679",
+    "Material Description": "XL 7Q22/7Q36D-5043-100-TC"
+  },
+  {
+    "Material": "927223",
+    "Material Description": "CD11C CLONE: B-LY6(561356)REA 50T-BD"
+  },
+  {
+    "Material": "923519",
+    "Material Description": "SULFOLYSER 5LTRS CAN-TRANSASIA"
+  },
+  {
+    "Material": "927822",
+    "Material Description": "IHC-CD30 KI-1HER-H2CAT-PDM018RTU 6ML-DBS"
+  },
+  {
+    "Material": "929007",
+    "Material Description": "3B 100BP DNA-LADDER-50UG-3B194"
+  },
+  {
+    "Material": "921797",
+    "Material Description": "ANTI-PAX8 CAT-VNB31-5M 6ML BIOGENEX"
+  },
+  {
+    "Material": "910312",
+    "Material Description": "SWAB TUBES 1X100"
+  },
+  {
+    "Material": "927678",
+    "Material Description": "XL 5Q31/5Q33D-5042-100-OG"
+  },
+  {
+    "Material": "927748",
+    "Material Description": "IHC-HEPPAR1-OCH1ESLRTUCAT-HAM115-6mlPATH"
+  },
+  {
+    "Material": "928670",
+    "Material Description": "IHC-MSH2 G219-1129 8033684001 5 ML ROCHE"
+  },
+  {
+    "Material": "928671",
+    "Material Description": "IHC-MLH1 (M1) 8033668001 5 ML ROCHE"
+  },
+  {
+    "Material": "929784",
+    "Material Description": "COLCEMID SOLUTION CAT-D003-10ML DIAGNOVU"
+  },
+  {
+    "Material": "961321",
+    "Material Description": "HP 88A TONER CARTRIDGE REFFLING"
+  },
+  {
+    "Material": "927774",
+    "Material Description": "IHC-PAX5-EP156-RTUCAT-HAR064-6mlPATH"
+  },
+  {
+    "Material": "927881",
+    "Material Description": "IHC-P40RABBITCAT-PDR055RTU 6ML-DBS"
+  },
+  {
+    "Material": "927001",
+    "Material Description": "XLt(8;14)MYC/IGH DF[D-5110-100-OG]-META"
+  },
+  {
+    "Material": "921509",
+    "Material Description": "TYPHI DOT RAPID CARD 30 TEST PACK GEN"
+  },
+  {
+    "Material": "928294",
+    "Material Description": "PASTEUR PIPETTE 3ML"
+  },
+  {
+    "Material": "920772",
+    "Material Description": "HEMOSPOT CARD TET 50 PACK TULIP"
+  },
+  {
+    "Material": "927094",
+    "Material Description": "EXTENDED MONITORING(8342582)RE432R-GENDX"
+  },
+  {
+    "Material": "926767",
+    "Material Description": "PHA-M 10576015 REA 10MLBT1-THERMO"
+  },
+  {
+    "Material": "913338",
+    "Material Description": "SYS WASH-11930346122 500ML-ROCHE"
+  },
+  {
+    "Material": "927986",
+    "Material Description": "HU TCR CAEBTA 1 50T CAT-565776-BD"
+  },
+  {
+    "Material": "927281",
+    "Material Description": "HU CD9 BV605 M-L13(743048)REA 50µL-BD"
+  },
+  {
+    "Material": "961558",
+    "Material Description": "SPRAY BOTTLES"
+  },
+  {
+    "Material": "961497",
+    "Material Description": "CADDY KIT"
+  },
+  {
+    "Material": "921660",
+    "Material Description": "IHC PDGFRα CAT-AB96569 100UL ABCAM"
+  },
+  {
+    "Material": "961369",
+    "Material Description": "TRIESTA LOGO  APRONS-M"
+  },
+  {
+    "Material": "927969",
+    "Material Description": "EPCAM BER-EP4-RTUCAT-MM1157-3ML-PATH"
+  },
+  {
+    "Material": "961319",
+    "Material Description": "HP 88A TONER CARTRIDGE DRUM CHANGE"
+  },
+  {
+    "Material": "920051",
+    "Material Description": "ALBERT’S STAIN A REAG 125 ML BTL HIMEDIA"
+  },
+  {
+    "Material": "927483",
+    "Material Description": "KMRTRACKMONITORING KMR051CAT-8344342-51"
+  },
+  {
+    "Material": "913325",
+    "Material Description": "CELLWASH SOLU I-4880285214 2X1800MLROCHE"
+  },
+  {
+    "Material": "920566",
+    "Material Description": "EGFR REQ PCR KIT CATNO:874111 24T-QIAGEN"
+  },
+  {
+    "Material": "927883",
+    "Material Description": "IHC-P63DBR16.1CAT-RMPD086RTU 6ML-DBS"
+  },
+  {
+    "Material": "928563",
+    "Material Description": "IHC-CD34 CAT-PDM050RTU 6ML-DBS"
+  },
+  {
+    "Material": "910113",
+    "Material Description": "EMPTY PLASTIC CONSUMABLES 5 LTRS CAN GEN"
+  },
+  {
+    "Material": "927838",
+    "Material Description": "IHC-CHROMOGRANIN-A-CAT-PDM067RTU 6ML-DBS"
+  },
+  {
+    "Material": "927844",
+    "Material Description": "IHC-DESMIND33CAT-PDM006RTU 6ML-DBS"
+  },
+  {
+    "Material": "913354",
+    "Material Description": "ASSAYTIP CAT-11706799001 3600EA-ROCHE"
+  },
+  {
+    "Material": "927880",
+    "Material Description": "IHC-P16JC2CAT-PDM575RTU 6ML-DBS"
+  },
+  {
+    "Material": "921715",
+    "Material Description": "ANAEROBIC CULTURE BOTTLE -ORANGE"
+  },
+  {
+    "Material": "928077",
+    "Material Description": "IHC-HBME-1-CAT- Z2233MP-R-ZCUSA-7ML"
+  },
+  {
+    "Material": "961521",
+    "Material Description": "WET MOP SET BLUE"
+  },
+  {
+    "Material": "961370",
+    "Material Description": "TRIESTA LOGO  APRONS-L"
+  },
+  {
+    "Material": "910044",
+    "Material Description": "Centrifuge Tube 1.5ml"
+  },
+  {
+    "Material": "929773",
+    "Material Description": "KMRTRACK KMR014 8344342-14 48T PAK-GENDX"
+  },
+  {
+    "Material": "961500",
+    "Material Description": "SIGN BOARD WORK IN PROGRESS"
+  },
+  {
+    "Material": "929006",
+    "Material Description": "3B MB-AGAROSE-ANALY-ELECTRO-3B181-100G"
+  },
+  {
+    "Material": "940804",
+    "Material Description": "ISE STAND H CAL-11183982216 10X3ML-ROCHE"
+  },
+  {
+    "Material": "912998",
+    "Material Description": "PHILLIPS BULP MICROSCOPE(6605)-PHILLIPS"
+  },
+  {
+    "Material": "961368",
+    "Material Description": "TRIESTA LOGO  APRONS-S"
+  },
+  {
+    "Material": "927060",
+    "Material Description": "KMRTRACK KMR011 8344342-11 48T PAK-GENDX"
+  },
+  {
+    "Material": "927735",
+    "Material Description": "IHC-CYCLIN D1-EP12-RTUCAT-HAR035-6mlPATH"
+  },
+  {
+    "Material": "930934",
+    "Material Description": "ADA CONTROL CAT-EGQ-ADA 1EA GCELL"
+  },
+  {
+    "Material": "920352",
+    "Material Description": "CEFOTAXIME DISC 100 NOS BOTTLE HIMEDIA"
+  },
+  {
+    "Material": "961304",
+    "Material Description": "HP 12A TONER CARTRIDGE DRUM CHANGE"
+  },
+  {
+    "Material": "920832",
+    "Material Description": "IHC-EZ PREP REAG 1 NOS PACK ROCHE"
+  },
+  {
+    "Material": "927611",
+    "Material Description": "KMRTRACK KMR050 8344342-50 48T PAK-GENDX"
+  },
+  {
+    "Material": "960027",
+    "Material Description": "LOCK BAG 14 X 10"
+  },
+  {
+    "Material": "921226",
+    "Material Description": "RETICULOCYTE STAIN REAG 125 ML BTL NICE"
+  },
+  {
+    "Material": "961590",
+    "Material Description": "GARBAGE BAG BLUE EXTRA LARGE 1KG"
+  },
+  {
+    "Material": "921795",
+    "Material Description": "ANTI-INSM1 CAT-VMB44-5M 6ML BIOGENEX"
+  },
+  {
+    "Material": "926855",
+    "Material Description": "XL 6Q21/6Q23D-5039-100-OG REA ULKIT-META"
+  },
+  {
+    "Material": "927828",
+    "Material Description": "IHC-CD56123C3.D5CAT-PDM110RTU 6ML-DBS"
+  },
+  {
+    "Material": "921600",
+    "Material Description": "WEILIFILIX REAG 15 ML BOTTLE GEN"
+  },
+  {
+    "Material": "924862",
+    "Material Description": "KMR TYPE CORE GENOTYPING-CAT:8341181"
+  },
+  {
+    "Material": "928415",
+    "Material Description": "IHC-CK AE1/AE3-CAT-CK AE1/AE3-DAKO"
+  },
+  {
+    "Material": "929192",
+    "Material Description": "IHC CD2(DYGNIVA)CAT DH090-6R EPI 6ML CST"
+  },
+  {
+    "Material": "927820",
+    "Material Description": "IHC-CD231B12CAT-PDM143RTU 6ML-DBS"
+  },
+  {
+    "Material": "913420",
+    "Material Description": "GLASS BEAKER LOWFORM 250ML 1000D21 BOROS"
+  },
+  {
+    "Material": "913421",
+    "Material Description": "GLASS BEAKER LOWFORM 100ML 1000D16 BOROS"
+  },
+  {
+    "Material": "927738",
+    "Material Description": "IHC-DOG1-DOG1 MOUSE RTUCAT-PM127-6mlPATH"
+  },
+  {
+    "Material": "927876",
+    "Material Description": "IHC-NAPSIN AKCG1.1CAT-PDM154RTU 6ML-DBS"
+  },
+  {
+    "Material": "927731",
+    "Material Description": "IHC-CK5/6COCKTAIL-RTUCAT-HAR106-6ml PATH"
+  },
+  {
+    "Material": "910738",
+    "Material Description": "SHOE COVER-GEN"
+  },
+  {
+    "Material": "927759",
+    "Material Description": "IHC-MUC1-EP85-RTUCAT-HAR149-6mlPATHINSIT"
+  },
+  {
+    "Material": "927245",
+    "Material Description": "CD56 CLONE: NCAM16.2(657886)REA 100T-BD"
+  },
+  {
+    "Material": "940805",
+    "Material Description": "ISE STAND L CAL-11183974216 10X3ML-ROCHE"
+  },
+  {
+    "Material": "927941",
+    "Material Description": "KMRTRACK KMR017-48R CAT-8344342-17-GENDX"
+  },
+  {
+    "Material": "930833",
+    "Material Description": "HAEMATOLOGYTRILEVELCONTROLHM5162 3X2X4.5"
+  },
+  {
+    "Material": "961356",
+    "Material Description": "DETTOL HAND WASH 5 LITER"
+  },
+  {
+    "Material": "927888",
+    "Material Description": "IHC-PLAPSP15CAT-RMPD017RTU 6ML-DBS"
+  },
+  {
+    "Material": "961524",
+    "Material Description": "TOILET BRUSH"
+  },
+  {
+    "Material": "911119",
+    "Material Description": "FORCEP S.S 6\"-GEN"
+  },
+  {
+    "Material": "927851",
+    "Material Description": "IHC-GATA3L50-823CAT-PDM564RTU 6ML-DBS"
+  },
+  {
+    "Material": "912812",
+    "Material Description": "COVERSLIPPING FILMROLL M4770 5PAK-SAKURA"
+  },
+  {
+    "Material": "910034",
+    "Material Description": "BLUE TIPS 500 NOS-GEN"
+  },
+  {
+    "Material": "910081",
+    "Material Description": "COVER SLIPS (22X30MM) 1X20BOX-BLUE STAR"
+  },
+  {
+    "Material": "930046",
+    "Material Description": "LIATEST N+P CONT 12 ML KIT STAGO"
+  },
+  {
+    "Material": "924552",
+    "Material Description": "MAY GRUNWALD STAIN 25GM-LOBRA"
+  },
+  {
+    "Material": "920168",
+    "Material Description": "BD STEM CELLENUMERATION(344563)1X50T-BD"
+  },
+  {
+    "Material": "910326",
+    "Material Description": "TEST TUBE PLASTIC 3INC-SDPI"
+  },
+  {
+    "Material": "910332",
+    "Material Description": "THERMAL PAPER ROLL 57MM"
+  },
+  {
+    "Material": "927803",
+    "Material Description": "IHC-BCL6PG-B6CAT-PDM587RTU 6ML-DBS"
+  },
+  {
+    "Material": "913419",
+    "Material Description": "GLASS BEAKER LOWFORM 500ML 1000D24 BOROS"
+  },
+  {
+    "Material": "927825",
+    "Material Description": "IHC-CD4EP204CAT-RMPD083RTU 6ML-DBS"
+  },
+  {
+    "Material": "930932",
+    "Material Description": "KAPPA-LAMBDA-FLC CTRL-8896577190 6ML ROC"
+  },
+  {
+    "Material": "927566",
+    "Material Description": "CARBA-R 10 CAT:123654-CEPHEID"
+  },
+  {
+    "Material": "929183",
+    "Material Description": "IHC NKX3.1 CAT AMASS-5M 6ML BIOGENIC"
+  },
+  {
+    "Material": "930879",
+    "Material Description": "LIQUICHEKIMMUNOLOGY CONTROL L3 593 6X1ML"
+  },
+  {
+    "Material": "927747",
+    "Material Description": "IHC-CALDESMON-EP19-RTUCAT-HAR008-6mlPATH"
+  },
+  {
+    "Material": "927317",
+    "Material Description": "KMRTRACK KMR036(8344342-36)REA 48REA-GEN"
+  },
+  {
+    "Material": "961396",
+    "Material Description": "TASKI R5 AIR FRESHENER 5LTRS"
+  },
+  {
+    "Material": "928804",
+    "Material Description": "SEMI SKIRTED 0.1ML ROCHE LOW PROFILE-613"
+  },
+  {
+    "Material": "920827",
+    "Material Description": "IHC-BARCODE LABELS REAG 1 NOS PACK ROCHE"
+  },
+  {
+    "Material": "927832",
+    "Material Description": "IHC-CD7CAT-RTU 6ML-DBS"
+  },
+  {
+    "Material": "912854",
+    "Material Description": "STERILEFT TXLF-10-R-S10UL AXYGEN-CORNING"
+  },
+  {
+    "Material": "927062",
+    "Material Description": "KMRTRACK KMR028 8344342-28 48T PAK-GENDX"
+  },
+  {
+    "Material": "927113",
+    "Material Description": "QUALPRO HIV(402100050)REA 50TET-TULIP"
+  },
+  {
+    "Material": "928185",
+    "Material Description": "KMRTRACK KMR046 8344342-46 48T-GENDX"
+  },
+  {
+    "Material": "930872",
+    "Material Description": "LIQUICHEK CARDIAC MARK PLUS TL 180 6X3ML"
+  },
+  {
+    "Material": "921540",
+    "Material Description": "URIC ACID 1943927 REAG 60SLD PACK J&J"
+  },
+  {
+    "Material": "930866",
+    "Material Description": "LYPHOCHEK IA PLUS CTRLTRILEVEL370 12X5ML"
+  },
+  {
+    "Material": "927812",
+    "Material Description": "IHC-CALRETININ CAT-PDM593RTU 6ML-DBS"
+  },
+  {
+    "Material": "929607",
+    "Material Description": "PD-1 BV786 - CAT 563789 50 TEST"
+  },
+  {
+    "Material": "928084",
+    "Material Description": "IHC-N-CADHERIN-CAT1000-MSM4-P-NB USA7ML"
+  },
+  {
+    "Material": "928345",
+    "Material Description": "HU CD203C APC NP4D6 50T BD"
+  },
+  {
+    "Material": "960052",
+    "Material Description": "STEEL SCALE 12\""
+  },
+  {
+    "Material": "927768",
+    "Material Description": "IHC-OCT2-EP115-RTUCAT-PR207-6mlPATHINSIT"
+  },
+  {
+    "Material": "961569",
+    "Material Description": "Q MANGER"
+  },
+  {
+    "Material": "913380",
+    "Material Description": "MULTI PACK COBA CAT04593138190 1 EA ROCH"
+  },
+  {
+    "Material": "927695",
+    "Material Description": "IHC-ANDROGEN RECEPTOR-RTUCAT-HAR002-6ml"
+  },
+  {
+    "Material": "921794",
+    "Material Description": "ANTI-CD7 CAT-VM702-5M 6ML BIOGENEX"
+  },
+  {
+    "Material": "961530",
+    "Material Description": "SOFT BROOM"
+  },
+  {
+    "Material": "927702",
+    "Material Description": "IHC-CA 125-EP48-RTUCAT-HAR006-6mlPATH"
+  },
+  {
+    "Material": "960839",
+    "Material Description": "PUNCHING MACHINE KANGROO 500"
+  },
+  {
+    "Material": "913353",
+    "Material Description": "ASSAYCUP CAT-11706802001 3600EA-ROCHE"
+  },
+  {
+    "Material": "910303",
+    "Material Description": "STRIP TUBES AND CAPS 0.1 ML 1X250-QIAGEN"
+  },
+  {
+    "Material": "929776",
+    "Material Description": "IHC CD117,CKIT CAT117R-14 0.1ML CELLMARQ"
+  },
+  {
+    "Material": "921605",
+    "Material Description": "WIDAL TUBE REAG 50 TEST PACK GEN"
+  },
+  {
+    "Material": "927823",
+    "Material Description": "IHC-CD31JC/70ACAT-PDM020RTU 6ML-DBS"
+  },
+  {
+    "Material": "961269",
+    "Material Description": "TASKI R2 HHTLBA1- 5LTRS CAN"
+  },
+  {
+    "Material": "929191",
+    "Material Description": "IHC TRBC1(CST) CAT79485S 100UL CST"
+  },
+  {
+    "Material": "928805",
+    "Material Description": "EU OPTI SEAL-157300-TRANS"
+  },
+  {
+    "Material": "940811",
+    "Material Description": "PROBNP CAL CAT-9315292190 2X2X1ML-ROCHE"
+  },
+  {
+    "Material": "940810",
+    "Material Description": "RF CAL CAT-12172828322 5X1ML-R0CHE"
+  },
+  {
+    "Material": "927897",
+    "Material Description": "IHC-SATB2EP 281CAT-RMPD112RTU 6ML-DBS"
+  },
+  {
+    "Material": "911210",
+    "Material Description": "AUTOCLAVE TAPE-3M"
+  },
+  {
+    "Material": "927811",
+    "Material Description": "IHC-CALPONINCALPCAT-PDM219RTU 6ML-DBS"
+  },
+  {
+    "Material": "928428",
+    "Material Description": "IHC-ANTI-CD44 CAT- AM310-5M BIOGENEX 6"
+  },
+  {
+    "Material": "928425",
+    "Material Description": "IHC-CA-IX  CAT- AMC19-5M BIOGENEX 6ML"
+  },
+  {
+    "Material": "913424",
+    "Material Description": "GLASS MEASURCYLINDER 3022016D 100ML BORO"
+  },
+  {
+    "Material": "928774",
+    "Material Description": "IHC NKX2.2 CAT PDM199-6ML-DBS"
+  },
+  {
+    "Material": "929201",
+    "Material Description": "IHC ICOS(CST) CAT  67223T 20UL CST"
+  },
+  {
+    "Material": "928567",
+    "Material Description": "IHC-TINTOCXCL 12/SDF-1CATBSB-3713-7BIOSB"
+  },
+  {
+    "Material": "913422",
+    "Material Description": "GLASS BEAKER LOWFORM 50ML 1000D12 BOROSS"
+  },
+  {
+    "Material": "961313",
+    "Material Description": "HP 78A TONER CARTRIDGE BLADE CHANGE"
+  },
+  {
+    "Material": "929731",
+    "Material Description": "IHC-CD117C-KIT CAT-RMPD119 RTU 6ML-DB"
+  },
+  {
+    "Material": "928426",
+    "Material Description": "IHC-ANTI-CD19 CAT- AN729-5M BIOGENEX 6"
+  },
+  {
+    "Material": "961311",
+    "Material Description": "HP 77A TONER CARTRIDGE REFFLING"
+  },
+  {
+    "Material": "961493",
+    "Material Description": "TASKI R1"
+  },
+  {
+    "Material": "928918",
+    "Material Description": "IHC HLA-DR CAT AM154-5M 6ML BIOGENEX"
+  },
+  {
+    "Material": "930877",
+    "Material Description": "LIQUICHEKIMMUNOLOGY CONTROL L1 591 6X1ML"
+  },
+  {
+    "Material": "927901",
+    "Material Description": "IHC-TDTSEN 28CAT-PDM096RTU 6ML-DBS"
+  },
+  {
+    "Material": "927863",
+    "Material Description": "IHC-LAMBDA LIGHT CAT-PDM056RTU 6ML-DBS"
+  },
+  {
+    "Material": "928141",
+    "Material Description": "CLEANSOL-NICE-5LTR-CAT-C12401-SLV"
+  },
+  {
+    "Material": "940824",
+    "Material Description": "VITAMIND TOTAL CAL9038116190 2X2X1-ROCHE"
+  },
+  {
+    "Material": "930878",
+    "Material Description": "LIQUICHEKIMMUNOLOGY CONTROL L2 592 6X1ML"
+  },
+  {
+    "Material": "961305",
+    "Material Description": "HP 12A TONER CARTRIDGE PCR CHANGE"
+  },
+  {
+    "Material": "927870",
+    "Material Description": "IHC-MYELOPEROXIDASE-CAT-PDM551RTU 6ML-DB"
+  },
+  {
+    "Material": "930937",
+    "Material Description": "LYPHOCHECK COAGULATION CTRL L1 744 1EABR"
+  },
+  {
+    "Material": "940823",
+    "Material Description": "VITAMIN B12 CAL-7212780190 2X2X1ML-ROCHE"
+  },
+  {
+    "Material": "940781",
+    "Material Description": "CA 15-3 CAL CAT-3045846122 2X2X1ML-ROCHE"
+  },
+  {
+    "Material": "927749",
+    "Material Description": "IHC-MELANOSOME-HMB45-LRTUCAT-HAM097-6ml"
+  },
+  {
+    "Material": "921657",
+    "Material Description": "IHC ANTIWILMSTUMORCAT-VN940-5M 6MLBIOGEN"
+  },
+  {
+    "Material": "927165",
+    "Material Description": "EASY PGX PIK3CA(RT036)REA 48TET-DIATECH"
+  },
+  {
+    "Material": "940789",
+    "Material Description": "CFAS PROTEINS CAL11355279216 5X1ML-ROCHE"
+  },
+  {
+    "Material": "910102",
+    "Material Description": "DISPOSSABLE STICKY MAT-BLUE-24''X36''"
+  },
+  {
+    "Material": "930022",
+    "Material Description": "COAG N+P CONT 12 ML KIT STAGO"
+  },
+  {
+    "Material": "961520",
+    "Material Description": "WET MOP SET RED"
+  },
+  {
+    "Material": "961522",
+    "Material Description": "WET MOP SET GREEN"
+  },
+  {
+    "Material": "961303",
+    "Material Description": "HP 12A TONER CARTRIDGE BLADE CHANGE"
+  },
+  {
+    "Material": "940833",
+    "Material Description": "METHOTREXATE CAL CAT-EGC-MTX 1EA GCELL"
+  },
+  {
+    "Material": "929188",
+    "Material Description": "IHC LYSOME CATPDR005 6ML DBS"
+  },
+  {
+    "Material": "929629",
+    "Material Description": "IHC BAP1 CAT PDM595  CLONE C-4 DBS 6ML"
+  },
+  {
+    "Material": "927800",
+    "Material Description": "IHC-P504S-AMACR13H4CAT-RMPD078RTU 6ML-DB"
+  },
+  {
+    "Material": "930883",
+    "Material Description": "LIQUICHEK SPINAL FLUIDCTRL BL 750X 2X3ML"
+  },
+  {
+    "Material": "930907",
+    "Material Description": "HIV PC G2 ELECSYS 6924107190 12ML ROCHE"
+  },
+  {
+    "Material": "927839",
+    "Material Description": "IHC-CYTOKERATIN CAT-PDM192RTU 6ML-DBS"
+  },
+  {
+    "Material": "928007",
+    "Material Description": "IHC-CYTOPLASMIC LAMBDAPROBCAT-5278686001"
+  },
+  {
+    "Material": "930864",
+    "Material Description": "LYPHOCHEK ASSAYED CHEM L1 C310-5 12X5ML"
+  },
+  {
+    "Material": "913329",
+    "Material Description": "HBA1C TQ REA-4528182190 2X22.5ML-ROCHE"
+  },
+  {
+    "Material": "929195",
+    "Material Description": "IHC CXCL13(CST) CAT 85679T 20UL CST"
+  },
+  {
+    "Material": "920167",
+    "Material Description": "BD STEM CELL(340991)CONTROL 2ML-BD"
+  },
+  {
+    "Material": "929610",
+    "Material Description": "IHC BCOR CATDH404-6R C-10 EPITOPE 6ML"
+  },
+  {
+    "Material": "961264",
+    "Material Description": "TASKI R6 HHTLFA 1- 5LTRS"
+  },
+  {
+    "Material": "930865",
+    "Material Description": "LYPHOCHEK ASSAYED CHEM L2 C315-5 12X5ML"
+  },
+  {
+    "Material": "928921",
+    "Material Description": "IHC CHROMOGRANIN A CAT238M-94 CM 0.1ML"
+  },
+  {
+    "Material": "927906",
+    "Material Description": "IHC-VIMENTINV9CAT-PDM029RTU 6ML-DBS"
+  },
+  {
+    "Material": "930939",
+    "Material Description": "LYPHOCHECK COAGULATION CTRL L3 746 BR"
+  },
+  {
+    "Material": "929200",
+    "Material Description": "IHC  CD200 CAT A21226 100UL ABCLONAL"
+  },
+  {
+    "Material": "927799",
+    "Material Description": "IHC-ALK/P804A4CAT-PDM566RTU 6ML-DBS"
+  },
+  {
+    "Material": "927789",
+    "Material Description": "IHC-TLE1-IF5-MOUSE RTUCAT-HAM179-6mlPATH"
+  },
+  {
+    "Material": "930938",
+    "Material Description": "LYPHOCHECK COAGULATION CTRL L2 745 1EA"
+  },
+  {
+    "Material": "910220",
+    "Material Description": "PASTEUR PIPETTES 1X100-TARSON"
+  },
+  {
+    "Material": "929089",
+    "Material Description": "HUMAN WB-BM CD138(17887)REA6UL-STEM"
+  },
+  {
+    "Material": "927061",
+    "Material Description": "KMRTRACK KMR019 8344342-19 48T PAK-GENDX"
+  },
+  {
+    "Material": "928114",
+    "Material Description": "KMRTRACK KMR043 8344342-43 48T PAK-GENDX"
+  },
+  {
+    "Material": "928922",
+    "Material Description": "IHC S-100 CAT 330M-14 CELLMARK 0.1ML"
+  },
+  {
+    "Material": "930880",
+    "Material Description": "LYPHOCHEK TUMOR MARKCONTROL L1 367 6X2ML"
+  },
+  {
+    "Material": "923512",
+    "Material Description": "IHC-SSC REAGENT 2LTRS CAN-ROCHE"
+  },
+  {
+    "Material": "923609",
+    "Material Description": "RUBBER SOLUTION"
+  },
+  {
+    "Material": "928923",
+    "Material Description": "IHC SYNAPTOPHYSIN CAT 336R-14 CM 0.1ML"
+  },
+  {
+    "Material": "927707",
+    "Material Description": "IHC-CD1A-EP80-RTUCAT-HAR011-6mlPATHINSIT"
+  },
+  {
+    "Material": "927192",
+    "Material Description": "HEMATOXYLIN CRYST(1043020025)REA 25G-MER"
+  },
+  {
+    "Material": "961307",
+    "Material Description": "HP 12ATONERCARTRIDGE MAGNET ROLL CHANGE"
+  },
+  {
+    "Material": "921654",
+    "Material Description": "IHCANTICD61/INTEGRIN B3 VM942-5ME 6MLBIO"
+  },
+  {
+    "Material": "921664",
+    "Material Description": "IHC BRCA1 CAT DH067-6R 6ML DYGNOVA"
+  },
+  {
+    "Material": "921655",
+    "Material Description": "IHCANTI-KAPPALIGHT CHAIN VM980-5M 6MLBIO"
+  },
+  {
+    "Material": "927807",
+    "Material Description": "IHC-BOB.1SP92CAT-RMPD110RTU 6ML-DBS"
+  },
+  {
+    "Material": "920379",
+    "Material Description": "CHIKUNGUNYA IGM RAPID CARD 10TPACK NICE"
+  },
+  {
+    "Material": "940779",
+    "Material Description": "CFAS PUC CAL CAT-3121305122 5X1 ML-ROCHE"
+  },
+  {
+    "Material": "926064",
+    "Material Description": "LIAISON CLEANING KIT"
+  },
+  {
+    "Material": "928083",
+    "Material Description": "IHC-CD123-CAT- Z2390MP-R-ZCUSA-7ML"
+  },
+  {
+    "Material": "928074",
+    "Material Description": "IHC-CD33-CAT-Z2426MP-R-ZCUSA-7ML"
+  },
+  {
+    "Material": "927525",
+    "Material Description": "XL CBFB CAT:D-5092-100-OG 100UL-META"
+  },
+  {
+    "Material": "930900",
+    "Material Description": "POSITIVE SLIDES FOR HER2+ GENEBIO"
+  },
+  {
+    "Material": "928272",
+    "Material Description": "LIAISON CALCITONIN II-GEN CONTROL SET-31"
+  },
+  {
+    "Material": "929056",
+    "Material Description": "IHC BRACHYURU AMC14-5M BIOGENEX6ML"
+  },
+  {
+    "Material": "912433",
+    "Material Description": "Sterile FT TF-1000-R-S 1000ul Axygen"
+  },
+  {
+    "Material": "930021",
+    "Material Description": "CARDIAC MARKER MTHLY EQAS PROGRAM-BIORAD"
+  },
+  {
+    "Material": "929777",
+    "Material Description": "IHC CD34 CAT 4134M-14 0.1ML CELLMARQ"
+  },
+  {
+    "Material": "912858",
+    "Material Description": "(NON-FT)GEN-UT-10XL-C-CON-GENAXY"
+  },
+  {
+    "Material": "920053",
+    "Material Description": "ALBERT’S STAIN B REAG 125 ML BTL HIMEDIA"
+  },
+  {
+    "Material": "921612",
+    "Material Description": "XYLENE REAG 2.5 LTRS BTL FISHER"
+  },
+  {
+    "Material": "927782",
+    "Material Description": "IHC-SOX10-EP268-RTUCAT-HAR135-6mlPATH"
+  },
+  {
+    "Material": "927794",
+    "Material Description": "IHC-SOX11-CL0142-LRTUCAT-PM290-6mlPATH"
+  },
+  {
+    "Material": "961318",
+    "Material Description": "HP 88A TONER CARTRIDGE BLADE CHANGE"
+  },
+  {
+    "Material": "921651",
+    "Material Description": "IHC ANTI-CD10CAT-VM451-5M 6ML BIOGENEX"
+  },
+  {
+    "Material": "913363",
+    "Material Description": "DILUENT MULTIASSAY COBASE 3609987190 1EA"
+  },
+  {
+    "Material": "927736",
+    "Material Description": "IHC-CMYC-EP121-RTUCAT-HAR034-6mlPATH"
+  },
+  {
+    "Material": "940785",
+    "Material Description": "CFAS CAL CAT-10759350190 12X3 ML-ROCHE"
+  },
+  {
+    "Material": "940795",
+    "Material Description": "FOLATE CAL CAT-7560001190 2X2X1 ML-ROCHE"
+  },
+  {
+    "Material": "920836",
+    "Material Description": "IHC-PR REAG 1 NOS PACK ROCHE"
+  },
+  {
+    "Material": "927775",
+    "Material Description": "IHC-PAX8-EP331-RTUCAT-HAR276-6mlPATH"
+  },
+  {
+    "Material": "927843",
+    "Material Description": "IHC-PODOPLANIND2-40CAT-PDM558RTU 6ML-DBS"
+  },
+  {
+    "Material": "913331",
+    "Material Description": "ISD SAMPLE PT CAT-5889073190 30ML-ROCHE"
+  },
+  {
+    "Material": "930287",
+    "Material Description": "MINICAP HYPERGAMMA CONTROL CAT-4787-SEB"
+  },
+  {
+    "Material": "913417",
+    "Material Description": "GLASS BEAKER LOWFORM 2L 1000D30 BOROSSIL"
+  },
+  {
+    "Material": "921801",
+    "Material Description": "ANTI-SMAD4 CAT-AMD23-5M 6ML BIOGENEX"
+  },
+  {
+    "Material": "961496",
+    "Material Description": "VIM LIQUID SUN ROXO"
+  },
+  {
+    "Material": "913265",
+    "Material Description": "MICROTIPS  5ML 100 NOS."
+  },
+  {
+    "Material": "913418",
+    "Material Description": "GLASS BEAKER LOWFORM 1L 1000D29 BOROSSIL"
+  },
+  {
+    "Material": "927827",
+    "Material Description": "IHC-CD554/F6CAT-PDM589RTU 6ML-DBS"
+  },
+  {
+    "Material": "913425",
+    "Material Description": "BEAKER PLASTIC 421050 500ML TARSON"
+  },
+  {
+    "Material": "921663",
+    "Material Description": "IHC FLI-1 CAT DH307-6R 6ML DYGNOVA"
+  },
+  {
+    "Material": "913423",
+    "Material Description": "GLASS MEASURCYLINDER 3022024D 500ML BORO"
+  },
+  {
+    "Material": "927514",
+    "Material Description": "MONOMOAHU PD-L 1 CL 22C3CAT:M365329-2"
+  },
+  {
+    "Material": "940799",
+    "Material Description": "HCG BETA CAL CAT3302652190 2X2X1ML-ROCHE"
+  },
+  {
+    "Material": "940776",
+    "Material Description": "AMH PLUS CAL CAT7957203190 2X2X1ML-ROCHE"
+  },
+  {
+    "Material": "927783",
+    "Material Description": "IHC-STAT-6-EP325-RTUCAT-HAR262-6mlPATH"
+  },
+  {
+    "Material": "940807",
+    "Material Description": "NH3/ETH/CO2 CAL-20751995190 2X4ML-ROCHE"
+  },
+  {
+    "Material": "940815",
+    "Material Description": "T3 CAL CAT-11731548122 2X2X1ML-ROCHE"
+  },
+  {
+    "Material": "930291",
+    "Material Description": "MINICAPCONTROL SERA NORMAL CAT- 4785-SEB"
+  },
+  {
+    "Material": "913332",
+    "Material Description": "ISE CLEANINGSOLCLEAN-11298500316 5X100ML"
+  },
+  {
+    "Material": "920831",
+    "Material Description": "IHC-ER REAG 1 NOS PACK ROCHE"
+  },
+  {
+    "Material": "920905",
+    "Material Description": "LEPTOSPIRA IGM RAPID CARD 30 TEST PCK"
+  },
+  {
+    "Material": "928266",
+    "Material Description": "VITEK AST N407 423870 20T BIOMERIEUX"
+  },
+  {
+    "Material": "930933",
+    "Material Description": "PIVKAA CTRL-HCC PC-8333645190- 1EA ROCHE"
+  },
+  {
+    "Material": "940806",
+    "Material Description": "LH CAL CAT-9557423190 2X2X1ML-ROCHE"
+  },
+  {
+    "Material": "940816",
+    "Material Description": "T4 CAL CAT-12017717122 2X2X1ML-ROCHE"
+  },
+  {
+    "Material": "928434",
+    "Material Description": "IHC-LEF1 CAT-  ANB32-5M BIOGENEX 6ML"
+  },
+  {
+    "Material": "921650",
+    "Material Description": "IHC ANTI-MYOD1 CAT-VMA21-5M 6ML BIOGENEX"
+  },
+  {
+    "Material": "929632",
+    "Material Description": "IHC FASCIN-1 CAT PDM560  55K-2 DBS 6ML"
+  },
+  {
+    "Material": "929775",
+    "Material Description": "IHC  BCL6  CAT 227M-94 0.1ML CELLMARQ"
+  },
+  {
+    "Material": "928857",
+    "Material Description": "IHC OLIG 2 CAT 387M-14 C M C 0.1ML"
+  },
+  {
+    "Material": "929774",
+    "Material Description": "IHC  CD10 CAT 110M-14 0.1ML CELLMARQ"
+  },
+  {
+    "Material": "927198",
+    "Material Description": "HUMAN WB AND BM CD138(17887)REA16ML-STEM"
+  },
+  {
+    "Material": "910031",
+    "Material Description": "BLADE FOR BIOPSY CUTTING MACHINE-BRIGHT"
+  },
+  {
+    "Material": "927834",
+    "Material Description": "IHC-CD8 T-CELLSP16CAT-RMPD012RTU 6ML-DBS"
+  },
+  {
+    "Material": "927765",
+    "Material Description": "IHC-MDM2-D-7-MOUSE RTUCAT-HAM263-6mlPATH"
+  },
+  {
+    "Material": "921689",
+    "Material Description": "SUSPENSION SOLUTION-BIOMERIX"
+  },
+  {
+    "Material": "928982",
+    "Material Description": "IHC FUMARATES HYDRATE CATBSB-3726-3 -3ML"
+  },
+  {
+    "Material": "940822",
+    "Material Description": "TSH CAL CAT-8443459190 2X2X1.3ML-ROCHE"
+  },
+  {
+    "Material": "927758",
+    "Material Description": "IHC-MUC4-EP256-RTUCAT-PR136-6mlPATHINSIT"
+  },
+  {
+    "Material": "927865",
+    "Material Description": "IHC-IGGPOLYCLONALCAT-RTU 6ML-DBS"
+  },
+  {
+    "Material": "940786",
+    "Material Description": "CFAS HBA1C CAL CAT4528417190 3X2ML-ROCHE"
+  },
+  {
+    "Material": "940780",
+    "Material Description": "CA 125 CAL CAT-7030207190 2X2X1ML-ROCHE"
+  },
+  {
+    "Material": "940794",
+    "Material Description": "FERRITIN CAL CAT3737586190 2X2X1ML-ROCHE"
+  },
+  {
+    "Material": "930943",
+    "Material Description": "SPL IMMASSAY LVL-1 CAT-364 1EA BIORAD"
+  },
+  {
+    "Material": "930876",
+    "Material Description": "LIQUICHEK AMH CONTROL TL 12006327 6X2ML"
+  },
+  {
+    "Material": "913382",
+    "Material Description": "CELL SET COBAS CAT-04555040001 1EA ROCHE"
+  },
+  {
+    "Material": "961261",
+    "Material Description": "STAINLESS STEEL SCRUBBER"
+  },
+  {
+    "Material": "928855",
+    "Material Description": "IHC LANGERIN CAT 392M-14 C M C 0.1ML"
+  },
+  {
+    "Material": "928865",
+    "Material Description": "IHC SOX-10  CAT 383R-14 C M C 0.1ML"
+  },
+  {
+    "Material": "930944",
+    "Material Description": "SPL IMMASSAY LVL-2 CAT-365 1EA BIORAD"
+  },
+  {
+    "Material": "912856",
+    "Material Description": "STERILE FT TF-20-R-S 20UL AXYGEN-CORNING"
+  },
+  {
+    "Material": "927815",
+    "Material Description": "IHC-CD138B-A38CAT-PDM588RTU 6ML-DBS"
+  },
+  {
+    "Material": "929097",
+    "Material Description": "IHCHSP70 CATPDM597 DBS 6ML"
+  },
+  {
+    "Material": "927750",
+    "Material Description": "IHC-INHIBIN ALPHA-R1-LRTUCAT-HAM122-6ml"
+  },
+  {
+    "Material": "927808",
+    "Material Description": "IHC-CA19-9C241:5:1:4CAT-PDM567RTU 6ML-DB"
+  },
+  {
+    "Material": "929098",
+    "Material Description": "IHC GALECTIN-3 CATPDM134 DBS 6ML"
+  },
+  {
+    "Material": "926656",
+    "Material Description": "ZytoLight Z-2087-50REA50µlBT1-Zytovision"
+  },
+  {
+    "Material": "912434",
+    "Material Description": "Sterile FT TF-200-R-S 200ul Axygen"
+  },
+  {
+    "Material": "921602",
+    "Material Description": "WIDAL KIT 4X5 ML-SPAN"
+  },
+  {
+    "Material": "929202",
+    "Material Description": "IHC-BRAF V600E VE1 8033706001 5ML ROCHE"
+  },
+  {
+    "Material": "929740",
+    "Material Description": "IHC TINTO HERPES SIMPLEX V II M-3ML BIOS"
+  },
+  {
+    "Material": "927960",
+    "Material Description": "IHC-MESOTHELIN-EP140-RTUCAT-HAR054-3ml"
+  },
+  {
+    "Material": "927963",
+    "Material Description": "IHC-NSE GAMMA-RTUCAT-HAM225-3ml-PATH"
+  },
+  {
+    "Material": "921769",
+    "Material Description": "FORMIC ACID LC-MS  A117-50 50ML THERMO"
+  },
+  {
+    "Material": "927264",
+    "Material Description": "HLA-DR CLONE:L243(641393)REA 100T-BD"
+  },
+  {
+    "Material": "940773",
+    "Material Description": "CALCITONIN CAL-9005684190 2X2X1ML-ROCHE"
+  },
+  {
+    "Material": "940778",
+    "Material Description": "ANTI-TPO CAL-6472931190 2X2X1.5ML-ROCHE"
+  },
+  {
+    "Material": "928433",
+    "Material Description": "IHC- INI-1 CAT- AMB02-5M  BIOGENEX 6ML"
+  },
+  {
+    "Material": "930873",
+    "Material Description": "LYPHOCHEK WB IMMUNISUPPRESS L1 274 6X2ML"
+  },
+  {
+    "Material": "928866",
+    "Material Description": "IHC CALRETININ CAT 232R-14 C M C 0.1ML"
+  },
+  {
+    "Material": "928924",
+    "Material Description": "IHC TTF-1 CAT 343R-14 CELLMARK 0.1ML"
+  },
+  {
+    "Material": "927831",
+    "Material Description": "IHC-CD68 -M1CAT-PDM065RTU 6ML-DBS"
+  },
+  {
+    "Material": "927896",
+    "Material Description": "IHC-SALL4 6E3CAT-PDM591RTU 6ML-DBS"
+  },
+  {
+    "Material": "930870",
+    "Material Description": "ETHANOL-AMMONIA LEVEL 2 545 6X3ML-BIORAD"
+  },
+  {
+    "Material": "930660",
+    "Material Description": "CANDIDA PARAP ATCC® 22019 0726P CON-HIME"
+  },
+  {
+    "Material": "928566",
+    "Material Description": "IHC-COX 2 CAT-ANA32-5M-6ML-BIOGENEX"
+  },
+  {
+    "Material": "940787",
+    "Material Description": "CFAS LIPIDS CAL 12172623122 3X1ML-ROCHE"
+  },
+  {
+    "Material": "921658",
+    "Material Description": "IHC ANTIMYOGENINCATAN789-5M 6ML BIOGENEX"
+  },
+  {
+    "Material": "927813",
+    "Material Description": "IHC-CD1056C6CAT-PDM107RTU 6ML-DBS"
+  },
+  {
+    "Material": "927816",
+    "Material Description": "IHC-CD15MMACAT-PDM127RTU 6ML-DBS"
+  },
+  {
+    "Material": "927802",
+    "Material Description": "IHC-BCL-2124CAT-PDM209 RTU 6ML-DBS"
+  },
+  {
+    "Material": "928920",
+    "Material Description": "IHC ACTIN SMOOTH MUSCLE CAT 202M-94  CM"
+  },
+  {
+    "Material": "926018",
+    "Material Description": "BUFFER EL (1000 ML)"
+  },
+  {
+    "Material": "928858",
+    "Material Description": "IHC SDHB CAT466R-14 C M C 0.1ML"
+  },
+  {
+    "Material": "928053",
+    "Material Description": "ZYTOLIGHT SPEC ALK DUALPROBE-Z-2124-200"
+  },
+  {
+    "Material": "940813",
+    "Material Description": "PROLACTIN CAL-3277356190 2X2X1ML-ROCHE"
+  },
+  {
+    "Material": "940782",
+    "Material Description": "CA 19-9 CAL-11776215122 2X2X1ML -ROCHE"
+  },
+  {
+    "Material": "927788",
+    "Material Description": "IHC-TFE3-EP285-RTUCAT-PR220-6mlPATHINSIT"
+  },
+  {
+    "Material": "940820",
+    "Material Description": "TOTAL PSA CAL-8838534190 2X2X1ML-ROCHE"
+  },
+  {
+    "Material": "928863",
+    "Material Description": "IHC ERG CAT-434R-14C M C 0.1ML"
+  },
+  {
+    "Material": "921184",
+    "Material Description": "PROTEINASE K CATNO:19131 2ML KIT QIAGEN"
+  },
+  {
+    "Material": "928861",
+    "Material Description": "IHC TROP2 CAT 65R-14 C M C 0.1ML"
+  },
+  {
+    "Material": "928937",
+    "Material Description": "IHC-CD163 MRQ26 163M-17 1 ML CM"
+  },
+  {
+    "Material": "921763",
+    "Material Description": "ACETONITRILE LCMS P24K101428 4L JT BAKER"
+  },
+  {
+    "Material": "921764",
+    "Material Description": "WATER LC-MS GRADE P25I01086 4L  JT BAKER"
+  },
+  {
+    "Material": "930874",
+    "Material Description": "LYPHOCHEK WB IMMUNISUPPRESS L2 275 6X2ML"
+  },
+  {
+    "Material": "940791",
+    "Material Description": "CORTISOL CAL 6687750190 2X2X1 ML-ROCHE"
+  },
+  {
+    "Material": "930909",
+    "Material Description": "ANTI-HCV PC ELECSYS 3290379190 21ML ROCH"
+  },
+  {
+    "Material": "930908",
+    "Material Description": "HBSAG G2 PC ELECSYS 4687876190 21ML ROCH"
+  },
+  {
+    "Material": "930875",
+    "Material Description": "LYPHOCHEK WB IMMUNISUPPRESS L3 276 6X2ML"
+  },
+  {
+    "Material": "928961",
+    "Material Description": "IHC NESTIN CAT388M-14 CELLMARK 0.1ML"
+  },
+  {
+    "Material": "940797",
+    "Material Description": "FT3 CAL CAT-9077871190 2X2X1 ML-ROCHE"
+  },
+  {
+    "Material": "940784",
+    "Material Description": "CEA CAL CAT-11731645322 2X2X1 ML-ROCHE"
+  },
+  {
+    "Material": "930868",
+    "Material Description": "DIABETES BILEVEL CTRL CAT-740  6X0.5ML"
+  },
+  {
+    "Material": "927242",
+    "Material Description": "CD41A CLONE: HIP8(561424)REA 50T-BD"
+  },
+  {
+    "Material": "928854",
+    "Material Description": "IHC IDH  R132H  CAT456R-34 C M C 0.1ML"
+  },
+  {
+    "Material": "929623",
+    "Material Description": "IHC SF1 CAT462R-14CLLMARQUE 0.1ML"
+  },
+  {
+    "Material": "929739",
+    "Material Description": "IHC TINTO TIA-1CAT BSB-3782-3 3ML BIO SB"
+  },
+  {
+    "Material": "924115",
+    "Material Description": "TWEEN 20 CAT-P7949 SIGMA"
+  },
+  {
+    "Material": "928006",
+    "Material Description": "IHC-FOXP3-EP340CAT-MRH1105-6ML-PATH"
+  },
+  {
+    "Material": "929104",
+    "Material Description": "IHC  CB38 CAT 118R-14CELLMARK 0.1ML"
+  },
+  {
+    "Material": "911779",
+    "Material Description": "15ml Falcon Tubes 546021Tarsons"
+  },
+  {
+    "Material": "929635",
+    "Material Description": "IHC NUT1CATRMAB115RCLO DBRRM7.36DBS 6ML"
+  },
+  {
+    "Material": "927755",
+    "Material Description": "IHC-MELAN-A-A103-LRTUCAT-HAM125-6mlPATH"
+  },
+  {
+    "Material": "927705",
+    "Material Description": "IHC-CALRETININ-POLYCLONRTUCAT-HAP134-6ml"
+  },
+  {
+    "Material": "927861",
+    "Material Description": "IHC-KAPPA LIGHHAINT CAT-PDM055RTU 6ML-DB"
+  },
+  {
+    "Material": "912857",
+    "Material Description": "STERILE FT TF-100-R-S 100UL AXYGEN-CORN"
+  },
+  {
+    "Material": "927694",
+    "Material Description": "IHC-ARGINASE1-RTUCAT-HAM230-6mlPATH"
+  },
+  {
+    "Material": "929055",
+    "Material Description": "IHC IGG44CATANB5-2M BIOGENEX6ML"
+  },
+  {
+    "Material": "940790",
+    "Material Description": "CK-MB STAT CAL 5957656190 2X2X1 ML-ROCHE"
+  },
+  {
+    "Material": "928853",
+    "Material Description": "IHC HHV-8 CAT  265M-14C M C 0.1ML"
+  },
+  {
+    "Material": "926420",
+    "Material Description": "BUFFER CAPSULE PH 7, 1 PKT"
+  },
+  {
+    "Material": "928992",
+    "Material Description": "IHC CD99 CATEPR3097Y0.1ML OSB"
+  },
+  {
+    "Material": "940818",
+    "Material Description": "TESTOSTERONE CAL-5202230190 2X2X1MLROCHE"
+  },
+  {
+    "Material": "927744",
+    "Material Description": "IHC-GCDFP15-EP95-RTUCAT-HAR045-6mlPATH"
+  },
+  {
+    "Material": "910223",
+    "Material Description": "PCR TUBES 0.2ML 1X100-TARSON"
+  },
+  {
+    "Material": "929105",
+    "Material Description": "IHC  TRPS1CAT AC-0360RUOCELLMARK 0.1ML"
+  },
+  {
+    "Material": "930651",
+    "Material Description": "Urine qUAntify Plus Control (cat no 995)"
+  },
+  {
+    "Material": "924289",
+    "Material Description": "AFB  stain  SNLR 1EA RAPID"
+  },
+  {
+    "Material": "913280",
+    "Material Description": "WD-40  LUBRICANT SPRAY-GEN"
+  },
+  {
+    "Material": "921692",
+    "Material Description": "E.COLI ATCC 35218-HIMEDIA"
+  },
+  {
+    "Material": "921700",
+    "Material Description": "PSEUDOMONAM AERUGANSE ATCC 27853-HIMEDIA"
+  },
+  {
+    "Material": "928925",
+    "Material Description": "IHC GRANZYME B CAT262R-14 CELLMARRK .1ML"
+  },
+  {
+    "Material": "921697",
+    "Material Description": "K.PNEUMONIAE ATCC 700603-HIMEDIA"
+  },
+  {
+    "Material": "940340",
+    "Material Description": "ENTEROC CASSELIFLAVUS ATCC700327 CON 1EA"
+  },
+  {
+    "Material": "921696",
+    "Material Description": "ESCHEROCHER COLI ATCC25922-HIMEDIA"
+  },
+  {
+    "Material": "921701",
+    "Material Description": "S.AUREUS ATCC-25923-HIMEDIA"
+  },
+  {
+    "Material": "921702",
+    "Material Description": "S.AUREVS ATCC-29213-HIMEDIA"
+  },
+  {
+    "Material": "921693",
+    "Material Description": "E.FAECALIS ATCC51299-HIMEDIA"
+  },
+  {
+    "Material": "921694",
+    "Material Description": "E.HORMAECHEI ATCC700323-HIMEDIA"
+  },
+  {
+    "Material": "930659",
+    "Material Description": "CANDIDA ALBICANS ATCC®14053 0332PCON-HIM"
+  },
+  {
+    "Material": "921695",
+    "Material Description": "ENTEROCOCCUS FAECALISATCC29212-HIMEDIA"
+  },
+  {
+    "Material": "927826",
+    "Material Description": "IHC-CD43 T-CELLDF-T1CAT-PDM060RTU 6ML-DB"
+  },
+  {
+    "Material": "930919",
+    "Material Description": "AMH PLUS PC ELECSYS 7957211190 8ML ROCHE"
+  },
+  {
+    "Material": "929778",
+    "Material Description": "IHC CD5 CAT 205 M-14 0.1ML CELLMARQ"
+  },
+  {
+    "Material": "929003",
+    "Material Description": "LIBERTY RUO PM KIT  BD FAC LYRICS 652786"
+  },
+  {
+    "Material": "928569",
+    "Material Description": "IHC- TCR BETA  CAT BSB-117 3ML-BIOSB"
+  },
+  {
+    "Material": "928919",
+    "Material Description": "IHC AMACR P504S CAT504R-14  CELLMARK.1ML"
+  },
+  {
+    "Material": "928695",
+    "Material Description": "IHC RANKL/CD254 POLYC CAT RC0314RTU7 7ML"
+  },
+  {
+    "Material": "927577",
+    "Material Description": "S.SONNEI POLY D PHASE CAT:M10115-2ML"
+  },
+  {
+    "Material": "927578",
+    "Material Description": "S.BOYDII POLY CTYPES CAT:M10112-2ML"
+  },
+  {
+    "Material": "927579",
+    "Material Description": "VIBIRO CHOLERAE POLYCAT:M11002 -2ML"
+  },
+  {
+    "Material": "927576",
+    "Material Description": "S.FLEXNERI POLY B TYPES CAT:M10111-2ML"
+  },
+  {
+    "Material": "927575",
+    "Material Description": "S.DYSENTERIAE POLYATYPES CAT:M10109-2ML"
+  },
+  {
+    "Material": "928862",
+    "Material Description": "IHC H.PYLORI CAT 215A-74  C M C 0.1ML"
+  },
+  {
+    "Material": "927580",
+    "Material Description": "POLYVALENT PHASE 1&2A-Z29 CAT:M14317-2ML"
+  },
+  {
+    "Material": "927581",
+    "Material Description": "POLY O FACTOR CAT:M10308 -2ML"
+  },
+  {
+    "Material": "930617",
+    "Material Description": "EQAS IMMUNOASSAY MONTHLY PROGRAME-BIORAD"
+  },
+  {
+    "Material": "928662",
+    "Material Description": "27216-70UM-REVERSIBLE STRAIN-SMALL-50"
+  },
+  {
+    "Material": "926916",
+    "Material Description": "PH10.01BUFFERSOLUTION ECBU10BT REA-MERCK"
+  },
+  {
+    "Material": "929737",
+    "Material Description": "IHC TINTO CD25 CATBSB 6317 3ML BIO SB"
+  },
+  {
+    "Material": "928851",
+    "Material Description": "IHC ATRX CAT 485A-14 C M C 0.1ML"
+  },
+  {
+    "Material": "930931",
+    "Material Description": "ANTI-HBS CONTROL-11876317122 21ML-ROCHE"
+  },
+  {
+    "Material": "940802",
+    "Material Description": "IL-6 CAL CAT-5109469190 2X2X2ML-ROCHE"
+  },
+  {
+    "Material": "930881",
+    "Material Description": "LYPHOCHEK TUMOR MARKCONTROL L2 368 6X2ML"
+  },
+  {
+    "Material": "930945",
+    "Material Description": "SPL IMMASSAY LVL-3 CAT-366 1EA BIORAD"
+  },
+  {
+    "Material": "930254",
+    "Material Description": "EQAS CHEMISTRY LEVEL 1 CONTROL -BIO RAD"
+  },
+  {
+    "Material": "930869",
+    "Material Description": "ETHANOL-AMMONIA  LEVEL1 544 6X3ML-BIORAD"
+  },
+  {
+    "Material": "929182",
+    "Material Description": "IHC CD71 CATAM354-5M 6ML BIOGENIC"
+  },
+  {
+    "Material": "928094",
+    "Material Description": "CD59 MONO ANTIBODY CAT-MHCD5904 0.5ML"
+  },
+  {
+    "Material": "928934",
+    "Material Description": "IHC-RCC PN-15 329M-97 1 ML CM"
+  },
+  {
+    "Material": "929805",
+    "Material Description": "GELRED 10000X IN DMSO 41002 0.5ML BIOTIU"
+  },
+  {
+    "Material": "912855",
+    "Material Description": "STERILEFT TF-300-R-S 10UL AXYGEN-CORNING"
+  },
+  {
+    "Material": "927966",
+    "Material Description": "IHC-UROPLAKINIII-EP321-RTUCAT-HAR2130-3m"
+  },
+  {
+    "Material": "927283",
+    "Material Description": "FC BEADS 7-COLOR CE/IVD(656867)REA 5T-BD"
+  },
+  {
+    "Material": "927341",
+    "Material Description": "NEUTRAL RED(N42001)REA 5G-NICE"
+  },
+  {
+    "Material": "911805",
+    "Material Description": "Kimwipes 370080Tarsons"
+  },
+  {
+    "Material": "960004",
+    "Material Description": "BOX FILE NANDI"
+  },
+  {
+    "Material": "960011",
+    "Material Description": "CELLO TAPE 2\""
+  },
+  {
+    "Material": "927284",
+    "Material Description": "FC BEADS 5-COLOR CE/IVD(661564)REA 5T-BD"
+  },
+  {
+    "Material": "927494",
+    "Material Description": "HUALPBTATCRFIT CAT-555547 100T-BD"
+  },
+  {
+    "Material": "912349",
+    "Material Description": "HYDROCHLORIC ACID, 500 ML/EA"
+  },
+  {
+    "Material": "927781",
+    "Material Description": "IHC-ALPHA ACTIN EP188-RTUCAT-PM077 6ML"
+  },
+  {
+    "Material": "927778",
+    "Material Description": "IHC-S100 BETA-EP32-RTUCAT-HAR070-6mlPATH"
+  },
+  {
+    "Material": "927282",
+    "Material Description": "CD44 ALEXA 700 G44-26(561289)REA 50T-BD"
+  },
+  {
+    "Material": "961594",
+    "Material Description": "TASKI R4 5LITER CAN"
+  },
+  {
+    "Material": "961592",
+    "Material Description": "GARBAGE COVER 40 50 BLUE 1KG"
+  },
+  {
+    "Material": "927777",
+    "Material Description": "IHC-PSA-EP109-RTUCAT-HAR069-6mlPATHINSIT"
+  },
+  {
+    "Material": "961309",
+    "Material Description": "HP 77A TONER CARTRIDGE DRUM CHANGE"
+  },
+  {
+    "Material": "961588",
+    "Material Description": "GARBAGE BAG RED EXTRA LARGE 1KG"
+  },
+  {
+    "Material": "961314",
+    "Material Description": "HP 78A TONER CARTRIDGE DRUM CHANGE"
+  },
+  {
+    "Material": "961312",
+    "Material Description": "HP 77A TONERCARTRIDGE MAGNET ROLL CHANGE"
+  },
+  {
+    "Material": "910225",
+    "Material Description": "PETRIPLATS PLASTIC 1X25"
+  },
+  {
+    "Material": "961587",
+    "Material Description": "GARBAGE BAG YELLOW SMALL 1KG"
+  },
+  {
+    "Material": "960954",
+    "Material Description": "KR DR ENVELOPE"
+  },
+  {
+    "Material": "910191",
+    "Material Description": "MICRO TIPS 200UL-1000UL (T-1000B)-TARSON"
+  },
+  {
+    "Material": "927267",
+    "Material Description": "CD86,CLONE 2331 (562999)REA 100T-BD"
+  },
+  {
+    "Material": "961533",
+    "Material Description": "RUBBER GLOVES"
+  },
+  {
+    "Material": "960944",
+    "Material Description": "PATHOLOGY REGISTER"
+  },
+  {
+    "Material": "960946",
+    "Material Description": "SLIDE SUBMISSION REGISTER"
+  },
+  {
+    "Material": "961525",
+    "Material Description": "ROAD BRUSH"
+  },
+  {
+    "Material": "961372",
+    "Material Description": "TRIESTA LOGO  APRONS-XXL"
+  },
+  {
+    "Material": "960983",
+    "Material Description": "MOLECULAR REGISTER"
+  },
+  {
+    "Material": "911799",
+    "Material Description": "Cryo BoxT524023Tarsons"
+  },
+  {
+    "Material": "910291",
+    "Material Description": "SPIRIT LAMP-GEN"
+  },
+  {
+    "Material": "961509",
+    "Material Description": "URINAL SCREEN MATS"
+  },
+  {
+    "Material": "960987",
+    "Material Description": "INTRA OPERATIVE CONSULATION WITH CARBONL"
+  },
+  {
+    "Material": "910192",
+    "Material Description": "MICRO TIPS 2-200 UL(1000 PCS)"
+  },
+  {
+    "Material": "910287",
+    "Material Description": "SPECIMEN JAR MEDIUM"
+  },
+  {
+    "Material": "910280",
+    "Material Description": "SPECIMEN JAR LARGE"
+  },
+  {
+    "Material": "927741",
+    "Material Description": "IHC-EMA-E29-MOUSE RTUCAT-HAM107-6mlPATH"
+  },
+  {
+    "Material": "960941",
+    "Material Description": "MICROBIOLOGY REGISTER"
+  },
+  {
+    "Material": "961541",
+    "Material Description": "MIRCOFIBER CLOTH"
+  },
+  {
+    "Material": "961543",
+    "Material Description": "CHECK CLOTH BIG"
+  },
+  {
+    "Material": "960940",
+    "Material Description": "HIV CONSENT PADS"
+  },
+  {
+    "Material": "961586",
+    "Material Description": "GARBAGE BAG YELLOW EXTRA LARGE 1KG"
+  },
+  {
+    "Material": "910750",
+    "Material Description": "TEST TUBERACK ALU 30 HOLES-GEN"
+  },
+  {
+    "Material": "910636",
+    "Material Description": "CONICAL FLASK CAP 2000ML-GEN"
+  },
+  {
+    "Material": "910411",
+    "Material Description": "KIMWIP TISUUE"
+  },
+  {
+    "Material": "961320",
+    "Material Description": "HP 88A TONER CARTRIDGE PCR CHANGE"
+  },
+  {
+    "Material": "960794",
+    "Material Description": "DURACELL BATTERY AA"
+  },
+  {
+    "Material": "927274",
+    "Material Description": "HU CD5 BV605 UCHT2(563945)REA 100T-BD"
+  },
+  {
+    "Material": "961351",
+    "Material Description": "REXINE  BOOK"
+  },
+  {
+    "Material": "927754",
+    "Material Description": "IHC-MAMMAGLOBIN-EP249-RTUCAT-HAR051-6ml"
+  },
+  {
+    "Material": "961283",
+    "Material Description": "TRIESTA LOGO SLIDES LABELING STICKERS"
+  },
+  {
+    "Material": "961555",
+    "Material Description": "OT SLIPPERS"
+  },
+  {
+    "Material": "961354",
+    "Material Description": "COLIN GLASS CLEANER 5 LITER"
+  },
+  {
+    "Material": "961552",
+    "Material Description": "FEATHER DUSTER BIG"
+  },
+  {
+    "Material": "961546",
+    "Material Description": "HARD BROOM BIG"
+  },
+  {
+    "Material": "960937",
+    "Material Description": "TEST REQUEST FROM 4 FOLDING"
+  },
+  {
+    "Material": "927258",
+    "Material Description": "CD123 CLONE:7G3(558663)REA 100T-BD"
+  },
+  {
+    "Material": "928349",
+    "Material Description": "HU CD73 BV605 CAT 563199 AD2 100T BD"
+  },
+  {
+    "Material": "940819",
+    "Material Description": "THYROGLUBULIN CAL8991405190 2X2X1MLROCHE"
+  },
+  {
+    "Material": "921589",
+    "Material Description": "VITEK 2 ID YST 20 CARD 20TEST PCK BIOMRX"
+  },
+  {
+    "Material": "929198",
+    "Material Description": "IHC T-BET/TBX21 CAT13232T  20UL CST"
+  },
+  {
+    "Material": "928013",
+    "Material Description": "IHC-CC2-5279798001CAT-38229090-100ROCHE"
+  },
+  {
+    "Material": "929331",
+    "Material Description": "CD371 BV786 CAT-742934 REA 50UG BD"
+  },
+  {
+    "Material": "929333",
+    "Material Description": "CD303 BV786 CAT-748000 REA 50UG -BD"
+  },
+  {
+    "Material": "929334",
+    "Material Description": "CD235 BV711 CAT-740785 REA 50UG -BD"
+  },
+  {
+    "Material": "929335",
+    "Material Description": "CD103 BV711 CAT-563162 REA 50T PACK- BD"
+  },
+  {
+    "Material": "927210",
+    "Material Description": "CD2 CLONE: RPA-2.10 (561760)REA 25T-BD"
+  },
+  {
+    "Material": "929343",
+    "Material Description": "KAPPA FITC CAT-CYT-KAPPF2-R REA 100T -BD"
+  },
+  {
+    "Material": "929344",
+    "Material Description": "LAMBDA APC-C750 CAT-CYT-LAC750-R  50T-BD"
+  },
+  {
+    "Material": "929491",
+    "Material Description": "CPK CAT-7190794190 200T-ROCHE"
+  },
+  {
+    "Material": "927222",
+    "Material Description": "CD11B CLONE: ICRF44(560914)REA 25T-BD"
+  },
+  {
+    "Material": "927227",
+    "Material Description": "CD15 CLONE: MMA(347423)REA 100T-BD"
+  },
+  {
+    "Material": "927902",
+    "Material Description": "IHC-THYROGLOBULIN1D4CAT-PDM576RTU 6ML-DB"
+  },
+  {
+    "Material": "927230",
+    "Material Description": "CD19 CLONE: SJ25C1(659121)REA 100T-BD"
+  },
+  {
+    "Material": "921354",
+    "Material Description": "SULPHOSALICYLLIC ACID REAG 125ML BTLNICE"
+  },
+  {
+    "Material": "921252",
+    "Material Description": "SAFERANIN STAIN REAG 125 ML BTL HIMEDIA"
+  },
+  {
+    "Material": "927954",
+    "Material Description": "IHC-CDK4-EP180-RTUCAT-PR232-3ml-PATHINSI"
+  },
+  {
+    "Material": "921097",
+    "Material Description": "OWREN KOLLER REAG 360 ML KIT STAGO"
+  },
+  {
+    "Material": "920941",
+    "Material Description": "LUGOL'S IODINE REAG 125 ML BTL HIMEDIA"
+  },
+  {
+    "Material": "920927",
+    "Material Description": "LIPASE REAG SLD 18 PACK J&J"
+  },
+  {
+    "Material": "920914",
+    "Material Description": "LIATST-D-DI ( 00515) REAG 30ML KIT STAGO"
+  },
+  {
+    "Material": "920900",
+    "Material Description": "LEISHMAN STAIN POWD L30609 25G BT NICE"
+  },
+  {
+    "Material": "920879",
+    "Material Description": "KOVAC SINDOLE REAG 100 ML BOTTLE HIMEDIA"
+  },
+  {
+    "Material": "927903",
+    "Material Description": "IHC-TTF-1-8G7G3/1CAT-PDM104RTU 6ML-DBS"
+  },
+  {
+    "Material": "929194",
+    "Material Description": "IHC TCL1(CST) CAT 25776T 20UL CST"
+  },
+  {
+    "Material": "929185",
+    "Material Description": "IHC PERFORIN CAT PDM555 6ML DBS"
+  },
+  {
+    "Material": "929178",
+    "Material Description": "IHC CMV CATAM997-5M 6ML BIOGENIC"
+  },
+  {
+    "Material": "929125",
+    "Material Description": "IHC INSM1 CAT-MRH1360 6ML PCK-PATHNSITU"
+  },
+  {
+    "Material": "924795",
+    "Material Description": "CD5 345781 REA 100TETPAK-BD BIOSCIENCES"
+  },
+  {
+    "Material": "928362",
+    "Material Description": "CD56 PE CAT347747 MY31 100T RUO/GMP BD"
+  },
+  {
+    "Material": "928303",
+    "Material Description": "BD FC BEADS 2-COLOR KIT -IVDCAT:662996"
+  },
+  {
+    "Material": "928297",
+    "Material Description": "COVER SLIPS (12 MM ) 1X20BOX-BLUE STAR"
+  },
+  {
+    "Material": "928400",
+    "Material Description": "KMRTRACK KMR052 8344342-52 48T PAK-GENDX"
+  },
+  {
+    "Material": "928291",
+    "Material Description": "KMRTRACK KMR016 8344342-16 48T PAK-GENDX"
+  },
+  {
+    "Material": "928416",
+    "Material Description": "IHC-MNDA -CAT BSB-157-BIO SB,USA 3 ML"
+  },
+  {
+    "Material": "928427",
+    "Material Description": "IHC-ANTI-CD22 CAT- AM962-5MBIOGENEX 6"
+  },
+  {
+    "Material": "928435",
+    "Material Description": "IHC-ANTI-N-CADHERIN CAT-AM928-5MBIOGEN"
+  },
+  {
+    "Material": "928290",
+    "Material Description": "KMRTRACK KMR014 8344342-14 48T PAK-GENDX"
+  },
+  {
+    "Material": "928276",
+    "Material Description": "METHANOL EXCELAR(Q32407) 2.5LTR-THERMO"
+  },
+  {
+    "Material": "928525",
+    "Material Description": "FITC MOUSE KAPPA-643773CLONE TB28-2-BD"
+  },
+  {
+    "Material": "926918",
+    "Material Description": "KMRtrack® Monitoring Marker KMR013-GENDX"
+  },
+  {
+    "Material": "928186",
+    "Material Description": "KMRTRACK KMR056 8344342-56 48T-GENDX"
+  },
+  {
+    "Material": "928158",
+    "Material Description": "KMRTRACK KMR055 8344342-55 48T PAK-GENDX"
+  },
+  {
+    "Material": "928856",
+    "Material Description": "IHC OCT,-2 CAT 308M-14 C M C 0.1ML"
+  },
+  {
+    "Material": "928916",
+    "Material Description": "IHC CD61 (GPIIIA) CAT AC-0062EP65 0.1ML"
+  },
+  {
+    "Material": "928929",
+    "Material Description": "CD49d 9F10 BV711(563177) 50T-BD"
+  },
+  {
+    "Material": "928996",
+    "Material Description": "PEPSIN SOLUTION ES-0001-50-ZYTOVISION"
+  },
+  {
+    "Material": "927063",
+    "Material Description": "KMRTRACK®KMR039 8344342-39  48TPAK-GENDX"
+  },
+  {
+    "Material": "927093",
+    "Material Description": "EXTENDED GENOTYPING(8341581)REA24R-GENDX"
+  },
+  {
+    "Material": "929099",
+    "Material Description": "IHC  GLYPICAN-3 CAT261M-94CELLMARK 0.1ML"
+  },
+  {
+    "Material": "929100",
+    "Material Description": "IHC  WT1 CAT 348M-94 CELLMARK 0.1ML"
+  },
+  {
+    "Material": "920830",
+    "Material Description": "IHC-CCI REAG 1 NOS PACK ROCHE"
+  },
+  {
+    "Material": "920606",
+    "Material Description": "FDP PLASMA REAG 1.3 ML KIT STAGO"
+  },
+  {
+    "Material": "940817",
+    "Material Description": "TACROLIMUS CAL-5889065190 2X3X1ML-ROCHE"
+  },
+  {
+    "Material": "930942",
+    "Material Description": "LIQUICHEK D-DIMER CTRL L3 27103 1EA BIOR"
+  },
+  {
+    "Material": "927810",
+    "Material Description": "IHC-CALCITONINSP17CAT-RMPD009RTU 6ML-DBS"
+  },
+  {
+    "Material": "927806",
+    "Material Description": "IHC-BETA-CATENIN CAT-PDR060RTU6ML-DBS"
+  },
+  {
+    "Material": "930871",
+    "Material Description": "ETHANOL-AMMONIA LEVEL 3 546 6X3ML-BIORAD"
+  },
+  {
+    "Material": "930882",
+    "Material Description": "LYPHOCHEK TUMOR MARKCONTROL L3 369 6X2ML"
+  },
+  {
+    "Material": "930910",
+    "Material Description": "PC TM ELECSYS CAT-11776452122 12ML ROCHE"
+  },
+  {
+    "Material": "930911",
+    "Material Description": "PRECICONTROL ISD CAT5889081190 9ML ROCHE"
+  },
+  {
+    "Material": "930915",
+    "Material Description": "PC CARDIAC G2 ELECSYS V4 4917049190 8ML"
+  },
+  {
+    "Material": "930927",
+    "Material Description": "CONTROL B2-MICROGLOB 8362785190 4ML ROCH"
+  },
+  {
+    "Material": "930935",
+    "Material Description": "METHOTREXATE CONTROL EGQ-MTX 1 EA GCELL"
+  },
+  {
+    "Material": "930940",
+    "Material Description": "LIQUICHEK D-DIMER CTRL L1 27101 1EA BR"
+  },
+  {
+    "Material": "930941",
+    "Material Description": "LIQUICHEK D-DIMER CTRL L2 27102 1EA BIOR"
+  },
+  {
+    "Material": "940575",
+    "Material Description": "DENSICHEK 21255 CAL 1EA-BIOMERIEUX"
+  },
+  {
+    "Material": "927900",
+    "Material Description": "IHC-SYNAPTOPHYSINP11CAT-RMPD018RTU6ML-DB"
+  },
+  {
+    "Material": "940774",
+    "Material Description": "FREE PSA CAL -8851964190 2X2X1ML-ROCHE"
+  },
+  {
+    "Material": "940775",
+    "Material Description": "AFP CAL CAT-9227261190 2X2X1ML-ROCHE"
+  },
+  {
+    "Material": "940777",
+    "Material Description": "ANTI-TG CAL-9005030190 2X2X1.5ML-ROCHE"
+  },
+  {
+    "Material": "940783",
+    "Material Description": "B2-MICROGLOBU CAL 8047545190 2X1ML-ROCHE"
+  },
+  {
+    "Material": "940792",
+    "Material Description": "CYCLOSPORINE CAL5889022190 2X3X1ML-ROCHE"
+  },
+  {
+    "Material": "940796",
+    "Material Description": "FSH CAL CAT-9557440190 2X2X1ML-ROCHE"
+  },
+  {
+    "Material": "940798",
+    "Material Description": "FT4 CAL CAT-9043292190 2X2X1 ML-ROCHE"
+  },
+  {
+    "Material": "940803",
+    "Material Description": "IRON STANDARD CAL-12146401216-75ML ROCHE"
+  },
+  {
+    "Material": "940808",
+    "Material Description": "PIVKAII CAL CAT-8333637190 2X2X1ML-ROCHE"
+  },
+  {
+    "Material": "940809",
+    "Material Description": "LPA CAL CAT-5852641190 5X1ML-ROCHE"
+  },
+  {
+    "Material": "940814",
+    "Material Description": "PTH CAL CAT-8928452190 2X2X1ML-ROCHE"
+  },
+  {
+    "Material": "930035",
+    "Material Description": "HAEMATOLOGY 5 PART CONT 10.5ML BIORAD"
+  },
+  {
+    "Material": "913008",
+    "Material Description": "SPATULA(LA006)-HIM"
+  },
+  {
+    "Material": "913103",
+    "Material Description": "CELLSTRAINERS50mlCONICALTUBES CAT-352360"
+  },
+  {
+    "Material": "913274",
+    "Material Description": "MARKERPEN -CASSETTE&FROSTEDSLIDECATMP100"
+  },
+  {
+    "Material": "927887",
+    "Material Description": "IHC-PD-1EH33CAT-PDM573RTU 6ML-DBS"
+  },
+  {
+    "Material": "927873",
+    "Material Description": "IHC-MUCIN 5AC45M1CAT-PDM163RTU 6ML-DBS"
+  },
+  {
+    "Material": "920327",
+    "Material Description": "CD45(V500C)647449 2D1 REAG 0.5ML-BD"
+  },
+  {
+    "Material": "920321",
+    "Material Description": "CD33(APC) P67.6-340474 ABS 500UL VIAL BD"
+  },
+  {
+    "Material": "929545",
+    "Material Description": "LH CAT-11732234122 100T-ROCHE"
+  },
+  {
+    "Material": "927846",
+    "Material Description": "IHC-E-CADHERINSPM471CAT-PDM182RTU 6ML-DB"
+  },
+  {
+    "Material": "927837",
+    "Material Description": "IHC-CEACOL-1CAT-PDM005RTU 6ML-DBS"
+  },
+  {
+    "Material": "929555",
+    "Material Description": "HS TROPONIN T STAT 9315349190 100T-ROCHE"
+  },
+  {
+    "Material": "913379",
+    "Material Description": "UNIVERSAL DILUENT2 CAT5192943190 1EAROCH"
+  },
+  {
+    "Material": "913372",
+    "Material Description": "URINAL CAKES 1EA"
+  },
+  {
+    "Material": "913371",
+    "Material Description": "NEPTO BALLS 1EA"
+  },
+  {
+    "Material": "913357",
+    "Material Description": "UNIVERSAL DILUENT-3183971122 2X36ML-ROCH"
+  },
+  {
+    "Material": "929562",
+    "Material Description": "ISE DILUENT  5X300 ML-ROCHE"
+  },
+  {
+    "Material": "913355",
+    "Material Description": "INTSTAND INSERT-ISE5979854190 20EA-ROCHE"
+  },
+  {
+    "Material": "927833",
+    "Material Description": "IHC-CD79A B-CELLHM47CAT-PDM125RTU 6ML-DB"
+  },
+  {
+    "Material": "913339",
+    "Material Description": "TUBE PV-3731596001 2PCS-180MM SET-ROCHE"
+  },
+  {
+    "Material": "929631",
+    "Material Description": "IHC FACTOR VIII CAT PDR014 POLYDBS 6ML"
+  },
+  {
+    "Material": "929651",
+    "Material Description": "IHC FGFR2 CAT 23328EPITOPE 100UL"
+  },
+  {
+    "Material": "927829",
+    "Material Description": "IHC-CD57 HNK-1NK-1CAT-PDM130RTU 6ML-DBS"
+  },
+  {
+    "Material": "913328",
+    "Material Description": "DILUENT UNIVERSAL-5192943190 2X36ML-ROCH"
+  },
+  {
+    "Material": "913327",
+    "Material Description": "SPLCELL CLEANINGSOL-4880994190 41.2MLROC"
+  },
+  {
+    "Material": "929738",
+    "Material Description": "IHC TINTO CD33 CAT BSB 3448 3ML BIO SB"
+  },
+  {
+    "Material": "928350",
+    "Material Description": "HU CD86 BV711 2331 (FUN-1) 50T"
+  },
+  {
+    "Material": "913276",
+    "Material Description": "SLIDE TRAY (20 SLIDES) GENERAL"
+  }
+]

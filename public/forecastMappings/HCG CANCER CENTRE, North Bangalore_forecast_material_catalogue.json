@@ -1,0 +1,478 @@
+[
+  {
+    "Material": "324837",
+    "Material Description": "NITRILE GLOVES AROSAFE MEDIUM-PENTAWISE"
+  },
+  {
+    "Material": "324786",
+    "Material Description": "EXAMINATION GLOVES POW MEDIUM-PENTAWIS"
+  },
+  {
+    "Material": "318966",
+    "Material Description": "HAND CARE GLOVES (MEDIUM)-BAPUJI"
+  },
+  {
+    "Material": "327971",
+    "Material Description": "NITRILE GLOVES PF SYNTHO LARGE-KANAM"
+  },
+  {
+    "Material": "310909",
+    "Material Description": "FACE MASK 3PLY DISPOSABLE-AMARYLLIS"
+  },
+  {
+    "Material": "316035",
+    "Material Description": "CARESENS SAFETY LANCET-I SENS"
+  },
+  {
+    "Material": "328032",
+    "Material Description": "SYRINGE 5ML LUER LOCK (KAREJET)-ROMSONS"
+  },
+  {
+    "Material": "311218",
+    "Material Description": "HEALIN HD 100ML BOTTLE"
+  },
+  {
+    "Material": "308496",
+    "Material Description": "SYRINGE DISCARDIT WITH NEEDLE 5ML-BD"
+  },
+  {
+    "Material": "308495",
+    "Material Description": "SYRINGE DISCARDIT WITH NEEDLE 2ML-BD"
+  },
+  {
+    "Material": "308493",
+    "Material Description": "SYRINGE DISCARDIT WITH NEEDLE 10ML-BD"
+  },
+  {
+    "Material": "305291",
+    "Material Description": "NEEDLE 18GX1.5\"-BD"
+  },
+  {
+    "Material": "203172",
+    "Material Description": "WATER FOR INJ 10ML VIAL-NIRLIFE"
+  },
+  {
+    "Material": "328028",
+    "Material Description": "SYRINGE 10ML LUER LOCK (KAREJET)-ROMSON"
+  },
+  {
+    "Material": "308590",
+    "Material Description": "TEGADERM 10X12CM (8526)-3M"
+  },
+  {
+    "Material": "328029",
+    "Material Description": "SYRINGE 2ML LUER LOCK (KAREJET)-ROMSONS"
+  },
+  {
+    "Material": "324767",
+    "Material Description": "ECG ELECTRODE-POLYMED"
+  },
+  {
+    "Material": "200617",
+    "Material Description": "AQUA PULSE NS 0.9% (DENIS) INJ 500ML PB"
+  },
+  {
+    "Material": "304799",
+    "Material Description": "MICRO OPTIC GLOVES PF SIZE.7.5-ANSEL"
+  },
+  {
+    "Material": "304800",
+    "Material Description": "MICRO OPTIC GLOVES PF SIZE.7-ANSEL"
+  },
+  {
+    "Material": "313049",
+    "Material Description": "HEALIN HD HANDRUB 500ML BOTTLE"
+  },
+  {
+    "Material": "219685",
+    "Material Description": "SMPL LIGNO 2% JELLY 30GM TUBE"
+  },
+  {
+    "Material": "311743",
+    "Material Description": "NEEDLE 16GX1.5-ROMSONS"
+  },
+  {
+    "Material": "214269",
+    "Material Description": "NS (DENIS) 0.9% INJ 100ML PB"
+  },
+  {
+    "Material": "305312",
+    "Material Description": "NEEDLE 26GX1.5-ROMSONS"
+  },
+  {
+    "Material": "308597",
+    "Material Description": "TEGADERM 8.5X7CM (1633)-3M"
+  },
+  {
+    "Material": "203740",
+    "Material Description": "EPSOLIN 100MG INJ 2ML AMP"
+  },
+  {
+    "Material": "221050",
+    "Material Description": "TIDRENELINE INJ 1ML AMP"
+  },
+  {
+    "Material": "317651",
+    "Material Description": "INTRAFIX SAFESET BCV 180CM-B BRAUN"
+  },
+  {
+    "Material": "307728",
+    "Material Description": "SPINAL NEEDLE 22G-BD"
+  },
+  {
+    "Material": "307737",
+    "Material Description": "SPINAL NEEDLE 26G-BD"
+  },
+  {
+    "Material": "327689",
+    "Material Description": "ROMODRIP IV SET VENTED-ROMSONS"
+  },
+  {
+    "Material": "309435",
+    "Material Description": "VENFLON PRO SAFETY 20G-BD"
+  },
+  {
+    "Material": "309436",
+    "Material Description": "VENFLON PRO SAFETY 22G-BD"
+  },
+  {
+    "Material": "306676",
+    "Material Description": "PURELLIUM GEL 500ML-BIOSHIELDS"
+  },
+  {
+    "Material": "327677",
+    "Material Description": "VENTRA LINE 10CM-ROMSONS"
+  },
+  {
+    "Material": "221059",
+    "Material Description": "FRUSIMIDE 40MG INJ 4ML AMP-CHERISELIN"
+  },
+  {
+    "Material": "308169",
+    "Material Description": "SUCTION CATHETER FG-14-ROMSONS"
+  },
+  {
+    "Material": "316014",
+    "Material Description": "HEALIN CHG 2% SKIN PREP SOL 100ML BOTTLE"
+  },
+  {
+    "Material": "201023",
+    "Material Description": "ATROPINE 1% INJ 1ML AMP"
+  },
+  {
+    "Material": "307721",
+    "Material Description": "SPINAL NEEDLE 18G-BD"
+  },
+  {
+    "Material": "328030",
+    "Material Description": "SYRINGE 20ML LUER LOCK (KAREJET)-ROMSON"
+  },
+  {
+    "Material": "309424",
+    "Material Description": "VENFLON 16G-BD"
+  },
+  {
+    "Material": "309367",
+    "Material Description": "VACCUSUCTION SET-ROMSONS"
+  },
+  {
+    "Material": "220960",
+    "Material Description": "DOPATRIG 200MG INJ 5ML VIAL"
+  },
+  {
+    "Material": "308287",
+    "Material Description": "SURGICAL BLADE NO.11-LISTER"
+  },
+  {
+    "Material": "310921",
+    "Material Description": "OXYGEN FACE MASK ADULT-VINJOH"
+  },
+  {
+    "Material": "219744",
+    "Material Description": "RAMIVIL INJ 2ML AMP"
+  },
+  {
+    "Material": "205869",
+    "Material Description": "HEALIN 10% SOLU 100ML BOTTLE"
+  },
+  {
+    "Material": "220981",
+    "Material Description": "NITRONEX 25MG INJ 5ML AMP"
+  },
+  {
+    "Material": "219687",
+    "Material Description": "SMPL LIGNO ADR 2% INJ 30ML VIAL"
+  },
+  {
+    "Material": "210336",
+    "Material Description": "RL (DENIS) INJ 500ML PB"
+  },
+  {
+    "Material": "315732",
+    "Material Description": "ELASTIC ADHESIVE BANDAGE 10CMX4MT-3M"
+  },
+  {
+    "Material": "309434",
+    "Material Description": "VENFLON PRO SAFETY 18G-BD"
+  },
+  {
+    "Material": "308167",
+    "Material Description": "SUCTION CATHETER FG-12-ROMSONS"
+  },
+  {
+    "Material": "311267",
+    "Material Description": "MINI SPIKE V 4550560-B BRAUN"
+  },
+  {
+    "Material": "330757",
+    "Material Description": "THREE WAY STOP COCK-NIPRO"
+  },
+  {
+    "Material": "222607",
+    "Material Description": "AESPYRO 0.2MG 1ML INJ AMP"
+  },
+  {
+    "Material": "203423",
+    "Material Description": "DURON 150MG INJ 3ML AMP"
+  },
+  {
+    "Material": "217895",
+    "Material Description": "T-BACT 2% OINT 15GM TUBE"
+  },
+  {
+    "Material": "221040",
+    "Material Description": "MAGNESIUM SULPHATE 25% INJ 2ML AMP-CH"
+  },
+  {
+    "Material": "303500",
+    "Material Description": "LEG BAG SET-ROMSONS"
+  },
+  {
+    "Material": "305332",
+    "Material Description": "NEL CATH 16FR-ROMSONS"
+  },
+  {
+    "Material": "307406",
+    "Material Description": "SILICON FOLEY'S CATH 2WAY 18FR-RMS"
+  },
+  {
+    "Material": "213096",
+    "Material Description": "VPRESS 20IU INJ 1ML VIAL"
+  },
+  {
+    "Material": "215001",
+    "Material Description": "SAMVEC 4MG INJ 2ML VIAL"
+  },
+  {
+    "Material": "215000",
+    "Material Description": "SAMVEC 10MG INJ 10ML VIAL"
+  },
+  {
+    "Material": "305331",
+    "Material Description": "NEL CATH 14FR-ROMSONS"
+  },
+  {
+    "Material": "305329",
+    "Material Description": "NEL CATH 12FR-ROMSONS"
+  },
+  {
+    "Material": "205015",
+    "Material Description": "GERBISA 5MG SUPP 5'S"
+  },
+  {
+    "Material": "309605",
+    "Material Description": "VICRYL PLUS 3-0 (VP2437)-J&J"
+  },
+  {
+    "Material": "312169",
+    "Material Description": "GUEDEL AIRWAY NO.2-VINJOH"
+  },
+  {
+    "Material": "200193",
+    "Material Description": "ADRENALINE INJ 1ML AMP"
+  },
+  {
+    "Material": "308171",
+    "Material Description": "SUCTION CATHETER FG-16-ROMSONS"
+  },
+  {
+    "Material": "208115",
+    "Material Description": "NS (DENIS) 0.9% INJ 100ML GB"
+  },
+  {
+    "Material": "307139",
+    "Material Description": "SAVLON 100ML"
+  },
+  {
+    "Material": "220987",
+    "Material Description": "MALIDENS 1GM INJ 100ML BOTTLE"
+  },
+  {
+    "Material": "302886",
+    "Material Description": "ETHILON 3-0 (NW3328)-J&J"
+  },
+  {
+    "Material": "302892",
+    "Material Description": "ETHILON 4-0 (NW3319)-J&J"
+  },
+  {
+    "Material": "220983",
+    "Material Description": "MENTISET 4MG INJ 2ML AMP"
+  },
+  {
+    "Material": "220964",
+    "Material Description": "MENTISONE 100MG INJ VIAL"
+  },
+  {
+    "Material": "303916",
+    "Material Description": "GUEDEL AIRWAY NO.1-ROMSONS"
+  },
+  {
+    "Material": "219686",
+    "Material Description": "SMPL LIGNO 2% INJ 30ML VIAL"
+  },
+  {
+    "Material": "303918",
+    "Material Description": "GUEDEL AIRWAY NO.2-ROMSONS"
+  },
+  {
+    "Material": "304533",
+    "Material Description": "HYDROGEN PEROXIDE SOL 100ML-GEN"
+  },
+  {
+    "Material": "202936",
+    "Material Description": "DEXTROSE (DENIS) 50% INJ 100ML GB"
+  },
+  {
+    "Material": "304600",
+    "Material Description": "MERSILK 2-0 (NW5036)-J&J"
+  },
+  {
+    "Material": "304603",
+    "Material Description": "MERSILK 2-0 (NW5331)-J&J"
+  },
+  {
+    "Material": "304617",
+    "Material Description": "MERSILK 3-0 (NW5087)-J&J"
+  },
+  {
+    "Material": "304798",
+    "Material Description": "MICRO OPTIC GLOVES PF SIZE.6.5-ANSEL"
+  },
+  {
+    "Material": "305698",
+    "Material Description": "OXYGEN CANULA (OXYSET) ADULT-ROMSONS"
+  },
+  {
+    "Material": "307063",
+    "Material Description": "RYLES TUBE 14FR-POLYMED"
+  },
+  {
+    "Material": "202925",
+    "Material Description": "DEXTROSE (DENIS) 25% INJ 100ML GB"
+  },
+  {
+    "Material": "307064",
+    "Material Description": "RYLES TUBE 16FR-POLYMED"
+  },
+  {
+    "Material": "214463",
+    "Material Description": "HUMARAP 40IU INJ 10ML VIAL"
+  },
+  {
+    "Material": "302690",
+    "Material Description": "ET TUBE CUFFED 6MM-ROMSONS"
+  },
+  {
+    "Material": "327698",
+    "Material Description": "URODYNE(UROBAG)-ROMSONS"
+  },
+  {
+    "Material": "302675",
+    "Material Description": "ET TUBE CUFFED 5.0MM-ROMSONS"
+  },
+  {
+    "Material": "302680",
+    "Material Description": "ET TUBE CUFFED 5.5MM-ROMSONS"
+  },
+  {
+    "Material": "333277",
+    "Material Description": "GUIDEWIRE 0.018X150CM-TERUMO"
+  },
+  {
+    "Material": "311230",
+    "Material Description": "ET TUBE PLAIN 3.5MM-ROMSONS"
+  },
+  {
+    "Material": "302698",
+    "Material Description": "ET TUBE CUFFED 7.0MM-ROMSONS"
+  },
+  {
+    "Material": "310233",
+    "Material Description": "ET TUBE PLAIN 3.0MM-ROMSONS"
+  },
+  {
+    "Material": "310234",
+    "Material Description": "ET TUBE PLAIN 4.0MM-ROMSONS"
+  },
+  {
+    "Material": "310991",
+    "Material Description": "URETHRAL DIALATOR SET"
+  },
+  {
+    "Material": "311229",
+    "Material Description": "ET TUBE PLAIN 2.5MM-ROMSONS"
+  },
+  {
+    "Material": "302695",
+    "Material Description": "ET TUBE CUFFED 7.5MM-ROMSONS"
+  },
+  {
+    "Material": "308837",
+    "Material Description": "TRACHEA TEE PLUS CONNECTOR-ROMSONS"
+  },
+  {
+    "Material": "309969",
+    "Material Description": "REINFORCED ET TUBE 8.0 (RUSCH)"
+  },
+  {
+    "Material": "217353",
+    "Material Description": "MEDZOLE 10MG INJ 10ML VIAL"
+  },
+  {
+    "Material": "303497",
+    "Material Description": "G DRESS SWIM PROOF SIZE-20(20X9CM)-SURGI"
+  },
+  {
+    "Material": "302688",
+    "Material Description": "ET TUBE CUFFED 6.5MM-ROMSONS"
+  },
+  {
+    "Material": "312412",
+    "Material Description": "HME FILTER ADULT-VINJOH"
+  },
+  {
+    "Material": "302703",
+    "Material Description": "ET TUBE CUFFED 8.5MM-ROMSONS"
+  },
+  {
+    "Material": "324776",
+    "Material Description": "ET TUBE CUFFED 7.0MM-TUOREN"
+  },
+  {
+    "Material": "324772",
+    "Material Description": "ET TUBE CUFFED 5.0MM-TUOREN"
+  },
+  {
+    "Material": "324770",
+    "Material Description": "ET TUBE CUFFED 4.0MM-TUOREN"
+  },
+  {
+    "Material": "324769",
+    "Material Description": "ET TUBE CUFFED 3.5MM-TUOREN"
+  },
+  {
+    "Material": "302705",
+    "Material Description": "ET TUBE CUFFED 8.0MM-ROMSONS"
+  }
+]

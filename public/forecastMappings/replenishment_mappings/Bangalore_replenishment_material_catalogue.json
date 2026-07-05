@@ -1,0 +1,762 @@
+[
+    {
+        "Material": "10-0003914",
+        "Material Description": "NEXPRO JUNIOR SACHET 10MG 1GM"
+    },
+    {
+        "Material": "10-0008700",
+        "Material Description": "DROTIN DS SUSPENSION 60ML"
+    },
+    {
+        "Material": "10-0000747",
+        "Material Description": "CALADRYL LOTION 120 ML"
+    },
+    {
+        "Material": "10-0001744",
+        "Material Description": "ALERID SYRUP 5MG 30 ML"
+    },
+    {
+        "Material": "10-0003476",
+        "Material Description": "EMESET SYRUP 2MG 30ML"
+    },
+    {
+        "Material": "70-0000254",
+        "Material Description": "HEATED PATIENT CIRCUIT (RT-225 265)"
+    },
+    {
+        "Material": "10-0000865",
+        "Material Description": "ARG-9 SACHETS  5GM"
+    },
+    {
+        "Material": "10-0007187",
+        "Material Description": "OFLOMAC-M FORTE SYRUP 30 ML"
+    },
+    {
+        "Material": "10-0000497",
+        "Material Description": "KETMIN INJ 2 ML"
+    },
+    {
+        "Material": "70-0000744",
+        "Material Description": "ET TUBE  4.5 (KIMBERL CLARK)"
+    },
+    {
+        "Material": "10-0001879",
+        "Material Description": "NUTROLIN-B DRY SYRUP 60ML"
+    },
+    {
+        "Material": "70-0005244",
+        "Material Description": "NORMAL DELIVERY KIT- MH"
+    },
+    {
+        "Material": "10-0002995",
+        "Material Description": "ANTI FLU CAPS 75 MG 10 S"
+    },
+    {
+        "Material": "10-0000165",
+        "Material Description": "DEXTROSE IV 25 % 100 ML BOTTLE"
+    },
+    {
+        "Material": "70-0000554",
+        "Material Description": "SURGICAL BLADE 15"
+    },
+    {
+        "Material": "70-0000018",
+        "Material Description": "ARTIFLEX 10 CM X 3M (SOFTROLL)"
+    },
+    {
+        "Material": "10-0009610",
+        "Material Description": "CROCIN-DS 240 MG SYRUP 100 ML"
+    },
+    {
+        "Material": "10-0001931",
+        "Material Description": "TONOFERON PAED SYRUP 100 ML"
+    },
+    {
+        "Material": "10-0009588",
+        "Material Description": "AQSUSTEN INJ 25MG"
+    },
+    {
+        "Material": "70-0001757",
+        "Material Description": "OPTIFLOW JUNIOR2 XL (OJR418)"
+    },
+    {
+        "Material": "70-0000250",
+        "Material Description": "H.M.E FLITER (PAED)-1831"
+    },
+    {
+        "Material": "10-0006338",
+        "Material Description": "FEEDING BOTTLE125ML(AVENT)SCF690 10"
+    },
+    {
+        "Material": "10-0000942",
+        "Material Description": "BUDESAL RESPULES  0.5 MG 2 ML"
+    },
+    {
+        "Material": "10-0002209",
+        "Material Description": "NEUROBION FORTE TAB  30S"
+    },
+    {
+        "Material": "10-0005120",
+        "Material Description": "SIPHENE TAB 100MG5S"
+    },
+    {
+        "Material": "70-0002645",
+        "Material Description": "DSYRINGE 50 ML LUER SLIP NIPRO"
+    },
+    {
+        "Material": "70-0000943",
+        "Material Description": "GAUZE 7.5X7.5 12 PLY (5 NOS)"
+    },
+    {
+        "Material": "10-0011297",
+        "Material Description": "DOXYAEQ 100 MG INJ(DOXYCYCLINE)"
+    },
+    {
+        "Material": "70-0000163",
+        "Material Description": "DURAPORE 1 INCH"
+    },
+    {
+        "Material": "10-0009900",
+        "Material Description": "TYDOL TAB 50MG"
+    },
+    {
+        "Material": "10-0002154",
+        "Material Description": "LONAZEP TAB 0.25MG15S"
+    },
+    {
+        "Material": "10-0002249",
+        "Material Description": "OXYSPAS TAB 2.5MG10S"
+    },
+    {
+        "Material": "10-0007310",
+        "Material Description": "SEBAMED BABY RASH CREAM 100ML"
+    },
+    {
+        "Material": "10-0002196",
+        "Material Description": "MISOPROST TAB 200MCG 4S"
+    },
+    {
+        "Material": "10-0008262",
+        "Material Description": "DICLOSMART INJ 75MG1ML"
+    },
+    {
+        "Material": "70-0002794",
+        "Material Description": "RIBBON GAUZE 1 2 INCH X 5MTR (STERILE)"
+    },
+    {
+        "Material": "70-0003830",
+        "Material Description": "ALCOHOL SWABS HMD"
+    },
+    {
+        "Material": "10-0009037",
+        "Material Description": "CEFBACT INJ 1GM"
+    },
+    {
+        "Material": "70-0000761",
+        "Material Description": "DSYRINGE 10ML (NIPRO)"
+    },
+    {
+        "Material": "70-0000262",
+        "Material Description": "HIGH PRESSUR EXTENTION 200CM-ROMSONS"
+    },
+    {
+        "Material": "10-0013066",
+        "Material Description": "MAXRICH LOTION"
+    },
+    {
+        "Material": "10-0003127",
+        "Material Description": "DNS 500ML BOTTLE-NIRLIFE"
+    },
+    {
+        "Material": "10-0002030",
+        "Material Description": "CIPLOX-TZ TAB10S"
+    },
+    {
+        "Material": "70-0000382",
+        "Material Description": "NEEDLE 26 G"
+    },
+    {
+        "Material": "70-0002718",
+        "Material Description": "TEGADERM I.V ADVANCED 1682"
+    },
+    {
+        "Material": "10-0005541",
+        "Material Description": "RL 500 ML CLOSED SYSTEM"
+    },
+    {
+        "Material": "10-0012809",
+        "Material Description": "BEBE 1.5 KG PREMATURE"
+    },
+    {
+        "Material": "10-0007997",
+        "Material Description": "CANCENA (MESNA) IV INJ 200MG"
+    },
+    {
+        "Material": "70-0000785",
+        "Material Description": "DSYRINGE 20ML(NIPRO)"
+    },
+    {
+        "Material": "70-0000429",
+        "Material Description": "PREGELLED SURGICAL PLATES(ADULT)"
+    },
+    {
+        "Material": "10-0004137",
+        "Material Description": "DISPOSABLE TRANSDUCER DOMES REF # MX9505"
+    },
+    {
+        "Material": "10-0002421",
+        "Material Description": "REVAC B PEAD VACC0.5ML VIAL"
+    },
+    {
+        "Material": "10-0000127",
+        "Material Description": "SINAREST-AF DROPS 15 ML"
+    },
+    {
+        "Material": "70-0001215",
+        "Material Description": "FACE MASK 3 LAYER -ELASTIC"
+    },
+    {
+        "Material": "70-0000035",
+        "Material Description": "BAIN CIRCUIT-CHILD"
+    },
+    {
+        "Material": "10-0000659",
+        "Material Description": "ROSCILLIN INJ 500MG1ML"
+    },
+    {
+        "Material": "70-0003217",
+        "Material Description": "LARYNGEAL MASK AIRWAY 2.0 AMBU"
+    },
+    {
+        "Material": "10-0008518",
+        "Material Description": "UNDER PADS10S 60X90 MATTEY PRO(ROMSONS)"
+    },
+    {
+        "Material": "10-0000687",
+        "Material Description": "TAXIM INJ 1 GM"
+    },
+    {
+        "Material": "10-0000944",
+        "Material Description": "ENTEROGERMINA RESPULES  2000 B 5 ML"
+    },
+    {
+        "Material": "10-0010270",
+        "Material Description": "PATERNIA XT TAB"
+    },
+    {
+        "Material": "10-0004636",
+        "Material Description": "PICON  CREAM 1% 10 GM"
+    },
+    {
+        "Material": "10-0000812",
+        "Material Description": "FUCIDIN-H  CREAM 15 GM"
+    },
+    {
+        "Material": "10-0011129",
+        "Material Description": "POVINANZ SOLUTION 10% 100 ML"
+    },
+    {
+        "Material": "10-0004865",
+        "Material Description": "CEFANTRAL 1GM INJ"
+    },
+    {
+        "Material": "70-0003493",
+        "Material Description": "ADULT DIAPER-XL"
+    },
+    {
+        "Material": "70-0000795",
+        "Material Description": "DSYRINGS 2.5ML(NIPRO)"
+    },
+    {
+        "Material": "10-0013067",
+        "Material Description": "OLESOFT MAX CREAM"
+    },
+    {
+        "Material": "10-0000847",
+        "Material Description": "SILVEREX  IONIC GEL  20 GM"
+    },
+    {
+        "Material": "10-0010154",
+        "Material Description": "SINAREST-AF SYP 75ML"
+    },
+    {
+        "Material": "10-0009884",
+        "Material Description": "COREX-T COUGH SYP 100ML"
+    },
+    {
+        "Material": "10-0003151",
+        "Material Description": "THIAMIN INJ 100 MG  2 ML"
+    },
+    {
+        "Material": "10-0002264",
+        "Material Description": "PRIMOLUT-N TAB 5MG 10S"
+    },
+    {
+        "Material": "70-0000797",
+        "Material Description": "SPLINT PEDIATRIC"
+    },
+    {
+        "Material": "10-0000410",
+        "Material Description": "DEXTOMID INJ AMP 100 MCG 1 ML"
+    },
+    {
+        "Material": "10-0009293",
+        "Material Description": "GLOBUCEL 10GM INJ 100ml"
+    },
+    {
+        "Material": "10-0004194",
+        "Material Description": "RENODAPT 500MG TAB10S"
+    },
+    {
+        "Material": "10-0006768",
+        "Material Description": "ROTASIIL ORALVACC2.5ML"
+    },
+    {
+        "Material": "10-0010266",
+        "Material Description": "MACBERY JUNIOR SYP"
+    },
+    {
+        "Material": "10-0011266",
+        "Material Description": "SPORLAC GG"
+    },
+    {
+        "Material": "10-0013671",
+        "Material Description": "NS 500ML BOTTLE ACCULIFE-EH"
+    },
+    {
+        "Material": "10-0002005",
+        "Material Description": "BUSCOGAST TAB 10MG10S"
+    },
+    {
+        "Material": "10-0001678",
+        "Material Description": "MONOCRYL 3-0 NW 1326"
+    },
+    {
+        "Material": "10-0002062",
+        "Material Description": "DOMSTAL TAB 10MG10S"
+    },
+    {
+        "Material": "10-0002008",
+        "Material Description": "CABERLIN TAB 0.5MG 4S"
+    },
+    {
+        "Material": "70-0003004",
+        "Material Description": "LEUKOBAND 10X4 6M"
+    },
+    {
+        "Material": "10-0002251",
+        "Material Description": "PACITANE TAB 2MG 30S"
+    },
+    {
+        "Material": "10-0010763",
+        "Material Description": "HALOVATE F CREAM 15GM"
+    },
+    {
+        "Material": "70-0000350",
+        "Material Description": "MUCOS EXTRACTOR"
+    },
+    {
+        "Material": "10-0013651",
+        "Material Description": "DEXAMED INJ 2ML"
+    },
+    {
+        "Material": "10-0013957",
+        "Material Description": "AVITHEM 2.5MG INJ"
+    },
+    {
+        "Material": "10-0003946",
+        "Material Description": "GERBISA ADULT SUPPOSITORIES  10 MG 5S"
+    },
+    {
+        "Material": "70-0000380",
+        "Material Description": "NEEDLE 23 G"
+    },
+    {
+        "Material": "10-0006669",
+        "Material Description": "FOL-123 CAPS 15 S"
+    },
+    {
+        "Material": "70-0006352",
+        "Material Description": "PREGA WEAR LOCHIA PANTY LARGE 2s"
+    },
+    {
+        "Material": "10-0002327",
+        "Material Description": "THYRONORM 12.5MCG TAB 120BT"
+    },
+    {
+        "Material": "70-0001936",
+        "Material Description": "NITRILE EXAMINATION GLOVES P F- MEDIUM"
+    },
+    {
+        "Material": "10-0008247",
+        "Material Description": "AEQUIMOL IV 100 ML BOTTLE"
+    },
+    {
+        "Material": "10-0008833",
+        "Material Description": "KIDODENT 75GM GEL"
+    },
+    {
+        "Material": "70-0005061",
+        "Material Description": "MOPS 30X30 STERILE 12 PLY (5 PACK)"
+    },
+    {
+        "Material": "10-0001758",
+        "Material Description": "AZEE SYRUP 200MG 15ML"
+    },
+    {
+        "Material": "10-0001895",
+        "Material Description": "PIRITON - CS SYRUP 100 ML"
+    },
+    {
+        "Material": "10-0009692",
+        "Material Description": "OFLOMAC M FORTE SYP 60ML"
+    },
+    {
+        "Material": "70-0000286",
+        "Material Description": "IRRIGATTO(T.U.R SET)"
+    },
+    {
+        "Material": "20-0003379",
+        "Material Description": "Kidney Tray Big"
+    },
+    {
+        "Material": "10-0000232",
+        "Material Description": "BUDECORT  100 MCG INHAER"
+    },
+    {
+        "Material": "10-0000088",
+        "Material Description": "CROMAL FORTE EYE DROPS"
+    },
+    {
+        "Material": "10-0005101",
+        "Material Description": "MINOR ORTHO DRAPE"
+    },
+    {
+        "Material": "10-0000200",
+        "Material Description": "RL IV 500 ML BAG"
+    },
+    {
+        "Material": "70-0000043",
+        "Material Description": "BLOOD SET"
+    },
+    {
+        "Material": "10-0005893",
+        "Material Description": "COLGATE SUPER FLEX BRUSH"
+    },
+    {
+        "Material": "70-0000164",
+        "Material Description": "DURAPORE 2 INCH"
+    },
+    {
+        "Material": "10-0013962",
+        "Material Description": "BEBE DIAPER SMALL - REALCARE"
+    },
+    {
+        "Material": "10-0012739",
+        "Material Description": "RACLOFER SACHET"
+    },
+    {
+        "Material": "10-0000821",
+        "Material Description": "LUBIC JELLY 20 GM"
+    },
+    {
+        "Material": "10-0006380",
+        "Material Description": "DINOST GEL 0.5MG 3GM"
+    },
+    {
+        "Material": "70-0000519",
+        "Material Description": "SPINAL NEEDLE 22"
+    },
+    {
+        "Material": "10-0001993",
+        "Material Description": "BENALGIS TAB 100MG10S"
+    },
+    {
+        "Material": "10-0000157",
+        "Material Description": "DNS IV 500 ML BOTTLE"
+    },
+    {
+        "Material": "10-0000017",
+        "Material Description": "DOXY 1 LDR FORTE CAP 10 S"
+    },
+    {
+        "Material": "10-0002336",
+        "Material Description": "TRENAXA-MF TAB 6S"
+    },
+    {
+        "Material": "10-0000359",
+        "Material Description": "CATH FLUSH INJ 10 IU 2ML"
+    },
+    {
+        "Material": "10-0006180",
+        "Material Description": "JEEV 3MCG VACCPFS0.5ML"
+    },
+    {
+        "Material": "10-0006263",
+        "Material Description": "AZITHRAL-XL PAED SYRUP 200MG 30ML"
+    },
+    {
+        "Material": "10-0000254",
+        "Material Description": "SOLSPRE 100 ML  NASAL SPRAY"
+    },
+    {
+        "Material": "10-0006397",
+        "Material Description": "MONUROL GRANULES SACHET 3 GM"
+    },
+    {
+        "Material": "10-0000305",
+        "Material Description": "ARTACIL INJ 10MG 100ML"
+    },
+    {
+        "Material": "70-0000898",
+        "Material Description": "DRAW SHEET 180 X 80 CMS"
+    },
+    {
+        "Material": "10-0000005",
+        "Material Description": "BECOSULES CAPS (20 S)"
+    },
+    {
+        "Material": "10-0000523",
+        "Material Description": "LOX INJ 2 % 30 ML"
+    },
+    {
+        "Material": "10-0000134",
+        "Material Description": "TONOFERON DROPS 15 ML"
+    },
+    {
+        "Material": "10-0008410",
+        "Material Description": "BACTORUB PINK SOLUTION 500 ML"
+    },
+    {
+        "Material": "10-0000117",
+        "Material Description": "OTOGESIC EAR DROPS 10 ML"
+    },
+    {
+        "Material": "10-0004134",
+        "Material Description": "MCBM 69 TAB15S"
+    },
+    {
+        "Material": "10-0013678",
+        "Material Description": "BACCIRUB 100 ML"
+    },
+    {
+        "Material": "10-0000529",
+        "Material Description": "MVI INJ 10 ML"
+    },
+    {
+        "Material": "10-0000550",
+        "Material Description": "MEZOLAM INJ 5 MG 5 ML"
+    },
+    {
+        "Material": "10-0002059",
+        "Material Description": "DOLO TAB 650MG15S"
+    },
+    {
+        "Material": "10-0001992",
+        "Material Description": "BENADON TAB 40MG10S"
+    },
+    {
+        "Material": "10-0000346",
+        "Material Description": "CABOPROST INJ AMP 125 MCG 1 ML"
+    },
+    {
+        "Material": "10-0010461",
+        "Material Description": "PHYTOCURE-K 1MG INJ 0.5ML"
+    },
+    {
+        "Material": "10-0001794",
+        "Material Description": "CITRALKA SYRUP 100ML"
+    },
+    {
+        "Material": "10-0011817",
+        "Material Description": "MCT-ROF 100MG 10ML"
+    },
+    {
+        "Material": "70-0003497",
+        "Material Description": "Encore Microptic gloves-6.5"
+    },
+    {
+        "Material": "10-0013884",
+        "Material Description": "NATUROGEST AQ 25MG INJ"
+    },
+    {
+        "Material": "10-0008019",
+        "Material Description": "ULTRA D3 400 IU DROPS 15 ML"
+    },
+    {
+        "Material": "10-0002236",
+        "Material Description": "OROFER-XT TAB10S"
+    },
+    {
+        "Material": "10-0000820",
+        "Material Description": "LOX 2% JELLY 30 GM"
+    },
+    {
+        "Material": "10-0006113",
+        "Material Description": "OFLOMAC FORTE SYRUP  100 MG 30 ML"
+    },
+    {
+        "Material": "10-0002056",
+        "Material Description": "DIGENE TAB 15S"
+    },
+    {
+        "Material": "70-0000973",
+        "Material Description": "EVA STERILE GLOVES (PAIR)"
+    },
+    {
+        "Material": "70-0003017",
+        "Material Description": "IV SET AUTOFUSION POLYMED"
+    },
+    {
+        "Material": "70-0003356",
+        "Material Description": "Baby Drape Kit"
+    },
+    {
+        "Material": "10-0005113",
+        "Material Description": "CYCLOPAM SYRUP 60 ML"
+    },
+    {
+        "Material": "10-0009187",
+        "Material Description": "MEGNESIUM SULPHATE PASTE 100GM"
+    },
+    {
+        "Material": "10-0012909",
+        "Material Description": "GUFITHIA INJ 100MG"
+    },
+    {
+        "Material": "70-0006353",
+        "Material Description": "PREGA WEAR LOCHIA PANTY XL 2s"
+    },
+    {
+        "Material": "10-0004094",
+        "Material Description": "BIOTREXATE INJ AMP 15 MG 3 ML"
+    },
+    {
+        "Material": "10-0000168",
+        "Material Description": "FORCAN  IV 200 MG  100 ML BOTTLE"
+    },
+    {
+        "Material": "70-0002481",
+        "Material Description": "LEUKOMED T-PLUS 8CM X 15 CM"
+    },
+    {
+        "Material": "70-0000100",
+        "Material Description": "CORD CLAMP"
+    },
+    {
+        "Material": "10-0002148",
+        "Material Description": "LIVOGEN-Z TAB15S"
+    },
+    {
+        "Material": "10-0001717",
+        "Material Description": "SOLUS VICRYL 1-02518"
+    },
+    {
+        "Material": "10-0010343",
+        "Material Description": "MONOCRYL 2-0NW 1741"
+    },
+    {
+        "Material": "10-0008585",
+        "Material Description": "Tolpa D Tab"
+    },
+    {
+        "Material": "10-0000822",
+        "Material Description": "LYCOR  CREAM 1% 15GM"
+    },
+    {
+        "Material": "10-0008263",
+        "Material Description": "ONDOKIND INJ 4 MG 2 ML"
+    },
+    {
+        "Material": "10-0010572",
+        "Material Description": "ACUGYL 500MG INJ"
+    },
+    {
+        "Material": "10-0012873",
+        "Material Description": "TAXIM O FORTE SYRUP 60 ML"
+    },
+    {
+        "Material": "10-0007104",
+        "Material Description": "CANDITRAL CAPS 200 MG  10 S"
+    },
+    {
+        "Material": "10-0006528",
+        "Material Description": "BANDY SUSPENSION 200MG10ML"
+    },
+    {
+        "Material": "10-0003689",
+        "Material Description": "TRAMAZAC INJ 50 MG 1 ML"
+    },
+    {
+        "Material": "10-0003429",
+        "Material Description": "MERSILK 2-0 NW 5036"
+    },
+    {
+        "Material": "10-0003097",
+        "Material Description": "D WATER 500 ML  BOTTLE"
+    },
+    {
+        "Material": "10-0001670",
+        "Material Description": "MERSILK 3-0 NW 5003(5002)"
+    },
+    {
+        "Material": "10-0006386",
+        "Material Description": "SUSTEN-SR CAPS 300 MG 10 S"
+    },
+    {
+        "Material": "10-0007023",
+        "Material Description": "EPICETAM INJ 500MG5ML"
+    },
+    {
+        "Material": "10-0003074",
+        "Material Description": "TAYO 60K CHEWABLE TAB 8S"
+    },
+    {
+        "Material": "10-0010458",
+        "Material Description": "BUSCOSINE 20MG INJ 1ML"
+    },
+    {
+        "Material": "70-0003559",
+        "Material Description": "SMART SITE BI EXTENSION"
+    },
+    {
+        "Material": "10-0006694",
+        "Material Description": "SHELCAL XT TAB15S"
+    },
+    {
+        "Material": "10-0000948",
+        "Material Description": "LEVOLIN  RESPULES 0.63 MG 2.5 ML"
+    },
+    {
+        "Material": "10-0001837",
+        "Material Description": "IBUGESIC SYRUP 100MG 60ML"
+    },
+    {
+        "Material": "10-0000882",
+        "Material Description": "ELECTRAL SACHETS  4.4 GM"
+    },
+    {
+        "Material": "70-0000283",
+        "Material Description": "INTROCAN 24G"
+    },
+    {
+        "Material": "10-0000057",
+        "Material Description": "EVAC70XTRAHPWITHINTEGRATEDCABLE-E"
+    },
+    {
+        "Material": "10-0005273",
+        "Material Description": "OXYSPAS TAB 5MG10S"
+    },
+    {
+        "Material": "10-0002210",
+        "Material Description": "NICARDIA RETARD TAB 10MG-(15S)"
+    },
+    {
+        "Material": "70-0000261",
+        "Material Description": "HIGH PRESSUR EXTENTION 100CM-ROMSONS"
+    },
+    {
+        "Material": "10-0003216",
+        "Material Description": "PREPRO KIDS SACHETS 1GM"
+    }
+]

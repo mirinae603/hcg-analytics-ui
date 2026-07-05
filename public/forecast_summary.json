@@ -1,0 +1,86 @@
+{
+    "Cash_Flow_Prediction_week_1":{
+        "Bangalore":694969.0,
+        "Chennai":286782.0,
+        "Hyderabad East":3178570.0,
+        "Hyderabad West":1687637.0,
+        "Vijayawada":84615.0
+    },
+    "Cash_Flow_Prediction_week_2":{
+        "Bangalore":679035.0,
+        "Chennai":272913.0,
+        "Hyderabad East":3200522.0,
+        "Hyderabad West":1668040.0,
+        "Vijayawada":83668.0
+    },
+    "Cash_Flow_Prediction_week_3":{
+        "Bangalore":703080.0,
+        "Chennai":282778.0,
+        "Hyderabad East":3295370.0,
+        "Hyderabad West":1688277.0,
+        "Vijayawada":82146.0
+    },
+    "Cash_Flow_Prediction_week_4":{
+        "Bangalore":752265.0,
+        "Chennai":291204.0,
+        "Hyderabad East":3386175.0,
+        "Hyderabad West":1707241.0,
+        "Vijayawada":87787.0
+    },
+    "Demand_Forecast":{
+        "Bangalore":99589.0,
+        "Chennai":21453.0,
+        "Hyderabad East":602805.0,
+        "Hyderabad West":153464.0,
+        "Vijayawada":21323.0
+    },
+    "Demand_Forecast_week_1":{
+        "Bangalore":24716.0,
+        "Chennai":5423.0,
+        "Hyderabad East":151793.0,
+        "Hyderabad West":40208.0,
+        "Vijayawada":5247.0
+    },
+    "Demand_Forecast_week_2":{
+        "Bangalore":24483.0,
+        "Chennai":5307.0,
+        "Hyderabad East":149387.0,
+        "Hyderabad West":36902.0,
+        "Vijayawada":5184.0
+    },
+    "Demand_Forecast_week_3":{
+        "Bangalore":24637.0,
+        "Chennai":5333.0,
+        "Hyderabad East":147903.0,
+        "Hyderabad West":36266.0,
+        "Vijayawada":5418.0
+    },
+    "Demand_Forecast_week_4":{
+        "Bangalore":25753.0,
+        "Chennai":5390.0,
+        "Hyderabad East":153722.0,
+        "Hyderabad West":40088.0,
+        "Vijayawada":5474.0
+    },
+    "Order_Quantity":{
+        "Bangalore":47565.0,
+        "Chennai":10559.0,
+        "Hyderabad East":366970.0,
+        "Hyderabad West":105834.0,
+        "Vijayawada":11219.0
+    },
+    "Stock":{
+        "Bangalore":60276.0,
+        "Chennai":14772.0,
+        "Hyderabad East":280584.0,
+        "Hyderabad West":62132.0,
+        "Vijayawada":11648.0
+    },
+    "Stock_Value":{
+        "Bangalore":2790217.0,
+        "Chennai":24264471.0,
+        "Hyderabad East":218078117.0,
+        "Hyderabad West":112230827.0,
+        "Vijayawada":2588264.0
+    }
+}

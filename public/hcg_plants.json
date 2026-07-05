@@ -1,0 +1,218 @@
+[
+  {
+    "code": "ALL",
+    "name": "All Plants"
+  },
+  {
+    "code": "BH03",
+    "name": "BACC  (Kumarapark / Shivananda)"
+  },
+  {
+    "code": "BH01",
+    "name": "BACC (Corporate Office)"
+  },
+  {
+    "code": "BH02",
+    "name": "BACC (JP Nagar)"
+  },
+  {
+    "code": "BH08",
+    "name": "BACC Chandigarh"
+  },
+  {
+    "code": "BH11",
+    "name": "BACC Education"
+  },
+  {
+    "code": "BH06",
+    "name": "BACC HSR"
+  },
+  {
+    "code": "BH09",
+    "name": "BACC Indiranagar"
+  },
+  {
+    "code": "BH05",
+    "name": "BACC Sarjapur"
+  },
+  {
+    "code": "BH10",
+    "name": "BACC Whitefield"
+  },
+  {
+    "code": "HC40",
+    "name": "HCG CANCER CENTRE, North Bangalore"
+  },
+  {
+    "code": "HC35",
+    "name": "HCG Cancer Centre ,Indore"
+  },
+  {
+    "code": "HC32",
+    "name": "HCG Cancer Centre ,Vizag"
+  },
+  {
+    "code": "HO02",
+    "name": "HCG Cancer Clinic - Rathlam"
+  },
+  {
+    "code": "HC01",
+    "name": "HCG Corporate, Bangalore"
+  },
+  {
+    "code": "HC17",
+    "name": "HCG Curie- Abdur Razzaque Ansari Cancer Institute,Ranchi"
+  },
+  {
+    "code": "HC06",
+    "name": "HCG DR, Bangalore"
+  },
+  {
+    "code": "HE01",
+    "name": "HCG EKO ONCOLOGY LLP"
+  },
+  {
+    "code": "HC25",
+    "name": "HCG Gulbarga"
+  },
+  {
+    "code": "HC31",
+    "name": "HCG Hospital Jaipur"
+  },
+  {
+    "code": "HC05",
+    "name": "HCG KR, Bangalore"
+  },
+  {
+    "code": "HM04",
+    "name": "HCG MANAVATA - UNIT2"
+  },
+  {
+    "code": "HM01",
+    "name": "HCG MEDISURGE HOSPITALS SOLA"
+  },
+  {
+    "code": "HC22",
+    "name": "HCG Multispeciality, Bhavnagar"
+  },
+  {
+    "code": "HC38",
+    "name": "HCG NCHRI Oncology LLP, Nagpur"
+  },
+  {
+    "code": "HC24",
+    "name": "HCG NMR Cancer Centre, Hubli"
+  },
+  {
+    "code": "AH01",
+    "name": "HCG ONCOLOGY HOSPITALS LLP"
+  },
+  {
+    "code": "HO01",
+    "name": "HCG Oncology LLP, Baroda"
+  },
+  {
+    "code": "HC26",
+    "name": "HCG Ongole"
+  },
+  {
+    "code": "HN04",
+    "name": "HCG PET & Cyclotron,Chennai"
+  },
+  {
+    "code": "HC13",
+    "name": "HCG Panda Cancer Hospital"
+  },
+  {
+    "code": "HS01",
+    "name": "HCG SUN HOSPITALS LLP"
+  },
+  {
+    "code": "HC27",
+    "name": "HCG Vijayawada"
+  },
+  {
+    "code": "HC33",
+    "name": "HCG-KHUBCHANDANI"
+  },
+  {
+    "code": "HM03",
+    "name": "HCG-NASIK UNIT1"
+  },
+  {
+    "code": "HC16",
+    "name": "HMS Multispecility Hospital"
+  },
+  {
+    "code": "HT20",
+    "name": "HT20"
+  },
+  {
+    "code": "HT21",
+    "name": "HT21"
+  },
+  {
+    "code": "SH01",
+    "name": "Suchirayu Health Care Solutions"
+  },
+  {
+    "code": "HT01",
+    "name": "TRIESTA CDX CORPORAT"
+  },
+  {
+    "code": "HT02",
+    "name": "TRIESTA KRDR"
+  },
+  {
+    "code": "HT11",
+    "name": "Triesta Ahmadabad"
+  },
+  {
+    "code": "HT09",
+    "name": "Triesta Borivali"
+  },
+  {
+    "code": "HT13",
+    "name": "Triesta Cuttack"
+  },
+  {
+    "code": "HT03",
+    "name": "Triesta Genomics"
+  },
+  {
+    "code": "HT06",
+    "name": "Triesta Gulbarga"
+  },
+  {
+    "code": "HT14",
+    "name": "Triesta Hosur"
+  },
+  {
+    "code": "HT05",
+    "name": "Triesta Hubli"
+  },
+  {
+    "code": "HT12",
+    "name": "Triesta Kolkatta"
+  },
+  {
+    "code": "HT04",
+    "name": "Triesta PCR Lab"
+  },
+  {
+    "code": "HT15",
+    "name": "Triesta Ranchi"
+  },
+  {
+    "code": "HT10",
+    "name": "Triesta South Mumbai"
+  },
+  {
+    "code": "HT07",
+    "name": "Triesta Vijayawada"
+  },
+  {
+    "code": "HT08",
+    "name": "Triesta Vijayawada 2"
+  }
+]

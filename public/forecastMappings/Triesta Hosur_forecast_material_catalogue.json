@@ -1,0 +1,338 @@
+[
+  {
+    "Material": "910164",
+    "Material Description": "LETTER HEAD (FOUR COLOUR PRINTING)-GEN"
+  },
+  {
+    "Material": "913294",
+    "Material Description": "GEL CLOT ACTIVATOR(NVGC)NVLH4-4ML NASMED"
+  },
+  {
+    "Material": "913293",
+    "Material Description": "K2 EDTA (NVK2) NVK23 - 3ML NASMED"
+  },
+  {
+    "Material": "910745",
+    "Material Description": "SYRINGE 2ML-HMD"
+  },
+  {
+    "Material": "913292",
+    "Material Description": "SODIUM FLUORIDE (NVSF) NVSF3- 3ML NASMED"
+  },
+  {
+    "Material": "910319",
+    "Material Description": "SYRINGE 5ML-HMD"
+  },
+  {
+    "Material": "910147",
+    "Material Description": "HANSAPLAST ROUND-J&J"
+  },
+  {
+    "Material": "910352",
+    "Material Description": "URINE CONTAINER STERILE 30ML CONS 1 EA"
+  },
+  {
+    "Material": "928639",
+    "Material Description": "ELECTROLYTE REA CAT22SCFMRG0002 ST200 PR"
+  },
+  {
+    "Material": "928653",
+    "Material Description": "URINE STRIPS 10PAR  100STRIPS STRUMED"
+  },
+  {
+    "Material": "910123",
+    "Material Description": "FACE MASK-GEN"
+  },
+  {
+    "Material": "928624",
+    "Material Description": "ABX MINOCLAIR CAT4000000563100ML-HORIBA"
+  },
+  {
+    "Material": "924203",
+    "Material Description": "Bilirubin Direct120623SNLR-330mL TRANSAS"
+  },
+  {
+    "Material": "924196",
+    "Material Description": "Glucose (GOD - POD)120266SNLR-440mL TRAN"
+  },
+  {
+    "Material": "924204",
+    "Material Description": "Bilirubin Total120621SNLR-330mL TRANSASI"
+  },
+  {
+    "Material": "924633",
+    "Material Description": "XL -CRP - TUR 121505 REA 55MLBT1-TRAN"
+  },
+  {
+    "Material": "920783",
+    "Material Description": "HIV RAPID CARD 100 TEST PACK J MITRA"
+  },
+  {
+    "Material": "921362",
+    "Material Description": "SYPHILIS RAPID CARD 50 TEST PACK GEN"
+  },
+  {
+    "Material": "924207",
+    "Material Description": "Total Protein120267SNLR-440mL TRANSASIA"
+  },
+  {
+    "Material": "924202",
+    "Material Description": "SGPT - EL120617SNLR-330mL TRANSASIA"
+  },
+  {
+    "Material": "924201",
+    "Material Description": "SGOT - EL120616SNLR-330mL TRANSASIA"
+  },
+  {
+    "Material": "920522",
+    "Material Description": "DENGUE COMBO( AG+AB) RAPID CARD 1TEST EA"
+  },
+  {
+    "Material": "910130",
+    "Material Description": "FLASH BACK NEEDLES-BD"
+  },
+  {
+    "Material": "924209",
+    "Material Description": "Alkaline Phosphatase121018SNLR-110mL TRA"
+  },
+  {
+    "Material": "920749",
+    "Material Description": "HBSAG HEPACARD - 100 TEST-TRIDOT"
+  },
+  {
+    "Material": "924197",
+    "Material Description": "Triglycerides121024SNLR-275mL TRANSASIA"
+  },
+  {
+    "Material": "911607",
+    "Material Description": "Auto wash (AC & AL)SNLB 440ML 121238TRAN"
+  },
+  {
+    "Material": "924807",
+    "Material Description": "GAMMA GT(GGT)121019 REA 110MLBT1-TRANS"
+  },
+  {
+    "Material": "924206",
+    "Material Description": "Albumin120265SNLR-440mL TRANSASIA"
+  },
+  {
+    "Material": "928641",
+    "Material Description": "DAILY CLEANER KIT CAT-22SCFMCM0004-S"
+  },
+  {
+    "Material": "913295",
+    "Material Description": "SODIUM CITRATE3.2(NVSC)NVSC3G-3ML NASMED"
+  },
+  {
+    "Material": "920109",
+    "Material Description": "Anti ABD Set -Blood Grouping-10ML KIT"
+  },
+  {
+    "Material": "928930",
+    "Material Description": "EPOC BGEM BUN CARD 25 TESTS"
+  },
+  {
+    "Material": "920585",
+    "Material Description": "ERBA PATH REAGENT 4X5ML"
+  },
+  {
+    "Material": "921602",
+    "Material Description": "WIDAL KIT 4X5 ML-SPAN"
+  },
+  {
+    "Material": "924205",
+    "Material Description": "Uric Acid121023SNLR-319mL TRANSASIA"
+  },
+  {
+    "Material": "924363",
+    "Material Description": "Direct HDL CHOL REA 160ML 120706TRANSASI"
+  },
+  {
+    "Material": "924210",
+    "Material Description": "Lipase XL121280SNLR-55mL TRANSASIA"
+  },
+  {
+    "Material": "928631",
+    "Material Description": "ABX DILUENT CAT 1210901020 20 L-HORIBA"
+  },
+  {
+    "Material": "920760",
+    "Material Description": "HCV SPOT CARDS - 100 TEST-TRIDOT"
+  },
+  {
+    "Material": "924211",
+    "Material Description": "Amylase121026SNLR-110mL TRANSASIA"
+  },
+  {
+    "Material": "924293",
+    "Material Description": "UREA  SNLR 275ML 121025TRANSASIA"
+  },
+  {
+    "Material": "911146",
+    "Material Description": "PT CUP 500 PACK-SYSMAX"
+  },
+  {
+    "Material": "910341",
+    "Material Description": "TISSUE ROLL-GEN"
+  },
+  {
+    "Material": "912991",
+    "Material Description": "SLIDE BOX 26X76MM(CAT7101)50EA-KLEAN VIS"
+  },
+  {
+    "Material": "924200",
+    "Material Description": "Creatinine-Enzymatic121200SNLR-200mL TRA"
+  },
+  {
+    "Material": "920590",
+    "Material Description": "ESR PIPETTE 1X200 NOS"
+  },
+  {
+    "Material": "921213",
+    "Material Description": "RAPID PAP 50 TEST PACK"
+  },
+  {
+    "Material": "910326",
+    "Material Description": "TEST TUBE PLASTIC 3INC-SDPI"
+  },
+  {
+    "Material": "921050",
+    "Material Description": "MP CARD-MALARIAL PARASITE CARD 40TST"
+  },
+  {
+    "Material": "911608",
+    "Material Description": "Erba norm SNLB 5ML 120219TRAN"
+  },
+  {
+    "Material": "910011",
+    "Material Description": "AHD 3000 ANTISEPSIS 500ML-RUSHAIL PHARMA"
+  },
+  {
+    "Material": "928625",
+    "Material Description": "ABX DIFFTROL HIGH CAT4000002005 1X3ML-H"
+  },
+  {
+    "Material": "928626",
+    "Material Description": "ABX DIFFTROL LOWCAT4000002017- 1X3ML-H"
+  },
+  {
+    "Material": "928647",
+    "Material Description": "ABX CLEANER CAT 1210903010- 1L-HORIBA"
+  },
+  {
+    "Material": "928294",
+    "Material Description": "PASTEUR PIPETTE 3ML"
+  },
+  {
+    "Material": "910207",
+    "Material Description": "NITRILE GLOVES MEDIUM POWDERED-JK ANSEL"
+  },
+  {
+    "Material": "928623",
+    "Material Description": "ABX WHITE DIFF-CAT1210906022- 1L-HORIBA"
+  },
+  {
+    "Material": "928627",
+    "Material Description": "ABX DIFFTROL NORML CAT4000002018-1X3ML-H"
+  },
+  {
+    "Material": "910378",
+    "Material Description": "YELLOW TIPS-1000S-GEN"
+  },
+  {
+    "Material": "960704",
+    "Material Description": "PEN S001-REYNOLDS"
+  },
+  {
+    "Material": "940313",
+    "Material Description": "XL MULTICAL SNCL 12ML 120611TRAN"
+  },
+  {
+    "Material": "910033",
+    "Material Description": "BLUE TIPS (1000 PCS)-GEN"
+  },
+  {
+    "Material": "924208",
+    "Material Description": "Calcium (A)120262SNLR-120mL TRANSASIA"
+  },
+  {
+    "Material": "910080",
+    "Material Description": "COVER SLIPS (22X22MM)1X 20BOX-BLUE STAR"
+  },
+  {
+    "Material": "921517",
+    "Material Description": "UNIPLASTIN 5ML BOTTLE"
+  },
+  {
+    "Material": "910243",
+    "Material Description": "PURELLIUM GEL 500ML-BIOSHIELDS"
+  },
+  {
+    "Material": "960027",
+    "Material Description": "LOCK BAG 14 X 10"
+  },
+  {
+    "Material": "921989",
+    "Material Description": "ERBA AUTO WASH-GEN"
+  },
+  {
+    "Material": "910312",
+    "Material Description": "SWAB TUBES 1X100"
+  },
+  {
+    "Material": "924198",
+    "Material Description": "Cholesterol121021SNLR-440mL TRANSASIA"
+  },
+  {
+    "Material": "910072",
+    "Material Description": "COTTON ROLL 500 GM-GEN"
+  },
+  {
+    "Material": "960818",
+    "Material Description": "PAPER A4-JK"
+  },
+  {
+    "Material": "960028",
+    "Material Description": "LOCK BAG 4 X 6"
+  },
+  {
+    "Material": "921152",
+    "Material Description": "PPD 5TU REAG 5 ML BOTTLE SPAN- ARKRAY"
+  },
+  {
+    "Material": "928640",
+    "Material Description": "QUALITY CONTROL KIT-CAT22SCFMCM0002-S"
+  },
+  {
+    "Material": "921209",
+    "Material Description": "RA REAG 25 TEST PACK ERBA"
+  },
+  {
+    "Material": "920688",
+    "Material Description": "GIEMSA STAIN REAG 100 ML BOTTLE HIMEDIA"
+  },
+  {
+    "Material": "910343",
+    "Material Description": "TORNIQUET-GEN"
+  },
+  {
+    "Material": "930246",
+    "Material Description": "CRP CONTROL HIGH 121111 1E-TRANSASIA"
+  },
+  {
+    "Material": "930677",
+    "Material Description": "ASO/CRP/RFCONTROL L2 (HIGH) 131962 TRANS"
+  },
+  {
+    "Material": "910068",
+    "Material Description": "COPLIN JAR"
+  },
+  {
+    "Material": "960711",
+    "Material Description": "CELLO TAPE 12MM 1/2 INC S028-GEN"
+  },
+  {
+    "Material": "960943",
+    "Material Description": "PHLEBOTOMY REGISTER"
+  }
+]

@@ -1,0 +1,89 @@
+[
+    {
+        "Material Group": "PH-CAP"
+    },
+    {
+        "Material Group": "PH-SURG"
+    },
+    {
+        "Material Group": "PH-IMP"
+    },
+    {
+        "Material Group": "PH-DROP"
+    },
+    {
+        "Material Group": "PH-FLUIDS"
+    },
+    {
+        "Material Group": "PH-INJ"
+    },
+    {
+        "Material Group": "PH-INJ RE"
+    },
+    {
+        "Material Group": "PH-HAR"
+    },
+    {
+        "Material Group": "PH-INH"
+    },
+    {
+        "Material Group": "PH-LOT"
+    },
+    {
+        "Material Group": "PH-OINT"
+    },
+    {
+        "Material Group": "PH-POW"
+    },
+    {
+        "Material Group": "PH-GEN"
+    },
+    {
+        "Material Group": "PH-RESP"
+    },
+    {
+        "Material Group": "PH-SOLS"
+    },
+    {
+        "Material Group": "PH-SUPP"
+    },
+    {
+        "Material Group": "PH-SUT"
+    },
+    {
+        "Material Group": "PH-SYRUPS"
+    },
+    {
+        "Material Group": "PH-TAB"
+    },
+    {
+        "Material Group": "PH-VACC"
+    },
+    {
+        "Material Group": "L-RADIO"
+    },
+    {
+        "Material Group": "L-BIO"
+    },
+    {
+        "Material Group": "PH-NAR"
+    },
+    {
+        "Material Group": "GN-LIN"
+    },
+    {
+        "Material Group": "GN-PUR"
+    },
+    {
+        "Material Group": "PH-DRAP"
+    },
+    {
+        "Material Group": "GN-BMS"
+    },
+    {
+        "Material Group": "PH-CSSD"
+    },
+    {
+        "Material Group": "PH-CONSU"
+    }
+]

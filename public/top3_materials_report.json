@@ -1,0 +1,4842 @@
+{
+  "Bangalore|2023|April": {
+    "OP Sales": [
+      [
+        "VITRAKVI (LAROTRECTINIB) 20MG ORAL SYRUP",
+        2646194.0
+      ],
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1304210.04
+      ],
+      [
+        "FLUARIX TETRA VACCINE 0.5 ML",
+        790962.0
+      ]
+    ],
+    "IP Issue": [
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        1196475.64
+      ],
+      [
+        "CIDNAVIR 75MG INJ 5ML",
+        394464.3
+      ],
+      [
+        "ALBUREL 20% INFUSION VIAL 100 ML",
+        296400.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "NOXAFIL 100MG TAB 12S",
+        719279.9
+      ],
+      [
+        "COVAXIN VACCINE",
+        396006.18
+      ],
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        93997.12
+      ]
+    ]
+  },
+  "Bangalore|2023|August": {
+    "OP Sales": [
+      [
+        "VITRAKVI (LAROTRECTINIB) 20MG ORAL SYRUP",
+        1979617.98
+      ],
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1392332.34
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        901006.6
+      ]
+    ],
+    "IP Issue": [
+      [
+        "ALBUREL 20% INFUSION VIAL 100 ML",
+        775200.0
+      ],
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        758400.0
+      ],
+      [
+        "Kineret 100mg Inj",
+        596226.76
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        154380.0
+      ],
+      [
+        "Kineret 100mg Inj",
+        35146.28
+      ],
+      [
+        "DRESSING PAD 9X12",
+        34200.0
+      ]
+    ]
+  },
+  "Bangalore|2023|December": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        2015063.26
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        1171385.72
+      ],
+      [
+        "VARIPED VACC0.5ML",
+        732725.64
+      ]
+    ],
+    "IP Issue": [
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        790000.0
+      ],
+      [
+        "EVAC70XTRAHPWITHINTEGRATEDCABLE-E",
+        391000.0
+      ],
+      [
+        "HUMAN ALBUMIN (AIMAAIB ) 20% 100ML",
+        325185.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVITRUE 250ML SOLU (SEVOFLURANE)",
+        225600.0
+      ],
+      [
+        "EVAC70XTRAHPWITHINTEGRATEDCABLE-E",
+        161000.0
+      ],
+      [
+        "Oxygenator HilitePediatric 2400Lt",
+        124000.0
+      ]
+    ]
+  },
+  "Bangalore|2023|July": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1345333.78
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        1141433.64
+      ],
+      [
+        "VARIPED VACC0.5ML",
+        584200.2
+      ]
+    ],
+    "IP Issue": [
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        1123952.3
+      ],
+      [
+        "ALBUREL 20% INFUSION VIAL 100 ML",
+        524400.0
+      ],
+      [
+        "Kineret 100mg Inj",
+        456775.64
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        832340.0
+      ],
+      [
+        "VISIPAQUE INJ 320MG 100ML",
+        69000.0
+      ],
+      [
+        "LIMB-O TM VENTILATOR CIRCUTE",
+        66000.0
+      ]
+    ]
+  },
+  "Bangalore|2023|June": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1374707.88
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        1137703.46
+      ],
+      [
+        "VARIPED VACC0.5ML",
+        564396.78
+      ]
+    ],
+    "IP Issue": [
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        527856.9
+      ],
+      [
+        "Kineret 100mg Inj",
+        350115.31999999995
+      ],
+      [
+        "INFIMAB INJ",
+        312000.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "OMNIPAQUE INJ 300 MG  50 ML",
+        68600.0
+      ],
+      [
+        "ACTILYSE 50MG INJ",
+        65200.5
+      ],
+      [
+        "EVAC70XTRAHPWITHINTEGRATEDCABLE-E",
+        46000.0
+      ]
+    ]
+  },
+  "Bangalore|2023|May": {
+    "OP Sales": [
+      [
+        "VITRAKVI (LAROTRECTINIB) 20MG ORAL SYRUP",
+        3959600.04
+      ],
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1351208.5999999999
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        954924.84
+      ]
+    ],
+    "IP Issue": [
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        563047.36
+      ],
+      [
+        "Kineret 100mg Inj",
+        403358.76
+      ],
+      [
+        "CUROSURF INJ  VIAL 240 MG 3 ML",
+        195912.84
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "OMNIPAQUE 350 MG 50 ML",
+        65680.0
+      ],
+      [
+        "OMNIPAQUE INJ 300 MG  50 ML",
+        63000.0
+      ],
+      [
+        "MATRIDERM DERMAL MATRIX",
+        30632.0
+      ]
+    ]
+  },
+  "Bangalore|2023|November": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1774195.64
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        801765.2
+      ],
+      [
+        "VARIPED VACC0.5ML",
+        511587.72
+      ]
+    ],
+    "IP Issue": [
+      [
+        "Kineret 100mg Inj",
+        562146.88
+      ],
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        505600.0
+      ],
+      [
+        "INFIMAB INJ",
+        352000.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "LATEX GLOVES (MEDIUM)",
+        35195.6
+      ],
+      [
+        "Kineret 100mg Inj",
+        35132.64
+      ],
+      [
+        "CRRT REGIOCIT BAGS",
+        30359.88
+      ]
+    ]
+  },
+  "Bangalore|2023|October": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1756571.18
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        720205.5
+      ],
+      [
+        "VARIPED VACC0.5ML",
+        580899.6
+      ]
+    ],
+    "IP Issue": [
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        632000.0
+      ],
+      [
+        "ALBUREL 20% INFUSION VIAL 100 ML",
+        372400.0
+      ],
+      [
+        "Kineret 100mg Inj",
+        351403.4
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        208800.0
+      ],
+      [
+        "EVAC70XTRAHPWITHINTEGRATEDCABLE-E",
+        46000.0
+      ],
+      [
+        "Omnipaque 300 Mg/50 Ml Inj",
+        32200.0
+      ]
+    ]
+  },
+  "Bangalore|2023|September": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1586201.4
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        786151.78
+      ],
+      [
+        "VARIPED VACC0.5ML",
+        627107.54
+      ]
+    ],
+    "IP Issue": [
+      [
+        "Kineret 100mg Inj",
+        1361903.5
+      ],
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        1106000.0
+      ],
+      [
+        "ALBUREL 20% INFUSION VIAL 100 ML",
+        562400.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        104400.0
+      ],
+      [
+        "Omnipaque 300 Mg/50 Ml Inj",
+        70000.0
+      ],
+      [
+        "OMNIPAQUE INJ 300 MG  50 ML",
+        56000.0
+      ]
+    ]
+  },
+  "Bangalore|2024|April": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1480454.64
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        717592.6
+      ],
+      [
+        "VARIPED VACC0.5ML",
+        580899.58
+      ]
+    ],
+    "IP Issue": [
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        1358800.0
+      ],
+      [
+        "EVAC70XTRAHPWITHINTEGRATEDCABLE-E",
+        391000.0
+      ],
+      [
+        "THYMOGLOBULINE INJ 25MG 5ML",
+        287373.8
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        208800.0
+      ],
+      [
+        "Omnipaque 300 Mg/50 Ml Inj",
+        64400.0
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        37701.78
+      ]
+    ]
+  },
+  "Bangalore|2024|August": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1586201.4
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        1037279.8
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        368971.2
+      ]
+    ],
+    "IP Issue": [
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        1011200.0
+      ],
+      [
+        "Kineret 100mg Inj",
+        853883.92
+      ],
+      [
+        "HUMAN ALBUMIN (AIMAAIB ) 20% 100ML",
+        676450.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        208800.0
+      ],
+      [
+        "INFIMAB INJ",
+        108300.0
+      ],
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        94800.0
+      ]
+    ]
+  },
+  "Bangalore|2024|December": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1580326.5799999998
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        850468.42
+      ],
+      [
+        "VARILRIX VACC0.5ML",
+        618234.9
+      ]
+    ],
+    "IP Issue": [
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        632000.0
+      ],
+      [
+        "EVAC70XTRAHPWITHINTEGRATEDCABLE-E",
+        558600.0
+      ],
+      [
+        "Kineret 100mg Inj",
+        341409.64
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        202920.0
+      ],
+      [
+        "ROTAFLOW CENTRIFUGAL PUMP WITH FLOWPROBE",
+        64800.0
+      ],
+      [
+        "TERUMO GUIDE WIRE 0.025 -150 CMS",
+        58514.240000000005
+      ]
+    ]
+  },
+  "Bangalore|2024|February": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1680198.52
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        605214.64
+      ],
+      [
+        "VARILRIX VACC0.5ML",
+        582045.54
+      ]
+    ],
+    "IP Issue": [
+      [
+        "GLOBUCEL 10GM INJ 100ml",
+        1030722.0
+      ],
+      [
+        "Kineret 100mg Inj",
+        380129.44
+      ],
+      [
+        "ALBUREL 20% INFUSION VIAL 100 ML",
+        356900.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        213600.0
+      ],
+      [
+        "ACTEMRA PFS INJ 162 MG",
+        162964.36
+      ],
+      [
+        "DURAPORE 2 INCH",
+        95414.0
+      ]
+    ]
+  },
+  "Bangalore|2024|January": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        2020938.08
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        797254.98
+      ],
+      [
+        "VARIPED VACC0.5ML",
+        706321.14
+      ]
+    ],
+    "IP Issue": [
+      [
+        "Kineret 100mg Inj",
+        770491.56
+      ],
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        568800.0
+      ],
+      [
+        "EVAC70XTRAHPWITHINTEGRATEDCABLE-E",
+        299000.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        313200.0
+      ],
+      [
+        "DURAPORE 2 INCH",
+        46000.0
+      ],
+      [
+        "VISIPAQUE INJ 320 MG 50 ML",
+        39000.0
+      ]
+    ]
+  },
+  "Bangalore|2024|July": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1721322.26
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        1037221.16
+      ],
+      [
+        "VARILRIX VACC0.5ML",
+        723787.2
+      ]
+    ],
+    "IP Issue": [
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        1200800.0
+      ],
+      [
+        "ALBUREL 20% INFUSION VIAL 100 ML",
+        547800.0
+      ],
+      [
+        "Kineret 100mg Inj",
+        411110.92
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVITRUE 250ML SOLU (SEVOFLURANE)",
+        110400.0
+      ],
+      [
+        "THYMOGLOBULINE INJ 25MG 5ML",
+        82106.8
+      ],
+      [
+        "ALLIANCE INFLATION LITHODEVICE-5062",
+        82000.0
+      ]
+    ]
+  },
+  "Bangalore|2024|June": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1468705.0
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        1121003.1400000001
+      ],
+      [
+        "VARILRIX VACC0.5ML",
+        527761.5
+      ]
+    ],
+    "IP Issue": [
+      [
+        "ALBUREL 20% INFUSION VIAL 100 ML",
+        292700.0
+      ],
+      [
+        "EVAC70XTRAHPWITHINTEGRATEDCABLE-E",
+        276000.0
+      ],
+      [
+        "Kineret 100mg Inj",
+        208258.08
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "Omnipaque 300 Mg/50 Ml Inj",
+        58800.0
+      ],
+      [
+        "HAMSYL INJ VIAL 3750 IU 5 ML",
+        38913.0
+      ],
+      [
+        "Kineret 100mg Inj",
+        34709.68
+      ]
+    ]
+  },
+  "Bangalore|2024|March": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1838818.66
+      ],
+      [
+        "VARILRIX VACC0.5ML",
+        811244.82
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        713419.82
+      ]
+    ],
+    "IP Issue": [
+      [
+        "ILARIS (CANAKINUMAB) 150mg/6ml",
+        3615799.98
+      ],
+      [
+        "Kineret 100mg Inj",
+        1318486.1800000002
+      ],
+      [
+        "GLOBUCEL 10GM INJ 100ml",
+        1060598.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "OMNIPAQUE INJ 300 MG  50 ML",
+        119000.0
+      ],
+      [
+        "GLOBUCEL 10GM INJ 100ml",
+        90908.4
+      ],
+      [
+        "DURAPORE 1 INCH",
+        48756.0
+      ]
+    ]
+  },
+  "Bangalore|2024|May": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1768320.82
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        1069057.78
+      ],
+      [
+        "VARIPED VACC0.5ML",
+        831742.62
+      ]
+    ],
+    "IP Issue": [
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        695200.0
+      ],
+      [
+        "Kineret 100mg Inj",
+        277892.72
+      ],
+      [
+        "EVAC70XTRAHPWITHINTEGRATEDCABLE-E",
+        184000.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "ECMO PERMANENT LIFESUPPORT KIT-2050(A)",
+        320000.0
+      ],
+      [
+        "GONAL -F 900 IU INJ",
+        141472.0
+      ],
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        79000.0
+      ]
+    ]
+  },
+  "Bangalore|2024|November": {
+    "OP Sales": [
+      [
+        "VITRAKVI (LAROTRECTINIB) 20MG ORAL SYRUP",
+        6245009.4
+      ],
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1639074.78
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        775775.2
+      ]
+    ],
+    "IP Issue": [
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        853200.0
+      ],
+      [
+        "Kineret 100mg Inj",
+        843224.4
+      ],
+      [
+        "GLOBUCEL 10GM INJ 100ml",
+        576180.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SHIPPING CHARGES",
+        237123.58
+      ],
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        213600.0
+      ],
+      [
+        "OMNIPAQUE 350 MG 50 ML",
+        84594.0
+      ]
+    ]
+  },
+  "Bangalore|2024|October": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1738946.72
+      ],
+      [
+        "VITRAKVI (LAROTRECTINIB) 20MG ORAL SYRUP",
+        933117.5
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        824202.84
+      ]
+    ],
+    "IP Issue": [
+      [
+        "GLOBUCEL 10GM INJ 100ml",
+        576180.0
+      ],
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        505600.0
+      ],
+      [
+        "AIMAGLOB 5GM INJ 100ML",
+        435400.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVITRUE 250ML SOLU (SEVOFLURANE)",
+        220800.0
+      ],
+      [
+        "KABIFUNGIN INJ 50 MG",
+        115769.6
+      ],
+      [
+        "BALLON DIALATOR 3STAGE13.5MM",
+        96000.0
+      ]
+    ]
+  },
+  "Bangalore|2024|September": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1633199.96
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        930006.94
+      ],
+      [
+        "HAVRIX 720 MG VIAL ( HEPATITIS A )",
+        429221.76
+      ]
+    ],
+    "IP Issue": [
+      [
+        "GLOBUCEL 10GM INJ 100ml",
+        1123551.0
+      ],
+      [
+        "Kineret 100mg Inj",
+        867672.0
+      ],
+      [
+        "GLOBUCEL 5GM INJ 100ml",
+        749034.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVITRUE 250ML SOLU (SEVOFLURANE)",
+        110400.0
+      ],
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        79000.0
+      ],
+      [
+        "OMNIPAQUE INJ 300 MG  50 ML",
+        56000.0
+      ]
+    ]
+  },
+  "Bangalore|2025|February": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1680198.52
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        605214.64
+      ],
+      [
+        "VARILRIX VACC0.5ML",
+        582045.54
+      ]
+    ],
+    "IP Issue": [
+      [
+        "GLOBUCEL 10GM INJ 100ml",
+        1030722.0
+      ],
+      [
+        "Kineret 100mg Inj",
+        380129.44
+      ],
+      [
+        "ALBUREL 20% INFUSION VIAL 100 ML",
+        356900.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        213600.0
+      ],
+      [
+        "ACTEMRA PFS INJ 162 MG",
+        162964.36
+      ],
+      [
+        "DURAPORE 2 INCH",
+        95414.0
+      ]
+    ]
+  },
+  "Bangalore|2025|January": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1838818.66
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        819790.86
+      ],
+      [
+        "VARILRIX VACC0.5ML",
+        775055.46
+      ]
+    ],
+    "IP Issue": [
+      [
+        "Kineret 100mg Inj",
+        1024499.64
+      ],
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        347600.0
+      ],
+      [
+        "GLOBUCEL 10GM INJ 100ml",
+        288090.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        79000.0
+      ],
+      [
+        "DURAPORE 1 INCH",
+        52500.0
+      ],
+      [
+        "Kineret 100mg Inj",
+        50213.06
+      ]
+    ]
+  },
+  "Bangalore|2025|March": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1838818.66
+      ],
+      [
+        "VARILRIX VACC0.5ML",
+        811244.82
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        713419.82
+      ]
+    ],
+    "IP Issue": [
+      [
+        "ILARIS (CANAKINUMAB) 150mg/6ml",
+        3615799.98
+      ],
+      [
+        "Kineret 100mg Inj",
+        1318486.1800000002
+      ],
+      [
+        "GLOBUCEL 10GM INJ 100ml",
+        1060598.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "OMNIPAQUE INJ 300 MG  50 ML",
+        119000.0
+      ],
+      [
+        "GLOBUCEL 10GM INJ 100ml",
+        90908.4
+      ],
+      [
+        "DURAPORE 1 INCH",
+        48756.0
+      ]
+    ]
+  },
+  "Chennai|2023|April": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1164976.8
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        819747.66
+      ],
+      [
+        "VARIPED VACC0.5ML",
+        331214.82
+      ]
+    ],
+    "IP Issue": [
+      [
+        "PROBS(OXIMAX),NELLCOR",
+        220680.0
+      ],
+      [
+        "HAND CARE GLOVE",
+        210840.0
+      ],
+      [
+        "HEATED PATIENT CIRCUIT (RT-225 265)",
+        153600.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "BACTOSCRUB SOL 500ML",
+        26812.8
+      ],
+      [
+        "AVAGARD CHG HAND RUB 500 ML 9263",
+        22278.0
+      ],
+      [
+        "SEVORANE 250 ML",
+        17850.0
+      ]
+    ]
+  },
+  "Chennai|2023|May": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1367951.84
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        799631.34
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        462541.7
+      ]
+    ],
+    "IP Issue": [
+      [
+        "NEOLACTA PHBM 70CAL 50ML",
+        237996.56
+      ],
+      [
+        "PROBS(OXIMAX),NELLCOR",
+        219450.0
+      ],
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        203700.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "EVAC70XTRAHPWITHINTEGRATEDCABLE-E",
+        92000.0
+      ],
+      [
+        "GAUZE PADS 7.5 * 7.5 CM",
+        66800.0
+      ],
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        42500.0
+      ]
+    ]
+  },
+  "Chennai|2024|April": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        270241.72
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        155902.98
+      ],
+      [
+        "VARIPED VACC0.5ML",
+        101240.54
+      ]
+    ],
+    "IP Issue": [
+      [
+        "NEOLACTA PHBM 70CAL 50ML",
+        116014.0
+      ],
+      [
+        "AIRVO-2 TUBE & CHAMBER KIT (900PT562)",
+        48536.0
+      ],
+      [
+        "HEATED PATIENT CIRCUIT (RT-226 266)",
+        41088.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        17000.0
+      ],
+      [
+        "HEATED PATIENT CIRCUIT (RT-380)",
+        6848.0
+      ],
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        5874.82
+      ]
+    ]
+  },
+  "Chennai|2024|August": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1539202.8399999999
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        863190.4
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        705323.88
+      ]
+    ],
+    "IP Issue": [
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        1106000.0
+      ],
+      [
+        "PROBS(OXIMAX),NELLCOR",
+        300300.0
+      ],
+      [
+        "AMPHOMUL INJ 50MG10ML",
+        294767.9
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "EVAC70XTRAHPWITHINTEGRATEDCABLE-E",
+        115000.0
+      ],
+      [
+        "GAUZE PADS 7.5 * 7.5 CM",
+        70140.0
+      ],
+      [
+        "SEVITRUE 250ML SOLU (SEVOFLURANE)",
+        46000.0
+      ]
+    ]
+  },
+  "Chennai|2024|December": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        634480.5599999999
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        368321.54
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        190734.34
+      ]
+    ],
+    "IP Issue": [
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        189600.0
+      ],
+      [
+        "HEATED PATIENT CIRCUIT (RT-226 266)",
+        56222.08
+      ],
+      [
+        "MAMY POKO PREEMIES NB0 TAPE 10's",
+        43655.22
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "PREGELLED(CORTAUTRY)PLATE NEO (ADVANCE)",
+        16000.0
+      ],
+      [
+        "SEVITRUE 250ML SOLU (SEVOFLURANE)",
+        9200.0
+      ],
+      [
+        "PENTAXIM VACC0.5ML",
+        9142.62
+      ]
+    ]
+  },
+  "Chennai|2024|February": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        646230.2
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        287154.66000000003
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        220078.08
+      ]
+    ],
+    "IP Issue": [
+      [
+        "PREMICATH WITH STYLET 1261.203",
+        46656.0
+      ],
+      [
+        "PREEMIES 3S UP TO 3KG",
+        46500.0
+      ],
+      [
+        "Q-SYTE BI EXTENTION (385157)",
+        30768.42
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SPINAL NEEDLE 27 G WHITACARE",
+        11658.5
+      ],
+      [
+        "SURGICAL CLIPPER BLADE(9680)",
+        8000.0
+      ],
+      [
+        "VARILRIX VACC0.5ML",
+        7539.450000000001
+      ]
+    ]
+  },
+  "Chennai|2024|July": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1621450.3199999998
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        985608.0
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        881386.64
+      ]
+    ],
+    "IP Issue": [
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        632000.0
+      ],
+      [
+        "PREMICATH WITH STYLET 1261.203",
+        248446.0
+      ],
+      [
+        "HAND CARE GLOVE",
+        220682.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "BACTOSCRUB SOL 500ML",
+        45177.6
+      ],
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        43500.0
+      ],
+      [
+        "GAUZE PADS 7.5 * 7.5 CM",
+        41750.0
+      ]
+    ]
+  },
+  "Chennai|2024|June": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1568576.94
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        1020508.66
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        827594.28
+      ]
+    ],
+    "IP Issue": [
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        1295600.0
+      ],
+      [
+        "AMPHOMUL INJ 50MG10ML",
+        279300.0
+      ],
+      [
+        "HAND CARE GLOVE",
+        216846.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        86600.0
+      ],
+      [
+        "BACTOSCRUB SOL 500ML",
+        58370.4
+      ],
+      [
+        "PROXIMATE LINEAR CUTTER 75 MM (TLC75)",
+        50796.04
+      ]
+    ]
+  },
+  "Chennai|2024|March": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        610981.28
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        271201.56
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        199904.24
+      ]
+    ],
+    "IP Issue": [
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        63200.0
+      ],
+      [
+        "ANTI-D INJ 300MCG PFS",
+        47053.28
+      ],
+      [
+        "NAN PRO-1 TIN   400 GM",
+        42483.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVITRUE 250ML SOLU (SEVOFLURANE)",
+        18400.0
+      ],
+      [
+        "SIMILAC PLUS POWDER STAGE-2 400GM",
+        12948.8
+      ],
+      [
+        "PDS-II 6-0 W9093H",
+        10360.4
+      ]
+    ]
+  },
+  "Chennai|2024|May": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        328989.92
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        160932.08
+      ],
+      [
+        "VARIPED VACC0.5ML",
+        114303.8
+      ]
+    ],
+    "IP Issue": [
+      [
+        "PREMICATH WITH STYLET 1261.203",
+        32406.0
+      ],
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        31600.0
+      ],
+      [
+        "HEATED PATIENT CIRCUIT (RT-226 266)",
+        27392.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        17000.0
+      ],
+      [
+        "DISPOSABLE FOOTWEAR",
+        15200.0
+      ],
+      [
+        "PREMICATH (1261.20)28 G",
+        10204.0
+      ]
+    ]
+  },
+  "Chennai|2024|November": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        575732.36
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        291689.42
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        212742.14
+      ]
+    ],
+    "IP Issue": [
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        94800.0
+      ],
+      [
+        "NEOSURF INJ 5 ML",
+        61439.54
+      ],
+      [
+        "PREMICATH WITH STYLET 1261.203",
+        56596.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "BACCIRUB 500ML",
+        27805.8
+      ],
+      [
+        "SEVITRUE 250ML SOLU (SEVOFLURANE)",
+        17400.0
+      ],
+      [
+        "IMMUNOGLOBULIN (AIMAIG ) 5GM 100ML INJ",
+        7975.0
+      ]
+    ]
+  },
+  "Chennai|2024|October": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        516984.16
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        256485.54
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        195236.1
+      ]
+    ],
+    "IP Issue": [
+      [
+        "NEOSURF INJ 5 ML",
+        107518.7
+      ],
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        94800.0
+      ],
+      [
+        "AIRVO-2 TUBE & CHAMBER KIT (900PT562)",
+        72804.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "MULTICATH 4.5FR X 06CM 2LUMAN 1202.063",
+        3628.69
+      ],
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        2937.41
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        2584.25
+      ]
+    ]
+  },
+  "Chennai|2024|September": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1462830.18
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        859980.86
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        780186.0
+      ]
+    ],
+    "IP Issue": [
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        790000.0
+      ],
+      [
+        "Q-SYTE BI EXTENTION (385157)",
+        287525.58
+      ],
+      [
+        "PREMICATH WITH STYLET 1261.203",
+        259248.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        61700.0
+      ],
+      [
+        "BACTOSCRUB SOL 500ML",
+        61074.8
+      ],
+      [
+        "GAUZE PADS 7.5 * 7.5 CM",
+        33400.0
+      ]
+    ]
+  },
+  "Chennai|2025|February": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        646230.2
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        287154.66000000003
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        220078.08
+      ]
+    ],
+    "IP Issue": [
+      [
+        "PREMICATH WITH STYLET 1261.203",
+        46656.0
+      ],
+      [
+        "PREEMIES 3S UP TO 3KG",
+        46500.0
+      ],
+      [
+        "Q-SYTE BI EXTENTION (385157)",
+        30768.42
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SPINAL NEEDLE 27 G WHITACARE",
+        11658.5
+      ],
+      [
+        "SURGICAL CLIPPER BLADE(9680)",
+        8000.0
+      ],
+      [
+        "VARILRIX VACC0.5ML",
+        7539.450000000001
+      ]
+    ]
+  },
+  "Chennai|2025|January": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        587482.0
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        319060.66000000003
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        207240.2
+      ]
+    ],
+    "IP Issue": [
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        284400.0
+      ],
+      [
+        "NEOSURF INJ 5 ML",
+        91359.88
+      ],
+      [
+        "PREMICATH WITH STYLET 1261.203",
+        57458.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVITRUE 250ML SOLU (SEVOFLURANE)",
+        17900.0
+      ],
+      [
+        "PREMICATH WITH STYLET 1261.203",
+        11664.0
+      ],
+      [
+        "PICC LINE CATHETER 4FR",
+        7135.0
+      ]
+    ]
+  },
+  "Chennai|2025|March": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        610981.28
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        271201.56
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        199904.24
+      ]
+    ],
+    "IP Issue": [
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        63200.0
+      ],
+      [
+        "ANTI-D INJ 300MCG PFS",
+        47053.28
+      ],
+      [
+        "NAN PRO-1 TIN   400 GM",
+        42483.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVITRUE 250ML SOLU (SEVOFLURANE)",
+        18400.0
+      ],
+      [
+        "SIMILAC PLUS POWDER STAGE-2 400GM",
+        12948.8
+      ],
+      [
+        "PDS-II 6-0 W9093H",
+        10360.4
+      ]
+    ]
+  },
+  "Hyderabad East|2023|April": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1938690.54
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        1443359.7
+      ],
+      [
+        "FLUARIX TETRA VACCINE 0.5 ML",
+        594084.94
+      ]
+    ],
+    "IP Issue": [
+      [
+        "ZAVICEFTA INJ 2.5 GM",
+        858513.6
+      ],
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        770000.0
+      ],
+      [
+        "EVAC70XTRAHPWITHINTEGRATEDCABLE-E",
+        698768.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "ZAVICEFTA INJ 2.5 GM",
+        82274.22
+      ],
+      [
+        "AVAGARD CHG HAND RUB 500 ML 9263",
+        55197.82
+      ],
+      [
+        "EVAC70XTRAHPWITHINTEGRATEDCABLE-E",
+        41104.0
+      ]
+    ]
+  },
+  "Hyderabad East|2023|August": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1815319.38
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        1357864.52
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        1036351.66
+      ]
+    ],
+    "IP Issue": [
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        1503844.0
+      ],
+      [
+        "PLASMANATE INJ 5 % 250 ML",
+        574488.0
+      ],
+      [
+        "ALBUREL 20% INFUSION VIAL 100 ML",
+        560272.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        174000.0
+      ],
+      [
+        "Omnipaque 300 Mg/50 Ml Inj",
+        120400.0
+      ],
+      [
+        "FACEIN SPRAY 250ML",
+        55224.0
+      ]
+    ]
+  },
+  "Hyderabad East|2023|December": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1709572.6199999999
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        1292485.86
+      ],
+      [
+        "VARIPED VACC0.5ML",
+        680331.24
+      ]
+    ],
+    "IP Issue": [
+      [
+        "EVAC70XTRAHPWITHINTEGRATEDCABLE-E",
+        828000.0
+      ],
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        459780.0
+      ],
+      [
+        "HAMSYL INJ VIAL 3750 IU 5 ML",
+        389130.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        165300.0
+      ],
+      [
+        "INFIMAB INJ",
+        128000.0
+      ],
+      [
+        "Omnipaque 300 Mg/50 Ml Inj",
+        56000.0
+      ]
+    ]
+  },
+  "Hyderabad East|2023|July": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1827069.02
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        1473534.52
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        1465958.1199999999
+      ]
+    ],
+    "IP Issue": [
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        921456.0
+      ],
+      [
+        "GRAFALON INJ 20 MG 5 ML",
+        677753.5599999999
+      ],
+      [
+        "AMBISOME INJ 50 MG",
+        669600.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        778100.0
+      ],
+      [
+        "AMBISOME INJ 50 MG",
+        54000.0
+      ],
+      [
+        "ZAVICEFTA INJ 2.5 GM",
+        42925.68
+      ]
+    ]
+  },
+  "Hyderabad East|2023|June": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1832943.84
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        1413185.0
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        1339132.84
+      ]
+    ],
+    "IP Issue": [
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        887383.2
+      ],
+      [
+        "GRAFALON INJ 20 MG 5 ML",
+        800981.48
+      ],
+      [
+        "EMTREO  INJ 5 GM",
+        548250.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "AVAGARD CHG HAND RUB 500 ML 9263",
+        85513.92
+      ],
+      [
+        "FACEIN SPRAY 250ML",
+        25204.8
+      ],
+      [
+        "PEDICLORYL SYRUP 500MG 30 ML",
+        20112.71
+      ]
+    ]
+  },
+  "Hyderabad East|2023|May": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1897566.86
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        1448388.86
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        1001552.14
+      ]
+    ],
+    "IP Issue": [
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        1857472.8
+      ],
+      [
+        "EVAC70XTRAHPWITHINTEGRATEDCABLE-E",
+        1313904.0
+      ],
+      [
+        "GRAFALON INJ 20 MG 5 ML",
+        431297.9
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        170000.0
+      ],
+      [
+        "EVAC70XTRAHPWITHINTEGRATEDCABLE-E",
+        89552.0
+      ],
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        70000.0
+      ]
+    ]
+  },
+  "Hyderabad East|2023|November": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1615575.5
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        1274213.6
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        1240054.9
+      ]
+    ],
+    "IP Issue": [
+      [
+        "EVAC70XTRAHPWITHINTEGRATEDCABLE-E",
+        598000.0
+      ],
+      [
+        "GRAFALON INJ 20 MG 5 ML",
+        431297.68
+      ],
+      [
+        "AMBISOME INJ 50 MG",
+        356400.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        200100.0
+      ],
+      [
+        "Omnipaque 300 Mg/50 Ml Inj",
+        123900.0
+      ],
+      [
+        "CUROSURF INJ  VIAL 120 MG 1.5 ML",
+        62858.74
+      ]
+    ]
+  },
+  "Hyderabad East|2023|October": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1832943.84
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        1362887.5
+      ],
+      [
+        "FLUARIX TETRA VACCINE 0.5 ML",
+        780672.0
+      ]
+    ],
+    "IP Issue": [
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        980864.0
+      ],
+      [
+        "EVAC70XTRAHPWITHINTEGRATEDCABLE-E",
+        690000.0
+      ],
+      [
+        "AMPHONEX  INJ 50 MG 10 ML",
+        391104.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        226200.0
+      ],
+      [
+        "NOVOSEVEN  INJ  VIAL 1 MG",
+        175238.08
+      ],
+      [
+        "Omnipaque 300 Mg/50 Ml Inj",
+        142800.0
+      ]
+    ]
+  },
+  "Hyderabad East|2023|September": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1797694.92
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        1367922.8800000001
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        932993.44
+      ]
+    ],
+    "IP Issue": [
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        1869772.0
+      ],
+      [
+        "ALBUREL 20% INFUSION VIAL 100 ML",
+        619248.0
+      ],
+      [
+        "PLASMANATE INJ 5 % 250 ML",
+        494700.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "Omnipaque 300 Mg/50 Ml Inj",
+        163100.0
+      ],
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        139200.0
+      ],
+      [
+        "Cotton Balls 50 Nos(Non Sterile)",
+        47880.0
+      ]
+    ]
+  },
+  "Hyderabad East|2024|April": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1668448.8
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        1262311.1400000001
+      ],
+      [
+        "EVAC70XTRAHPWITHINTEGRATEDCABLE-E",
+        1050656.0
+      ]
+    ],
+    "IP Issue": [
+      [
+        "GRAFALON INJ 20 MG 5 ML",
+        1232278.4
+      ],
+      [
+        "EVAC70XTRAHPWITHINTEGRATEDCABLE-E",
+        1104000.0
+      ],
+      [
+        "EMTREO  INJ 5 GM",
+        580500.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        234900.0
+      ],
+      [
+        "Omnipaque 300 Mg/50 Ml Inj",
+        120400.0
+      ],
+      [
+        "EVAC70XTRAHPWITHINTEGRATEDCABLE-E",
+        57500.0
+      ]
+    ]
+  },
+  "Hyderabad East|2024|August": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1815319.38
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        1320133.46
+      ],
+      [
+        "MENACTRA VACC4MCG0.5ML",
+        1107410.26
+      ]
+    ],
+    "IP Issue": [
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        1869772.0
+      ],
+      [
+        "ALBUREL 20% INFUSION VIAL 100 ML",
+        611876.0
+      ],
+      [
+        "EVAC70XTRAHPWITHINTEGRATEDCABLE-E",
+        345000.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        61304.0
+      ],
+      [
+        "Omnipaque 300 Mg/50 Ml Inj",
+        60900.0
+      ],
+      [
+        "ACTILYSE INJ 20MG20ML",
+        57375.0
+      ]
+    ]
+  },
+  "Hyderabad East|2024|December": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1809444.56
+      ],
+      [
+        "MENACTRA VACC4MCG0.5ML",
+        1730072.32
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        1433506.46
+      ]
+    ],
+    "IP Issue": [
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        1318036.0
+      ],
+      [
+        "EVAC70XTRAHPWITHINTEGRATEDCABLE-E",
+        999600.0
+      ],
+      [
+        "ALBUREL 20% INFUSION VIAL 100 ML",
+        652131.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        240300.0
+      ],
+      [
+        "Omnipaque 300 Mg/50 Ml Inj",
+        94500.0
+      ],
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        91956.0
+      ]
+    ]
+  },
+  "Hyderabad East|2024|February": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1727197.08
+      ],
+      [
+        "MENACTRA VACC4MCG0.5ML",
+        1533053.16
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        1297513.44
+      ]
+    ],
+    "IP Issue": [
+      [
+        "EVAC70XTRAHPWITHINTEGRATEDCABLE-E",
+        1176000.0
+      ],
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        1042168.0
+      ],
+      [
+        "ALBUREL 20% INFUSION VIAL 100 ML",
+        732641.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        178000.0
+      ],
+      [
+        "Omnipaque 300 Mg/50 Ml Inj",
+        59500.0
+      ],
+      [
+        "TRAZOGRAF INFUSION 76 % 20 ML",
+        35739.0
+      ]
+    ]
+  },
+  "Hyderabad East|2024|January": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1850568.3
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        1463476.26
+      ],
+      [
+        "FLUARIX TETRA VACCINE 0.5 ML",
+        847440.0
+      ]
+    ],
+    "IP Issue": [
+      [
+        "EVAC70XTRAHPWITHINTEGRATEDCABLE-E",
+        920000.0
+      ],
+      [
+        "AMPHONEX  INJ 50 MG 10 ML",
+        391104.0
+      ],
+      [
+        "PLASMANATE INJ 5 % 250 ML",
+        375972.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        217500.0
+      ],
+      [
+        "Omnipaque 300 Mg/50 Ml Inj",
+        83300.0
+      ],
+      [
+        "ALBUREL 20% INFUSION VIAL 100 ML",
+        36860.0
+      ]
+    ]
+  },
+  "Hyderabad East|2024|July": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1762446.0
+      ],
+      [
+        "MENACTRA VACC4MCG0.5ML",
+        1724691.78
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        1410177.6
+      ]
+    ],
+    "IP Issue": [
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        1200084.0
+      ],
+      [
+        "ALBUREL 20% INFUSION VIAL 100 ML",
+        619927.0
+      ],
+      [
+        "SIMULECT INJ 20 MG 5 ML",
+        264440.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        130500.0
+      ],
+      [
+        "Omnipaque 300 Mg/50 Ml Inj",
+        90300.0
+      ],
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        61304.0
+      ]
+    ]
+  },
+  "Hyderabad East|2024|June": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1697822.98
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        1541999.3
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        1324252.8
+      ]
+    ],
+    "IP Issue": [
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        1207068.0
+      ],
+      [
+        "ALBUREL 20% INFUSION VIAL 100 ML",
+        370346.0
+      ],
+      [
+        "AMBISOME INJ 50 MG",
+        324000.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        174000.0
+      ],
+      [
+        "Omnipaque 300 Mg/50 Ml Inj",
+        72800.0
+      ],
+      [
+        "MEJOR ASP INJ 3750 IU 5 ML",
+        71917.70999999999
+      ]
+    ]
+  },
+  "Hyderabad East|2024|March": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1903441.68
+      ],
+      [
+        "MENACTRA VACC4MCG0.5ML",
+        1848064.12
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        1441090.74
+      ]
+    ],
+    "IP Issue": [
+      [
+        "EVAC70XTRAHPWITHINTEGRATEDCABLE-E",
+        1646400.0
+      ],
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        674344.0
+      ],
+      [
+        "AMBISOME INJ 50 MG",
+        421200.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        129050.0
+      ],
+      [
+        "Omnipaque 300 Mg/50 Ml Inj",
+        79100.0
+      ],
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        45978.0
+      ]
+    ]
+  },
+  "Hyderabad East|2024|May": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1738946.64
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        1308457.84
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        953210.04
+      ]
+    ],
+    "IP Issue": [
+      [
+        "EVAC70XTRAHPWITHINTEGRATEDCABLE-E",
+        1081000.0
+      ],
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        858256.0
+      ],
+      [
+        "GRAFALON INJ 20 MG 5 ML",
+        616139.2
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        113100.0
+      ],
+      [
+        "Omnipaque 300 Mg/50 Ml Inj",
+        80500.0
+      ],
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        76630.0
+      ]
+    ]
+  },
+  "Hyderabad East|2024|November": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1862317.94
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        1383010.2
+      ],
+      [
+        "MENACTRA VACC4MCG0.5ML",
+        1365047.38
+      ]
+    ],
+    "IP Issue": [
+      [
+        "EVAC70XTRAHPWITHINTEGRATEDCABLE-E",
+        1135000.0
+      ],
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        1103472.0
+      ],
+      [
+        "ALBUREL 20% INFUSION VIAL 100 ML",
+        555519.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        115700.0
+      ],
+      [
+        "Omnipaque 300 Mg/50 Ml Inj",
+        85400.0
+      ],
+      [
+        "EVAC70XTRAHPWITHINTEGRATEDCABLE-E",
+        40900.0
+      ]
+    ]
+  },
+  "Hyderabad East|2024|October": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1991563.98
+      ],
+      [
+        "MENACTRA VACC4MCG0.5ML",
+        1519052.68
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        1438330.6
+      ]
+    ],
+    "IP Issue": [
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        1563252.0
+      ],
+      [
+        "Kineret 100mg Inj",
+        683043.0
+      ],
+      [
+        "EVAC70XTRAHPWITHINTEGRATEDCABLE-E",
+        598000.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        222500.0
+      ],
+      [
+        "Omnipaque 300 Mg/50 Ml Inj",
+        138600.0
+      ],
+      [
+        "Kineret 100mg Inj",
+        70313.25
+      ]
+    ]
+  },
+  "Hyderabad East|2024|September": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1680198.52
+      ],
+      [
+        "MENACTRA VACC4MCG0.5ML",
+        1281044.46
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        1212019.82
+      ]
+    ],
+    "IP Issue": [
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        1471296.0
+      ],
+      [
+        "ALBUREL 20% INFUSION VIAL 100 ML",
+        950018.0
+      ],
+      [
+        "Kineret 100mg Inj",
+        557036.68
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "Omnipaque 300 Mg/50 Ml Inj",
+        114100.0
+      ],
+      [
+        "CYTOSORB 300ML DEVICE",
+        79750.0
+      ],
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        76630.0
+      ]
+    ]
+  },
+  "Hyderabad East|2025|February": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1727197.08
+      ],
+      [
+        "MENACTRA VACC4MCG0.5ML",
+        1533053.16
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        1297513.44
+      ]
+    ],
+    "IP Issue": [
+      [
+        "EVAC70XTRAHPWITHINTEGRATEDCABLE-E",
+        1176000.0
+      ],
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        1042168.0
+      ],
+      [
+        "ALBUREL 20% INFUSION VIAL 100 ML",
+        732641.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        178000.0
+      ],
+      [
+        "Omnipaque 300 Mg/50 Ml Inj",
+        59500.0
+      ],
+      [
+        "TRAZOGRAF INFUSION 76 % 20 ML",
+        35739.0
+      ]
+    ]
+  },
+  "Hyderabad East|2025|January": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1856443.12
+      ],
+      [
+        "MENACTRA VACC4MCG0.5ML",
+        1624309.42
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        1419820.04
+      ]
+    ],
+    "IP Issue": [
+      [
+        "EVAC70XTRAHPWITHINTEGRATEDCABLE-E",
+        1470000.0
+      ],
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        1287384.0
+      ],
+      [
+        "ALBUREL 20% INFUSION VIAL 100 ML",
+        499162.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        80100.0
+      ],
+      [
+        "Omnipaque 300 Mg/50 Ml Inj",
+        58100.0
+      ],
+      [
+        "TRAZOGRAF INFUSION 76 % 20 ML",
+        40071.0
+      ]
+    ]
+  },
+  "Hyderabad East|2025|March": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1903441.68
+      ],
+      [
+        "MENACTRA VACC4MCG0.5ML",
+        1848064.12
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        1441090.74
+      ]
+    ],
+    "IP Issue": [
+      [
+        "EVAC70XTRAHPWITHINTEGRATEDCABLE-E",
+        1646400.0
+      ],
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        674344.0
+      ],
+      [
+        "AMBISOME INJ 50 MG",
+        421200.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        129050.0
+      ],
+      [
+        "Omnipaque 300 Mg/50 Ml Inj",
+        79100.0
+      ],
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        45978.0
+      ]
+    ]
+  },
+  "Hyderabad West|2023|April": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        399487.76
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        311805.98
+      ],
+      [
+        "DUPHASTON 10MG TAB 10S",
+        163560.96
+      ]
+    ],
+    "IP Issue": [
+      [
+        "VICRYL PLUS 1  VP - (2347)",
+        38947.2
+      ],
+      [
+        "BCV-INTRAFIX SAFESET",
+        37422.0
+      ],
+      [
+        "MOTHER GOWN",
+        33060.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "AVAGARD CHG HAND RUB 500 ML 9263",
+        22165.0
+      ],
+      [
+        "SLE VENTILATOR DISPOSABLE FLOW SENSOR",
+        20495.96
+      ],
+      [
+        "PDS II 7-0 Z1711E",
+        10277.2
+      ]
+    ]
+  },
+  "Hyderabad West|2023|August": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        910597.1
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        598466.2
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        346462.5
+      ]
+    ],
+    "IP Issue": [
+      [
+        "LSCS DRAPE PACK",
+        81620.0
+      ],
+      [
+        "MOTHER GOWN",
+        75240.0
+      ],
+      [
+        "SURVANTA INJ 400 MG  8 ML",
+        65630.6
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        52200.0
+      ],
+      [
+        "ABSORBABLE TRACKER WITH 15 TACKS",
+        30548.0
+      ],
+      [
+        "GAUZE CLOTH 100CM* 18M",
+        18522.0
+      ]
+    ]
+  },
+  "Hyderabad West|2023|December": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1251336.66
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        849922.58
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        759396.5
+      ]
+    ],
+    "IP Issue": [
+      [
+        "MOTHER GOWN",
+        104120.0
+      ],
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        91956.0
+      ],
+      [
+        "AIRVO2 TUBE AND CHAMBER KIT 900PT561",
+        79616.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        52200.0
+      ],
+      [
+        "3M 9263 AVAGARD CHG HANDRUB-500ML",
+        15621.0
+      ],
+      [
+        "BACTOSCRUB SOL 500ML",
+        12266.5
+      ]
+    ]
+  },
+  "Hyderabad West|2023|July": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        687353.94
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        568291.46
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        506552.46
+      ]
+    ],
+    "IP Issue": [
+      [
+        "MOTHER GOWN",
+        57760.0
+      ],
+      [
+        "BCV-INTRAFIX SAFESET",
+        53946.0
+      ],
+      [
+        "LSCS DRAPE PACK",
+        52360.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        60500.0
+      ],
+      [
+        "TIMESH TM652015",
+        51064.44
+      ],
+      [
+        "UMBILICAL CATH DOUBLE LUMEN 5FR",
+        17864.32
+      ]
+    ]
+  },
+  "Hyderabad West|2023|June": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        634480.5599999999
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        452621.54
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        423374.9
+      ]
+    ],
+    "IP Issue": [
+      [
+        "LSCS DRAPE PACK",
+        58960.0
+      ],
+      [
+        "BCV-INTRAFIX SAFESET",
+        47938.0
+      ],
+      [
+        "MOTHER GOWN",
+        44460.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        59500.0
+      ],
+      [
+        "AVAGARD CHG HAND RUB 500 ML 9263",
+        14300.0
+      ],
+      [
+        "DURAPORE 1 INCH",
+        10032.0
+      ]
+    ]
+  },
+  "Hyderabad West|2023|May": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        640355.38
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        442563.22
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        294683.9
+      ]
+    ],
+    "IP Issue": [
+      [
+        "EVAC70XTRAHPWITHINTEGRATEDCABLE-E",
+        69000.0
+      ],
+      [
+        "MOTHER GOWN",
+        53580.0
+      ],
+      [
+        "NEOLACTA MMF PLUS 0.5 GM SACHET",
+        49385.4
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "TIMESH TM652015",
+        51064.44
+      ],
+      [
+        "ABSORBTACK FIX DEVICE COVIDIEN-ABSTACK30",
+        43600.0
+      ],
+      [
+        "AVENT DAISY ELECTR BREAST PUMP SCF323/11",
+        10100.0
+      ]
+    ]
+  },
+  "Hyderabad West|2023|November": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1216087.74
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        799631.36
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        563420.16
+      ]
+    ],
+    "IP Issue": [
+      [
+        "MOTHER GOWN",
+        94240.0
+      ],
+      [
+        "EVAC70XTRAHPWITHINTEGRATEDCABLE-E",
+        69000.0
+      ],
+      [
+        "ADVACRYL PLUS ADVA2347P",
+        65496.64
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        17400.0
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        14475.21
+      ],
+      [
+        "HAND CARE GLOVE",
+        11340.0
+      ]
+    ]
+  },
+  "Hyderabad West|2023|October": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1133840.26
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        709107.04
+      ],
+      [
+        "GARDASIL 9 VACCINE 0.5ML",
+        323687.46
+      ]
+    ],
+    "IP Issue": [
+      [
+        "KIWI",
+        83850.0
+      ],
+      [
+        "MOTHER GOWN",
+        76760.0
+      ],
+      [
+        "AIRVO2 TUBE AND CHAMBER KIT 900PT561",
+        69664.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "ABSORBTACK FIX DEVICE COVIDIEN-ABSTACK30",
+        43214.0
+      ],
+      [
+        "AVENT DAISY ELECTR BREAST PUMP SCF323/11",
+        11000.0
+      ],
+      [
+        "ZAVICEFTA INJ 2.5 GM",
+        10731.42
+      ]
+    ]
+  },
+  "Hyderabad West|2023|September": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1039843.1399999999
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        694019.7
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        448764.42
+      ]
+    ],
+    "IP Issue": [
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        122608.0
+      ],
+      [
+        "MAJOR PACK",
+        70800.0
+      ],
+      [
+        "MOTHER GOWN",
+        70680.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "HAND CARE GLOVE",
+        43190.0
+      ],
+      [
+        "MISOPROST TAB 200MCG 4S",
+        40011.84
+      ],
+      [
+        "MIFEGEST TAB 200MG12S",
+        31144.94
+      ]
+    ]
+  },
+  "Hyderabad West|2024|April": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1545077.66
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        925359.56
+      ],
+      [
+        "GARDASIL 9 VACCINE 0.5ML",
+        739857.02
+      ]
+    ],
+    "IP Issue": [
+      [
+        "MOTHER GOWN",
+        165680.0
+      ],
+      [
+        "LSCS DRAPE PACK",
+        133980.0
+      ],
+      [
+        "KIWI",
+        122720.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "MIFEGEST TAB 200MG12S",
+        9326.02
+      ],
+      [
+        "AVENT ELECTRICAL BREAST PUMP",
+        8800.0
+      ],
+      [
+        "HAND CARE GLOVE",
+        7791.0
+      ]
+    ]
+  },
+  "Hyderabad West|2024|August": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1445205.72
+      ],
+      [
+        "GARDASIL 9 VACCINE 0.5ML",
+        801511.78
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        793262.8
+      ]
+    ],
+    "IP Issue": [
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        183912.0
+      ],
+      [
+        "MOTHER GOWN",
+        167200.0
+      ],
+      [
+        "AIRVO2 TUBE AND CHAMBER KIT 900PT561",
+        149080.96
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "HAND CARE GLOVE",
+        12727.5
+      ],
+      [
+        "AIRVO-2 TUBE & CHAMBER KIT (900PT562)",
+        12134.0
+      ],
+      [
+        "LACTODEX HMF SACHET 1 GM",
+        9743.8
+      ]
+    ]
+  },
+  "Hyderabad West|2024|December": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1756571.18
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        1137045.02
+      ],
+      [
+        "GARDASIL 9 VACCINE 0.5ML",
+        909407.58
+      ]
+    ],
+    "IP Issue": [
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        245216.0
+      ],
+      [
+        "MOTHER GOWN",
+        158840.0
+      ],
+      [
+        "VICRYL PLUS 1  VP - (2347)",
+        109811.64
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "Protack 5mm (Covidien)",
+        46930.0
+      ],
+      [
+        "HAND CARE GLOVE",
+        24229.0
+      ],
+      [
+        "DURAPORE 1 INCH",
+        20900.0
+      ]
+    ]
+  },
+  "Hyderabad West|2024|February": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1662574.06
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        994405.78
+      ],
+      [
+        "GARDASIL 9 VACCINE 0.5ML",
+        878580.2
+      ]
+    ],
+    "IP Issue": [
+      [
+        "MOTHER GOWN",
+        145920.0
+      ],
+      [
+        "EVAC70XTRAHPWITHINTEGRATEDCABLE-E",
+        117600.0
+      ],
+      [
+        "VICRYL PLUS 1  VP - (2347)",
+        107918.34
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        80100.0
+      ],
+      [
+        "CIRCULAR STAPLER 33 MM CDH33B-Ethicon",
+        44638.0
+      ],
+      [
+        "SURGICEL SNOW 2INX4IN 2082",
+        31959.48
+      ]
+    ]
+  },
+  "Hyderabad West|2024|January": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1245461.8399999999
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        834835.28
+      ],
+      [
+        "FLUARIX TETRA VACCINE 0.5 ML",
+        513600.0
+      ]
+    ],
+    "IP Issue": [
+      [
+        "EVAC70XTRAHPWITHINTEGRATEDCABLE-E",
+        115000.0
+      ],
+      [
+        "MOTHER GOWN",
+        109440.0
+      ],
+      [
+        "LSCS DRAPE PACK",
+        73920.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        87000.0
+      ],
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        15326.0
+      ],
+      [
+        "MIFEGEST TAB 200MG12S",
+        12479.24
+      ]
+    ]
+  },
+  "Hyderabad West|2024|July": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1368833.06
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        869356.8
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        774145.68
+      ]
+    ],
+    "IP Issue": [
+      [
+        "MOTHER GOWN",
+        153520.0
+      ],
+      [
+        "KIWI",
+        137540.0
+      ],
+      [
+        "VICRYL PLUS 1  VP - (2347)",
+        96558.5
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "KIWI",
+        11505.0
+      ],
+      [
+        "DURAPORE 1 INCH",
+        11500.0
+      ],
+      [
+        "BACTOSCRUB SOL 500ML",
+        7665.8
+      ]
+    ]
+  },
+  "Hyderabad West|2024|June": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1603825.8599999999
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        965390.4
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        896160.48
+      ]
+    ],
+    "IP Issue": [
+      [
+        "MOTHER GOWN",
+        157700.0
+      ],
+      [
+        "EVAC70XTRAHPWITHINTEGRATEDCABLE-E",
+        115000.0
+      ],
+      [
+        "VICRYL PLUS 1  VP - (2347)",
+        83305.36
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "3M 9263 AVAGARD CHG HANDRUB-500ML",
+        39114.0
+      ],
+      [
+        "BACTOSCRUB SOL 500ML",
+        29829.96
+      ],
+      [
+        "DURAPORE 1 INCH",
+        25868.0
+      ]
+    ]
+  },
+  "Hyderabad West|2024|March": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1785945.28
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        1095441.7
+      ],
+      [
+        "GARDASIL 9 VACCINE 0.5ML",
+        1094371.82
+      ]
+    ],
+    "IP Issue": [
+      [
+        "MOTHER GOWN",
+        147440.0
+      ],
+      [
+        "AIRVO-2 TUBE & CHAMBER KIT (900PT562)",
+        116838.0
+      ],
+      [
+        "VICRYL PLUS 1  VP - (2347)",
+        108549.42
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "MIFEGEST TAB 200MG12S",
+        32255.6
+      ],
+      [
+        "NITRILE EXAMINATION GLOVES P F- MEDIUM",
+        23223.02
+      ],
+      [
+        "MISOPROST TAB 200MCG 4S",
+        20073.62
+      ]
+    ]
+  },
+  "Hyderabad West|2024|May": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1257211.48
+      ],
+      [
+        "GARDASIL 9 VACCINE 0.5ML",
+        909407.58
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        833824.36
+      ]
+    ],
+    "IP Issue": [
+      [
+        "MOTHER GOWN",
+        176320.0
+      ],
+      [
+        "LSCS DRAPE PACK",
+        113960.0
+      ],
+      [
+        "TRUBARB BSN0316U",
+        103302.54
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        113100.0
+      ],
+      [
+        "SODA LIME 5KG JAR",
+        28320.0
+      ],
+      [
+        "DURAPORE 1 INCH",
+        16500.0
+      ]
+    ]
+  },
+  "Hyderabad West|2024|November": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1874067.58
+      ],
+      [
+        "GARDASIL 9 VACCINE 0.5ML",
+        1140612.88
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        1101379.02
+      ]
+    ],
+    "IP Issue": [
+      [
+        "AIRVO-2 TUBE & CHAMBER KIT (900PT562)",
+        232828.0
+      ],
+      [
+        "MOTHER GOWN",
+        174420.0
+      ],
+      [
+        "AEROGEN SOLO NEBULISER -AG-AS3200",
+        144000.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "CIRCULAR STAPLER 33 MM CDH33B-Ethicon",
+        44638.0
+      ],
+      [
+        "EEA AUTO SUTURE CIRCULAR STAPLER 33MM-4.",
+        36653.4
+      ],
+      [
+        "HAND CARE GLOVE",
+        34029.0
+      ]
+    ]
+  },
+  "Hyderabad West|2024|October": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1433456.0799999998
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        900213.92
+      ],
+      [
+        "GARDASIL 9 VACCINE 0.5ML",
+        816925.46
+      ]
+    ],
+    "IP Issue": [
+      [
+        "MOTHER GOWN",
+        163400.0
+      ],
+      [
+        "AEROGEN SOLO NEBULISER -AG-AS3200",
+        163200.0
+      ],
+      [
+        "AIRVO-2 TUBE & CHAMBER KIT (900PT562)",
+        157742.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVITRUE 250ML SOLU (SEVOFLURANE)",
+        70656.0
+      ],
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        35200.0
+      ],
+      [
+        "BACCIRUB 500ML",
+        20217.6
+      ]
+    ]
+  },
+  "Hyderabad West|2024|September": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1315959.68
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        819747.86
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        751935.06
+      ]
+    ],
+    "IP Issue": [
+      [
+        "MOTHER GOWN",
+        182780.0
+      ],
+      [
+        "KIWI",
+        138060.0
+      ],
+      [
+        "AIRVO2 TUBE AND CHAMBER KIT 900PT561",
+        127783.68
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "PRISMAFLEX HF20 KIT",
+        28940.0
+      ],
+      [
+        "BACTOSCRUB SOL 500ML",
+        25890.239999999998
+      ],
+      [
+        "DURAPORE 1 INCH",
+        12000.0
+      ]
+    ]
+  },
+  "Hyderabad West|2025|February": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1662574.06
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        994405.78
+      ],
+      [
+        "GARDASIL 9 VACCINE 0.5ML",
+        878580.2
+      ]
+    ],
+    "IP Issue": [
+      [
+        "MOTHER GOWN",
+        145920.0
+      ],
+      [
+        "EVAC70XTRAHPWITHINTEGRATEDCABLE-E",
+        117600.0
+      ],
+      [
+        "VICRYL PLUS 1  VP - (2347)",
+        107918.34
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        80100.0
+      ],
+      [
+        "CIRCULAR STAPLER 33 MM CDH33B-Ethicon",
+        44638.0
+      ],
+      [
+        "SURGICEL SNOW 2INX4IN 2082",
+        31959.48
+      ]
+    ]
+  },
+  "Hyderabad West|2025|January": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1809444.56
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        1122030.02
+      ],
+      [
+        "GARDASIL 9 VACCINE 0.5ML",
+        878580.18
+      ]
+    ],
+    "IP Issue": [
+      [
+        "AIRVO-2 TUBE & CHAMBER KIT (900PT562)",
+        220694.0
+      ],
+      [
+        "AEROGEN SOLO NEBULISER -AG-AS3200",
+        163200.0
+      ],
+      [
+        "MOTHER GOWN",
+        144400.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        53400.0
+      ],
+      [
+        "NITRILE EXAMINATION GLOVES P F- MEDIUM",
+        31770.08
+      ],
+      [
+        "HAND CARE GLOVE",
+        20533.5
+      ]
+    ]
+  },
+  "Hyderabad West|2025|March": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1785945.28
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        1095441.7
+      ],
+      [
+        "GARDASIL 9 VACCINE 0.5ML",
+        1094371.82
+      ]
+    ],
+    "IP Issue": [
+      [
+        "MOTHER GOWN",
+        147440.0
+      ],
+      [
+        "AIRVO-2 TUBE & CHAMBER KIT (900PT562)",
+        116838.0
+      ],
+      [
+        "VICRYL PLUS 1  VP - (2347)",
+        108549.42
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "MIFEGEST TAB 200MG12S",
+        32255.6
+      ],
+      [
+        "NITRILE EXAMINATION GLOVES P F- MEDIUM",
+        23223.02
+      ],
+      [
+        "MISOPROST TAB 200MCG 4S",
+        20073.62
+      ]
+    ]
+  },
+  "Vijayawada|2023|August": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1186713.64
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        526345.92
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        507941.94
+      ]
+    ],
+    "IP Issue": [
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        1137600.0
+      ],
+      [
+        "PROBS(OXIMAX),NELLCOR",
+        226830.0
+      ],
+      [
+        "PREMICATH WITH STYLET 1261.203",
+        221237.1
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "EVAC70XTRAHPWITHINTEGRATEDCABLE-E",
+        69000.0
+      ],
+      [
+        "BACTOSCRUB SOL 500ML",
+        39450.0
+      ],
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        34600.0
+      ]
+    ]
+  },
+  "Vijayawada|2023|December": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1268961.1199999999
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        794602.2
+      ],
+      [
+        "FLUARIX TETRA VACCINE 0.5 ML",
+        386912.0
+      ]
+    ],
+    "IP Issue": [
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        410800.0
+      ],
+      [
+        "NEOLACTA PHBM 70CAL 50ML",
+        306160.0
+      ],
+      [
+        "PROBS(OXIMAX),NELLCOR",
+        242550.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "FLUARIX TETRA VACCINE 0.5 ML",
+        90736.0
+      ],
+      [
+        "GAUZE PADS 7.5 * 7.5 CM",
+        50100.0
+      ],
+      [
+        "BACTOSCRUB SOL 500ML",
+        33105.6
+      ]
+    ]
+  },
+  "Vijayawada|2023|July": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1051592.78
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        768416.06
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        683961.4
+      ]
+    ],
+    "IP Issue": [
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        663600.0
+      ],
+      [
+        "PROBS(OXIMAX),NELLCOR",
+        223650.0
+      ],
+      [
+        "HAND CARE GLOVE",
+        196924.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "BACTOSCRUB SOL 500ML",
+        41244.48
+      ],
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        34800.0
+      ],
+      [
+        "GAUZE PADS 7.5 * 7.5 CM",
+        33400.0
+      ]
+    ]
+  },
+  "Vijayawada|2023|June": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1174964.0
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        789573.08
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        650915.58
+      ]
+    ],
+    "IP Issue": [
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        388600.0
+      ],
+      [
+        "PROBS(OXIMAX),NELLCOR",
+        219450.0
+      ],
+      [
+        "PREMICATH WITH STYLET 1261.203",
+        160020.8
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        42500.0
+      ],
+      [
+        "GAUZE PADS 7.5 * 7.5 CM",
+        33400.0
+      ],
+      [
+        "PREMICATH WITH STYLET 1261.203",
+        20002.6
+      ]
+    ]
+  },
+  "Vijayawada|2023|November": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1174964.0
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        678932.28
+      ],
+      [
+        "FLUARIX TETRA VACCINE 0.5 ML",
+        508464.0
+      ]
+    ],
+    "IP Issue": [
+      [
+        "NEOLACTA PHBM 70CAL 50ML",
+        490200.0
+      ],
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        379200.0
+      ],
+      [
+        "PROBS(OXIMAX),NELLCOR",
+        238350.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "BACTOSCRUB SOL 500ML",
+        42688.8
+      ],
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        34800.0
+      ],
+      [
+        "GAUZE PADS 7.5 * 7.5 CM",
+        33400.0
+      ]
+    ]
+  },
+  "Vijayawada|2023|October": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1221962.56
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        512971.04
+      ],
+      [
+        "VARIPED VACC0.5ML",
+        320154.88
+      ]
+    ],
+    "IP Issue": [
+      [
+        "Immunorel 5 Gms 100 Ml -Inj",
+        602000.0
+      ],
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        568800.0
+      ],
+      [
+        "AMPHOMUL INJ 50MG10ML",
+        363090.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "PROXIMATE LINER CUTTER 75 MM",
+        49333.52
+      ],
+      [
+        "EVAC70XTRAHPWITHINTEGRATEDCABLE-E",
+        46000.0
+      ],
+      [
+        "Immunorel 5 Gms 100 Ml -Inj",
+        43000.0
+      ]
+    ]
+  },
+  "Vijayawada|2023|September": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1104466.16
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        487825.44
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        428303.96
+      ]
+    ],
+    "IP Issue": [
+      [
+        "COCHLEAR IMPLANT SYSTEM CI522",
+        1400000.0
+      ],
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        1200800.0
+      ],
+      [
+        "NEOLACTA PHBM 70CAL 50ML",
+        283800.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "EVAC70XTRAHPWITHINTEGRATEDCABLE-E",
+        69000.0
+      ],
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        39150.0
+      ],
+      [
+        "GAUZE PADS 7.5 * 7.5 CM",
+        33400.0
+      ]
+    ]
+  },
+  "Vijayawada|2024|April": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1045717.96
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        709107.06
+      ],
+      [
+        "FLUARIX TETRA VACCINE 0.5 ML",
+        327424.24
+      ]
+    ],
+    "IP Issue": [
+      [
+        "AIMAGLOB 5GM INJ 100ML",
+        547750.0
+      ],
+      [
+        "AMPHOMUL INJ 50MG10ML",
+        261345.0
+      ],
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        252800.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "EVAC70XTRAHPWITHINTEGRATEDCABLE-E",
+        138000.0
+      ],
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        43500.0
+      ],
+      [
+        "BACTOSCRUB SOL 500ML",
+        37461.6
+      ]
+    ]
+  },
+  "Vijayawada|2024|August": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1586201.4
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        1037279.8
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        368971.2
+      ]
+    ],
+    "IP Issue": [
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        1011200.0
+      ],
+      [
+        "Kineret 100mg Inj",
+        853883.92
+      ],
+      [
+        "HUMAN ALBUMIN (AIMAAIB ) 20% 100ML",
+        676450.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        208800.0
+      ],
+      [
+        "INFIMAB INJ",
+        108300.0
+      ],
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        94800.0
+      ]
+    ]
+  },
+  "Vijayawada|2024|December": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1263086.3
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        788253.34
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        568535.02
+      ]
+    ],
+    "IP Issue": [
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        505600.0
+      ],
+      [
+        "PREMICATH WITH STYLET 1261.203",
+        233280.0
+      ],
+      [
+        "AMPHOMUL INJ 50MG10ML",
+        226419.2
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        185232.38
+      ],
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        71200.0
+      ],
+      [
+        "BACTOSCRUB SOL 500ML",
+        32780.0
+      ]
+    ]
+  },
+  "Vijayawada|2024|February": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1028093.5
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        755110.24
+      ],
+      [
+        "GARDASIL 9 VACCINE 0.5ML",
+        461776.0
+      ]
+    ],
+    "IP Issue": [
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        726800.0
+      ],
+      [
+        "PROBS(OXIMAX),NELLCOR",
+        172200.0
+      ],
+      [
+        "AIRVO2 TUBE AND CHAMBER KIT 900PT561",
+        159516.56
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "EVAC70XTRAHPWITHINTEGRATEDCABLE-E",
+        132300.0
+      ],
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        106800.0
+      ],
+      [
+        "BACTOSCRUB SOL 500ML",
+        49875.6
+      ]
+    ]
+  },
+  "Vijayawada|2024|January": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1263086.3
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        774485.7
+      ],
+      [
+        "FLUARIX TETRA VACCINE 0.5 ML",
+        554688.0
+      ]
+    ],
+    "IP Issue": [
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        568800.0
+      ],
+      [
+        "PROBS(OXIMAX),NELLCOR",
+        224700.0
+      ],
+      [
+        "AIMAGLOB 5GM INJ 100ML",
+        219100.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "FLUARIX TETRA VACCINE 0.5 ML",
+        85600.0
+      ],
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        69600.0
+      ],
+      [
+        "GAUZE PADS 7.5 * 7.5 CM",
+        50100.0
+      ]
+    ]
+  },
+  "Vijayawada|2024|July": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1721322.26
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        1037221.16
+      ],
+      [
+        "VARILRIX VACC0.5ML",
+        723787.2
+      ]
+    ],
+    "IP Issue": [
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        1200800.0
+      ],
+      [
+        "ALBUREL 20% INFUSION VIAL 100 ML",
+        547800.0
+      ],
+      [
+        "Kineret 100mg Inj",
+        411110.92
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVITRUE 250ML SOLU (SEVOFLURANE)",
+        110400.0
+      ],
+      [
+        "THYMOGLOBULINE INJ 25MG 5ML",
+        82106.8
+      ],
+      [
+        "ALLIANCE INFLATION LITHODEVICE-5062",
+        82000.0
+      ]
+    ]
+  },
+  "Vijayawada|2024|June": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1468705.0
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        1121003.1400000001
+      ],
+      [
+        "VARILRIX VACC0.5ML",
+        527761.5
+      ]
+    ],
+    "IP Issue": [
+      [
+        "ALBUREL 20% INFUSION VIAL 100 ML",
+        292700.0
+      ],
+      [
+        "EVAC70XTRAHPWITHINTEGRATEDCABLE-E",
+        276000.0
+      ],
+      [
+        "Kineret 100mg Inj",
+        208258.08
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "Omnipaque 300 Mg/50 Ml Inj",
+        58800.0
+      ],
+      [
+        "HAMSYL INJ VIAL 3750 IU 5 ML",
+        38913.0
+      ],
+      [
+        "Kineret 100mg Inj",
+        34709.68
+      ]
+    ]
+  },
+  "Vijayawada|2024|March": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1039843.1399999999
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        765745.66
+      ],
+      [
+        "GARDASIL 9 VACCINE 0.5ML",
+        725648.0
+      ]
+    ],
+    "IP Issue": [
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        695200.0
+      ],
+      [
+        "HAMSYL JUNIOR 1500 IU INJ",
+        191725.68
+      ],
+      [
+        "PREMICATH WITH STYLET 1261.203",
+        174960.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "EVAC70XTRAHPWITHINTEGRATEDCABLE-E",
+        235200.0
+      ],
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        97900.0
+      ],
+      [
+        "GAUZE SWABS 7.5X7.5 (100NOS)NON STERILE",
+        33400.0
+      ]
+    ]
+  },
+  "Vijayawada|2024|May": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1210212.92
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        742238.64
+      ],
+      [
+        "GARDASIL 9 VACCINE 0.5ML",
+        511252.0
+      ]
+    ],
+    "IP Issue": [
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        726800.0
+      ],
+      [
+        "HAND CARE GLOVE",
+        221620.0
+      ],
+      [
+        "AMPHOMUL INJ 50MG10ML",
+        209475.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "EVAC70XTRAHPWITHINTEGRATEDCABLE-E",
+        115000.0
+      ],
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        43500.0
+      ],
+      [
+        "BACTOSCRUB SOL 500ML",
+        18876.0
+      ]
+    ]
+  },
+  "Vijayawada|2024|November": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1233712.2
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        699048.82
+      ],
+      [
+        "GARDASIL 9 VACCINE 0.5ML",
+        626696.0
+      ]
+    ],
+    "IP Issue": [
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        884800.0
+      ],
+      [
+        "HAND CARE GLOVE",
+        232557.0
+      ],
+      [
+        "PREMICATH WITH STYLET 1261.203",
+        221616.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "EVAC70XTRAHPWITHINTEGRATEDCABLE-E",
+        46000.0
+      ],
+      [
+        "BACTOSCRUB SOL 500ML",
+        44998.0
+      ],
+      [
+        "GAUZE SWABS 7.5X7.5 (100NOS)NON STERILE",
+        33400.0
+      ]
+    ]
+  },
+  "Vijayawada|2024|October": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1127965.44
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        694019.64
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        606882.16
+      ]
+    ],
+    "IP Issue": [
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        726800.0
+      ],
+      [
+        "PREMICATH WITH STYLET 1261.203",
+        282970.0
+      ],
+      [
+        "PROBS(OXIMAX),NELLCOR",
+        244650.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        35600.0
+      ],
+      [
+        "GAUZE PADS 7.5 * 7.5 CM",
+        33400.0
+      ],
+      [
+        "GAUZE SWABS 7.5X7.5 (100NOS)NON STERILE",
+        33400.0
+      ]
+    ]
+  },
+  "Vijayawada|2024|September": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1633199.96
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        930006.94
+      ],
+      [
+        "HAVRIX 720 MG VIAL ( HEPATITIS A )",
+        429221.76
+      ]
+    ],
+    "IP Issue": [
+      [
+        "GLOBUCEL 10GM INJ 100ml",
+        1123551.0
+      ],
+      [
+        "Kineret 100mg Inj",
+        867672.0
+      ],
+      [
+        "GLOBUCEL 5GM INJ 100ml",
+        749034.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "SEVITRUE 250ML SOLU (SEVOFLURANE)",
+        110400.0
+      ],
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        79000.0
+      ],
+      [
+        "OMNIPAQUE INJ 300 MG  50 ML",
+        56000.0
+      ]
+    ]
+  },
+  "Vijayawada|2025|February": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1028093.5
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        755110.24
+      ],
+      [
+        "GARDASIL 9 VACCINE 0.5ML",
+        461776.0
+      ]
+    ],
+    "IP Issue": [
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        726800.0
+      ],
+      [
+        "PROBS(OXIMAX),NELLCOR",
+        172200.0
+      ],
+      [
+        "AIRVO2 TUBE AND CHAMBER KIT 900PT561",
+        159516.56
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "EVAC70XTRAHPWITHINTEGRATEDCABLE-E",
+        132300.0
+      ],
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        106800.0
+      ],
+      [
+        "BACTOSCRUB SOL 500ML",
+        49875.6
+      ]
+    ]
+  },
+  "Vijayawada|2025|January": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1198463.28
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        834875.48
+      ],
+      [
+        "FLUQUADRI VACC PFS 0.5 ML",
+        550195.1799999999
+      ]
+    ],
+    "IP Issue": [
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        537200.0
+      ],
+      [
+        "PRISMASOL BO 5 LTRS BAG",
+        276640.0
+      ],
+      [
+        "AMPHOMUL INJ 50MG10ML",
+        235263.7
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "GAUZE PADS 7.5 * 7.5 CM",
+        33400.0
+      ],
+      [
+        "GAUZE SWABS 7.5X7.5 (100NOS)NON STERILE",
+        33400.0
+      ],
+      [
+        "BACTOSCRUB SOL 500ML",
+        24436.0
+      ]
+    ]
+  },
+  "Vijayawada|2025|March": {
+    "OP Sales": [
+      [
+        "PREVENAR-13 VACCPFS0.5ML",
+        1039843.1399999999
+      ],
+      [
+        "HEXAXIM VACCPFS0.5ML",
+        765745.66
+      ],
+      [
+        "GARDASIL 9 VACCINE 0.5ML",
+        725648.0
+      ]
+    ],
+    "IP Issue": [
+      [
+        "IMMUNOREL INFUSION 10GM 100 ML",
+        695200.0
+      ],
+      [
+        "HAMSYL JUNIOR 1500 IU INJ",
+        191725.68
+      ],
+      [
+        "PREMICATH WITH STYLET 1261.203",
+        174960.0
+      ]
+    ],
+    "Internal Consumption": [
+      [
+        "EVAC70XTRAHPWITHINTEGRATEDCABLE-E",
+        235200.0
+      ],
+      [
+        "SEVOFLURANE 250ML BAXTER",
+        97900.0
+      ],
+      [
+        "GAUZE SWABS 7.5X7.5 (100NOS)NON STERILE",
+        33400.0
+      ]
+    ]
+  }
+}

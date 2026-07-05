@@ -1,0 +1,514 @@
+[
+  {
+    "Material": "961041",
+    "Material Description": "ENEVELOP CLOSED-GENOMICS"
+  },
+  {
+    "Material": "910305",
+    "Material Description": "STRIPS 8 TUBES&CAPS-250 STRIPS PC-ABGENE"
+  },
+  {
+    "Material": "921112",
+    "Material Description": "PCR Plate 96well-25plates-AB-0600-Abgene"
+  },
+  {
+    "Material": "924094",
+    "Material Description": "ETHANOL 99.9% CAT-100983 MERCK MILLIPORE"
+  },
+  {
+    "Material": "961029",
+    "Material Description": "ONCQUER TM SOMATIC CANCER-TRF"
+  },
+  {
+    "Material": "961030",
+    "Material Description": "ONCQUER TM GERMLINE CANCER-TRF"
+  },
+  {
+    "Material": "913232",
+    "Material Description": "ONCQUER TM CTC TRF"
+  },
+  {
+    "Material": "910184",
+    "Material Description": "MICRO CENTRIFUGE TUBE PP 0.5ML WHITE-TAR"
+  },
+  {
+    "Material": "921085",
+    "Material Description": "NUCLEASE FREE WATER-129114  500ML QIAGEN"
+  },
+  {
+    "Material": "928187",
+    "Material Description": "D1000 REAGENTS-5067-5583-112TET-AGILENT"
+  },
+  {
+    "Material": "928188",
+    "Material Description": "D1000 SCREENTAP-5067-5582-112TET-AGILENT"
+  },
+  {
+    "Material": "961031",
+    "Material Description": "ONCQUERTM HIGH RESOLUTION HLA TYPING-TRF"
+  },
+  {
+    "Material": "961032",
+    "Material Description": "ONCQUER TM LIQUID BIOPSY-TRF"
+  },
+  {
+    "Material": "961033",
+    "Material Description": "ONCQUER TM MYELOID CANCER-TRF"
+  },
+  {
+    "Material": "928980",
+    "Material Description": "AXYGEN1000UL-WIDEBORE-UNI-FT 1000tips/Rk"
+  },
+  {
+    "Material": "928979",
+    "Material Description": "AXYGEN200UL-WIDEBORE-UNI-FT 960tips/Rk"
+  },
+  {
+    "Material": "928156",
+    "Material Description": "QUBIT RNA HS ASSAY KIT-500REA(Q32855)"
+  },
+  {
+    "Material": "920870",
+    "Material Description": "KAPABIOSYSTEMSLIBRARY-7960140001(KK4824)"
+  },
+  {
+    "Material": "927621",
+    "Material Description": "RNA SCREENTAPE SAMPLE BUFFER-5067-5577"
+  },
+  {
+    "Material": "910046",
+    "Material Description": "CENTRIFUGE TUBE 15ML CONS 1 EA  TARSONS"
+  },
+  {
+    "Material": "927334",
+    "Material Description": "QUBIT™1X DSDNA HS(Q33231)REA 500T-THERMO"
+  },
+  {
+    "Material": "920841",
+    "Material Description": "ILMNA FFPE QCWG321-1001 384TST KIT ILMNA"
+  },
+  {
+    "Material": "929004",
+    "Material Description": "CELLFREE DNA TUBE-50PAK-CAT-BIO140921"
+  },
+  {
+    "Material": "929320",
+    "Material Description": "ILLUMI ANALYTICS-1 ICREDIT-20042038"
+  },
+  {
+    "Material": "926583",
+    "Material Description": "MUTATION ASSAYEGFRASSAY 2000022-10031249"
+  },
+  {
+    "Material": "926584",
+    "Material Description": "MUTATION ASSAYEGFRDHSACP2000021-10031246"
+  },
+  {
+    "Material": "928190",
+    "Material Description": "GENOMIC DNA REAGET-5067-5366 TAPE 112T"
+  },
+  {
+    "Material": "928189",
+    "Material Description": "GENOMIC DNA SCREENTAPE-5067-5365 112T"
+  },
+  {
+    "Material": "911633",
+    "Material Description": "CENTRIFUGETUBECON50STERISNLB1EA546041"
+  },
+  {
+    "Material": "923385",
+    "Material Description": "EGFR EXON 19-12002392-200REAC KIT-BIO-RA"
+  },
+  {
+    "Material": "928584",
+    "Material Description": "TARGT FIRST NGS LIB PREP KIT-V2-REP"
+  },
+  {
+    "Material": "921196",
+    "Material Description": "QIAAMP DNA MINI REAG 250 REAC PCK QIAGEN"
+  },
+  {
+    "Material": "927620",
+    "Material Description": "RNA SCREENTAPE TAPESTATION-5067-5576"
+  },
+  {
+    "Material": "927086",
+    "Material Description": "TRUXTRAC FFPE TOTAL(520255) 25RX-COVARIS"
+  },
+  {
+    "Material": "929187",
+    "Material Description": "MICROTUBE-50AFA 520167CON 250PAK COVARIS"
+  },
+  {
+    "Material": "929092",
+    "Material Description": "TRUSIGHT HEREDIT ENRICH OLIGOS-96REA"
+  },
+  {
+    "Material": "928870",
+    "Material Description": "CELL-FREE DNA REAG 112T 5067-5631 AGIL"
+  },
+  {
+    "Material": "928871",
+    "Material Description": "CELL-FREE DNA SCREENTAPE 112T-5067-5630"
+  },
+  {
+    "Material": "928704",
+    "Material Description": "DEVYSER BRCA1&2-CAT8-A102-24"
+  },
+  {
+    "Material": "921724",
+    "Material Description": "QIAAMP CIRCULATING NUCLEIC ACID KIT"
+  },
+  {
+    "Material": "929091",
+    "Material Description": "ILLUMI-DNA-RNA UD INDEX-SET-A 96REA"
+  },
+  {
+    "Material": "929435",
+    "Material Description": "IDT ILM-UMI DNA/RNA UDINDX SET-B20034702"
+  },
+  {
+    "Material": "913154",
+    "Material Description": "CELLSAVE CTC TUBES RBMENCTCSG0083"
+  },
+  {
+    "Material": "910008",
+    "Material Description": "ADHESIVE PCR  100SHEETS-AB-0558-ABGENE"
+  },
+  {
+    "Material": "921622",
+    "Material Description": "DDPCR KRAS SCREENING MULTIPLEX KIT 200"
+  },
+  {
+    "Material": "929090",
+    "Material Description": "ILLUMI-DNA PREP ENRICH(S)TAGMENT96REA"
+  },
+  {
+    "Material": "927112",
+    "Material Description": "FFPE DNA REPAIR MIX(M6630L)REA 96REA-NEB"
+  },
+  {
+    "Material": "928138",
+    "Material Description": "TRUSIGHT ONCO500DNA/RNA HT(72 SAMPLE)"
+  },
+  {
+    "Material": "928448",
+    "Material Description": "CS-CTC KIT-EPITHELIAL-RBMENCTCSG0062"
+  },
+  {
+    "Material": "913202",
+    "Material Description": "SEROLOGIC PIPET STERIL10ML-P10604ABDOS"
+  },
+  {
+    "Material": "921194",
+    "Material Description": "QIAAMP BLOOD DNAMINI-51104 50 TST QIAGEN"
+  },
+  {
+    "Material": "927978",
+    "Material Description": "AMPLISEQ LIBRARYPLUS-96REA CAT-20019102"
+  },
+  {
+    "Material": "929436",
+    "Material Description": "HORIZON STRUCTL MULTI CFDNA HD786-350NG"
+  },
+  {
+    "Material": "928812",
+    "Material Description": "QUBIT FLEXASSAY RESERVOIRS-Q33253"
+  },
+  {
+    "Material": "927478",
+    "Material Description": "AMPLISEQUDINDEXESCAT:CAT:20019104 -24REA"
+  },
+  {
+    "Material": "928702",
+    "Material Description": "TWIST EF2.0-STDHYBV2-AMPMIX-96*12-106661"
+  },
+  {
+    "Material": "928701",
+    "Material Description": "TWIST EXOME 2.0-12REA 104134"
+  },
+  {
+    "Material": "928703",
+    "Material Description": "TWIST UNI ADAPSYS-TRUSEQ96S-PLT-D-101311"
+  },
+  {
+    "Material": "926771",
+    "Material Description": "DDPCR MUT FAMHEX ASSAY 200R-BIO-RAD"
+  },
+  {
+    "Material": "926697",
+    "Material Description": "RNA LATER AM7024-INVITROGEN"
+  },
+  {
+    "Material": "911770",
+    "Material Description": "0.8mL Deepwell Storage PlateAB0765"
+  },
+  {
+    "Material": "927480",
+    "Material Description": "AMPLISEQ MYELOIDPANEL CAT:20024478-24REA"
+  },
+  {
+    "Material": "926958",
+    "Material Description": "StepUp 1kb DNA Ladder(RTU)GeNei(118702)"
+  },
+  {
+    "Material": "928966",
+    "Material Description": "PROTEINASE K-RP107B-10-QIAGEN-10ML"
+  },
+  {
+    "Material": "922027",
+    "Material Description": "MISEQ NANO V2-MS-103-1001 REAG 17T PAK-G"
+  },
+  {
+    "Material": "927088",
+    "Material Description": "AMPLISEQ CDNA (20022654)REA 200REA-ILLUM"
+  },
+  {
+    "Material": "928458",
+    "Material Description": "AUTOPREP INST BUFFER20L-RBMENCTCSG0070"
+  },
+  {
+    "Material": "921198",
+    "Material Description": "QIAMP RNA BLOOD MINI KIT CATNO:52304 50T"
+  },
+  {
+    "Material": "928913",
+    "Material Description": "EXCELLA 10-20UL XLSTRAC-9104020357-960-1"
+  },
+  {
+    "Material": "923625",
+    "Material Description": "AllPrep DNA/RNA FFPE Kit SNLR50TET 80234"
+  },
+  {
+    "Material": "913223",
+    "Material Description": "GENAXY1-100UL-GEN-FB-100-L-R-S-10RCK"
+  },
+  {
+    "Material": "930734",
+    "Material Description": "MYELOID MUTATIONDNAMIX(0710-0408)25µL-SE"
+  },
+  {
+    "Material": "930733",
+    "Material Description": "MYELOID FUSION RNA MIX(0710-0407)25µL-SE"
+  },
+  {
+    "Material": "920851",
+    "Material Description": "IPA REAG 25 LTRS CAN FISHER SCIENTIFIC"
+  },
+  {
+    "Material": "910187",
+    "Material Description": "MICRO PESTLE FOR 1.5 ML PP AUTOC-TARSONS"
+  },
+  {
+    "Material": "928914",
+    "Material Description": "EXCELLA 200UL GRADSTRAC-9104020365-960-1"
+  },
+  {
+    "Material": "927293",
+    "Material Description": "ALLPREP DNA/RNA MINI(80204)REA 50T-QIAG"
+  },
+  {
+    "Material": "927146",
+    "Material Description": "NGSGO FULL WORKFLOW(2842139)REA96T-GENDX"
+  },
+  {
+    "Material": "929108",
+    "Material Description": "ITAQ UNI SYBR GREEN2500-1725124-25ML"
+  },
+  {
+    "Material": "921322",
+    "Material Description": "SODIUM HYPOCHLORITE SOLU 5 LTRS CAN BML"
+  },
+  {
+    "Material": "910738",
+    "Material Description": "SHOE COVER-GEN"
+  },
+  {
+    "Material": "930805",
+    "Material Description": "96WEL PCRPLAT LOWPROF SKIRTD-P10723 ABDO"
+  },
+  {
+    "Material": "913243",
+    "Material Description": "DDPCR CARTRIDGES&GASKETS 1864007-BIORAD"
+  },
+  {
+    "Material": "912856",
+    "Material Description": "STERILE FT TF-20-R-S 20UL AXYGEN-CORNING"
+  },
+  {
+    "Material": "961040",
+    "Material Description": "PATIENT SAMPLE REGISTER-GENOMICS"
+  },
+  {
+    "Material": "913383",
+    "Material Description": "CAMOPTIMA BUCCAL CBWA015.B 50EA CAMBRIAN"
+  },
+  {
+    "Material": "924331",
+    "Material Description": "MiSeq Reagent Micro Kit 1R MS-103-1002"
+  },
+  {
+    "Material": "928813",
+    "Material Description": "QUBIT 1XDSDNA BR ASSAY KIT-500-Q33266"
+  },
+  {
+    "Material": "913244",
+    "Material Description": "DDPCR DROPLT GENERATR OIL 1863005-BIORAD"
+  },
+  {
+    "Material": "928915",
+    "Material Description": "EXCELLA1000UL XLGRADRAC-9104020732-960-1"
+  },
+  {
+    "Material": "930803",
+    "Material Description": "CTC CTRL KIT-EPITHELIAL-RBMENCTCSG0063"
+  },
+  {
+    "Material": "930920",
+    "Material Description": "PCRSTRIP WITH CAP 0.2ML -MB-P08-A-GUNSTE"
+  },
+  {
+    "Material": "926725",
+    "Material Description": "DDPCR SUPERMIX FOR PROBES 1863024-BIORAD"
+  },
+  {
+    "Material": "910044",
+    "Material Description": "Centrifuge Tube 1.5ml"
+  },
+  {
+    "Material": "928524",
+    "Material Description": "CELLESEARCH TPR-HER/2NEU-3ML-7900006"
+  },
+  {
+    "Material": "924328",
+    "Material Description": "MiSeqKitv3(600Cycle)SNLR1RMS-102-3003ill"
+  },
+  {
+    "Material": "928705",
+    "Material Description": "CAMBRIAN FFPE-GDNA-ISOLAT-250REA-CBWC100"
+  },
+  {
+    "Material": "910152",
+    "Material Description": "HIGH PROFILE DISPO.BLADE 818 (50NOS)"
+  },
+  {
+    "Material": "930921",
+    "Material Description": "QPCR SEALER-MB-QSM-100 NO- GUNSTER"
+  },
+  {
+    "Material": "912830",
+    "Material Description": "20ULTIPARTBARRIERMPDESIGN10X96-2149-THER"
+  },
+  {
+    "Material": "928404",
+    "Material Description": "MISEQ REAGENT KIT V3(150-CYC)MS-102-3001"
+  },
+  {
+    "Material": "924336",
+    "Material Description": "Isopropyl alcohol SNLR 2.5LI11137NICE"
+  },
+  {
+    "Material": "912939",
+    "Material Description": "LOADING TIPS(5067-5599)-AGILENT"
+  },
+  {
+    "Material": "928903",
+    "Material Description": "NOVASEQ X-1.5B REAG KIT-300CYC 20104705"
+  },
+  {
+    "Material": "910102",
+    "Material Description": "DISPOSSABLE STICKY MAT-BLUE-24''X36''"
+  },
+  {
+    "Material": "926724",
+    "Material Description": "DDPCR DROPLET READER OIL 1863004-BIORAD"
+  },
+  {
+    "Material": "912648",
+    "Material Description": "PCR TUBES FLAT CAP CLEAR"
+  },
+  {
+    "Material": "926586",
+    "Material Description": "STRUCTURALMULTIPLEX REFER STRANDRD-HD753"
+  },
+  {
+    "Material": "929118",
+    "Material Description": "HD784 ALK-RET-ROS- RNAFUSION 1 FFPE CURL"
+  },
+  {
+    "Material": "912792",
+    "Material Description": "PIERCEABLE FOIL HEAT SEAL 1814040-BIORAD"
+  },
+  {
+    "Material": "930616",
+    "Material Description": "2X BUFFER CONTRL KIT, 2X4.5ML-1863052"
+  },
+  {
+    "Material": "912843",
+    "Material Description": "Twin.Tec RT white PCR Plate - 0030132718"
+  },
+  {
+    "Material": "928141",
+    "Material Description": "CLEANSOL-NICE-5LTR-CAT-C12401-SLV"
+  },
+  {
+    "Material": "921195",
+    "Material Description": "QIAAMP DNA FFPE TISSUE-56404 50TSTQIAGEN"
+  },
+  {
+    "Material": "913226",
+    "Material Description": "B-MERCAPTOETHANOL M6250-100ML SIGMA"
+  },
+  {
+    "Material": "913122",
+    "Material Description": "TIPONE-20UL UP RPT S1183-1810-960TIP-EP"
+  },
+  {
+    "Material": "928811",
+    "Material Description": "QUBIT FLEXASSAY TUBE STRIPS-Q33252"
+  },
+  {
+    "Material": "911610",
+    "Material Description": "Buffer ACB  SNLB 300ML 1069275Qiagen"
+  },
+  {
+    "Material": "928904",
+    "Material Description": "AMOYDX HRD FOCUS PANEL-8.06.0047-AMOYDX"
+  },
+  {
+    "Material": "929174",
+    "Material Description": "TARGT FIRST NGS LIBRARY TGFIR-CDS-96-4BA"
+  },
+  {
+    "Material": "929176",
+    "Material Description": "BUFFER EL-1000 ML-K79217-QIAGEN"
+  },
+  {
+    "Material": "912813",
+    "Material Description": "MICROTUBE-50AFA 520166 CON 25PAK-COVARIS"
+  },
+  {
+    "Material": "913125",
+    "Material Description": "MICROTUBE500AFA FIBERSCREW-520185"
+  },
+  {
+    "Material": "924115",
+    "Material Description": "TWEEN 20 CAT-P7949 SIGMA"
+  },
+  {
+    "Material": "912357",
+    "Material Description": "MICRO CENTRIFUGE TUBES 2.0ML, 500/PK"
+  },
+  {
+    "Material": "911611",
+    "Material Description": "Buffer ACL SNLB 220ML 939015Qiagen"
+  },
+  {
+    "Material": "911891",
+    "Material Description": "K2 EDTA Vacutainer® PLUS 10ML-367525-BD"
+  },
+  {
+    "Material": "924155",
+    "Material Description": "Buffer AL-264BOT-19075-Qiagen"
+  }
+]

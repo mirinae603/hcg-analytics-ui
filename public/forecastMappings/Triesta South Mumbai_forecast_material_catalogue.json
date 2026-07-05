@@ -1,0 +1,442 @@
+[
+  {
+    "Material": "927205",
+    "Material Description": "H560 LYSE 2(121745)REA 1500ML-TRANSASIA"
+  },
+  {
+    "Material": "913295",
+    "Material Description": "SODIUM CITRATE3.2(NVSC)NVSC3G-3ML NASMED"
+  },
+  {
+    "Material": "911607",
+    "Material Description": "Auto wash (AC & AL)SNLB 440ML 121238TRAN"
+  },
+  {
+    "Material": "913293",
+    "Material Description": "K2 EDTA (NVK2) NVK23 - 3ML NASMED"
+  },
+  {
+    "Material": "924296",
+    "Material Description": "Auto wash SNLR 1000ML 120958TRANSASIA"
+  },
+  {
+    "Material": "910318",
+    "Material Description": "SYRINGE 5ML-BD"
+  },
+  {
+    "Material": "929000",
+    "Material Description": "EC90 ELECTROLYTES CARTRIDGE 122041-500T"
+  },
+  {
+    "Material": "913292",
+    "Material Description": "SODIUM FLUORIDE (NVSF) NVSF3- 3ML NASMED"
+  },
+  {
+    "Material": "910195",
+    "Material Description": "MICROCENTER FUGE TUBE-GEN"
+  },
+  {
+    "Material": "910315",
+    "Material Description": "SYRINGE 2ML-BD"
+  },
+  {
+    "Material": "911843",
+    "Material Description": "Sterile Cotton SwabPW003Himedia"
+  },
+  {
+    "Material": "913297",
+    "Material Description": "FLASHBACK NEEDLES NFBN 100 NO NASMED"
+  },
+  {
+    "Material": "928583",
+    "Material Description": "EC90 ELECTROLYTES URINE DILUENT-TRNS"
+  },
+  {
+    "Material": "911178",
+    "Material Description": "URINE CONTAINER 50ML STERILE-TARSONS"
+  },
+  {
+    "Material": "913294",
+    "Material Description": "GEL CLOT ACTIVATOR(NVGC)NVLH4-4ML NASMED"
+  },
+  {
+    "Material": "920783",
+    "Material Description": "HIV RAPID CARD 100 TEST PACK J MITRA"
+  },
+  {
+    "Material": "921980",
+    "Material Description": "CG4+ABG CARTRIDGE-REAG-1TEST I STAT-ABBO"
+  },
+  {
+    "Material": "927204",
+    "Material Description": "H560 LYSE 1(121744)REA 800ML-TRANSASIA"
+  },
+  {
+    "Material": "929283",
+    "Material Description": "CRP-ICHROMA-CFPC-25TEST PACK BODITECH"
+  },
+  {
+    "Material": "910123",
+    "Material Description": "FACE MASK-GEN"
+  },
+  {
+    "Material": "920757",
+    "Material Description": "HCV RAPID CARD 100 TEST PACK J MITRA"
+  },
+  {
+    "Material": "924207",
+    "Material Description": "Total Protein120267SNLR-440mL TRANSASIA"
+  },
+  {
+    "Material": "910797",
+    "Material Description": "DE-IONIZED WATER REAG-5LTR-GEN"
+  },
+  {
+    "Material": "927080",
+    "Material Description": "ULTRA FREEZE MEDIA(UF1000)118ML-CANCER D"
+  },
+  {
+    "Material": "924209",
+    "Material Description": "Alkaline Phosphatase121018SNLR-110mL TRA"
+  },
+  {
+    "Material": "924594",
+    "Material Description": "Phosphorus REA 120ML -120264-Transasia"
+  },
+  {
+    "Material": "924201",
+    "Material Description": "SGOT - EL120616SNLR-330mL TRANSASIA"
+  },
+  {
+    "Material": "924208",
+    "Material Description": "Calcium (A)120262SNLR-120mL TRANSASIA"
+  },
+  {
+    "Material": "929285",
+    "Material Description": "HBA1C-ICHROMA-CFPC-25TEST PACK BODITECH"
+  },
+  {
+    "Material": "924204",
+    "Material Description": "Bilirubin Total120621SNLR-330mL TRANSASI"
+  },
+  {
+    "Material": "924807",
+    "Material Description": "GAMMA GT(GGT)121019 REA 110MLBT1-TRANS"
+  },
+  {
+    "Material": "924191",
+    "Material Description": "i-STAT EG7+ 03P76-25 SNLR-25TET Abbott"
+  },
+  {
+    "Material": "920749",
+    "Material Description": "HBSAG HEPACARD - 100 TEST-TRIDOT"
+  },
+  {
+    "Material": "910632",
+    "Material Description": "COAGULATION SODIUMCITRATE 9NC 3.2%-KRIYA"
+  },
+  {
+    "Material": "924202",
+    "Material Description": "SGPT - EL120617SNLR-330mL TRANSASIA"
+  },
+  {
+    "Material": "924294",
+    "Material Description": "Creatinine SNLR 200ML 121200TRANSASIA"
+  },
+  {
+    "Material": "920215",
+    "Material Description": "BLOOD GROUP ABD 3x10ML-PACK"
+  },
+  {
+    "Material": "923821",
+    "Material Description": "ALBUMINSNLR 250mL-120223-Transasia"
+  },
+  {
+    "Material": "927206",
+    "Material Description": "ELITE H CLEAN(121939)REA 200ML-TRANSASIA"
+  },
+  {
+    "Material": "927203",
+    "Material Description": "H560 DIL(121743)REA 20L-TRANSASIA"
+  },
+  {
+    "Material": "924203",
+    "Material Description": "Bilirubin Direct120623SNLR-330mL TRANSAS"
+  },
+  {
+    "Material": "924205",
+    "Material Description": "Uric Acid121023SNLR-319mL TRANSASIA"
+  },
+  {
+    "Material": "924293",
+    "Material Description": "UREA  SNLR 275ML 121025TRANSASIA"
+  },
+  {
+    "Material": "929286",
+    "Material Description": "CKMB-I CHROMA CFPC-25TEST PACK BODITECH"
+  },
+  {
+    "Material": "929276",
+    "Material Description": "PROCALCITONIN-I CHROMA CFPC-10TESTBODITH"
+  },
+  {
+    "Material": "921404",
+    "Material Description": "THROMBOREL-PT-OUHP29-10X4ML-SYSMEX"
+  },
+  {
+    "Material": "911177",
+    "Material Description": "URINE CONTAINER 50ML NON STERILE-TARSONS"
+  },
+  {
+    "Material": "924327",
+    "Material Description": "MAGNESIUM SNLR 88ML 120624TRANSASIA"
+  },
+  {
+    "Material": "923826",
+    "Material Description": "GLUCOSESNLR 400mL-120200-Transasia"
+  },
+  {
+    "Material": "910134",
+    "Material Description": "FROSTED SLIDE - 50PC"
+  },
+  {
+    "Material": "929274",
+    "Material Description": "TROPONIN T-I CHROMA CFPC-25TEST BODITECH"
+  },
+  {
+    "Material": "960003",
+    "Material Description": "BARCODE LABEL"
+  },
+  {
+    "Material": "930962",
+    "Material Description": "CORTISOL CONTRL CAT-CFPC-24 2ML ICHROMA"
+  },
+  {
+    "Material": "929275",
+    "Material Description": "NTPRO BNP- I CHROMA CFPC-25TEST BODITECH"
+  },
+  {
+    "Material": "910243",
+    "Material Description": "PURELLIUM GEL 500ML-BIOSHIELDS"
+  },
+  {
+    "Material": "930960",
+    "Material Description": "HBA1C- CONTROL CAT-CFPC-38 2ML ICHROMA"
+  },
+  {
+    "Material": "920635",
+    "Material Description": "FORMALIN REAG 5 LTRS CAN FISHER"
+  },
+  {
+    "Material": "929273",
+    "Material Description": "HIGH SENSITIVE TROP I-ICHROMA CFPC25TEST"
+  },
+  {
+    "Material": "929279",
+    "Material Description": "ICHROMA CORTISOL WITH BUFFER CFPC-25TET"
+  },
+  {
+    "Material": "930959",
+    "Material Description": "CRP- CONTROL CAT-CRP-25 2ML  ICHROMA"
+  },
+  {
+    "Material": "920865",
+    "Material Description": "ISO-PROPYL ALCOHOL 2.5 LTR-FISHER SCIENT"
+  },
+  {
+    "Material": "960757",
+    "Material Description": "LAB COAT"
+  },
+  {
+    "Material": "920523",
+    "Material Description": "DENGUE DUO NS1 AG IGG/IGM CARD 10TST PCK"
+  },
+  {
+    "Material": "923434",
+    "Material Description": "METHANOL 2.5LTRS CAN-FISHER"
+  },
+  {
+    "Material": "930966",
+    "Material Description": "TROPONIN CONTROL CAT-13011 2ML ICHROMA"
+  },
+  {
+    "Material": "930965",
+    "Material Description": "D-DIMER  CONTROL CAT-CFPC-25 2ML ICHROMA"
+  },
+  {
+    "Material": "930964",
+    "Material Description": "NT-PRO BNP  CTRL CAT-CFPC-77 2ML ICHROMA"
+  },
+  {
+    "Material": "930961",
+    "Material Description": "PROCALCITONIN CTRL CFPC-23-1 2ML ICHROMA"
+  },
+  {
+    "Material": "920527",
+    "Material Description": "DENGUE NS-1 ANTIGEN CARD 10 TST BIOTECH"
+  },
+  {
+    "Material": "930963",
+    "Material Description": "CK-MB  CONTROL CAT-CFPC-33 2ML ICHROMA"
+  },
+  {
+    "Material": "930755",
+    "Material Description": "ELITE H5 CON  H(HEM00026)-TRAN"
+  },
+  {
+    "Material": "930754",
+    "Material Description": "ELITE H5 CON L(HEM00025)-TRAN"
+  },
+  {
+    "Material": "930753",
+    "Material Description": "ELITE H5 CON  N(HEM00024)-TRAN"
+  },
+  {
+    "Material": "910332",
+    "Material Description": "THERMAL PAPER ROLL 57MM"
+  },
+  {
+    "Material": "910033",
+    "Material Description": "BLUE TIPS (1000 PCS)-GEN"
+  },
+  {
+    "Material": "921472",
+    "Material Description": "TROPONIN T RAPID CARD 5 TEST PACK GEN"
+  },
+  {
+    "Material": "940313",
+    "Material Description": "XL MULTICAL SNCL 12ML 120611TRAN"
+  },
+  {
+    "Material": "921367",
+    "Material Description": "SYSMEX CUVETTES 1X500 NOS"
+  },
+  {
+    "Material": "910072",
+    "Material Description": "COTTON ROLL 500 GM-GEN"
+  },
+  {
+    "Material": "911139",
+    "Material Description": "NITRILE GLOVES MEDIUM -GEN"
+  },
+  {
+    "Material": "911140",
+    "Material Description": "NITRILE GLOVES SMALL-GEN"
+  },
+  {
+    "Material": "910219",
+    "Material Description": "PARAFILM ROLLS 4X125"
+  },
+  {
+    "Material": "911171",
+    "Material Description": "TEST TUBE 12X75MM-BOROSIL"
+  },
+  {
+    "Material": "910341",
+    "Material Description": "TISSUE ROLL-GEN"
+  },
+  {
+    "Material": "921612",
+    "Material Description": "XYLENE REAG 2.5 LTRS BTL FISHER"
+  },
+  {
+    "Material": "921001",
+    "Material Description": "MALARIA AB PF/PV REAG 25 TEST PACK GEN"
+  },
+  {
+    "Material": "960002",
+    "Material Description": "BARCODE CARBON"
+  },
+  {
+    "Material": "960294",
+    "Material Description": "ZIPLOCK POLYBAG 8X11  -GEN"
+  },
+  {
+    "Material": "921193",
+    "Material Description": "PTT AUTOMATE 5(00595) REAG 60ML KITSTAGO"
+  },
+  {
+    "Material": "910254",
+    "Material Description": "SCALP VEIN SET 23G-ROMSONS"
+  },
+  {
+    "Material": "924257",
+    "Material Description": "Fibrinogen 10641020SNLR-20TET Tulip"
+  },
+  {
+    "Material": "910272",
+    "Material Description": "SODIUM HYPOCHLORITE SOL 5LTRS"
+  },
+  {
+    "Material": "910313",
+    "Material Description": "SYRINGE 10ML-BD"
+  },
+  {
+    "Material": "921097",
+    "Material Description": "OWREN KOLLER REAG 360 ML KIT STAGO"
+  },
+  {
+    "Material": "925819",
+    "Material Description": "CTRL PLASMA(10*1ML)"
+  },
+  {
+    "Material": "920913",
+    "Material Description": "STA-LIQUID FIB-00673 REAGENT 12X4ML-STAG"
+  },
+  {
+    "Material": "930517",
+    "Material Description": "CONTROL PLASMA N (10*1ML)"
+  },
+  {
+    "Material": "926942",
+    "Material Description": "NEOPTIMAL 01164 REAGENT 120MLKIT-STAGO"
+  },
+  {
+    "Material": "920585",
+    "Material Description": "ERBA PATH REAGENT 4X5ML"
+  },
+  {
+    "Material": "910378",
+    "Material Description": "YELLOW TIPS-1000S-GEN"
+  },
+  {
+    "Material": "910409",
+    "Material Description": "STA-STEEL BALLS 1X1850-STAGO"
+  },
+  {
+    "Material": "910738",
+    "Material Description": "SHOE COVER-GEN"
+  },
+  {
+    "Material": "911194",
+    "Material Description": "IMMERSION OIL 150ML BOTTEL-BIOLAB"
+  },
+  {
+    "Material": "911629",
+    "Material Description": "ERBA NORM SNLB 20ML 120218TRANSASIA"
+  },
+  {
+    "Material": "913291",
+    "Material Description": "SODIUM HEPARIN (NVSH) NVSH4- 4ML NASMED"
+  },
+  {
+    "Material": "920033",
+    "Material Description": "ACTIN FSL REAG 2 ML PACK SYSMAX"
+  },
+  {
+    "Material": "920255",
+    "Material Description": "CACL2 (00367) REAG 360 ML KIT STAGO"
+  },
+  {
+    "Material": "920401",
+    "Material Description": "CITROL-1E REAG 1 ML PACK SYSMEX"
+  },
+  {
+    "Material": "920405",
+    "Material Description": "CITROL-2E REAG 1 ML PACK SYSMEX"
+  },
+  {
+    "Material": "930022",
+    "Material Description": "COAG N+P CONT 12 ML KIT STAGO"
+  }
+]
