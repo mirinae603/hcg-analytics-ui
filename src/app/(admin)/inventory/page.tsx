@@ -1,13 +1,13 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
-import { KPIS, Kpi } from "@/lib/kpiRegistry";
+import { KPIS, Kpi, simulatedByPortfolio } from "@/lib/kpiRegistry";
+import { getSimulated } from "@/lib/simulatedKpi";
 import { fmt } from "@/lib/kpiFormat";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import { useRegion } from "@/context/RegionContext";
 import AnalyticsDashboardLayout from "@/components/ecommerce/AnalyticsHomeScreenCards/analyticsHomeScreenCard";
 import InventoryGlassKpiCard from "@/components/portfolio/inventory/InventoryGlassKpiCard";
-import SimulatedKpiGrid from "@/components/portfolio/SimulatedKpiGrid";
 
 // Greys out a KPI card with a "Data N/A" badge
 const UnavailableKpi: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
@@ -30,6 +30,24 @@ const inventoryKpis: Kpi[] = KPIS.filter((k) => k.portfolio === "inventory");
 // All inventory KPIs (A1–A10 + Near-Expiry) are buildable from the HCG data
 // per the KPI workbook. A4 Turnover & A5 Valuation are proxies (noted on page).
 const UNAVAILABLE_KEYS = new Set<string>();
+
+// Simulated inventory KPIs, adapted to the same glass-card shape so they render
+// inline in the grid (washed-out + a "Simulated" tag) — no separate section.
+const simInventory = simulatedByPortfolio("inventory").map((meta) => {
+  const b = getSimulated(meta.key)!;
+  const kpi = {
+    key: meta.key, title: meta.title, short: meta.short, portfolio: "inventory", icon: meta.icon,
+    chart: { type: b.chartCfg.type, x: b.chartCfg.x, series: b.chartCfg.series },
+    card: { field: "", agg: "sum", kind: b.headline.kind, label: b.headline.label },
+    columns: [],
+  } as unknown as Kpi;
+  const insights = [
+    `${b.headline.label}: ${fmt(b.headline.value, b.headline.kind)}`,
+    b.summary[0] ? `${b.summary[0].label}: ${fmt(b.summary[0].value, b.summary[0].kind)}` : meta.why,
+    "Simulated · activates on your data",
+  ];
+  return { kpi, chartData: b.chartData, insights };
+});
 
 // ─── insight generator ────────────────────────────────────────────────────────
 function computeInsights(kpi: Kpi, chartData: any[]): string[] {
@@ -193,12 +211,27 @@ export default function InventoryPage() {
                 </div>
               );
             })}
+            {simInventory.map((s, j) => {
+              const i = inventoryKpis.length + j;
+              return (
+                <div
+                  key={s.kpi.key}
+                  className="relative flex justify-center items-center p-6 transition duration-300"
+                  style={{ background: "rgba(255,255,255,0.9)", opacity: 0.6, filter: "saturate(0.72)" }}
+                  title="Simulated preview — activates the moment HCG shares the source"
+                  onMouseEnter={(e) => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.filter = "none"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.opacity = "0.6"; e.currentTarget.style.filter = "saturate(0.72)"; }}
+                >
+                  <span className="absolute top-3 right-3 z-20 text-[10px] font-bold uppercase tracking-[0.05em] px-2 py-1 rounded-full" style={{ background: "#fff7ed", color: "#a56a15", border: "1px solid #fadcae" }}>
+                    Simulated
+                  </span>
+                  <InventoryGlassKpiCard kpi={s.kpi} index={i} insights={s.insights} chartData={s.chartData} />
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
-
-      {/* ── Pending KPIs — unlock when HCG provides the required data ── */}
-      <SimulatedKpiGrid portfolio="inventory" />
     </div>
   );
 }

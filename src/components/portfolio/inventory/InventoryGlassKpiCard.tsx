@@ -7,6 +7,7 @@ import MiniSparkChart from "./MiniSparkChart";
 import {
   TbBoxMultiple, TbHourglassHigh, TbCalendarTime, TbArrowsExchange,
   TbChartDonut, TbHeartRateMonitor, TbBan, TbAlertTriangle, TbClockExclamation,
+  TbBuildingWarehouse, TbTrendingDown,
 } from "react-icons/tb";
 import { IconType } from "react-icons";
 import { Kpi } from "@/lib/kpiRegistry";
@@ -22,6 +23,8 @@ const KPI_ICONS: Record<string, IconType> = {
   "non-moving-inventory": TbBan,
   "inventory-risk": TbAlertTriangle,
   "near-expiry": TbClockExclamation,
+  "holding-cost": TbBuildingWarehouse,
+  "stock-out-rate": TbTrendingDown,
 };
 
 // Exact colorThemes from AnalyticsHomeScreen.tsx
