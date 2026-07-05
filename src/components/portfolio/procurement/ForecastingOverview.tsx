@@ -19,16 +19,24 @@ const GREEN = "#1fa971", RED = "#e5545b", AMBER = "#f0a52a";      // semantic on
 const SH = "0 1px 2px rgba(20,24,60,0.05), 0 8px 24px -14px rgba(20,24,60,0.14)";
 const nm = (s: string, n = 26) => (s && s.length > n ? s.slice(0, n - 1) + "…" : s || "—");
 
-// 3 merged forecast pages (original-app designs). Stock Radar · Fulfillment ·
-// Aging-Risk-Forecast fold into "Replenishment & Aging Risk".
+// 3 detailed forecast pages, labelled in plain operations language.
 const KPI_META: Record<string, any> = {
-  "expected-demand": { title: "Demand Forecast", href: "/salesQuantityForecast", Icon: TbTrendingUp, sub: "per-SKU demand · upper & lower bounds" },
-  "cash-flow-forecast": { title: "Cash-flow Forecast", href: "/cashFlowForecast", Icon: TbCoin, sub: "projected procurement spend" },
-  "stock-replenishment": { title: "Replenishment & Aging Risk", href: "/stockReplenishmentForecast", Icon: TbReload, sub: "reorder qty · stock radar · aging risk" },
+  "expected-demand": { title: "Expected Usage", href: "/salesQuantityForecast", Icon: TbTrendingUp, sub: "how much you'll use, item by item" },
+  "cash-flow-forecast": { title: "Procurement Budget", href: "/cashFlowForecast", Icon: TbCoin, sub: "cash you'll need to restock" },
+  "stock-replenishment": { title: "Reorder & Stock Risk", href: "/stockReplenishmentForecast", Icon: TbReload, sub: "what to order · what's running low" },
 };
 
 function Card({ children, className = "", style = {}, pad = "p-6" }: any) {
   return <div className={`fc-card rounded-[18px] ${pad} ${className}`} style={{ background: CARD, border: `1px solid ${BORDER}`, boxShadow: SH, ...style }}>{children}</div>;
+}
+function SectionLabel({ n, title, hint, className = "" }: { n: number; title: string; hint?: string; className?: string }) {
+  return (
+    <div className={`flex items-center gap-2.5 mb-3.5 flex-wrap ${className}`}>
+      <span className="w-6 h-6 rounded-lg flex items-center justify-center text-[12px] font-bold flex-shrink-0" style={{ background: ACSOFT, color: AC }}>{n}</span>
+      <h2 className="text-[16px] font-bold tracking-tight" style={{ color: INK }}>{title}</h2>
+      {hint && <span className="text-[12.5px]" style={{ color: MUT2 }}>· {hint}</span>}
+    </div>
+  );
 }
 function Delta({ pct }: { pct: number }) {
   const up = pct >= 0, c = up ? GREEN : RED;
@@ -73,14 +81,14 @@ function Forecast({ timeline, t }: { timeline: any[]; t: any }) {
     <Card className="flex flex-col" style={{ minHeight: 380 }}>
       <div className="flex items-start justify-between flex-wrap gap-3">
         <div>
-          <div className="text-[12px] font-semibold uppercase tracking-[0.08em]" style={{ color: MUT2 }}>Demand forecast · next {t?.horizon ?? 3} months</div>
+          <div className="text-[12px] font-semibold uppercase tracking-[0.08em]" style={{ color: MUT2 }}>Expected usage · next {t?.horizon ?? 3} months</div>
           <div className="mt-2.5 flex items-end gap-2.5 flex-wrap">
             <span className="text-[42px] leading-none font-bold tabular-nums tracking-tight" style={{ color: INK }}><CountUp value={Number(t?.next_demand ?? 0)} format={countAbbr} /></span>
-            <span className="text-[13.5px] font-medium mb-1" style={{ color: MUT }}>units next month</span>
+            <span className="text-[13.5px] font-medium mb-1" style={{ color: MUT }}>units expected next month</span>
           </div>
-          <div className="mt-2 text-[12.5px]" style={{ color: MUT }}>95% interval <b style={{ color: INK }}>{countAbbr(Number(t?.next_lower ?? 0))} – {countAbbr(Number(t?.next_upper ?? 0))}</b></div>
+          <div className="mt-2 text-[12.5px]" style={{ color: MUT }}>Likely range <b style={{ color: INK }}>{countAbbr(Number(t?.next_lower ?? 0))} – {countAbbr(Number(t?.next_upper ?? 0))}</b> units</div>
         </div>
-        <span className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-2.5 py-1 rounded-lg" style={{ background: `${GREEN}12`, color: GREEN }}><TbTargetArrow size={13} />{Number(t?.accuracy ?? 0).toFixed(0)}% accuracy</span>
+        <span className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-2.5 py-1 rounded-lg" style={{ background: `${GREEN}12`, color: GREEN }}><TbTargetArrow size={13} />{Number(t?.accuracy ?? 0).toFixed(0)}% reliable</span>
       </div>
       <div className="relative mt-4 flex-1" style={{ minHeight: 230 }}>
         <svg viewBox={`0 0 ${W} ${H}`} width="100%" height="100%" preserveAspectRatio="none" style={{ display: "block", overflow: "visible" }} onMouseLeave={() => setHov(null)}>
@@ -111,9 +119,9 @@ function Forecast({ timeline, t }: { timeline: any[]; t: any }) {
             </div></div>); })()}
       </div>
       <div className="mt-2 flex items-center gap-4 text-[11px] font-medium" style={{ color: MUT2 }}>
-        <span className="inline-flex items-center gap-1.5"><span className="w-4 h-[2.5px] rounded-full" style={{ background: AC }} />Actual</span>
+        <span className="inline-flex items-center gap-1.5"><span className="w-4 h-[2.5px] rounded-full" style={{ background: AC }} />Actual use</span>
         <span className="inline-flex items-center gap-1.5"><span className="w-4 h-0 border-t-2 border-dashed" style={{ borderColor: AC2 }} />Forecast</span>
-        <span className="inline-flex items-center gap-1.5"><span className="w-4 h-2 rounded-sm" style={{ background: `${AC}33` }} />95% interval</span>
+        <span className="inline-flex items-center gap-1.5"><span className="w-4 h-2 rounded-sm" style={{ background: `${AC}33` }} />Likely range</span>
       </div>
     </Card>
   );
@@ -127,8 +135,8 @@ function Horizon({ timeline }: any) {
   return (
     <Card className="flex flex-col flex-1" pad="p-5" style={{ minHeight: 130 }}>
       <div className="flex items-baseline justify-between mb-3">
-        <div className="text-[12px] font-semibold uppercase tracking-[0.06em]" style={{ color: MUT2 }}>Forecast horizon</div>
-        <span className="text-[11.5px]" style={{ color: MUT2 }}>next {fc.length} months</span>
+        <div className="text-[12px] font-semibold uppercase tracking-[0.06em]" style={{ color: MUT2 }}>Expected use by month</div>
+        <span className="text-[11.5px]" style={{ color: MUT2 }}>units · next {fc.length} months</span>
       </div>
       <div className="flex-1 flex flex-col justify-around gap-2">
         {fc.map((m: any, i: number) => (
@@ -152,8 +160,8 @@ function AgingCard({ segs, total }: any) {
   return (
     <Card className="flex flex-col flex-1" style={{ minHeight: 234 }}>
       <div className="flex items-baseline justify-between">
-        <div className="text-[12px] font-semibold uppercase tracking-[0.06em]" style={{ color: MUT2 }}>Aging-risk forecast</div>
-        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: `${AMBER}16`, color: "#c17d10" }}>90-day</span>
+        <div className="text-[12px] font-semibold uppercase tracking-[0.06em]" style={{ color: MUT2 }}>Slow-moving stock</div>
+        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: `${AMBER}16`, color: "#c17d10" }}>next 90 days</span>
       </div>
       <div className="flex items-center gap-5 mt-3 flex-1">
         <div className="relative flex-shrink-0" style={{ width: 128, height: 128 }}>
@@ -166,16 +174,16 @@ function AgingCard({ segs, total }: any) {
         </div>
         <div className="flex-1 min-w-0 space-y-3">
           <div>
-            <div className="flex items-center justify-between mb-0.5"><span className="inline-flex items-center gap-2"><span className="w-2.5 h-2.5 rounded-sm" style={{ background: AMBER }} /><span className="text-[12.5px] font-medium" style={{ color: "#4a5068" }}>Rising</span></span><span className="text-[14px] font-bold tabular-nums" style={{ color: INK }}>{countAbbr(rising.count)}</span></div>
-            <div className="text-[11px]" style={{ color: MUT2 }}>projected to stagnate</div>
+            <div className="flex items-center justify-between mb-0.5"><span className="inline-flex items-center gap-2"><span className="w-2.5 h-2.5 rounded-sm" style={{ background: AMBER }} /><span className="text-[12.5px] font-medium" style={{ color: "#4a5068" }}>Turning slow</span></span><span className="text-[14px] font-bold tabular-nums" style={{ color: INK }}>{countAbbr(rising.count)}</span></div>
+            <div className="text-[11px]" style={{ color: MUT2 }}>review before they expire</div>
           </div>
           <div>
-            <div className="flex items-center justify-between mb-0.5"><span className="inline-flex items-center gap-2"><span className="w-2.5 h-2.5 rounded-sm" style={{ background: GREEN }} /><span className="text-[12.5px] font-medium" style={{ color: "#4a5068" }}>Stable</span></span><span className="text-[14px] font-bold tabular-nums" style={{ color: INK }}>{countAbbr(stable.count)}</span></div>
-            <div className="text-[11px]" style={{ color: MUT2 }}>healthy trajectory</div>
+            <div className="flex items-center justify-between mb-0.5"><span className="inline-flex items-center gap-2"><span className="w-2.5 h-2.5 rounded-sm" style={{ background: GREEN }} /><span className="text-[12.5px] font-medium" style={{ color: "#4a5068" }}>Moving well</span></span><span className="text-[14px] font-bold tabular-nums" style={{ color: INK }}>{countAbbr(stable.count)}</span></div>
+            <div className="text-[11px]" style={{ color: MUT2 }}>healthy turnover</div>
           </div>
         </div>
       </div>
-      <div className="mt-auto pt-3 text-[11.5px]" style={{ color: MUT2, borderTop: `1px solid ${LINE}` }}><span className="pt-3 inline-block"><b style={{ color: INK }}>{countAbbr(rising.count)}</b> of {countAbbr(total)} SKUs trending toward stagnation within 90 days</span></div>
+      <div className="mt-auto pt-3 text-[11.5px]" style={{ color: MUT2, borderTop: `1px solid ${LINE}` }}><span className="pt-3 inline-block"><b style={{ color: INK }}>{countAbbr(rising.count)}</b> of {countAbbr(total)} items likely to turn slow-moving in 90 days — review to avoid expiry & tied-up cash</span></div>
     </Card>
   );
 }
@@ -187,8 +195,8 @@ function Reorder({ rows }: { rows: any[] }) {
   return (
     <Card className="flex flex-col flex-1" style={{ minHeight: 234 }}>
       <div className="flex items-baseline justify-between mb-1">
-        <div className="text-[12px] font-semibold uppercase tracking-[0.06em]" style={{ color: MUT2 }}>Top SKUs to reorder</div>
-        <span className="text-[11.5px]" style={{ color: MUT2 }}>{inrAbbr(totalVal)} across top {data.length} · by order value</span>
+        <div className="text-[12px] font-semibold uppercase tracking-[0.06em]" style={{ color: MUT2 }}>Priority reorder list</div>
+        <span className="text-[11.5px]" style={{ color: MUT2 }}>{inrAbbr(totalVal)} to restock these {data.length} items</span>
       </div>
       <div className="flex-1 flex flex-col justify-between mt-2">
         {data.map((r, i) => (
@@ -196,7 +204,7 @@ function Reorder({ rows }: { rows: any[] }) {
             <span className="w-6 h-6 rounded-lg flex items-center justify-center text-[11px] font-bold tabular-nums flex-shrink-0" style={{ background: i === 0 ? AC : ACSOFT, color: i === 0 ? "#fff" : AC }}>{i + 1}</span>
             <div className="min-w-0" style={{ width: 190 }}>
               <div className="text-[12.5px] font-semibold truncate" style={{ color: "#2b3050" }} title={r.desc}>{nm(r.desc, 26)}</div>
-              <div className="text-[10.5px] tabular-nums" style={{ color: MUT2 }}>{countAbbr(r.qty)} units</div>
+              <div className="text-[10.5px] tabular-nums" style={{ color: MUT2 }}>order {countAbbr(r.qty)} units</div>
             </div>
             <div className="flex-1 h-2.5 rounded-full overflow-hidden" style={{ background: "#f1f2f8" }}>
               <div className="h-full rounded-full" style={{ width: on ? `${(r.value / max) * 100}%` : "0%", background: `linear-gradient(90deg,${AC2},${AC})`, transition: `width 1s cubic-bezier(.22,1,.36,1) ${i * 55}ms`, boxShadow: `0 1px 6px -1px ${AC}66` }} />
@@ -238,11 +246,12 @@ export default function ForecastingOverview() {
     totalStock: radarTotal,
   };
 
+  const stockOutCount = cnt("Out", radar);
   const metrics = [
-    { label: "Expected demand", value: countAbbr(Number(t.next_demand ?? 0)), unit: "units", delta: demandDelta, spark: [...acts, ...fcs], fcFrom: acts.length },
-    { label: "Forecast accuracy", value: `${Number(t.accuracy ?? 0).toFixed(0)}%`, unit: "aggregate", sub: `weighted ${Number(t.weighted_acc ?? 0).toFixed(0)}%` },
-    { label: "Replenishment", value: countAbbr(Number(t.replen_skus ?? 0)), unit: "SKUs", sub: `${inrAbbr(Number(t.replen_value ?? 0))} to order` },
-    { label: "Cash-flow · next mo", value: inrAbbr(Number(t.cashflow_next ?? 0)), unit: "", delta: cfDelta, spark: cfVals, fcFrom: 0 },
+    { label: "Reorder now", value: countAbbr(Number(t.replen_skus ?? 0)), unit: "items", sub: `${inrAbbr(Number(t.replen_value ?? 0))} to restock`, tone: AC },
+    { label: "Running low", value: countAbbr(stockOutCount), unit: "items", sub: "at risk of running out", tone: RED },
+    { label: "Expected use · next month", value: countAbbr(Number(t.next_demand ?? 0)), unit: "units", delta: demandDelta, spark: [...acts, ...fcs], fcFrom: acts.length },
+    { label: "Money to restock · next month", value: inrAbbr(Number(t.cashflow_next ?? 0)), unit: "", delta: cfDelta, spark: cfVals, fcFrom: 0 },
   ];
 
   return (
@@ -250,10 +259,12 @@ export default function ForecastingOverview() {
       <style jsx global>{`@keyframes fcIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}.fc-card{animation:fcIn .5s cubic-bezier(.22,1,.36,1) both;min-width:0;transition:transform .25s ease, box-shadow .25s ease}`}</style>
       <div className="flex items-end justify-between flex-wrap gap-2 mb-6">
         <div>
-          <h1 className="text-[25px] font-bold leading-tight tracking-tight" style={{ color: INK }}>Forecasting</h1>
-          <p className="text-[13px] mt-1" style={{ color: MUT }}>Demand, replenishment & cash-flow projections · {region}</p>
+          <h1 className="text-[25px] font-bold leading-tight tracking-tight" style={{ color: INK }}>Demand Forecast & Reorder Planning</h1>
+          <p className="text-[13px] mt-1" style={{ color: MUT }}>What to order, what's running low, and the budget you'll need — next 3 months · {region}</p>
         </div>
-        <span className="text-[12px] font-medium px-3 py-1.5 rounded-lg" style={{ color: MUT, background: CARD, border: `1px solid ${BORDER}` }}>6-mo history · 3-mo horizon</span>
+        <span className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3 py-1.5 rounded-lg" style={{ color: GREEN, background: `${GREEN}12` }} title="How well the forecast matched actual usage in back-testing, at the planning (category) level.">
+          <TbTargetArrow size={13} />{Number(t.accuracy ?? 0).toFixed(0)}% reliable for planning
+        </span>
       </div>
 
       {/* metrics bar */}
@@ -266,7 +277,7 @@ export default function ForecastingOverview() {
                 {m.delta != null && <Delta pct={m.delta} />}
               </div>
               <div className="mt-3 flex items-end gap-1.5">
-                <span className="text-[27px] leading-none font-bold tabular-nums tracking-tight" style={{ color: INK }}>{m.value}</span>
+                <span className="text-[27px] leading-none font-bold tabular-nums tracking-tight" style={{ color: (m as any).tone || INK }}>{m.value}</span>
                 {m.unit && <span className="text-[12px] font-medium mb-0.5" style={{ color: MUT2 }}>{m.unit}</span>}
               </div>
               <div className="mt-2 h-[34px] flex items-end">{m.spark ? <Spark vals={m.spark} fcFrom={m.fcFrom!} /> : <span className="text-[12px]" style={{ color: MUT }}>{m.sub}</span>}</div>
@@ -275,24 +286,25 @@ export default function ForecastingOverview() {
         </div>
       </Card>
 
+      {/* ── STEP 1 · ACT: what to order now + overall stock health ── */}
+      <SectionLabel n={1} title="Order these first" hint="highest-value items your stock won't cover" />
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-stretch">
+        <div className="xl:col-span-8 flex flex-col"><Reorder rows={data?.top_reorder || []} /></div>
+        <div className="xl:col-span-4 flex items-center justify-center rounded-[18px]" style={{ background: "#fff", border: "1px solid #ecedf4", boxShadow: SH, padding: "8px 0" }}><StockRadarCard region={region} metrics={radarMetrics} /></div>
+      </div>
+
+      {/* ── STEP 2 · PLAN: expected usage ahead + slow-moving stock ── */}
+      <SectionLabel n={2} title="The outlook ahead" hint="expected usage for the next 3 months, and stock turning slow" className="mt-8" />
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-stretch">
         <div className="xl:col-span-8 flex flex-col"><Forecast timeline={tl} t={t} /></div>
         <div className="xl:col-span-4 flex flex-col gap-5">
-          <div className="flex items-center justify-center rounded-[18px]" style={{ background: "#fff", border: "1px solid #ecedf4", boxShadow: SH, padding: "8px 0" }}><StockRadarCard region={region} metrics={radarMetrics} /></div>
+          <AgingCard segs={agingSegs} total={agingTotal} />
           <Horizon timeline={tl} />
         </div>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-stretch mt-5">
-        <div className="xl:col-span-4 flex flex-col"><AgingCard segs={agingSegs} total={agingTotal} /></div>
-        <div className="xl:col-span-8 flex flex-col"><Reorder rows={data?.top_reorder || []} /></div>
-      </div>
-
-      {/* clickable KPI cards */}
-      <div className="mt-8 mb-3 flex items-baseline gap-2">
-        <h2 className="text-[14px] font-bold uppercase tracking-[0.06em]" style={{ color: INK }}>Explore KPIs</h2>
-        <span className="text-[12px]" style={{ color: MUT2 }}>open any drill-down</span>
-      </div>
+      {/* ── STEP 3 · DRILL IN: full breakdowns ── */}
+      <SectionLabel n={3} title="See the full details" hint="item-by-item usage, budget and stock risk" className="mt-8" />
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {Object.keys(KPI_META).map((key) => { const m = KPI_META[key]; const Icon = m.Icon; const c = cards[key] || {};
           const val = c.kind === "inr" ? inrAbbr(Number(c.value ?? 0)) : c.kind === "pct" ? `${Number(c.value ?? 0).toFixed(0)}%` : countAbbr(Number(c.value ?? 0));
@@ -306,13 +318,13 @@ export default function ForecastingOverview() {
               </div>
               <div className="mt-4 text-[21px] font-bold tabular-nums leading-none" style={{ color: INK }}>{val}</div>
               <div className="mt-1.5 text-[13px] font-semibold" style={{ color: "#333850" }}>{m.title}</div>
-              <div className="text-[11.5px] mt-0.5" style={{ color: MUT2 }}>{c.sub || m.sub}</div>
+              <div className="text-[11.5px] mt-0.5" style={{ color: MUT2 }}>{m.sub}</div>
             </Link>
           ); })}
       </div>
 
-      <div className="mt-6 text-[11.5px]" style={{ color: MUT2 }}>
-        Statistical forecast (damped-trend + moving average) on 6 months of history — bounds are indicative; accuracy improves with more history.
+      <div className="mt-6 rounded-[14px] px-4 py-3 text-[12px] leading-relaxed" style={{ background: CARD, border: `1px solid ${BORDER}`, color: MUT }}>
+        <b style={{ color: INK }}>How to read this:</b> forecasts are built from your last 6 months of actual usage. They're <b style={{ color: INK }}>reliable for planning</b> your overall and category-wise needs — the range shows best- and worst-case. For a single item, treat the number as a guide and confirm critical medicines with your team. Accuracy improves as more months of usage build up.
       </div>
     </div>
   );
