@@ -8,7 +8,7 @@ import Link from "next/link";
 import { TbArrowRight } from "react-icons/tb";
 import { REAL } from "@/lib/realAnchors";
 
-const BG = "#e8eaee", INK = "#1b1c22", INK2 = "#41444f", MUT = "#8a8f9d", BORDER = "#e7e8ee";
+const BG = "#ffffff", INK = "#1b1c22", INK2 = "#41444f", MUT = "#8a8f9d", BORDER = "#e7e8ee";
 const inrCr = (v: number) => `₹${(v / 1e7).toFixed(1)}Cr`;
 
 // exact "Analytics KPI's" card, tinted to `accent`
