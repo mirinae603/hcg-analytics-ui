@@ -12,7 +12,7 @@ import {
   TbCoin, TbReceipt, TbTrendingDown, TbBuildingFactory2, TbMapPin, TbClockHour4, TbTruckDelivery, TbProgressCheck,
   TbPill, TbBuildingHospital,
   TbTargetArrow, TbRadar2, TbChartDots3, TbChartLine, TbCashBanknote, TbReload,
-  TbLogin2, TbUserPlus,
+  TbLogin2, TbUserPlus, TbHome,
 } from "react-icons/tb";
 
 // ── Two-level navigation: a slim icon rail + a fluid flyout panel that slides out to the
@@ -142,10 +142,22 @@ const AppSidebar: React.FC = () => {
       >
         {/* ── RAIL ── */}
         <div className="relative z-10 h-full flex flex-col items-center bg-white dark:bg-gray-900" style={{ width: RAIL_W, borderRight: `1px solid ${BORDER}` }}>
-          <Link href="/" className="mt-5 mb-5 flex items-center justify-center rounded-[12px]"
+          <Link href="/" className="mt-5 mb-4 flex items-center justify-center rounded-[12px]"
             style={{ width: 40, height: 40, background: "#f4f6fb", border: `1px solid ${BORDER}` }} title="HCG — Home">
             <img src="/images/logo/hcg-butterfly.svg" alt="HCG" style={{ width: 26, height: 24 }} />
           </Link>
+
+          {/* Home */}
+          <div className="w-full px-3 pb-3 mb-1 flex justify-center" style={{ borderBottom: `1px solid ${BORDER}` }}>
+            <Link href="/" title="Home"
+              className="group relative flex items-center justify-center rounded-[12px] transition-colors duration-150"
+              style={{ width: 46, height: 46, background: pathname === "/" ? ACCENT_SOFT : "transparent" }}
+              onMouseOver={(e) => { if (pathname !== "/") (e.currentTarget as HTMLElement).style.background = HOVER; }}
+              onMouseOut={(e) => { if (pathname !== "/") (e.currentTarget as HTMLElement).style.background = "transparent"; }}>
+              <span className="absolute left-[-12px] top-1/2 -translate-y-1/2 rounded-r-full transition-all duration-300" style={{ width: 2.5, height: pathname === "/" ? 20 : 0, background: ACCENT }} />
+              <TbHome size={21} style={{ color: pathname === "/" ? ACCENT : MUTED }} />
+            </Link>
+          </div>
 
           <div className="flex-1 w-full px-3 flex flex-col gap-1 overflow-y-auto no-scrollbar">
             {PANELS.map((p) => <Tile key={p.key} p={p} />)}
