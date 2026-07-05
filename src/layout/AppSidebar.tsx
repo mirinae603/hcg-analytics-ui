@@ -143,8 +143,8 @@ const AppSidebar: React.FC = () => {
         {/* ── RAIL ── */}
         <div className="relative z-10 h-full flex flex-col items-center bg-white dark:bg-gray-900" style={{ width: RAIL_W, borderRight: `1px solid ${BORDER}` }}>
           <Link href="/" className="mt-5 mb-5 flex items-center justify-center rounded-[12px]"
-            style={{ width: 40, height: 40, background: ACCENT }} title="Home">
-            <span className="text-white font-semibold text-[15px] tracking-tight">Hc</span>
+            style={{ width: 40, height: 40, background: "#f4f6fb", border: `1px solid ${BORDER}` }} title="HCG — Home">
+            <img src="/images/logo/hcg-butterfly.svg" alt="HCG" style={{ width: 26, height: 24 }} />
           </Link>
 
           <div className="flex-1 w-full px-3 flex flex-col gap-1 overflow-y-auto no-scrollbar">
