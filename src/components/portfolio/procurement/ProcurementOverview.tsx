@@ -5,7 +5,16 @@ import { useRegion } from "@/context/RegionContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import { CARD_SH, inrAbbr, countAbbr, catName, useMount, smoothPath } from "@/components/portfolio/kit";
 import { GaugeCard, DonutCard, BrandPanel, Tab } from "./ExecCards";
-import { TbCoin, TbReceipt, TbTrendingDown, TbBuildingFactory2, TbMapPin, TbClockHour4, TbTruckDelivery, TbProgressCheck, TbChevronRight } from "react-icons/tb";
+import { TbCoin, TbReceipt, TbTrendingDown, TbBuildingFactory2, TbMapPin, TbClockHour4, TbTruckDelivery, TbProgressCheck, TbChevronRight, TbFlask } from "react-icons/tb";
+import { simulatedByPortfolio } from "@/lib/kpiRegistry";
+import { getSimulated } from "@/lib/simulatedKpi";
+import { simVisual } from "@/lib/simKpiVisual";
+import { fmt as fmtSim } from "@/lib/kpiFormat";
+
+const SIM_PROCUREMENT = simulatedByPortfolio("procurement").map((meta) => {
+  const b = getSimulated(meta.key)!;
+  return { meta, ...simVisual(meta.key), val: fmtSim(b.headline.value, b.headline.kind), label: b.headline.label };
+});
 
 const PAGE = "#ECF3F1";
 const INK = "#1f2333";
@@ -97,6 +106,18 @@ function KpiGrid({ cards }: { cards: Record<string, any> }) {
             </Link>
           );
         })}
+        {SIM_PROCUREMENT.map(({ meta, Icon, accent, val, label }) => (
+          <Link key={meta.key} href={`/kpi/${meta.key}`} className="group flex items-center gap-3 rounded-2xl p-3.5 transition-all duration-200" style={{ border: "1px solid #eef1f0", background: "#fff", opacity: 0.58, filter: "saturate(0.72)" }}
+            onMouseOver={(e) => { const t = e.currentTarget as HTMLElement; t.style.opacity = "1"; t.style.filter = "none"; t.style.borderColor = accent; t.style.background = "#fbfdfc"; }}
+            onMouseOut={(e) => { const t = e.currentTarget as HTMLElement; t.style.opacity = "0.58"; t.style.filter = "saturate(0.72)"; t.style.borderColor = "#eef1f0"; t.style.background = "#fff"; }}>
+            <span className="flex items-center justify-center rounded-xl flex-shrink-0" style={{ width: 38, height: 38, background: accent + "1c", color: accent }}><Icon size={19} /></span>
+            <div className="min-w-0 flex-1">
+              <div className="text-[12.5px] font-semibold truncate" style={{ color: INK }}>{meta.title}</div>
+              <div className="flex items-baseline gap-1.5"><span className="text-[16px] font-bold tabular-nums leading-tight" style={{ color: accent }}>{val}</span><span className="text-[10.5px] truncate" style={{ color: SUBTLE }}>{label}</span></div>
+            </div>
+            <span className="flex items-center gap-0.5 px-1.5 py-[3px] rounded-full flex-shrink-0" style={{ background: "#fff7ed", border: "1px solid #fadcae" }}><TbFlask size={9} style={{ color: "#c07d1a" }} /><span className="text-[8.5px] font-bold uppercase tracking-[0.04em]" style={{ color: "#a56a15" }}>Sim</span></span>
+          </Link>
+        ))}
       </div>
     </div>
   );

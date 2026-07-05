@@ -7,7 +7,17 @@ import dynamic from "next/dynamic";
 import { useRegion } from "@/context/RegionContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import { inrAbbr, countAbbr, useMount, CountUp, smoothPath } from "@/components/portfolio/kit";
-import { TbTargetArrow, TbCoin, TbTrendingUp, TbReload, TbArrowUpRight as TbUp, TbArrowDownRight, TbArrowNarrowRight } from "react-icons/tb";
+import { TbTargetArrow, TbCoin, TbTrendingUp, TbReload, TbArrowUpRight as TbUp, TbArrowDownRight, TbArrowNarrowRight, TbFlask } from "react-icons/tb";
+import { simulatedByPortfolio } from "@/lib/kpiRegistry";
+import { getSimulated } from "@/lib/simulatedKpi";
+import { simVisual } from "@/lib/simKpiVisual";
+import { fmt } from "@/lib/kpiFormat";
+
+// simulated forecasting KPIs, rendered inline in the explore grid (washed-out + tag)
+const SIM_FORECAST = simulatedByPortfolio("forecasting").map((meta) => {
+  const b = getSimulated(meta.key)!;
+  return { meta, ...simVisual(meta.key), val: fmt(b.headline.value, b.headline.kind) };
+});
 
 // original home-page "Stock Replenishment Radar" card, wired to real HCG data
 const StockRadarCard = dynamic(() => import("@/components/ecommerce/AnalyticsHomeScreenCards/forecastCard1"), { ssr: false, loading: () => <div className="rounded-2xl bg-white" style={{ height: 320, border: "1px solid #ecedf4" }} /> });
@@ -321,6 +331,21 @@ export default function ForecastingOverview() {
               <div className="text-[11.5px] mt-0.5" style={{ color: MUT2 }}>{m.sub}</div>
             </Link>
           ); })}
+        {SIM_FORECAST.map(({ meta, Icon, accent, val }) => (
+          <Link key={meta.key} href={`/kpi/${meta.key}`} className="fc-card group rounded-[18px] p-5 block" style={{ background: CARD, border: `1px solid ${BORDER}`, boxShadow: SH, opacity: 0.62, filter: "saturate(0.72)" }}
+            onMouseEnter={(e) => { const t = e.currentTarget as HTMLElement; t.style.opacity = "1"; t.style.filter = "none"; t.style.boxShadow = "0 8px 30px -12px rgba(109,94,252,0.35)"; t.style.transform = "translateY(-2px)"; t.style.borderColor = "#dcd8ff"; }}
+            onMouseLeave={(e) => { const t = e.currentTarget as HTMLElement; t.style.opacity = "0.62"; t.style.filter = "saturate(0.72)"; t.style.boxShadow = SH; t.style.transform = "none"; t.style.borderColor = BORDER; }}>
+            <div className="flex items-center justify-between">
+              <span className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: accent + "1c", color: accent }}><Icon size={20} /></span>
+              <span className="flex items-center gap-1 px-2 py-[3px] rounded-full" style={{ background: "#fff7ed", border: "1px solid #fadcae" }}>
+                <TbFlask size={10} style={{ color: "#c07d1a" }} /><span className="text-[9px] font-bold uppercase tracking-[0.06em]" style={{ color: "#a56a15" }}>Simulated</span>
+              </span>
+            </div>
+            <div className="mt-4 text-[21px] font-bold tabular-nums leading-none" style={{ color: INK }}>{val}</div>
+            <div className="mt-1.5 text-[13px] font-semibold" style={{ color: "#333850" }}>{meta.title}</div>
+            <div className="text-[11.5px] mt-0.5" style={{ color: MUT2 }}>{meta.why}</div>
+          </Link>
+        ))}
       </div>
 
       <div className="mt-6 rounded-[14px] px-4 py-3 text-[12px] leading-relaxed" style={{ background: CARD, border: `1px solid ${BORDER}`, color: MUT }}>
