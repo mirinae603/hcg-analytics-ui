@@ -12,8 +12,9 @@ import {
   TbCoin, TbReceipt, TbTrendingDown, TbBuildingFactory2, TbMapPin, TbClockHour4, TbTruckDelivery, TbProgressCheck,
   TbPill, TbBuildingHospital,
   TbTargetArrow, TbRadar2, TbChartDots3, TbChartLine, TbCashBanknote, TbReload,
-  TbLogin2, TbUserPlus, TbHome,
+  TbLogin2, TbUserPlus, TbHome, TbLogout2,
 } from "react-icons/tb";
+import { useAuth } from "@/hooks/useAuth";
 
 // ── Two-level navigation: a slim icon rail + a fluid flyout panel that slides out to the
 //    right with the selected portfolio's KPIs. Custom line icons, per-portfolio overview. ──
@@ -70,9 +71,11 @@ const PANELS: Panel[] = PORTFOLIOS.map((p) => ({
       : byPortfolio(p.key).map((k) => ({ name: k.short, title: k.title, path: `/kpi/${k.key}`, Icon: KPI_ICON[k.key] ?? TbChartDots3 })),
 }));
 
+// App is gated (only logged-in users see the rail) → the account panel is a sign-out,
+// not sign-in/up. __signout is handled specially in the item renderer.
 const ACCOUNT: Panel = {
   key: "account", name: "Account", desc: "Your session", Icon: TbUserCircle,
-  items: [{ name: "Sign In", path: "/signin", Icon: TbLogin2 }, { name: "Sign Up", path: "/signup", Icon: TbUserPlus }],
+  items: [{ name: "Sign out", path: "__signout", Icon: TbLogout2 }],
 };
 const ALL: Panel[] = [...PANELS, ACCOUNT];
 
@@ -92,6 +95,7 @@ function portfolioOf(path: string): string | null {
 
 const AppSidebar: React.FC = () => {
   const { isMobileOpen, toggleMobileSidebar } = useSidebar();
+  const { logout } = useAuth();
   const pathname = usePathname();
   const routePf = useMemo(() => portfolioOf(pathname), [pathname]);
 
@@ -225,8 +229,22 @@ const AppSidebar: React.FC = () => {
           <nav className="flex-1 overflow-y-auto no-scrollbar px-3 pb-4">
             <ul className="flex flex-col gap-0.5">
               {panel.items.map((it) => {
-                const active = isActivePath(it.path);
                 const Icon = it.Icon;
+                if (it.path === "__signout") {
+                  return (
+                    <li key={it.path}>
+                      <button onClick={() => { try { localStorage.removeItem("user"); } catch { /* noop */ } logout(); pickItem(); }}
+                        className="group relative flex w-full items-center gap-3 rounded-[10px] pl-3 pr-2.5 py-2 text-left transition-colors duration-150"
+                        onMouseOver={(e) => { (e.currentTarget as HTMLElement).style.background = HOVER; }}
+                        onMouseOut={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
+                      >
+                        <Icon size={18} style={{ color: "#d0524a", flexShrink: 0 }} />
+                        <span className="text-[13px] truncate flex-1" style={{ color: "#c0473f", fontWeight: 500 }}>{it.name}</span>
+                      </button>
+                    </li>
+                  );
+                }
+                const active = isActivePath(it.path);
                 return (
                   <li key={it.path}>
                     <Link href={it.path} onClick={pickItem}

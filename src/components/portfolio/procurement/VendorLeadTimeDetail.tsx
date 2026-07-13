@@ -33,7 +33,7 @@ function Shell({ region, children }: any) {
           <h1 className="text-[24px] font-bold leading-tight" style={{ color: INK }}>Vendor lead time</h1>
           <p className="text-[13px] mt-1" style={{ color: SUB }}>how reliably suppliers turn a purchase order into delivered goods · {region}</p>
         </div>
-        <span className="text-[12px] font-medium px-3.5 py-2 rounded-full bg-white" style={{ color: "#6a6486", boxShadow: "0 4px 14px -8px rgba(58,44,110,0.22)" }}>6-month window</span>
+        <span className="text-[12px] font-medium px-3.5 py-2 rounded-full bg-white" style={{ color: "#6a6486", boxShadow: "0 4px 14px -8px rgba(58,44,110,0.22)" }} title="Average PO→GR turnaround across all recorded goods receipts (not limited to a 6-month window).">PO→GR · all deliveries</span>
       </div>
       {children}
     </div>
