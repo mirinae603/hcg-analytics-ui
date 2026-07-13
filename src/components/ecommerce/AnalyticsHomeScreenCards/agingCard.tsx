@@ -1,5 +1,14 @@
 import React, { useState, useEffect } from 'react';
 
+// Inventory Aging is a stock-VALUE metric (₹), not a unit count (client feedback #13).
+const inrCr = (v: number) => {
+  const a = Math.abs(v || 0);
+  if (a >= 1e7) return `₹${(v / 1e7).toFixed(2)} Cr`;
+  if (a >= 1e5) return `₹${(v / 1e5).toFixed(1)} L`;
+  if (a >= 1e3) return `₹${(v / 1e3).toFixed(0)}K`;
+  return `₹${Math.round(v || 0)}`;
+};
+
 interface StockAgingCardProps {
   agingData: {
     fresh: number;
@@ -89,8 +98,8 @@ const StockAgingCard: React.FC<StockAgingCardProps> = ({
 
   const stockSegments = [
     { key: 'fresh', label: '<3 Months', value: displayData.fresh, color: '#56d3a5ff', lightColor: '#D1FAE5' },
-    { key: 'aging', label: '3+ Months', value: displayData.aging, color: '#80b7f9ff', lightColor: '#DBEAFE' },
-    { key: 'problem', label: '6+ Months', value: displayData.problem, color: '#fcb77fff', lightColor: '#FFEDD5' },
+    { key: 'aging', label: '3–6 Months', value: displayData.aging, color: '#80b7f9ff', lightColor: '#DBEAFE' },
+    { key: 'problem', label: '6–12 Months', value: displayData.problem, color: '#fcb77fff', lightColor: '#FFEDD5' },
     { key: 'deadStock', label: '1+ Year', value: displayData.deadStock, color: '#f98686ff', lightColor: '#FEE2E2' }
   ];
   const [isHovered, setIsHovered] = useState(false);
@@ -144,9 +153,9 @@ const StockAgingCard: React.FC<StockAgingCardProps> = ({
               >{label}</h3>
               <div className="flex items-baseline space-x-2">
                 <span className="text-lg sm:text-2xl font-semibold text-slate-500 tracking-tight">
-                  {calculatedTotal.toLocaleString()}
+                  {inrCr(calculatedTotal)}
                 </span>
-                <span className="text-xs text-slate-500 font-medium">units</span>
+                <span className="text-xs text-slate-500 font-medium">stock value</span>
               </div>
             </div>
             
@@ -267,7 +276,7 @@ const StockAgingCard: React.FC<StockAgingCardProps> = ({
         </div>
         <div className="flex items-center space-x-1 sm:space-x-2 text-right flex-shrink-0">
           <span className="text-xs font-semibold text-slate-500">
-            {segment.value.toLocaleString()}
+            {inrCr(segment.value)}
           </span>
           <span 
             className="text-xs font-medium"

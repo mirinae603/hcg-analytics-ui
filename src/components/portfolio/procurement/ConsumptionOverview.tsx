@@ -8,16 +8,7 @@ import { useRegion } from "@/context/RegionContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import { inrAbbr, countAbbr, catName, useMount, smoothPath } from "@/components/portfolio/kit";
 import { GaugeCard, DonutCard, BrandPanel, type Tab } from "./ExecCards";
-import { TbActivityHeartbeat, TbPill, TbBuildingHospital, TbChevronRight, TbFlask, TbReportMedical } from "react-icons/tb";
-import { simulatedByPortfolio } from "@/lib/kpiRegistry";
-import { getSimulated } from "@/lib/simulatedKpi";
-import { simVisual } from "@/lib/simKpiVisual";
-import { fmt } from "@/lib/kpiFormat";
-
-const SIM_CONSUMPTION = simulatedByPortfolio("consumption").map((meta) => {
-  const b = getSimulated(meta.key)!;
-  return { meta, ...simVisual(meta.key), val: fmt(b.headline.value, b.headline.kind), label: b.headline.label };
-});
+import { TbActivityHeartbeat, TbPill, TbBuildingHospital, TbChevronRight, TbFlask, TbReportMedical, TbReportMoney } from "react-icons/tb";
 
 const PAGE = "#F6F0F2", INK = "#33262e", SUB = "#9a8b92";
 const ROSE = "#cf5d84", DEEP = "#a8446a", CORAL = "#ec8a8d", PLUM = "#9a6bb0", GREY = "#cbb9c1";
@@ -92,18 +83,18 @@ function KpiGrid({ cards }: { cards: Record<string, any> }) {
               <TbChevronRight size={16} className="flex-shrink-0 transition-transform duration-200 group-hover:translate-x-0.5" style={{ color: "#d7c6ce" }} />
             </Link>
           ); })}
-        {SIM_CONSUMPTION.map(({ meta, Icon, accent, val, label }) => (
-          <Link key={meta.key} href={`/kpi/${meta.key}`} className="group flex items-center gap-3 rounded-2xl p-3.5 transition-all duration-200" style={{ border: "1px solid #f1e9ed", background: "#fff", opacity: 0.58, filter: "saturate(0.72)" }}
-            onMouseEnter={(e) => { const t = e.currentTarget as HTMLElement; t.style.opacity = "1"; t.style.filter = "none"; t.style.boxShadow = "0 10px 26px -14px rgba(90,40,60,0.28)"; t.style.transform = "translateY(-2px)"; }}
-            onMouseLeave={(e) => { const t = e.currentTarget as HTMLElement; t.style.opacity = "0.58"; t.style.filter = "saturate(0.72)"; t.style.boxShadow = "none"; t.style.transform = "none"; }}>
-            <span className="flex items-center justify-center rounded-xl flex-shrink-0" style={{ width: 38, height: 38, background: accent + "1c", color: accent }}><Icon size={19} /></span>
-            <div className="min-w-0 flex-1">
-              <div className="text-[12.5px] font-semibold truncate" style={{ color: "#3c2f36" }}>{meta.title}</div>
-              <div className="text-[13px] font-bold tabular-nums" style={{ color: accent }}>{val} <span className="text-[10.5px] font-medium" style={{ color: SUB }}>{label}</span></div>
-            </div>
-            <span className="flex items-center gap-0.5 px-1.5 py-[3px] rounded-full flex-shrink-0" style={{ background: "#fff7ed", border: "1px solid #fadcae" }}><TbFlask size={9} style={{ color: "#c07d1a" }} /><span className="text-[8.5px] font-bold uppercase tracking-[0.04em]" style={{ color: "#a56a15" }}>Sim</span></span>
-          </Link>
-        ))}
+        {/* Real revenue & margin from IP+OP billing (retired the old simulated revenue tiles) */}
+        <Link href="/revenueMargin" className="group flex items-center gap-3 rounded-2xl p-3.5 transition-all duration-200 sm:col-span-2" style={{ border: "1px solid #d7ece0", background: "linear-gradient(120deg,#f0faf5,#ffffff)" }}
+          onMouseEnter={(e) => { const t = e.currentTarget as HTMLElement; t.style.boxShadow = "0 10px 26px -14px rgba(14,122,84,0.28)"; t.style.transform = "translateY(-2px)"; }}
+          onMouseLeave={(e) => { const t = e.currentTarget as HTMLElement; t.style.boxShadow = "none"; t.style.transform = "none"; }}>
+          <span className="flex items-center justify-center rounded-xl flex-shrink-0" style={{ width: 38, height: 38, background: "#e6f5ee", color: "#0e7a54" }}><TbReportMoney size={19} /></span>
+          <div className="min-w-0 flex-1">
+            <div className="text-[12.5px] font-semibold truncate" style={{ color: "#3c2f36" }}>Revenue &amp; Margin</div>
+            <div className="text-[12.5px] font-bold" style={{ color: "#0e7a54" }}>IP + OP pharmacy billing <span className="text-[10.5px] font-medium" style={{ color: SUB }}>real revenue &amp; true margin</span></div>
+          </div>
+          <span className="flex items-center gap-1 px-2 py-[3px] rounded-full flex-shrink-0" style={{ background: "#e6f5ee", border: "1px solid #cbe8d9" }}><span className="w-1.5 h-1.5 rounded-full" style={{ background: "#0e7a54" }} /><span className="text-[8.5px] font-bold uppercase tracking-[0.04em]" style={{ color: "#0e7a54" }}>Live</span></span>
+          <TbChevronRight size={16} className="flex-shrink-0 transition-transform duration-200 group-hover:translate-x-0.5" style={{ color: "#9fcfb8" }} />
+        </Link>
       </div>
     </div>
   );
@@ -220,7 +211,7 @@ export default function ConsumptionOverview() {
 
       <div className="mt-5 inline-flex items-center gap-2 text-[11px] font-medium px-3 py-1.5 rounded-full"
         style={{ background: `${ROSE}12`, color: DEEP, border: `1px solid ${ROSE}2c` }}>
-        Consumption = internal goods-issue cost (movement 201) over 6 months. No sale/billing data in source — "revenue" is not available, so figures reflect usage cost, not sales.
+        Consumption = internal goods-issue cost (movement 201) over 6 months. For billed revenue &amp; true margin, see the <Link href="/revenueMargin" className="underline font-semibold">Revenue &amp; Margin</Link>&nbsp;page.
       </div>
     </div>
   );
