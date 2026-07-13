@@ -58,11 +58,16 @@ const FC_EXTRA: PanelItem[] = [
   { name: "Replenishment & Aging Risk", title: "Replenishment · Stock Radar · Aging Risk", path: "/stockReplenishmentForecast", Icon: TbReload },
 ];
 
+// Revenue & Margin — real IP+OP billing page, lives under Consumption & Revenue.
+const REVENUE_EXTRA: PanelItem = { name: "Revenue & Margin", title: "Revenue & Margin (IP + OP billing)", path: "/revenueMargin", Icon: TbReportMoney };
+
 const PANELS: Panel[] = PORTFOLIOS.map((p) => ({
   key: p.key, name: p.name, desc: p.desc, Icon: PF_ICON[p.key] ?? TbChartDots3,
   items: p.key === "forecasting"
     ? FC_EXTRA
-    : byPortfolio(p.key).map((k) => ({ name: k.short, title: k.title, path: `/kpi/${k.key}`, Icon: KPI_ICON[k.key] ?? TbChartDots3 })),
+    : p.key === "consumption"
+      ? [...byPortfolio(p.key).map((k) => ({ name: k.short, title: k.title, path: `/kpi/${k.key}`, Icon: KPI_ICON[k.key] ?? TbChartDots3 })), REVENUE_EXTRA]
+      : byPortfolio(p.key).map((k) => ({ name: k.short, title: k.title, path: `/kpi/${k.key}`, Icon: KPI_ICON[k.key] ?? TbChartDots3 })),
 }));
 
 const ACCOUNT: Panel = {
@@ -78,6 +83,7 @@ const FC_PATHS = new Set(FC_EXTRA.map((i) => i.path));
 function portfolioOf(path: string): string | null {
   if (path.startsWith("/kpi/")) return KPI_PF[path.split("/")[2]] ?? null;
   if (FC_PATHS.has(path)) return "forecasting";
+  if (path === "/revenueMargin") return "consumption";
   if (path === "/signin" || path === "/signup") return "account";
   const seg = "/" + path.split("/")[1];
   const pf = PORTFOLIOS.find((p) => `/${p.key}` === seg);
