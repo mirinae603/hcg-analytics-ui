@@ -72,7 +72,7 @@ function Spectrum({ spectrum, total }: { spectrum: any[]; total: number }) {
     <Card>
       <div className="flex items-baseline justify-between mb-1">
         <h2 className="text-[18px] font-bold" style={{ color: INK }}>Stock health across the catalogue</h2>
-        <span className="text-[12.5px] font-medium" style={{ color: MUT }}>{num(total)} item·locations</span>
+        <span className="text-[12.5px] font-medium cursor-help" style={{ color: MUT }} title="One row per item per hospital/plant — the same medicine can be short at one hospital and excess at another.">{num(total)} item–locations</span>
       </div>
       <p className="text-[12.5px] mb-5" style={{ color: MUT }}>Every item placed on a spectrum from too little stock to too much — so you can see both risks at once.</p>
       {/* segmented spectrum */}
@@ -208,7 +208,7 @@ function ItemChecker({ region }: { region: string }) {
   const [info, setInfo] = useState<any>(null); const [loading, setLoading] = useState(false);
   useEffect(() => {
     fetch(`/forecastMappings/${region}_forecast_material_catalogue.json`).then((r) => r.json())
-      .then((d: any[]) => { setCat(d || []); if (d?.length) setSel(d[Math.min(1, d.length - 1)]); }).catch(() => setCat([]));
+      .then((d: any[]) => { setCat(d || []); if (d?.length) setSel(d[0]); }).catch(() => setCat([]));
   }, [region]);
   useEffect(() => {
     if (!sel) return; setLoading(true);
@@ -300,7 +300,7 @@ export default function ReplenishmentRiskDetail() {
             <h1 className="text-[29px] font-extrabold leading-none tracking-tight" style={{ color: INK }}>Reorder &amp; Stock Risk</h1>
             <p className="text-[13px] mt-2" style={{ color: MUT }}>What to reorder now, and what's sitting too long · {region}</p>
           </div>
-          <span className="inline-flex items-center gap-2 text-[12.5px] font-semibold px-3.5 py-2 rounded-xl" style={{ color: INK2, background: CARD, border: `1px solid ${BORDER}` }}><span className="w-2 h-2 rounded-full" style={{ background: GREEN }} />{Number(t.accuracy ?? 0).toFixed(0)}% forecast reliability</span>
+          <span title="6-month back-test accuracy measured at the aggregate/category level — reliable for planning totals, not a per-item guarantee." className="inline-flex items-center gap-2 text-[12.5px] font-semibold px-3.5 py-2 rounded-xl cursor-help" style={{ color: INK2, background: CARD, border: `1px solid ${BORDER}` }}><span className="w-2 h-2 rounded-full" style={{ background: GREEN }} />{Number(t.accuracy ?? 0).toFixed(0)}% forecast reliability</span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-5">

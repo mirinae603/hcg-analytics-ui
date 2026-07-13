@@ -260,7 +260,7 @@ function ItemExplorer({ region }: { region: string }) {
   const [rows, setRows] = useState<any[]>([]); const [loading, setLoading] = useState(false);
   useEffect(() => {
     fetch(`/forecastMappings/${region}_forecast_material_catalogue.json`).then((r) => r.json())
-      .then((d: any[]) => { setCat(d || []); if (d?.length) setSel(d[Math.min(1, d.length - 1)]); }).catch(() => setCat([]));
+      .then((d: any[]) => { setCat(d || []); if (d?.length) setSel(d[0]); }).catch(() => setCat([]));
   }, [region]);
   useEffect(() => {
     if (!sel) return; setLoading(true);
@@ -353,7 +353,7 @@ export default function DemandForecastDetail() {
             <p className="text-[13px] mt-2" style={{ color: MUT }}>Plan purchasing around how much you'll actually use · {region}</p>
           </div>
           <div className="flex items-center gap-2.5">
-            <span className="inline-flex items-center gap-2 text-[12.5px] font-semibold px-3.5 py-2 rounded-xl" style={{ color: INK2, background: CARD, border: `1px solid ${BORDER}` }}><span className="w-2 h-2 rounded-full" style={{ background: GREEN }} />{Number(t.accuracy ?? 0).toFixed(0)}% reliable for planning</span>
+            <span title="6-month back-test accuracy measured at the aggregate/category level — reliable for planning totals, not a per-item guarantee." className="inline-flex items-center gap-2 text-[12.5px] font-semibold px-3.5 py-2 rounded-xl cursor-help" style={{ color: INK2, background: CARD, border: `1px solid ${BORDER}` }}><span className="w-2 h-2 rounded-full" style={{ background: GREEN }} />{Number(t.accuracy ?? 0).toFixed(0)}% reliable for planning</span>
           </div>
         </div>
 
