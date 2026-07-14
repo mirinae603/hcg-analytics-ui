@@ -45,6 +45,12 @@ if (typeof window !== "undefined" && BASE && !(window as WGL).__glPatched) {
       p.then(done, done);
       return p;
     }
+    // A caller-cancelled request (AbortController — used by tables/charts on param
+    // change or React re-mount) must NOT be retried; otherwise it would hold the
+    // loader up for the full ~50s wake window. Detect abort and bail immediately.
+    const sig = init?.signal || (typeof input !== "string" ? (input as Request).signal : undefined);
+    const isAbort = (e: any) => (e && (e.name === "AbortError" || e.name === "DOMException")) || !!sig?.aborted;
+
     // Retry a waking backend (502/503/504 or network error) for up to ~50s, keeping
     // the loader up, so pages get real data instead of falling back to zeros.
     const attempt = async (left: number): Promise<Response> => {
@@ -53,7 +59,7 @@ if (typeof window !== "undefined" && BASE && !(window as WGL).__glPatched) {
         if (COLD.has(res.status) && left > 0) { await wait(3000); return attempt(left - 1); }
         return res;
       } catch (e) {
-        if (left > 0) { await wait(3000); return attempt(left - 1); }
+        if (!isAbort(e) && left > 0) { await wait(3000); return attempt(left - 1); }
         throw e;
       }
     };
