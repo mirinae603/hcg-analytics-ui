@@ -198,7 +198,13 @@ export default function ProcurementOverview() {
           <h1 className="text-[24px] font-bold leading-tight" style={{ color: INK }}>Procurement</h1>
           <p className="text-[13px] mt-1" style={{ color: SUBTLE }}>spend, vendors & supply performance · {region}</p>
         </div>
-        <span className="text-[12px] font-medium px-3.5 py-2 rounded-full bg-white" style={{ color: "#5b6478", boxShadow: "0 4px 14px -8px rgba(40,52,86,0.2)" }}>6-month window</span>
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <span className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full cursor-help" style={{ color: "#0e7a54", background: "#eaf5ef", border: "1px solid #cbe8d9" }} title="Unit MRP − purchase cost on GRN lines where MRP is recorded (proxy margin — not billed sales margin).">
+            <span className="w-1.5 h-1.5 rounded-full" style={{ background: "#0e7a54" }} />{Number(t.margin_pct ?? 0).toFixed(1)}% MRP margin
+            <span className="font-normal" style={{ color: "#4a8f72" }}>· {inrAbbr(Number(t.margin_value ?? 0))}</span>
+          </span>
+          <span className="text-[12px] font-medium px-3.5 py-2 rounded-full bg-white" style={{ color: "#5b6478", boxShadow: "0 4px 14px -8px rgba(40,52,86,0.2)" }}>6-month window</span>
+        </div>
       </div>
 
       {/* Executive cards row */}
