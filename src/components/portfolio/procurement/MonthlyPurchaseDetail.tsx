@@ -152,20 +152,38 @@ function CategoryRankPanel({ groups, matrix, total }: { groups: any[]; matrix: a
   );
 }
 
-// ── Category × month heatmap (soft indigo) ──
-function Heatmap({ matrix }: { matrix: any }) {
+// ── Category × month heatmap — Spend ↔ Margin% toggle ──
+function Heatmap({ matrix, marginMatrix }: { matrix: any; marginMatrix?: any }) {
   const on = useMount(180); const [hov, setHov] = useState<[number, number] | null>(null);
-  const labels: string[] = matrix?.labels || []; const rows: any[] = matrix?.rows || [];
-  if (!rows.length) return null;
-  const maxCell = Math.max(...rows.flatMap((r) => r.values), 1);
+  const [mode, setMode] = useState<"spend" | "margin">("spend");
+  const hasMargin = !!(marginMatrix && marginMatrix.rows && marginMatrix.rows.length);
+  const isMargin = mode === "margin" && hasMargin;
+  const active = isMargin ? marginMatrix : matrix;
+  const labels: string[] = active?.labels || []; const rows: any[] = active?.rows || [];
+  if (!matrix?.rows?.length) return null;
+  const spendMax = Math.max(...(matrix.rows || []).flatMap((r: any) => r.values), 1);
+  const MARGIN_REF = 60; // % ceiling for the margin colour ramp
+  const accent = isMargin ? "#0d9488" : "#6366f1";
+  const accentRGB = isMargin ? "13,148,136" : "99,102,241";
   const cols = `minmax(150px,1.5fr) repeat(${labels.length}, minmax(0,1fr)) 78px`;
+  const cellRatio = (v: number | null) => isMargin ? (v == null ? 0 : Math.max(0, Math.min(1, v / MARGIN_REF))) : (v as number) / spendMax;
+  const cellText = (v: number | null) => isMargin ? (v == null ? "—" : `${(v as number).toFixed(0)}%`) : cellFmt(v as number);
+  const totalText = (r: any) => isMargin ? (r.total == null ? "—" : `${r.total.toFixed(0)}%`) : inrAbbr(r.total);
+  const Toggle = ({ v, label }: { v: "spend" | "margin"; label: string }) => (
+    <button type="button" onClick={() => setMode(v)} aria-pressed={mode === v}
+      className="px-2.5 py-1 text-[11px] font-semibold rounded-full transition-colors"
+      style={mode === v ? { background: accent, color: "#fff" } : { background: "transparent", color: "#8a91a0" }}>{label}</button>
+  );
   return (
     <div className="rounded-[26px] bg-white p-6" style={{ boxShadow: SOFT_SH }}>
-      <div className="flex items-center justify-between mb-1">
-        <h3 className="text-[16px] font-semibold flex items-center gap-2" style={{ color: INK }}><TbGridDots size={16} style={{ color: "#6366f1" }} />Category × month heatmap</h3>
-        <span className="text-[11px] font-medium px-2.5 py-1 rounded-full" style={{ background: "rgba(99,102,241,0.1)", color: "#6366f1" }}>{rows.length} categories</span>
+      <div className="flex items-center justify-between mb-1 flex-wrap gap-2">
+        <h3 className="text-[16px] font-semibold flex items-center gap-2" style={{ color: INK }}><TbGridDots size={16} style={{ color: accent }} />Category × month heatmap</h3>
+        <div className="flex items-center gap-2">
+          {hasMargin && <div className="flex items-center gap-0.5 p-0.5 rounded-full" style={{ background: "#f1f2f7" }}><Toggle v="spend" label="Spend" /><Toggle v="margin" label="Margin %" /></div>}
+          <span className="text-[11px] font-medium px-2.5 py-1 rounded-full" style={{ background: `rgba(${accentRGB},0.1)`, color: accent }}>{matrix.rows.length} categories</span>
+        </div>
       </div>
-      <p className="text-[12px] mb-4" style={{ color: SUBTLE }}>monthly purchase value by category · darker = more spend</p>
+      <p className="text-[12px] mb-4" style={{ color: SUBTLE }}>{isMargin ? "MRP-proxy margin % by category · darker = higher margin · — = no matched-MRP buys" : "monthly purchase value by category · darker = more spend"}</p>
       <div className="overflow-x-auto"><div style={{ minWidth: 660 }}>
         <div className="grid items-center gap-1.5 mb-1.5" style={{ gridTemplateColumns: cols }}>
           <span />{labels.map((l) => <span key={l} className="text-[11px] font-semibold text-center" style={{ color: "#9aa1b3" }}>{l}</span>)}
@@ -174,13 +192,13 @@ function Heatmap({ matrix }: { matrix: any }) {
         {rows.map((r, ri) => (
           <div key={ri} className="grid items-center gap-1.5 mb-1.5" style={{ gridTemplateColumns: cols }} onMouseLeave={() => setHov((h) => (h && h[0] === ri ? null : h))}>
             <span className="text-[12px] font-medium truncate pr-2" style={{ color: "#4b5468" }} title={catName(r.name)}>{catName(r.name)}</span>
-            {r.values.map((v: number, ci: number) => { const ratio = v / maxCell; const active = hov && hov[0] === ri && hov[1] === ci;
+            {r.values.map((v: number | null, ci: number) => { const ratio = cellRatio(v); const act = hov && hov[0] === ri && hov[1] === ci; const empty = isMargin && v == null;
               return <div key={ci} onMouseEnter={() => setHov([ri, ci])} className="relative h-11 rounded-lg flex items-center justify-center cursor-default transition-all duration-300"
-                style={{ background: `rgba(99,102,241,${(0.05 + 0.85 * Math.sqrt(ratio)) * (on ? 1 : 0)})`, transform: active ? "scale(1.06)" : "scale(1)", outline: active ? "2px solid #6366f1" : "none", zIndex: active ? 5 : 1 }}>
-                <span className="text-[10.5px] font-bold tabular-nums" style={{ color: ratio > 0.45 ? "#fff" : "#4338ca", opacity: on ? 1 : 0, transition: "opacity 0.6s ease 0.3s" }}>{cellFmt(v)}</span>
+                style={{ background: empty ? "rgba(148,163,184,0.08)" : `rgba(${accentRGB},${(0.05 + 0.85 * Math.sqrt(ratio)) * (on ? 1 : 0)})`, transform: act ? "scale(1.06)" : "scale(1)", outline: act ? `2px solid ${accent}` : "none", zIndex: act ? 5 : 1 }}>
+                <span className="text-[10.5px] font-bold tabular-nums" style={{ color: empty ? "#b6bcc9" : ratio > 0.45 ? "#fff" : isMargin ? "#0f766e" : "#4338ca", opacity: on ? 1 : 0, transition: "opacity 0.6s ease 0.3s" }}>{cellText(v)}</span>
               </div>;
             })}
-            <span className="text-[12px] font-bold tabular-nums text-right pr-1" style={{ color: INK }}>{inrAbbr(r.total)}</span>
+            <span className="text-[12px] font-bold tabular-nums text-right pr-1" style={{ color: INK }}>{totalText(r)}</span>
           </div>
         ))}
       </div></div>
@@ -245,7 +263,7 @@ export default function MonthlyPurchaseDetail() {
         <div className="xl:col-span-4 flex flex-col min-w-0"><CategoryRankPanel groups={groups} matrix={data?.matrix} total={total} /></div>
       </div>
 
-      <Heatmap matrix={data?.matrix} />
+      <Heatmap matrix={data?.matrix} marginMatrix={data?.margin_matrix} />
 
       <SkuBars rows={data?.top_skus || []} />
 

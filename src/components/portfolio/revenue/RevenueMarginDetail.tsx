@@ -124,7 +124,7 @@ function Profit({ data }: { data: any }) {
   );
 }
 
-function Leaderboard({ title, sub, rows, nameKey, Icon, accent }: { title: string; sub: string; rows: any[]; nameKey: string; Icon: any; accent: string }) {
+function Leaderboard({ title, sub, rows, nameKey, Icon, accent, onDrill, dim }: { title: string; sub: string; rows: any[]; nameKey: string; Icon: any; accent: string; onDrill?: (d: any) => void; dim?: string }) {
   const data = (rows || []).slice(0, 6);
   const max = Math.max(...data.map((r) => r.revenue), 1);
   return (
@@ -134,22 +134,31 @@ function Leaderboard({ title, sub, rows, nameKey, Icon, accent }: { title: strin
         <span className="text-[12px] font-medium" style={{ color: MUT }}>{sub}</span>
       </div>
       <div className="flex-1 flex flex-col gap-3.5 mt-3">
-        {data.map((r, i) => (
-          <div key={i} className="vm-row" style={{ animationDelay: `${i * 55}ms` }}>
-            <div className="flex items-center gap-3">
-              <div className="min-w-0 flex-1">
-                <div className="text-[12.5px] font-semibold truncate" style={{ color: INK }} title={r[nameKey]}>{nm(r[nameKey], 24)}</div>
+        {data.map((r, i) => {
+          const drillable = !!(onDrill && dim);
+          const body = (
+            <>
+              <div className="flex items-center gap-3">
+                <div className="min-w-0 flex-1">
+                  <div className="text-[12.5px] font-semibold truncate" style={{ color: INK }} title={r[nameKey]}>{nm(r[nameKey], 24)}</div>
+                </div>
+                <div className="text-right flex-shrink-0">
+                  <div className="text-[13.5px] font-bold tabular-nums" style={{ color: INK }}>{inr(r.revenue)}</div>
+                  <div className="text-[10.5px] font-semibold" style={{ color: r.margin_pct >= 0 ? MARGIN : "#c86a54" }}>{pct(r.margin_pct)} margin</div>
+                </div>
               </div>
-              <div className="text-right flex-shrink-0">
-                <div className="text-[13.5px] font-bold tabular-nums" style={{ color: INK }}>{inr(r.revenue)}</div>
-                <div className="text-[10.5px] font-semibold" style={{ color: r.margin_pct >= 0 ? MARGIN : "#c86a54" }}>{pct(r.margin_pct)} margin</div>
+              <div className="mt-1.5 h-[5px] rounded-full overflow-hidden" style={{ background: "#eef0f3" }}>
+                <div className="vm-bar h-full rounded-full" style={{ width: `${(r.revenue / max) * 100}%`, background: accent }} />
               </div>
-            </div>
-            <div className="mt-1.5 h-[5px] rounded-full overflow-hidden" style={{ background: "#eef0f3" }}>
-              <div className="vm-bar h-full rounded-full" style={{ width: `${(r.revenue / max) * 100}%`, background: accent }} />
-            </div>
-          </div>
-        ))}
+            </>
+          );
+          return drillable ? (
+            <button key={i} type="button" onClick={() => onDrill!({ title: `${r[nameKey]} — items`, query: `${dim}=${encodeURIComponent(r[nameKey])}` })}
+              aria-label={`View items for ${r[nameKey]}`} className="vm-row text-left w-full rounded-lg -mx-1 px-1 py-0.5 transition-colors hover:bg-black/[0.025] focus:outline-none focus-visible:ring-2" style={{ animationDelay: `${i * 55}ms` }}>{body}</button>
+          ) : (
+            <div key={i} className="vm-row" style={{ animationDelay: `${i * 55}ms` }}>{body}</div>
+          );
+        })}
       </div>
     </Card>
   );
@@ -314,8 +323,8 @@ export default function RevenueMarginDetail() {
               <div className="xl:col-span-4"><Profit data={data} /></div>
             </div>
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-5 items-stretch mt-5">
-              <Leaderboard title="Revenue by hospital" sub="top billing locations" rows={data?.by_hospital || []} nameKey="hospital" Icon={TbBuildingHospital} accent={IP} />
-              <Leaderboard title="Margin by manufacturer" sub="top by revenue" rows={data?.by_manufacturer || []} nameKey="manufacturer" Icon={TbBuildingFactory2} accent={OP} />
+              <Leaderboard title="Revenue by hospital" sub="top billing locations · tap to drill" rows={data?.by_hospital || []} nameKey="hospital" Icon={TbBuildingHospital} accent={IP} onDrill={setDrill} dim="hospital" />
+              <Leaderboard title="Margin by manufacturer" sub="top by revenue · tap to drill" rows={data?.by_manufacturer || []} nameKey="manufacturer" Icon={TbBuildingFactory2} accent={OP} onDrill={setDrill} dim="manufacturer" />
             </div>
             <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-stretch mt-5">
               <div className="xl:col-span-7"><TopItems rows={data?.top_items || []} onDrill={setDrill} /></div>
