@@ -69,7 +69,7 @@ function Lollipop({ timeline, height = 300 }: { timeline: any[]; height?: number
   const colW = (W - 2 * PADX) / Math.max(n - 1, 1);
   const actV = data[act] ? (data[act].is_forecast ? data[act].forecast : data[act].actual) : 0;
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} width="100%" height="100%" preserveAspectRatio="none" style={{ display: "block", overflow: "visible" }} onMouseLeave={() => setActive(firstF)}>
+    <svg role="img" aria-label="Demand forecast: historical and projected monthly demand with confidence band" viewBox={`0 0 ${W} ${H}`} width="100%" height="100%" preserveAspectRatio="none" style={{ display: "block", overflow: "visible" }} onMouseLeave={() => setActive(firstF)}>
       <defs>
         <linearGradient id={`af${rid}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={STEEL} stopOpacity="0.22" /><stop offset="100%" stopColor={STEEL} stopOpacity="0" /></linearGradient>
         <clipPath id={`wipe${rid}`}><rect x="-4" y="0" width={W + 8} height={H} style={{ transformOrigin: "0px 0px", animation: `vmWipe ${REVEAL}ms cubic-bezier(.45,0,.15,1) both` }} /></clipPath>

@@ -43,7 +43,7 @@ function SpendChart({ timeline, height = 306, small = false }: { timeline: any[]
   const act = active;
   const divX = firstF > 0 ? (X(lastActIdx) + X(firstF)) / 2 : -100;
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} width="100%" height="100%" preserveAspectRatio="none" style={{ display: "block", overflow: "visible" }} onMouseLeave={() => setActive(-1)}>
+    <svg role="img" aria-label="Procurement budget forecast: monthly spend, actual then projected" viewBox={`0 0 ${W} ${H}`} width="100%" height="100%" preserveAspectRatio="none" style={{ display: "block", overflow: "visible" }} onMouseLeave={() => setActive(-1)}>
       {/* forecast divider + tag */}
       {firstF > 0 && (
         <g style={{ animation: "vmFade .6s ease .5s both" }}>

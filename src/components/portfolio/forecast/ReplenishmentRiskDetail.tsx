@@ -114,7 +114,7 @@ function ReorderByCategory({ rows }: { rows: any[] }) {
       <p className="text-[12.5px] mb-3" style={{ color: MUT }}>Which departments need the most spend to get back to healthy stock.</p>
       <div className="flex-1" style={{ minHeight: 300 }}>
         {!data.length ? <div className="flex items-center justify-center h-full text-[13px]" style={{ color: MUT }}>Loading…</div> : (
-          <svg viewBox={`0 0 ${W} ${H}`} width="100%" height="100%" preserveAspectRatio="none" style={{ display: "block", overflow: "visible" }} onMouseLeave={() => setActive(-1)}>
+          <svg role="img" aria-label="Stock-out risk forecast: projected items at risk over the coming weeks" viewBox={`0 0 ${W} ${H}`} width="100%" height="100%" preserveAspectRatio="none" style={{ display: "block", overflow: "visible" }} onMouseLeave={() => setActive(-1)}>
             <line x1={PADX - 6} y1={BY} x2={W - PADX + 6} y2={BY} stroke={LINE} strokeWidth="1.5" />
             {data.map((r, i) => { const x = X(i) - bw / 2, y = Y(r.reorder_value), h = BY - y, isA = i === active;
               return <path key={`b${i}`} d={topBar(x, y, bw, h, 7)} fill={isA ? "#c98a26" : AMBER} style={{ transformBox: "fill-box", transformOrigin: "bottom", animation: `vmGrow .7s cubic-bezier(.22,1,.36,1) ${120 + i * 80}ms both`, transition: "fill .15s ease" }} />; })}

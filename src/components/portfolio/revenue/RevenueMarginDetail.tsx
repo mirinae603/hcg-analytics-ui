@@ -33,7 +33,7 @@ function RevenueBars({ timeline }: { timeline: any[] }) {
   const bw = Math.min(step * 0.5, 46);
   if (!data.length) return <div className="flex items-center justify-center" style={{ height: H, color: MUT }}>Loading…</div>;
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} width="100%" height="100%" preserveAspectRatio="none" style={{ display: "block", overflow: "visible" }} onMouseLeave={() => setActive(-1)}>
+    <svg role="img" aria-label="Monthly revenue by inpatient and outpatient pharmacy sales" viewBox={`0 0 ${W} ${H}`} width="100%" height="100%" preserveAspectRatio="none" style={{ display: "block", overflow: "visible" }} onMouseLeave={() => setActive(-1)}>
       <line x1={PADX - 12} y1={BY} x2={W - PADX + 12} y2={BY} stroke={LINE} strokeWidth="1.5" />
       {data.map((d, i) => {
         const x = X(i) - bw / 2, isA = i === active;

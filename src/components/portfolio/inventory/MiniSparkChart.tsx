@@ -35,7 +35,7 @@ export default function MiniSparkChart({
     const circumference = 2 * Math.PI * r;
     let offset = 0;
     return (
-      <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
+      <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} aria-hidden="true" focusable="false">
         <g transform={`rotate(-90 ${cx} ${cy})`}>
           {data.slice(0, 6).map((v, i) => {
             const frac = Math.abs(v) / total;
@@ -75,7 +75,7 @@ export default function MiniSparkChart({
     const gap = 2;
     const barW = Math.max(2, w / n - gap);
     return (
-      <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
+      <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} aria-hidden="true" focusable="false">
         {data.map((v, i) => {
           const bh = ((v - min) / range) * h;
           const x = pad + i * (w / n);
@@ -96,7 +96,7 @@ export default function MiniSparkChart({
   const areaPath = `${linePath} L${pts[pts.length - 1][0].toFixed(1)},${(pad + h).toFixed(1)} L${pts[0][0].toFixed(1)},${(pad + h).toFixed(1)} Z`;
   const gradId = `spark-grad-${color.replace("#", "")}`;
   return (
-    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
+    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} aria-hidden="true" focusable="false">
       <defs>
         <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor={color} stopOpacity={0.35} />
