@@ -77,7 +77,7 @@ export default function KpiDrilldown({ kpi }: { kpi: Kpi }) {
   // Build summary stat cards from the registry summary config.
   const statCards = (kpi.summary || []).map((s) => {
     const node = summary[s.field] || {};
-    const raw = s.agg === "count" ? node.distinct : node[s.agg === "mean" ? "mean" : "sum"];
+    const raw = s.agg === "count" ? node.distinct : (node[s.agg] ?? node.sum);
     return { label: s.label, value: Number(raw ?? 0), kind: s.kind };
   });
   if (summary.row_count != null)
@@ -86,7 +86,7 @@ export default function KpiDrilldown({ kpi }: { kpi: Kpi }) {
   // Headline metric for the side gauge card.
   const headNode = summary[kpi.card.field] || {};
   const headVal = Number(
-    kpi.card.agg === "count" ? headNode.distinct : headNode[kpi.card.agg === "mean" ? "mean" : "sum"] ?? 0
+    kpi.card.agg === "count" ? headNode.distinct : (headNode[kpi.card.agg] ?? headNode.sum ?? 0)
   );
   const gaugePct = (() => {
     if (kpi.card.kind === "pct") return Math.min(headVal / 100, 1);

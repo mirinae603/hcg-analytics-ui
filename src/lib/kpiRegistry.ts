@@ -13,7 +13,7 @@ export type ChartCfg = {
   series: { field: string; label: string; color?: string }[];
   valueKind?: Kind;
 };
-export type Card = { field: string; agg: "sum" | "mean" | "count"; kind: Kind; label: string };
+export type Card = { field: string; agg: "sum" | "mean" | "median" | "count"; kind: Kind; label: string };
 export type Kpi = {
   key: string;
   title: string;
@@ -59,8 +59,8 @@ export const KPIS: Kpi[] = [
     key: "days-on-hand", title: "Days of Inventory on Hand", short: "DOH", portfolio: "inventory", icon: "📅",
     chart: { type: "bar", top: 15, x: "material_desc",
       series: [{ field: "doh_days", label: "Days on Hand", color: C.purple }], valueKind: "num" },
-    card: { field: "doh_days", agg: "mean", kind: "num", label: "Avg DOH (days)" },
-    summary: [{ field: "doh_days", agg: "mean", kind: "num", label: "Avg DOH (days)" }],
+    card: { field: "doh_days", agg: "median", kind: "num", label: "Median DOH (days)" },
+    summary: [{ field: "doh_days", agg: "median", kind: "num", label: "Median DOH (days)" }],
     columns: [{ field: "material", label: "Material" }, { field: "material_desc", label: "Description" },
       { field: "stock_qty", label: "Stock Qty", kind: "num" }, { field: "avg_daily_consumption", label: "Daily Use", kind: "num" },
       { field: "doh_days", label: "DOH (days)", kind: "num" }],

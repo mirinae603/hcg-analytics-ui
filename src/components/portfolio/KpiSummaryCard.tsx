@@ -220,7 +220,7 @@ function headline(kpi: Kpi, node: any): string {
   const c = kpi.card;
   let v: number | undefined;
   if (c.agg === "count") v = node[c.field]?.distinct;
-  else v = node[c.field]?.[c.agg === "mean" ? "mean" : "sum"];
+  else v = node[c.field]?.[c.agg] ?? node[c.field]?.sum;
   return fmt(v, c.kind);
 }
 

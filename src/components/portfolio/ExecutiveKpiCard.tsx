@@ -49,6 +49,7 @@ export default function ExecutiveKpiCard({ kpi, node, index }: { kpi: Kpi; node:
     if (!field) return 0;
     if (c.agg === "count") return Number(field.distinct ?? 0);
     if (c.agg === "mean") return Number(field.mean ?? 0);
+    if (c.agg === "median") return Number(field.median ?? 0);
     return Number(field.sum ?? 0);
   })();
 
