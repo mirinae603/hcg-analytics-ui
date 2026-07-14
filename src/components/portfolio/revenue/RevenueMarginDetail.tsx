@@ -6,7 +6,7 @@
 import React, { useEffect, useState, useId } from "react";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import { useMount, CountUp } from "@/components/portfolio/kit";
-import { TbBuildingHospital, TbBuildingFactory2, TbPill, TbChevronDown, TbReceipt2, TbArrowUpRight } from "react-icons/tb";
+import { TbBuildingHospital, TbBuildingFactory2, TbPill, TbChevronDown, TbReceipt2, TbArrowUpRight, TbSearch, TbX, TbDownload, TbChevronRight } from "react-icons/tb";
 
 const BG = "#e8eaee", CARD = "#ffffff", CREAM = "#f4f3ef", INK = "#1b1c22", INK2 = "#41444f", MUT = "#8a8f9d", FAINT = "#c4c8d2", LINE = "#ecedf1", BORDER = "#e7e8ee";
 const IP = "#4b7bd4", OP = "#16a37f", MARGIN = "#0e7a54", COSTC = "#cfd4de";
@@ -155,13 +155,13 @@ function Leaderboard({ title, sub, rows, nameKey, Icon, accent }: { title: strin
   );
 }
 
-function TopItems({ rows }: { rows: any[] }) {
+function TopItems({ rows, onDrill }: { rows: any[]; onDrill: (d: any) => void }) {
   const data = (rows || []).slice(0, 6);
   return (
     <Card className="h-full flex flex-col" pad="p-6">
       <div className="flex items-baseline justify-between mb-1">
         <h3 className="text-[16px] font-bold flex items-center gap-2" style={{ color: INK }}><TbPill size={18} style={{ color: MARGIN }} />Top items by revenue</h3>
-        <span className="text-[12px] font-medium" style={{ color: MUT }}>with true margin</span>
+        <button onClick={() => onDrill({ title: "All items by revenue", query: "sort=revenue" })} className="inline-flex items-center gap-0.5 text-[12px] font-semibold hover:underline" style={{ color: MARGIN }}>See all <TbChevronRight size={13} /></button>
       </div>
       <div className="flex-1 flex flex-col divide-y mt-2" style={{ borderColor: LINE }}>
         {data.map((r, i) => (
@@ -182,7 +182,7 @@ function TopItems({ rows }: { rows: any[] }) {
   );
 }
 
-function CategorySplit({ rows }: { rows: any[] }) {
+function CategorySplit({ rows, onDrill }: { rows: any[]; onDrill: (d: any) => void }) {
   const on = useMount(220);
   const src = (rows || []).slice(0, 8);
   const total = src.reduce((s, r) => s + r.revenue, 0) || 1;
@@ -190,28 +190,96 @@ function CategorySplit({ rows }: { rows: any[] }) {
     <Card className="h-full flex flex-col" pad="p-6">
       <div className="flex items-baseline justify-between mb-5">
         <h3 className="text-[16px] font-bold" style={{ color: INK }}>Revenue by category</h3>
-        <span className="text-[12px] font-medium" style={{ color: MUT }}>share of billed revenue</span>
+        <span className="text-[12px] font-medium" style={{ color: MUT }}>click a row for items</span>
       </div>
       <div className="flex gap-1 h-11 mb-5">
         {src.map((s, i) => <div key={i} className="rounded-md" title={`${s.group} · ${inr(s.revenue)}`} style={{ width: on ? `${(s.revenue / total) * 100}%` : "0%", background: PAL[i % PAL.length], transition: `width .9s cubic-bezier(.22,1,.36,1) ${i * 60}ms`, minWidth: 5 }} />)}
       </div>
-      <div className="grid grid-cols-1 gap-y-2.5 flex-1 content-start">
+      <div className="grid grid-cols-1 gap-y-1 flex-1 content-start">
         {src.map((s, i) => (
-          <div key={i} className="flex items-center gap-2.5 min-w-0">
+          <button key={i} onClick={() => onDrill({ title: `${s.group} — items`, query: `group=${encodeURIComponent(s.group)}` })}
+            className="group flex items-center gap-2.5 min-w-0 rounded-lg -mx-1.5 px-1.5 py-1 cursor-pointer transition-colors hover:bg-[#f7f8fa] text-left">
             <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: PAL[i % PAL.length] }} />
             <span className="text-[12.5px] truncate flex-1" style={{ color: INK2 }} title={s.group}>{s.group}</span>
             <span className="text-[12.5px] font-bold tabular-nums flex-shrink-0" style={{ color: INK }}>{inr(s.revenue)}</span>
             <span className="text-[11px] tabular-nums w-14 text-right flex-shrink-0" style={{ color: MARGIN }}>{pct(s.margin_pct)}</span>
-          </div>
+            <TbChevronRight size={13} className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: MUT }} />
+          </button>
         ))}
       </div>
     </Card>
   );
 }
 
+// Slide-over drill — full billed-item list (with true margin) behind any revenue cut.
+function RevenueDrill({ drill, onClose }: { drill: any; onClose: () => void }) {
+  const [q, setQ] = useState("");
+  const [d, setD] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const open = !!drill;
+  useEffect(() => {
+    if (!drill) return;
+    setLoading(true); setQ(""); setD(null);
+    fetch(`${DASHBOARD_API_BASE_URL}/revenue/items?${drill.query}&limit=500`)
+      .then((r) => r.json()).then(setD).catch(() => setD({ items: [], count: 0, returned: 0 })).finally(() => setLoading(false));
+  }, [drill]);
+  const items = (d?.items || []).filter((it: any) => !q || (it.desc || "").toLowerCase().includes(q.toLowerCase()) || String(it.material).includes(q));
+  const exportCsv = () => {
+    const rows = d?.items || []; if (!rows.length) return;
+    const cols = ["material", "desc", "group", "revenue", "margin", "margin_pct", "qty"];
+    const csv = [cols.join(",")].concat(rows.map((r: any) => cols.map((c) => JSON.stringify(r[c] ?? "")).join(","))).join("\n");
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+    a.download = `${String(drill.title || "revenue-items").replace(/[^a-z0-9]+/gi, "-").toLowerCase()}.csv`;
+    a.click();
+  };
+  return (
+    <>
+      <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 60, background: "rgba(18,20,32,0.34)", backdropFilter: "blur(2px)", opacity: open ? 1 : 0, pointerEvents: open ? "auto" : "none", transition: "opacity .3s ease" }} />
+      <div style={{ position: "fixed", top: 0, right: 0, bottom: 0, zIndex: 61, width: "min(560px, 94vw)", background: "#fff", boxShadow: "-26px 0 64px -22px rgba(20,24,40,0.34)", transform: open ? "translateX(0)" : "translateX(101%)", transition: "transform .34s cubic-bezier(.22,1,.36,1)", display: "flex", flexDirection: "column" }}>
+        <div className="px-6 pt-6 pb-4" style={{ borderBottom: `1px solid ${LINE}` }}>
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <div className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: MUT }}>Billed items</div>
+              <h3 className="text-[19px] font-extrabold leading-tight truncate" style={{ color: INK }}>{drill?.title}</h3>
+              <p className="text-[12.5px] mt-0.5" style={{ color: MUT }}>{d ? `${(d.count || 0).toLocaleString("en-IN")} items${d.count > d.returned ? ` · showing top ${d.returned}` : ""}` : "loading…"}</p>
+            </div>
+            <button onClick={onClose} aria-label="Close item list" className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors hover:bg-[#f2f3f6]" style={{ color: MUT }}><TbX size={19} /></button>
+          </div>
+          <div className="flex items-center gap-2 mt-4">
+            <div className="flex-1 flex items-center gap-2 rounded-xl px-3 py-2" style={{ border: `1px solid ${BORDER}`, background: CREAM }}>
+              <TbSearch size={15} style={{ color: MUT }} />
+              <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search item…" className="flex-1 bg-transparent text-[13px] focus:outline-none" style={{ color: INK }} />
+            </div>
+            <button onClick={exportCsv} title="Export CSV" className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-[12.5px] font-semibold transition-colors hover:bg-[#f2f3f6]" style={{ border: `1px solid ${BORDER}`, color: INK2 }}><TbDownload size={15} />Export</button>
+          </div>
+        </div>
+        <div className="flex-1 overflow-y-auto px-3 py-2">
+          {loading ? (
+            <div className="py-16 flex items-center justify-center gap-2 text-[13px]" style={{ color: MUT }}><span className="w-4 h-4 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: `${MARGIN} transparent ${MARGIN} ${MARGIN}` }} />Loading…</div>
+          ) : items.length ? items.map((r: any, i: number) => (
+            <div key={r.material + "-" + i} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[#f7f8fa] transition-colors">
+              <span className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 text-[11px] font-bold" style={{ background: "#eaf5ef", color: MARGIN }}>{i + 1}</span>
+              <div className="min-w-0 flex-1">
+                <div className="text-[12.5px] font-semibold truncate" style={{ color: INK }} title={r.desc}>{r.desc}</div>
+                <div className="text-[11px] mt-0.5 truncate" style={{ color: MUT }}>{r.group} · {Math.round(r.qty).toLocaleString("en-IN")} sold</div>
+              </div>
+              <div className="text-right flex-shrink-0">
+                <div className="text-[13px] font-bold tabular-nums" style={{ color: INK }}>{inr(r.revenue)}</div>
+                <div className="text-[10.5px] font-semibold tabular-nums" style={{ color: MARGIN }}>{pct(r.margin_pct)} margin</div>
+              </div>
+            </div>
+          )) : <div className="py-16 text-center text-[13px]" style={{ color: MUT }}>No items match.</div>}
+        </div>
+      </div>
+    </>
+  );
+}
+
 export default function RevenueMarginDetail() {
   const [data, setData] = useState<any>(null);
   const [err, setErr] = useState(false);
+  const [drill, setDrill] = useState<any>(null);
   useEffect(() => { fetch(`${DASHBOARD_API_BASE_URL}/revenue/insights`).then((r) => r.json()).then((d) => { if (d?.ready) setData(d); else setErr(true); }).catch(() => setErr(true)); }, []);
   const t = data?.totals || {};
 
@@ -250,8 +318,8 @@ export default function RevenueMarginDetail() {
               <Leaderboard title="Margin by manufacturer" sub="top by revenue" rows={data?.by_manufacturer || []} nameKey="manufacturer" Icon={TbBuildingFactory2} accent={OP} />
             </div>
             <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-stretch mt-5">
-              <div className="xl:col-span-7"><TopItems rows={data?.top_items || []} /></div>
-              <div className="xl:col-span-5"><CategorySplit rows={data?.by_category || []} /></div>
+              <div className="xl:col-span-7"><TopItems rows={data?.top_items || []} onDrill={setDrill} /></div>
+              <div className="xl:col-span-5"><CategorySplit rows={data?.by_category || []} onDrill={setDrill} /></div>
             </div>
             <div className="mt-5 rounded-2xl px-5 py-4 text-[12px] leading-relaxed flex items-center gap-2 flex-wrap" style={{ background: CARD, border: `1px solid ${BORDER}`, color: MUT }}>
               <TbReceipt2 size={15} style={{ color: MARGIN }} />
@@ -260,6 +328,8 @@ export default function RevenueMarginDetail() {
           </>
         )}
       </div>
+
+      <RevenueDrill drill={drill} onClose={() => setDrill(null)} />
     </div>
   );
 }
