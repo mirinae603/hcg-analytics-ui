@@ -195,6 +195,49 @@ function OpenPOCard({ openPo }: { openPo: any }) {
   );
 }
 
+function SavingsCard({ region }: { region: string }) {
+  const on = useMount(160);
+  const [d, setD] = useState<any>(null);
+  useEffect(() => { setD(null); fetch(`${DASHBOARD_API_BASE_URL}/portfolio/procurement/savings?Plant=${encodeURIComponent(region)}`).then((r) => r.json()).then((x) => setD(x || null)).catch(() => setD(null)); }, [region]);
+  const items: any[] = d?.items || [];
+  const t = d?.totals || {};
+  if (!items.length) return null;
+  const maxOver = Math.max(...items.map((i) => i.over), 1);
+  return (
+    <div className="rounded-[26px] bg-white p-6" style={{ boxShadow: CARD_SH }}>
+      <div className="flex items-start justify-between flex-wrap gap-3">
+        <div>
+          <div className="flex items-center gap-2"><TbTrendingDown size={17} style={{ color: INDIGO }} />
+            <h3 className="text-[16px] font-semibold" style={{ color: INK }}>Price consolidation opportunity</h3>
+            <span className="cursor-help text-[11px] w-4 h-4 rounded-full inline-flex items-center justify-center" style={{ background: "#eef0fb", color: INDIGO }}
+              title="For each item bought ≥4 times at a consistent unit price (max ≤2.5× min, so mixed pack sizes are excluded), we sum the spend above that item's own median achieved price. A conservative 'paid above your own median' figure — negotiation headroom, not a guaranteed saving.">i</span>
+          </div>
+          <p className="text-[12px] mt-0.5" style={{ color: SUBTLE }}>same item priced above its own median across the 6-month window</p>
+        </div>
+        <div className="text-right">
+          <div className="text-[20px] font-bold leading-none tabular-nums" style={{ color: INDIGO }}>{inrAbbr(Number(t.opportunity ?? 0))}</div>
+          <div className="text-[11px] mt-1" style={{ color: SUBTLE }}>headroom · {Number(t.items_flagged ?? 0).toLocaleString("en-IN")} items</div>
+        </div>
+      </div>
+      <div className="mt-5 space-y-2.5">
+        {items.slice(0, 8).map((it, i) => { const w = Math.max((it.over / maxOver) * 100, 4); return (
+          <div key={i} className="flex items-center gap-3">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2">
+                <span className="text-[12.5px] font-medium truncate" style={{ color: "#3c465c" }} title={it.desc}>{it.desc}</span>
+                <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-md flex-shrink-0" style={{ background: "#eef0fb", color: INDIGO }}>+{it.spread_pct.toFixed(0)}%</span>
+              </div>
+              <div className="text-[10.5px] mt-0.5" style={{ color: SUBTLE }}>{it.lines} buys · median {inrAbbr(it.median)} → high {inrAbbr(it.max)}</div>
+              <div className="h-1.5 rounded-full mt-1.5" style={{ background: "#eef1f0" }}><div className="h-full rounded-full" style={{ width: on ? `${w}%` : "0%", background: INDIGO, transition: `width 0.9s cubic-bezier(0.22,1,0.36,1) ${i * 45}ms` }} /></div>
+            </div>
+            <span className="text-[13px] font-bold tabular-nums flex-shrink-0 w-16 text-right" style={{ color: INK }}>{inrAbbr(it.over)}</span>
+          </div>
+        ); })}
+      </div>
+    </div>
+  );
+}
+
 export default function ProcurementOverview() {
   const { selectedRegion } = useRegion();
   const region = selectedRegion?.name ?? "All Plants";
@@ -263,6 +306,8 @@ export default function ProcurementOverview() {
       </div>
 
       {data?.open_po?.categories?.length ? <div className="mt-5"><OpenPOCard openPo={data.open_po} /></div> : null}
+
+      <div className="mt-5"><SavingsCard region={region} /></div>
 
       <div className="mt-5 inline-flex items-center gap-2 text-[11px] font-medium px-3 py-1.5 rounded-full"
         style={{ background: "rgba(14,159,110,0.08)", color: EMER, border: "1px solid rgba(14,159,110,0.2)" }}>
