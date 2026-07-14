@@ -160,6 +160,41 @@ function VendorsCard({ vendors, top5 }: { vendors: any[]; top5: number }) {
   );
 }
 
+function OpenPOCard({ openPo }: { openPo: any }) {
+  const on = useMount(140);
+  const cats: any[] = openPo?.categories || [];
+  if (!cats.length) return null;
+  const max = Math.max(...cats.map((c) => c.value), 1);
+  return (
+    <div className="rounded-[26px] bg-white p-6" style={{ boxShadow: CARD_SH }}>
+      <div className="flex items-start justify-between flex-wrap gap-3">
+        <div>
+          <div className="flex items-center gap-2"><TbTruckDelivery size={17} style={{ color: AMBER }} />
+            <h3 className="text-[16px] font-semibold" style={{ color: INK }}>Open purchase orders</h3></div>
+          <p className="text-[12px] mt-0.5" style={{ color: SUBTLE }}>ordered, not yet received · undelivered value by category</p>
+        </div>
+        <div className="flex items-center gap-6">
+          <div className="text-right"><div className="text-[20px] font-bold leading-none tabular-nums" style={{ color: AMBER }}>{inrAbbr(openPo.total_value)}</div>
+            <div className="text-[11px] mt-1" style={{ color: SUBTLE }}>open value</div></div>
+          <div className="text-right"><div className="text-[20px] font-bold leading-none tabular-nums" style={{ color: INK }}>{countAbbr(openPo.total_pos)}</div>
+            <div className="text-[11px] mt-1" style={{ color: SUBTLE }}>open POs</div></div>
+        </div>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3 mt-5">
+        {cats.map((c, i) => { const w = Math.max((c.value / max) * 100, 3); const isUncat = /uncateg/i.test(c.category); const col = isUncat ? "#aab2c2" : AMBER; return (
+          <div key={i}>
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-[12px] font-medium truncate pr-2" style={{ color: isUncat ? "#9aa1b3" : "#4b5468" }} title={catName(c.category)}>{catName(c.category)}</span>
+              <span className="text-[12px] font-semibold tabular-nums flex-shrink-0" style={{ color: INK }}>{inrAbbr(c.value)} <span className="font-normal" style={{ color: SUBTLE }}>· {countAbbr(c.pos)}</span></span>
+            </div>
+            <div className="h-2 rounded-full" style={{ background: "#eef1f0" }}><div className="h-full rounded-full" style={{ width: on ? `${w}%` : "0%", background: col, transition: `width 1s cubic-bezier(0.22,1,0.36,1) ${i * 50}ms` }} /></div>
+          </div>
+        ); })}
+      </div>
+    </div>
+  );
+}
+
 export default function ProcurementOverview() {
   const { selectedRegion } = useRegion();
   const region = selectedRegion?.name ?? "All Plants";
@@ -226,6 +261,8 @@ export default function ProcurementOverview() {
           <VendorsCard vendors={vlist} top5={top5} />
         </div>
       </div>
+
+      {data?.open_po?.categories?.length ? <div className="mt-5"><OpenPOCard openPo={data.open_po} /></div> : null}
 
       <div className="mt-5 inline-flex items-center gap-2 text-[11px] font-medium px-3 py-1.5 rounded-full"
         style={{ background: "rgba(14,159,110,0.08)", color: EMER, border: "1px solid rgba(14,159,110,0.2)" }}>
