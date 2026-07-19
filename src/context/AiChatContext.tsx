@@ -2,8 +2,11 @@
 // Shared AI-Analyst conversation state. One provider mounted in the admin layout
 // backs BOTH the floating assistant and the /ai page, so the conversation follows
 // the user between them. Streams the backend SSE (/ai/chat).
-import React, { createContext, useCallback, useContext, useRef, useState } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
+
+const STORE_KEY = "hcg_ai_chat_v1";
+const MAX_PERSIST = 80; // keep the conversation bounded in localStorage
 
 export type AiQuery = { purpose?: string; sql?: string; rows?: number; error?: string };
 export type AiMsg = {
@@ -15,6 +18,7 @@ export type AiMsg = {
   table?: { title: string; columns: any[]; rows: any[]; note?: string };
   verified?: string | null;
   queries?: AiQuery[];
+  options?: string[];
 };
 
 type Ctx = {
@@ -37,7 +41,21 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const busyRef = useRef(false);
 
-  const clear = useCallback(() => setMessages([]), []);
+  // Load persisted conversation once (survives reloads / navigating between floater & /ai).
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(STORE_KEY);
+      if (raw) { const arr = JSON.parse(raw); if (Array.isArray(arr) && arr.length) setMessages(arr); }
+    } catch { /* noop */ }
+  }, []);
+
+  // Persist (bounded) whenever the conversation changes and we're idle.
+  useEffect(() => {
+    if (busy) return;
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(messages.slice(-MAX_PERSIST))); } catch { /* quota — ignore */ }
+  }, [messages, busy]);
+
+  const clear = useCallback(() => { setMessages([]); try { localStorage.removeItem(STORE_KEY); } catch { /* noop */ } }, []);
 
   const send = useCallback(async (q: string) => {
     const query = q.trim();
@@ -92,6 +110,7 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
           else if (ev.type === "sql") { queries.push({ purpose: ev.purpose, sql: ev.sql, rows: ev.rows, error: ev.error }); if (botCreated) upsertBot({ queries: [...queries] }); }
           else if (ev.type === "token") upsertBotText(botText + ev.text);
           else if (ev.type === "answer") upsertBot({ text: ev.text || botText, verified: ev.verified ?? null, queries: [...queries] });
+          else if (ev.type === "clarify") upsertBot({ text: ev.text || "Could you clarify?", options: ev.options || [] });
           else if (ev.type === "chart" && ev.plotly) setMessages((m) => [...m, { id: uid(), role: "bot", kind: "plotly", figure: ev.plotly }]);
           else if (ev.type === "table" && ev.table) setMessages((m) => [...m, { id: uid(), role: "bot", kind: "table", table: { ...ev.table, note: ev.note } }]);
           else if (ev.type === "error") upsertBotText((botText ? botText + "\n\n" : "") + `⚠️ ${ev.text}`);

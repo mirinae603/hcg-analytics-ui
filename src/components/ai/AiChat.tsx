@@ -3,8 +3,9 @@ import React, { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { TbSend, TbSparkles, TbChartBar, TbShieldCheck, TbDatabase, TbChevronDown } from "react-icons/tb";
+import { TbSend, TbSparkles, TbChartBar, TbShieldCheck, TbDatabase, TbChevronDown, TbFileSpreadsheet, TbFileTypePdf, TbDownload, TbArrowDown } from "react-icons/tb";
 import { useAiChat, AiMsg } from "@/context/AiChatContext";
+import { groupTurns, exportExcel, exportPdf, Turn } from "@/lib/aiExport";
 
 const PlotlyChart = dynamic(() => import("./PlotlyChart"), { ssr: false });
 
@@ -51,7 +52,46 @@ function TableView({ table }: { table: NonNullable<AiMsg["table"]> }) {
   );
 }
 
-function Message({ m }: { m: AiMsg }) {
+function ExportMenu({ label, onExcel, onPdf, compact }: { label: string; onExcel: () => void; onPdf: () => void; compact?: boolean }) {
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    if (!open) return;
+    const h = () => setOpen(false);
+    window.addEventListener("click", h);
+    return () => window.removeEventListener("click", h);
+  }, [open]);
+  return (
+    <div className="relative inline-block" onClick={(e) => e.stopPropagation()}>
+      <button onClick={() => setOpen(!open)} className={`inline-flex items-center gap-1 font-medium rounded-full transition-colors ${compact ? "text-[10.5px] px-2 py-0.5" : "text-[11px] px-2.5 py-1"}`} style={{ background: "#eef1f6", color: "#5a6072" }}>
+        <TbDownload size={compact ? 12 : 13} /> {label} <TbChevronDown size={10} />
+      </button>
+      {open && (
+        <div className="absolute right-0 bottom-full mb-1 z-20 rounded-lg overflow-hidden bg-white" style={{ boxShadow: "0 12px 30px -10px rgba(20,24,40,0.28)", border: "1px solid #eceef4", minWidth: 140 }}>
+          <button onClick={() => { setOpen(false); onExcel(); }} className="w-full flex items-center gap-2 px-3 py-2 text-[12px] hover:bg-gray-50" style={{ color: "#3c465c" }}><TbFileSpreadsheet size={15} style={{ color: "#16a37f" }} /> Excel (.xlsx)</button>
+          <button onClick={() => { setOpen(false); onPdf(); }} className="w-full flex items-center gap-2 px-3 py-2 text-[12px] hover:bg-gray-50 border-t" style={{ color: "#3c465c", borderColor: "#f2f4f8" }}><TbFileTypePdf size={15} style={{ color: "#e8604a" }} /> PDF (.pdf)</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function buildTurnAt(messages: AiMsg[], id: string): Turn {
+  const i = messages.findIndex((x) => x.id === id);
+  const turn: Turn = { question: "", answer: "", figures: [], tables: [] };
+  for (let j = i - 1; j >= 0; j--) { if (messages[j].role === "user") { turn.question = messages[j].text || ""; break; } }
+  for (let j = i; j < messages.length; j++) {
+    const m = messages[j];
+    if (j > i && m.role === "user") break;
+    if (m.role === "bot") {
+      if (m.kind === "text") turn.answer += (turn.answer ? "\n\n" : "") + (m.text || "");
+      else if (m.kind === "plotly" && m.figure) turn.figures.push(m.figure);
+      else if (m.kind === "table" && m.table) turn.tables.push(m.table);
+    }
+  }
+  return turn;
+}
+
+function Message({ m, onOption, onExport }: { m: AiMsg; onOption?: (o: string) => void; onExport?: (kind: "excel" | "pdf") => void }) {
   if (m.role === "user") {
     return (
       <div className="flex justify-end">
@@ -74,12 +114,18 @@ function Message({ m }: { m: AiMsg }) {
     <div className="flex justify-start">
       <div className="max-w-[92%] w-full rounded-2xl rounded-bl-md px-4 py-3 bg-white border ai-prose" style={{ borderColor: "#eef0f4", color: "#2b3040" }}>
         <div className="text-[13.5px] leading-relaxed"><ReactMarkdown remarkPlugins={[remarkGfm]}>{m.text || ""}</ReactMarkdown></div>
-        {(m.verified || (m.queries && m.queries.length)) ? (
+        {m.options && m.options.length ? (
+          <div className="flex flex-wrap gap-1.5 mt-2.5">
+            {m.options.map((o) => <button key={o} onClick={() => onOption?.(o)} className="text-[11.5px] px-2.5 py-1 rounded-full border transition-colors hover:bg-gray-50" style={{ borderColor: "#e4e7ee", color: "#4b5468" }}>{o}</button>)}
+          </div>
+        ) : null}
+        {(m.verified || (m.queries && m.queries.length) || onExport) ? (
           <div className="flex items-center gap-2 mt-2.5 flex-wrap">
             {m.verified === "ok" || m.verified === "corrected" ? (
               <span className="inline-flex items-center gap-1 text-[10.5px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "#e7f6ef", color: "#0e7a54" }}><TbShieldCheck size={12} /> Verified{m.verified === "corrected" ? " · auto-corrected" : ""}</span>
             ) : null}
             {m.queries && m.queries.length ? <QueriesDisclosure queries={m.queries} /> : null}
+            {onExport ? <ExportMenu label="Export" compact onExcel={() => onExport("excel")} onPdf={() => onExport("pdf")} /> : null}
           </div>
         ) : null}
       </div>
@@ -114,13 +160,33 @@ function QueriesDisclosure({ queries }: { queries: NonNullable<AiMsg["queries"]>
 export default function AiChat({ variant = "floater" }: { variant?: "floater" | "page" }) {
   const { messages, busy, step, send, clear } = useAiChat();
   const [input, setInput] = useState("");
+  const [atBottom, setAtBottom] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const atBottomRef = useRef(true);
 
-  useEffect(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
-  }, [messages, step, busy]);
+  const onScroll = () => {
+    const el = scrollRef.current; if (!el) return;
+    const near = el.scrollHeight - el.scrollTop - el.clientHeight < 120;
+    atBottomRef.current = near; setAtBottom(near);
+  };
+  const scrollToBottom = (smooth = true) => scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: smooth ? "smooth" : "auto" });
 
-  const submit = () => { if (!input.trim() || busy) return; send(input); setInput(""); };
+  // Only auto-follow when the user is already at the bottom (don't yank them up while reading).
+  useEffect(() => { if (atBottomRef.current) scrollToBottom(); }, [messages, step, busy]);
+
+  const submit = () => { if (!input.trim() || busy) return; send(input); setInput(""); atBottomRef.current = true; };
+
+  const handleExport = async (m: AiMsg, kind: "excel" | "pdf") => {
+    const turn = buildTurnAt(messages, m.id);
+    if (kind === "excel") await exportExcel([turn], "hcg-ai-answer");
+    else await exportPdf([turn], "HCG AI Answer");
+  };
+  const exportAll = async (kind: "excel" | "pdf") => {
+    const turns = groupTurns(messages);
+    if (!turns.length) return;
+    if (kind === "excel") await exportExcel(turns, "hcg-ai-conversation");
+    else await exportPdf(turns, "HCG AI Conversation");
+  };
 
   return (
     <div className="flex flex-col h-full min-h-0" style={{ background: variant === "page" ? "#f6f7f9" : "#fbfbfc" }}>
@@ -132,7 +198,7 @@ export default function AiChat({ variant = "floater" }: { variant?: "floater" | 
         @keyframes aiDot { 0%,80%,100%{opacity:.25;transform:translateY(0)} 40%{opacity:1;transform:translateY(-3px)} }
       `}</style>
 
-      <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto px-4 py-4 space-y-3">
+      <div ref={scrollRef} onScroll={onScroll} className="flex-1 min-h-0 overflow-y-auto px-4 py-4 space-y-3 relative">
         {messages.length === 0 && (
           <div className="h-full flex flex-col items-center justify-center text-center px-4">
             <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-3" style={{ background: "linear-gradient(135deg,#4b7bd4,#16a37f)" }}><TbSparkles size={26} color="#fff" /></div>
@@ -145,7 +211,11 @@ export default function AiChat({ variant = "floater" }: { variant?: "floater" | 
             </div>
           </div>
         )}
-        {messages.map((m) => <Message key={m.id} m={m} />)}
+        {messages.map((m) => (
+          <Message key={m.id} m={m}
+            onOption={m.options && m.options.length ? (o) => send(o) : undefined}
+            onExport={m.role === "bot" && m.kind === "text" && !(m.options && m.options.length) && !busy ? (kind) => handleExport(m, kind) : undefined} />
+        ))}
         {busy && (
           <div className="flex justify-start">
             <div className="rounded-2xl rounded-bl-md px-4 py-2.5 bg-white border inline-flex items-center gap-2.5" style={{ borderColor: "#eef0f4" }}>
@@ -158,11 +228,19 @@ export default function AiChat({ variant = "floater" }: { variant?: "floater" | 
         )}
       </div>
 
-      <div className="border-t px-3 py-3" style={{ borderColor: "#eef0f4", background: "#fff" }}>
+      <div className="border-t px-3 py-3 relative" style={{ borderColor: "#eef0f4", background: "#fff" }}>
+        {!atBottom && messages.length > 0 && (
+          <button onClick={() => scrollToBottom()} aria-label="Scroll to latest" className="absolute -top-12 right-4 w-9 h-9 rounded-full flex items-center justify-center bg-white transition-transform hover:scale-105" style={{ boxShadow: "0 8px 22px -8px rgba(20,24,40,0.35)", border: "1px solid #eceef4", color: "#4b7bd4" }}>
+            <TbArrowDown size={17} />
+          </button>
+        )}
         {messages.length > 0 && (
           <div className="flex items-center justify-between mb-2 px-1">
             <span className="text-[10.5px] inline-flex items-center gap-1" style={{ color: SUB }}><TbChartBar size={12} /> answers use your real data</span>
-            <button onClick={clear} className="text-[11px] font-medium hover:underline" style={{ color: SUB }}>Clear</button>
+            <div className="flex items-center gap-2.5">
+              <ExportMenu label="Export all" onExcel={() => exportAll("excel")} onPdf={() => exportAll("pdf")} />
+              <button onClick={clear} className="text-[11px] font-medium hover:underline" style={{ color: SUB }}>Clear</button>
+            </div>
           </div>
         )}
         <div className="flex items-end gap-2">
