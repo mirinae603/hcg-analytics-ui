@@ -7,6 +7,7 @@ import { TbSend, TbChartBar, TbShieldCheck, TbDatabase, TbChevronDown, TbFileSpr
 import { useAiChat, AiMsg } from "@/context/AiChatContext";
 import { groupTurns, exportExcel, exportPdf, Turn } from "@/lib/aiExport";
 import AnalystMark from "./AnalystMark";
+import MentionTextarea from "./MentionTextarea";
 
 const PlotlyChart = dynamic(() => import("./PlotlyChart"), { ssr: false });
 
@@ -271,12 +272,7 @@ export default function AiChat({ variant = "floater" }: { variant?: "floater" | 
             </div>
           )}
           <div className="flex items-end gap-2 rounded-2xl px-2 py-1.5 transition-shadow" style={{ background: "#fff", border: "1px solid #e6e9f1", boxShadow: "0 1px 2px rgba(20,24,40,0.04)" }}>
-            <textarea
-              value={input} onChange={(e) => setInput(e.target.value)} rows={1}
-              onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); submit(); } }}
-              placeholder="Ask about your supply-chain data…"
-              className="flex-1 resize-none bg-transparent px-2.5 py-2 text-[13.5px] outline-none max-h-32 leading-relaxed"
-              style={{ color: INK }} />
+            <MentionTextarea value={input} onChange={setInput} onSubmit={submit} disabled={busy} placeholder="Ask about your data…  type @ to reference an item, vendor or category" />
             <button onClick={submit} disabled={!input.trim() || busy} className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 disabled:opacity-30 transition-all hover:opacity-90" style={{ background: ACCENT, color: "#fff" }} aria-label="Send"><TbSend size={16} /></button>
           </div>
         </div>
