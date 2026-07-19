@@ -5,6 +5,7 @@
 import React, { createContext, useCallback, useContext, useRef, useState } from "react";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 
+export type AiQuery = { purpose?: string; sql?: string; rows?: number; error?: string };
 export type AiMsg = {
   id: string;
   role: "user" | "bot";
@@ -12,6 +13,8 @@ export type AiMsg = {
   text?: string;
   figure?: { data: any[]; layout?: any };
   table?: { title: string; columns: any[]; rows: any[]; note?: string };
+  verified?: string | null;
+  queries?: AiQuery[];
 };
 
 type Ctx = {
@@ -53,14 +56,15 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
     const botId = uid();
     let botText = "";
     let botCreated = false;
+    const queries: AiQuery[] = [];
 
-    const upsertBotText = (t: string) => {
-      botText = t;
+    const upsertBot = (patch: Partial<AiMsg>) => {
       setMessages((m) => {
-        if (!botCreated) { botCreated = true; return [...m, { id: botId, role: "bot", kind: "text", text: t }]; }
-        return m.map((x) => (x.id === botId ? { ...x, text: t } : x));
+        if (!botCreated) { botCreated = true; return [...m, { id: botId, role: "bot", kind: "text", text: botText, queries: [...queries], ...patch }]; }
+        return m.map((x) => (x.id === botId ? { ...x, ...patch } : x));
       });
     };
+    const upsertBotText = (t: string) => { botText = t; upsertBot({ text: t }); };
 
     try {
       const res = await fetch(`${DASHBOARD_API_BASE_URL}/ai/chat`, {
@@ -85,8 +89,9 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
           let ev: any;
           try { ev = JSON.parse(line.slice(5).trim()); } catch { continue; }
           if (ev.type === "step") setStep(ev.text);
+          else if (ev.type === "sql") { queries.push({ purpose: ev.purpose, sql: ev.sql, rows: ev.rows, error: ev.error }); if (botCreated) upsertBot({ queries: [...queries] }); }
           else if (ev.type === "token") upsertBotText(botText + ev.text);
-          else if (ev.type === "answer") upsertBotText(ev.text || botText);
+          else if (ev.type === "answer") upsertBot({ text: ev.text || botText, verified: ev.verified ?? null, queries: [...queries] });
           else if (ev.type === "chart" && ev.plotly) setMessages((m) => [...m, { id: uid(), role: "bot", kind: "plotly", figure: ev.plotly }]);
           else if (ev.type === "table" && ev.table) setMessages((m) => [...m, { id: uid(), role: "bot", kind: "table", table: { ...ev.table, note: ev.note } }]);
           else if (ev.type === "error") upsertBotText((botText ? botText + "\n\n" : "") + `⚠️ ${ev.text}`);

@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { TbSend, TbSparkles, TbChartBar } from "react-icons/tb";
+import { TbSend, TbSparkles, TbChartBar, TbShieldCheck, TbDatabase, TbChevronDown } from "react-icons/tb";
 import { useAiChat, AiMsg } from "@/context/AiChatContext";
 
 const PlotlyChart = dynamic(() => import("./PlotlyChart"), { ssr: false });
@@ -69,12 +69,44 @@ function Message({ m }: { m: AiMsg }) {
   if (m.kind === "table" && m.table) {
     return <div className="flex justify-start"><div className="w-full"><TableView table={m.table} /></div></div>;
   }
-  // bot text (markdown)
+  // bot text (markdown) + verified badge + queries disclosure
   return (
     <div className="flex justify-start">
-      <div className="max-w-[92%] rounded-2xl rounded-bl-md px-4 py-2.5 text-[13.5px] leading-relaxed bg-white border ai-prose" style={{ borderColor: "#eef0f4", color: "#2b3040" }}>
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>{m.text || ""}</ReactMarkdown>
+      <div className="max-w-[92%] w-full rounded-2xl rounded-bl-md px-4 py-3 bg-white border ai-prose" style={{ borderColor: "#eef0f4", color: "#2b3040" }}>
+        <div className="text-[13.5px] leading-relaxed"><ReactMarkdown remarkPlugins={[remarkGfm]}>{m.text || ""}</ReactMarkdown></div>
+        {(m.verified || (m.queries && m.queries.length)) ? (
+          <div className="flex items-center gap-2 mt-2.5 flex-wrap">
+            {m.verified === "ok" || m.verified === "corrected" ? (
+              <span className="inline-flex items-center gap-1 text-[10.5px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "#e7f6ef", color: "#0e7a54" }}><TbShieldCheck size={12} /> Verified{m.verified === "corrected" ? " · auto-corrected" : ""}</span>
+            ) : null}
+            {m.queries && m.queries.length ? <QueriesDisclosure queries={m.queries} /> : null}
+          </div>
+        ) : null}
       </div>
+    </div>
+  );
+}
+
+function QueriesDisclosure({ queries }: { queries: NonNullable<AiMsg["queries"]> }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="w-full">
+      <button onClick={() => setOpen(!open)} className="inline-flex items-center gap-1 text-[10.5px] font-medium px-2 py-0.5 rounded-full transition-colors" style={{ background: "#eef1fb", color: "#4b5bd5" }}>
+        <TbDatabase size={12} /> {queries.length} quer{queries.length > 1 ? "ies" : "y"} run <TbChevronDown size={11} style={{ transform: open ? "rotate(180deg)" : "none", transition: "transform .2s" }} />
+      </button>
+      {open && (
+        <div className="mt-2 space-y-2">
+          {queries.map((q, i) => (
+            <div key={i} className="rounded-lg overflow-hidden" style={{ border: "1px solid #eceef4" }}>
+              <div className="px-2.5 py-1.5 text-[10.5px] font-medium flex items-center justify-between" style={{ background: "#f7f8fb", color: "#5a6072" }}>
+                <span className="truncate pr-2">{q.purpose}</span>
+                <span style={{ color: q.error ? "#b5524a" : "#8a91a0" }}>{q.error ? "error" : `${q.rows} rows`}</span>
+              </div>
+              <pre className="px-2.5 py-2 text-[10.5px] overflow-x-auto whitespace-pre-wrap break-words" style={{ background: "#fbfbfc", color: "#3c465c", fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", margin: 0 }}>{q.error ? q.error : q.sql}</pre>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
