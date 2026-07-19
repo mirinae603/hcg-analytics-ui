@@ -12,7 +12,7 @@ import {
   TbCoin, TbReceipt, TbTrendingDown, TbBuildingFactory2, TbMapPin, TbClockHour4, TbTruckDelivery, TbProgressCheck,
   TbPill, TbBuildingHospital,
   TbTargetArrow, TbRadar2, TbChartDots3, TbChartLine, TbCashBanknote, TbReload,
-  TbLogin2, TbUserPlus, TbHome, TbLogout2,
+  TbLogin2, TbUserPlus, TbHome, TbLogout2, TbSparkles,
 } from "react-icons/tb";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -166,6 +166,18 @@ const AppSidebar: React.FC = () => {
               onMouseOut={(e) => { if (pathname !== "/") (e.currentTarget as HTMLElement).style.background = "transparent"; }}>
               <span className="absolute left-[-12px] top-1/2 -translate-y-1/2 rounded-r-full transition-all duration-300" style={{ width: 2.5, height: pathname === "/" ? 20 : 0, background: ACCENT }} />
               <TbHome size={21} style={{ color: pathname === "/" ? ACCENT : MUTED }} />
+            </Link>
+          </div>
+
+          {/* AI Analyst */}
+          <div className="w-full px-3 pb-3 mb-1 flex justify-center" style={{ borderBottom: `1px solid ${BORDER}` }}>
+            <Link href="/ai" title="AI Analyst"
+              className="group relative flex items-center justify-center rounded-[12px] transition-colors duration-150"
+              style={{ width: 46, height: 46, background: pathname.startsWith("/ai") ? "rgba(75,123,212,0.12)" : "transparent" }}
+              onMouseOver={(e) => { if (!pathname.startsWith("/ai")) (e.currentTarget as HTMLElement).style.background = HOVER; }}
+              onMouseOut={(e) => { if (!pathname.startsWith("/ai")) (e.currentTarget as HTMLElement).style.background = "transparent"; }}>
+              <span className="absolute left-[-12px] top-1/2 -translate-y-1/2 rounded-r-full transition-all duration-300" style={{ width: 2.5, height: pathname.startsWith("/ai") ? 20 : 0, background: "#4b7bd4" }} />
+              <TbSparkles size={21} style={{ color: pathname.startsWith("/ai") ? "#4b7bd4" : MUTED }} />
             </Link>
           </div>
 
