@@ -29,9 +29,12 @@ export default function MentionTextarea({ value, onChange, onSubmit, disabled, p
   const [loading, setLoading] = useState(false);
   const rangeRef = useRef<{ start: number; end: number } | null>(null);
   const seqRef = useRef(0);
+  const kbRef = useRef(false);          // true while navigating by keyboard (so mouse-hover doesn't hijack)
+  const optsRef = useRef<HTMLDivElement>(null);
 
   const phase: "types" | "values" = (!activeType && query === "") ? "types" : "values";
   const list = phase === "types" ? TYPES : items;
+  const listLen = phase === "types" ? TYPES.length : items.length;
 
   useEffect(() => { const ta = taRef.current; if (!ta) return; ta.style.height = "auto"; ta.style.height = Math.min(ta.scrollHeight, 128) + "px"; }, [value]);
 
@@ -40,13 +43,20 @@ export default function MentionTextarea({ value, onChange, onSubmit, disabled, p
     if (!open || phase === "types") { return; }
     const seq = ++seqRef.current; setLoading(true);
     const t = setTimeout(() => {
-      fetch(`${DASHBOARD_API_BASE_URL}/ai/mentions?q=${encodeURIComponent(query)}${activeType ? `&type=${activeType}` : ""}`)
+      fetch(`${DASHBOARD_API_BASE_URL}/ai/mentions?q=${encodeURIComponent(query)}${activeType ? `&type=${activeType}` : ""}&limit=40`)
         .then((r) => r.json())
         .then((d) => { if (seq === seqRef.current) { setItems(d.items || []); setIdx(0); setLoading(false); } })
         .catch(() => { if (seq === seqRef.current) { setItems([]); setLoading(false); } });
     }, 140);
     return () => clearTimeout(t);
   }, [open, query, activeType, phase]);
+
+  // keep the highlighted option scrolled into view (only nudges when off-screen)
+  useEffect(() => {
+    if (!open) return;
+    const el = optsRef.current?.querySelector(`[data-idx="${idx}"]`) as HTMLElement | null;
+    el?.scrollIntoView({ block: "nearest" });
+  }, [idx, open, phase, items.length]);
 
   const detect = (val: string, cursor: number) => {
     const upto = val.slice(0, cursor);
@@ -79,28 +89,32 @@ export default function MentionTextarea({ value, onChange, onSubmit, disabled, p
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (open && list.length) {
-      if (e.key === "ArrowDown") { e.preventDefault(); setIdx((i) => (i + 1) % list.length); return; }
-      if (e.key === "ArrowUp") { e.preventDefault(); setIdx((i) => (i - 1 + list.length) % list.length); return; }
-      if (e.key === "Enter" || e.key === "Tab") { e.preventDefault(); phase === "types" ? pickType(TYPES[idx]) : pickValue(items[idx]); return; }
+    if (open) {
+      if (e.key === "ArrowDown" && listLen) { e.preventDefault(); kbRef.current = true; setIdx((i) => (i + 1) % listLen); return; }
+      if (e.key === "ArrowUp" && listLen) { e.preventDefault(); kbRef.current = true; setIdx((i) => (i - 1 + listLen) % listLen); return; }
+      if (e.key === "Enter" || e.key === "Tab") {
+        e.preventDefault();
+        if (listLen) { phase === "types" ? pickType(TYPES[Math.min(idx, TYPES.length - 1)]) : pickValue(items[Math.min(idx, items.length - 1)]); }
+        return; // never submit while the picker is open
+      }
+      if (e.key === "Escape") { e.preventDefault(); activeType ? backToTypes() : setOpen(false); return; }
+      if (e.key === "Backspace" && activeType && query === "") { backToTypes(); return; }
     }
-    if (e.key === "Escape" && open) { e.preventDefault(); activeType ? backToTypes() : setOpen(false); return; }
-    if (e.key === "Backspace" && open && activeType && query === "") { backToTypes(); return; }
-    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); setOpen(false); onSubmit(); }
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); onSubmit(); }
   };
 
   return (
     <div className="relative flex-1 min-w-0">
       {open && (
-        <div className="absolute left-0 bottom-full mb-2 z-30 rounded-xl bg-white overflow-hidden" style={{ width: "min(460px, 84vw)", border: "1px solid #e8eaf1", boxShadow: "0 20px 46px -16px rgba(20,24,40,0.34)" }}>
+        <div onMouseMove={() => { kbRef.current = false; }} className="absolute left-0 bottom-full mb-2 z-30 rounded-xl bg-white overflow-hidden" style={{ width: "min(460px, 84vw)", border: "1px solid #e8eaf1", boxShadow: "0 20px 46px -16px rgba(20,24,40,0.34)" }}>
           {phase === "types" ? (
             <>
               <div className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] border-b" style={{ color: "#aab0bd", borderColor: "#f1f2f6" }}>What do you want to reference?</div>
-              <div className="py-1">
+              <div ref={optsRef} className="py-1">
                 {TYPES.map((t, i) => {
                   const meta = TYPE_META[t]; const Icon = meta.Icon;
                   return (
-                    <button key={t} type="button" onMouseDown={(e) => { e.preventDefault(); pickType(t); }} onMouseEnter={() => setIdx(i)}
+                    <button key={t} data-idx={i} type="button" onMouseDown={(e) => { e.preventDefault(); pickType(t); }} onMouseEnter={() => { if (!kbRef.current) setIdx(i); }}
                       className="w-full flex items-center gap-3 px-3 py-2 text-left transition-colors" style={{ background: i === idx ? "#f4f5f8" : "transparent" }}>
                       <span className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: meta.bg, color: meta.color }}><Icon size={15} /></span>
                       <span className="flex-1 min-w-0"><span className="text-[13px] font-medium" style={{ color: "#2b3040" }}>{meta.label}</span><span className="text-[11px] ml-2" style={{ color: "#a2a8b6" }}>{meta.hint}</span></span>
@@ -121,7 +135,7 @@ export default function MentionTextarea({ value, onChange, onSubmit, disabled, p
                 {query ? <span className="text-[11px]" style={{ color: "#aab0bd" }}>· “{query}”</span> : null}
                 {loading ? <span className="ml-auto text-[10.5px]" style={{ color: "#aab0bd" }}>…</span> : items.length ? <span className="ml-auto text-[10.5px]" style={{ color: "#c3c8d2" }}>{items.length}</span> : null}
               </div>
-              <div className="max-h-[280px] overflow-y-auto py-1">
+              <div ref={optsRef} className="max-h-[300px] overflow-y-auto py-1">
                 {loading && !items.length ? (
                   <div className="px-3 py-3 text-[12px]" style={{ color: "#a2a8b6" }}>Searching…</div>
                 ) : !items.length ? (
@@ -129,7 +143,7 @@ export default function MentionTextarea({ value, onChange, onSubmit, disabled, p
                 ) : items.map((m, i) => {
                   const meta = TYPE_META[m.type] || TYPE_META.item; const Icon = meta.Icon;
                   return (
-                    <button key={`${m.type}-${m.label}`} type="button" onMouseDown={(e) => { e.preventDefault(); pickValue(m); }} onMouseEnter={() => setIdx(i)}
+                    <button key={`${m.type}-${m.label}`} data-idx={i} type="button" onMouseDown={(e) => { e.preventDefault(); pickValue(m); }} onMouseEnter={() => { if (!kbRef.current) setIdx(i); }}
                       className="w-full flex items-center gap-2.5 px-3 py-1.5 text-left transition-colors" style={{ background: i === idx ? "#f4f5f8" : "transparent" }}>
                       <span className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0" style={{ background: meta.bg, color: meta.color }}><Icon size={13} /></span>
                       <span className="flex-1 min-w-0 truncate text-[12.5px]" style={{ color: "#2b3040" }} title={m.label}>{m.label}</span>
