@@ -3,19 +3,20 @@ import React, { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { TbSend, TbSparkles, TbChartBar, TbShieldCheck, TbDatabase, TbChevronDown, TbFileSpreadsheet, TbFileTypePdf, TbDownload, TbArrowDown } from "react-icons/tb";
+import { TbSend, TbChartBar, TbShieldCheck, TbDatabase, TbChevronDown, TbFileSpreadsheet, TbFileTypePdf, TbDownload, TbArrowDown } from "react-icons/tb";
 import { useAiChat, AiMsg } from "@/context/AiChatContext";
 import { groupTurns, exportExcel, exportPdf, Turn } from "@/lib/aiExport";
+import AnalystMark from "./AnalystMark";
 
 const PlotlyChart = dynamic(() => import("./PlotlyChart"), { ssr: false });
 
-const INK = "#1f2333", SUB = "#8a91a0", ACCENT = "#4b7bd4";
+const INK = "#1a1f36", SUB = "#8a91a3", ACCENT = "#3b5bdb";
 const SUGGESTIONS = [
-  "Top manufacturers by revenue",
+  "Revenue & margin by manufacturer",
   "How much stock is expiring soon?",
-  "Vendor spend concentration",
+  "Top vendors by spend",
   "Which items should we reorder?",
-  "Revenue trend by month",
+  "Monthly revenue trend",
 ];
 
 function fmt(v: any, kind: string): string {
@@ -201,12 +202,12 @@ export default function AiChat({ variant = "floater" }: { variant?: "floater" | 
       <div ref={scrollRef} onScroll={onScroll} className="flex-1 min-h-0 overflow-y-auto px-4 py-4 space-y-3 relative">
         {messages.length === 0 && (
           <div className="h-full flex flex-col items-center justify-center text-center px-4">
-            <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-3" style={{ background: "linear-gradient(135deg,#4b7bd4,#16a37f)" }}><TbSparkles size={26} color="#fff" /></div>
-            <div className="text-[15px] font-semibold" style={{ color: INK }}>HCG AI Analyst</div>
-            <div className="text-[12.5px] mt-1 max-w-[300px]" style={{ color: SUB }}>Ask anything about revenue, inventory, procurement, expiry or forecasts. Grounded in your real data.</div>
-            <div className="flex flex-wrap gap-2 justify-center mt-5 max-w-[420px]">
+            <AnalystMark size={52} />
+            <div className="text-[16px] font-semibold mt-3.5" style={{ color: INK }}>HCG AI Analyst</div>
+            <div className="text-[12.5px] mt-1.5 max-w-[320px] leading-relaxed" style={{ color: SUB }}>Ask anything about revenue, inventory, procurement, expiry or forecasts — I query the real data and answer with charts.</div>
+            <div className="flex flex-wrap gap-2 justify-center mt-6 max-w-[440px]">
               {SUGGESTIONS.map((s) => (
-                <button key={s} onClick={() => send(s)} className="text-[12px] px-3 py-1.5 rounded-full border transition-colors hover:bg-white" style={{ borderColor: "#e4e7ee", color: "#4b5468", background: "#fff" }}>{s}</button>
+                <button key={s} onClick={() => send(s)} className="text-[12px] px-3.5 py-1.5 rounded-lg border transition-all hover:-translate-y-0.5" style={{ borderColor: "#e7e9f0", color: "#4b5468", background: "#fff", boxShadow: "0 1px 2px rgba(20,24,40,0.03)" }}>{s}</button>
               ))}
             </div>
           </div>
