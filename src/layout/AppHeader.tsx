@@ -6,14 +6,16 @@ import RegionFilter from "@/components/header/RegionFilter";
 import { useSidebar } from "@/context/SidebarContext";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import React, { useState ,useEffect,useRef} from "react";
+import { parentOf } from "@/lib/nav";
 
 const AppHeader: React.FC = () => {
   const [isApplicationMenuOpen, setApplicationMenuOpen] = useState(false);
   const pathname = usePathname();
-  const router = useRouter();
-  const canGoBack = pathname !== "/"; // hide on the home screen
+  // Deterministic "up one level" — always the page's logical parent (KPI → its
+  // portfolio, sub-page → its domain, domain → Home), never raw browser history.
+  const back = parentOf(pathname);
 
   const { isMobileOpen, toggleSidebar, toggleMobileSidebar } = useSidebar();
   const [dateTime, setDateTime] = useState(new Date());
@@ -137,19 +139,20 @@ const AppHeader: React.FC = () => {
             </svg>
           </button>
           <div className="flex items-center gap-2 2xsm:gap-3 ">
-            {/* Global back — restores navigation on every detail page (was missing) */}
-            {canGoBack && (
-              <button
-                onClick={() => router.back()}
-                aria-label="Go back"
-                title="Back"
+            {/* Deterministic back — always the page's logical parent, with a label so
+                the user knows where it goes (KPI → its portfolio, etc.). */}
+            {back && (
+              <Link
+                href={back.href}
+                aria-label={back.label}
+                title={back.label}
                 className="flex items-center gap-1.5 rounded-lg bg-white px-2.5 py-2.5 text-blue-900 shadow-xs ring-1 ring-inset ring-blue-100 transition-all hover:bg-blue-50 focus:outline-none focus:ring-blue-200 sm:px-3"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                   <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
-                <span className="hidden text-sm font-medium sm:inline">Back</span>
-              </button>
+                <span className="hidden text-sm font-medium sm:inline">{back.label}</span>
+              </Link>
             )}
             <RegionFilter />
             {/* <!-- Dark Mode Toggler --> */}
