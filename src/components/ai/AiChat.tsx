@@ -197,11 +197,6 @@ export default function AiChat({ variant = "floater" }: { variant?: "floater" | 
 
   const submit = () => { if (!input.trim() || busy) return; send(input); setInput(""); atBottomRef.current = true; };
 
-  const handleExport = async (m: AiMsg, kind: "excel" | "pdf") => {
-    const turn = buildTurnAt(messages, m.id);
-    if (kind === "excel") await exportExcel([turn], "hcg-ai-answer");
-    else await exportPdf([turn], "HCG AI Answer");
-  };
   const exportAll = async (kind: "excel" | "pdf") => {
     const turns = groupTurns(messages);
     if (!turns.length) return;
@@ -212,66 +207,78 @@ export default function AiChat({ variant = "floater" }: { variant?: "floater" | 
   return (
     <div className="flex flex-col h-full min-h-0" style={{ background: variant === "page" ? "#f6f7f9" : "#fbfbfc" }}>
       <style jsx global>{`
-        .ai-prose p { margin: 0 0 6px; } .ai-prose p:last-child { margin-bottom: 0; }
-        .ai-prose strong { color: #1f2333; font-weight: 700; }
-        .ai-prose ol, .ai-prose ul { margin: 4px 0 6px; padding-left: 18px; }
-        .ai-prose li { margin: 2px 0; }
+        .ai-prose p { margin: 0 0 7px; } .ai-prose p:last-child { margin-bottom: 0; }
+        .ai-prose strong { color: #1a1f36; font-weight: 700; }
+        .ai-prose ol, .ai-prose ul { margin: 5px 0 7px; padding-left: 18px; }
+        .ai-prose li { margin: 3px 0; }
+        .ai-prose a { color: #3b5bdb; }
         @keyframes aiDot { 0%,80%,100%{opacity:.25;transform:translateY(0)} 40%{opacity:1;transform:translateY(-3px)} }
+        @keyframes aiMsgIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .ai-msg { animation: aiMsgIn .32s cubic-bezier(.22,1,.36,1) both; }
+        .ai-scroll { scrollbar-width: thin; scrollbar-color: #d3d7e0 transparent; }
+        .ai-scroll::-webkit-scrollbar { width: 9px; }
+        .ai-scroll::-webkit-scrollbar-thumb { background: #d3d7e0; border-radius: 8px; border: 2px solid transparent; background-clip: content-box; }
+        .ai-scroll::-webkit-scrollbar-thumb:hover { background: #b9bfcd; background-clip: content-box; }
       `}</style>
 
-      <div ref={scrollRef} onScroll={onScroll} className="flex-1 min-h-0 overflow-y-auto px-4 py-4 space-y-3 relative">
-        {messages.length === 0 && (
-          <div className="h-full flex flex-col items-center justify-center text-center px-4">
+      <div ref={scrollRef} onScroll={onScroll} className="ai-scroll flex-1 min-h-0 overflow-y-auto relative">
+        {messages.length === 0 ? (
+          <div className="min-h-full flex flex-col items-center justify-center text-center px-4 py-10">
             <AnalystMark size={52} />
-            <div className="text-[16px] font-semibold mt-3.5" style={{ color: INK }}>HCG AI Analyst</div>
-            <div className="text-[12.5px] mt-1.5 max-w-[320px] leading-relaxed" style={{ color: SUB }}>Ask anything about revenue, inventory, procurement, expiry or forecasts — I query the real data and answer with charts.</div>
-            <div className="flex flex-wrap gap-2 justify-center mt-6 max-w-[440px]">
+            <div className="text-[16px] font-semibold mt-4" style={{ color: INK }}>HCG AI Analyst</div>
+            <div className="text-[12.5px] mt-1.5 max-w-[340px] leading-relaxed" style={{ color: SUB }}>Ask anything about revenue, inventory, procurement, expiry or forecasts — I query the real data and answer with charts.</div>
+            <div className="flex flex-wrap gap-2 justify-center mt-6 max-w-[460px]">
               {SUGGESTIONS.map((s) => (
                 <button key={s} onClick={() => send(s)} className="text-[12px] px-3.5 py-1.5 rounded-lg border transition-all hover:-translate-y-0.5" style={{ borderColor: "#e7e9f0", color: "#4b5468", background: "#fff", boxShadow: "0 1px 2px rgba(20,24,40,0.03)" }}>{s}</button>
               ))}
             </div>
           </div>
-        )}
-        {messages.map((m) => (
-          <Message key={m.id} m={m}
-            onOption={m.options && m.options.length ? (o) => send(o) : undefined}
-            onExport={m.role === "bot" && m.kind === "text" && !(m.options && m.options.length) && !busy ? (kind) => handleExport(m, kind) : undefined} />
-        ))}
-        {busy && (
-          <div className="flex justify-start">
-            <div className="rounded-2xl rounded-bl-md px-4 py-2.5 bg-white border inline-flex items-center gap-2.5" style={{ borderColor: "#eef0f4" }}>
-              <span className="text-[12.5px]" style={{ color: SUB }}>{step || "Thinking"}</span>
-              <span className="inline-flex gap-1">
-                {[0, 1, 2].map((i) => <span key={i} className="w-1.5 h-1.5 rounded-full" style={{ background: ACCENT, animation: `aiDot 1.2s ${i * 0.15}s infinite ease-in-out` }} />)}
-              </span>
-            </div>
+        ) : (
+          <div className="mx-auto w-full max-w-[840px] px-4 sm:px-5 py-5 space-y-4">
+            {messages.map((m) => (
+              <div key={m.id} className="ai-msg">
+                <Message m={m} onOption={m.options && m.options.length ? (o) => send(o) : undefined} />
+              </div>
+            ))}
+            {busy && (
+              <div className="ai-msg flex justify-start">
+                <div className="rounded-2xl rounded-bl-md px-4 py-2.5 bg-white border inline-flex items-center gap-2.5" style={{ borderColor: "#eef0f4" }}>
+                  <span className="text-[12.5px]" style={{ color: SUB }}>{step || "Thinking"}</span>
+                  <span className="inline-flex gap-1">
+                    {[0, 1, 2].map((i) => <span key={i} className="w-1.5 h-1.5 rounded-full" style={{ background: ACCENT, animation: `aiDot 1.2s ${i * 0.15}s infinite ease-in-out` }} />)}
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
 
-      <div className="border-t px-3 py-3 relative" style={{ borderColor: "#eef0f4", background: "#fff" }}>
+      <div className="border-t px-4 sm:px-5 pt-3 pb-4 relative" style={{ borderColor: "#eef0f4", background: variant === "page" ? "#f6f7f9" : "#fbfbfc" }}>
         {!atBottom && messages.length > 0 && (
-          <button onClick={() => scrollToBottom()} aria-label="Scroll to latest" className="absolute -top-12 right-4 w-9 h-9 rounded-full flex items-center justify-center bg-white transition-transform hover:scale-105" style={{ boxShadow: "0 8px 22px -8px rgba(20,24,40,0.35)", border: "1px solid #eceef4", color: "#4b7bd4" }}>
+          <button onClick={() => scrollToBottom()} aria-label="Scroll to latest" className="absolute -top-12 right-6 w-9 h-9 rounded-full flex items-center justify-center bg-white transition-transform hover:scale-105" style={{ boxShadow: "0 8px 22px -8px rgba(20,24,40,0.35)", border: "1px solid #eceef4", color: ACCENT }}>
             <TbArrowDown size={17} />
           </button>
         )}
-        {messages.length > 0 && (
-          <div className="flex items-center justify-between mb-2 px-1">
-            <span className="text-[10.5px] inline-flex items-center gap-1" style={{ color: SUB }}><TbChartBar size={12} /> answers use your real data</span>
-            <div className="flex items-center gap-2.5">
-              <ExportMenu label="Export all" onExcel={() => exportAll("excel")} onPdf={() => exportAll("pdf")} />
-              <button onClick={newChat} className="inline-flex items-center gap-1 text-[11px] font-medium hover:underline" style={{ color: SUB }}><TbPlus size={12} /> New chat</button>
+        <div className="mx-auto w-full max-w-[840px]">
+          {messages.length > 0 && (
+            <div className="flex items-center justify-between mb-2 px-1">
+              <span className="text-[10.5px] inline-flex items-center gap-1" style={{ color: SUB }}><TbChartBar size={12} /> answers use your real data</span>
+              <div className="flex items-center gap-2.5">
+                <ExportMenu label="Export all" onExcel={() => exportAll("excel")} onPdf={() => exportAll("pdf")} />
+                <button onClick={newChat} className="inline-flex items-center gap-1 text-[11px] font-medium hover:underline" style={{ color: SUB }}><TbPlus size={12} /> New chat</button>
+              </div>
             </div>
+          )}
+          <div className="flex items-end gap-2 rounded-2xl px-2 py-1.5 transition-shadow" style={{ background: "#fff", border: "1px solid #e6e9f1", boxShadow: "0 1px 2px rgba(20,24,40,0.04)" }}>
+            <textarea
+              value={input} onChange={(e) => setInput(e.target.value)} rows={1}
+              onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); submit(); } }}
+              placeholder="Ask about your supply-chain data…"
+              className="flex-1 resize-none bg-transparent px-2.5 py-2 text-[13.5px] outline-none max-h-32 leading-relaxed"
+              style={{ color: INK }} />
+            <button onClick={submit} disabled={!input.trim() || busy} className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 disabled:opacity-30 transition-all hover:opacity-90" style={{ background: ACCENT, color: "#fff" }} aria-label="Send"><TbSend size={16} /></button>
           </div>
-        )}
-        <div className="flex items-end gap-2">
-          <textarea
-            value={input} onChange={(e) => setInput(e.target.value)} rows={1}
-            onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); submit(); } }}
-            placeholder="Ask about your supply-chain data…"
-            className="flex-1 resize-none rounded-xl px-3.5 py-2.5 text-[13.5px] outline-none focus:ring-2 max-h-28"
-            style={{ background: "#f4f5f8", border: "1px solid #e8eaef", color: INK }} />
-          <button onClick={submit} disabled={!input.trim() || busy} className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 disabled:opacity-40 transition-opacity" style={{ background: ACCENT, color: "#fff" }} aria-label="Send"><TbSend size={17} /></button>
         </div>
       </div>
     </div>

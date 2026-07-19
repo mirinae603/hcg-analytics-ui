@@ -21,17 +21,8 @@ export default function PlotlyChart({ figure, title }: { figure: { data: any[]; 
       paper_bgcolor: "rgba(0,0,0,0)",
       plot_bgcolor: "rgba(0,0,0,0)",
     };
-    const config = {
-      displaylogo: false,
-      responsive: true,
-      displayModeBar: "hover",
-      modeBarButtonsToRemove: ["lasso2d", "select2d", "autoScale2d", "zoomIn2d", "zoomOut2d", "toggleSpikelines", "hoverClosestCartesian", "hoverCompareCartesian"],
-      toImageButtonOptions: {
-        format: "png",
-        filename: `hcg-${(title || "chart").replace(/[^a-z0-9]+/gi, "-").toLowerCase().slice(0, 40)}`,
-        height: 720, width: 1280, scale: 2,
-      },
-    };
+    // No native modebar — the chart card has a clean "PNG" button instead (declutter).
+    const config = { displaylogo: false, responsive: true, displayModeBar: false, staticPlot: false };
     try {
       Plotly.react(ref.current, figure.data, layout, config);
     } catch (e) {
