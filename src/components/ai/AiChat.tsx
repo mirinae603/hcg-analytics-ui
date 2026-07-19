@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { TbSend, TbChartBar, TbShieldCheck, TbDatabase, TbChevronDown, TbFileSpreadsheet, TbFileTypePdf, TbDownload, TbArrowDown } from "react-icons/tb";
+import { TbSend, TbChartBar, TbShieldCheck, TbDatabase, TbChevronDown, TbFileSpreadsheet, TbFileTypePdf, TbDownload, TbArrowDown, TbPlus } from "react-icons/tb";
 import { useAiChat, AiMsg } from "@/context/AiChatContext";
 import { groupTurns, exportExcel, exportPdf, Turn } from "@/lib/aiExport";
 import AnalystMark from "./AnalystMark";
@@ -49,6 +49,30 @@ function TableView({ table }: { table: NonNullable<AiMsg["table"]> }) {
         </table>
       </div>
       {table.note ? <div className="px-3 py-2 text-[10.5px]" style={{ color: SUB, background: "#fafbfc", borderTop: "1px solid #f2f4f8" }}>{table.note}</div> : null}
+    </div>
+  );
+}
+
+function ChartCard({ figure }: { figure: { data: any[]; layout?: any } }) {
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const title = figure?.layout?.title?.text || "Chart";
+  const downloadPng = () => {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const Plotly = require("plotly.js-dist-min");
+      const gd = wrapRef.current?.querySelector(".js-plotly-plot");
+      if (gd) Plotly.downloadImage(gd, { format: "png", height: 720, width: 1280, scale: 2, filename: `hcg-${String(title).replace(/[^a-z0-9]+/gi, "-").toLowerCase().slice(0, 40)}` });
+    } catch { /* noop */ }
+  };
+  return (
+    <div ref={wrapRef} className="w-full rounded-2xl bg-white border overflow-hidden group" style={{ borderColor: "#eceef4", boxShadow: "0 1px 2px rgba(20,24,40,0.04)" }}>
+      <div className="flex items-center justify-between px-4 pt-3 pb-1">
+        <span className="text-[10.5px] font-semibold uppercase tracking-[0.06em]" style={{ color: "#a2a8b6" }}>Chart</span>
+        <button onClick={downloadPng} title="Download as PNG" className="inline-flex items-center gap-1 text-[10.5px] font-medium px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: "#f4f5f8", color: "#5a6072" }}>
+          <TbDownload size={12} /> PNG
+        </button>
+      </div>
+      <div className="px-2 pb-2"><PlotlyChart figure={figure} title={title} /></div>
     </div>
   );
 }
@@ -101,11 +125,7 @@ function Message({ m, onOption, onExport }: { m: AiMsg; onOption?: (o: string) =
     );
   }
   if (m.kind === "plotly" && m.figure) {
-    return (
-      <div className="flex justify-start">
-        <div className="w-full max-w-[100%] rounded-2xl p-2 bg-white border" style={{ borderColor: "#eef0f4" }}><PlotlyChart figure={m.figure} /></div>
-      </div>
-    );
+    return <div className="flex justify-start"><div className="w-full"><ChartCard figure={m.figure} /></div></div>;
   }
   if (m.kind === "table" && m.table) {
     return <div className="flex justify-start"><div className="w-full"><TableView table={m.table} /></div></div>;
@@ -159,7 +179,7 @@ function QueriesDisclosure({ queries }: { queries: NonNullable<AiMsg["queries"]>
 }
 
 export default function AiChat({ variant = "floater" }: { variant?: "floater" | "page" }) {
-  const { messages, busy, step, send, clear } = useAiChat();
+  const { messages, busy, step, send, newChat } = useAiChat();
   const [input, setInput] = useState("");
   const [atBottom, setAtBottom] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -240,7 +260,7 @@ export default function AiChat({ variant = "floater" }: { variant?: "floater" | 
             <span className="text-[10.5px] inline-flex items-center gap-1" style={{ color: SUB }}><TbChartBar size={12} /> answers use your real data</span>
             <div className="flex items-center gap-2.5">
               <ExportMenu label="Export all" onExcel={() => exportAll("excel")} onPdf={() => exportAll("pdf")} />
-              <button onClick={clear} className="text-[11px] font-medium hover:underline" style={{ color: SUB }}>Clear</button>
+              <button onClick={newChat} className="inline-flex items-center gap-1 text-[11px] font-medium hover:underline" style={{ color: SUB }}><TbPlus size={12} /> New chat</button>
             </div>
           </div>
         )}
