@@ -26,7 +26,14 @@ function fmt(v: any, kind: string): string {
   if (kind === "inr") { const a = Math.abs(n); if (a >= 1e7) return `₹${(n / 1e7).toFixed(2)} Cr`; if (a >= 1e5) return `₹${(n / 1e5).toFixed(2)} L`; if (a >= 1e3) return `₹${(n / 1e3).toFixed(1)} K`; return `₹${Math.round(n)}`; }
   if (kind === "pct") return `${n.toFixed(1)}%`;
   if (kind === "days") return `${Math.round(n)} d`;
-  if (kind === "num") return n.toLocaleString("en-IN");
+  // Counts/quantities are conceptually whole — a demand of 84,166.667 or a total of
+  // 1,08,73,100.944 reaching the table as raw floats reads as broken. Round to whole
+  // for magnitudes ≥1000 (or already-integer); keep 2 decimals only for genuine small
+  // fractionals (a ratio like 2.34) where the decimals actually carry meaning.
+  if (kind === "num") {
+    if (Math.abs(n) >= 1000 || Number.isInteger(n)) return Math.round(n).toLocaleString("en-IN");
+    return n.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
   return String(v);
 }
 
