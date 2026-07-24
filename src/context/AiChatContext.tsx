@@ -22,6 +22,7 @@ export type AiMsg = {
   verified?: string | null;
   queries?: AiQuery[];
   options?: string[];
+  scope?: string;   // filters this answer applied — threaded back so a terse follow-up inherits it
 };
 export type AiSession = { id: string; title: string; messages: AiMsg[]; createdAt: number; updatedAt: number };
 
@@ -139,8 +140,13 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
 
     const history = (sess?.messages || [])
       .filter((m) => m.kind === "text" && m.text)
-      .slice(-6)
-      .map((m) => ({ role: m.role === "user" ? "user" : "assistant", content: m.text }));
+      .slice(-24)   // kept in sync with backend HISTORY_MESSAGES — deeper memory for long sessions
+      // Append the answer's scope marker ONLY into the history payload (not the displayed
+      // text) so a terse follow-up server-side can inherit the exact prior filters.
+      .map((m) => ({
+        role: m.role === "user" ? "user" : "assistant",
+        content: m.text + (m.role === "bot" && m.scope ? `\n[active scope: ${m.scope}]` : ""),
+      }));
 
     writeMsgs(sid, (m) => [...m, { id: uid(), role: "user", kind: "text", text: query }], isFirst ? { title: titleFrom(query) } : undefined);
 
@@ -178,7 +184,7 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
           if (ev.type === "step") setStep(ev.text);
           else if (ev.type === "sql") { queries.push({ purpose: ev.purpose, sql: ev.sql, rows: ev.rows, error: ev.error }); if (botCreated) upsertBot({ queries: [...queries] }); }
           else if (ev.type === "token") upsertBotText(botText + ev.text);
-          else if (ev.type === "answer") upsertBot({ text: ev.text || botText, verified: ev.verified ?? null, queries: [...queries], options: ev.options || [] });
+          else if (ev.type === "answer") upsertBot({ text: ev.text || botText, verified: ev.verified ?? null, queries: [...queries], options: ev.options || [], scope: ev.scope || undefined });
           else if (ev.type === "clarify") upsertBot({ text: ev.text || "Could you clarify?", options: ev.options || [] });
           else if (ev.type === "chart" && ev.plotly) appendMsg({ id: uid(), role: "bot", kind: "plotly", figure: ev.plotly });
           else if (ev.type === "table" && ev.table) appendMsg({ id: uid(), role: "bot", kind: "table", table: { ...ev.table, note: ev.note } });
