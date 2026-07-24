@@ -159,6 +159,25 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
     });
     const upsertBotText = (t: string) => { botText = t; upsertBot({ text: t }); };
     const appendMsg = (msg: AiMsg) => writeMsgs(sid, (m) => [...m, msg]);
+    // Cosmetic-only "typewriter" reveal of an already-complete, already-audited answer —
+    // the full text is in hand the instant the "answer" event arrives, this only staggers
+    // WHEN it appears on screen so it doesn't look like a wall of text dumped all at once.
+    // Reveals by word (never mid-word) and always finishes fast regardless of length.
+    const revealText = (full: string) => {
+      if (!full) { upsertBotText(""); return; }
+      const words = full.split(/(\s+)/);
+      const steps = Math.min(words.length, 28);
+      if (steps <= 1) { upsertBotText(full); return; }
+      const perStep = Math.ceil(words.length / steps);
+      const delay = Math.min(700, Math.max(200, full.length * 3)) / steps;
+      let idx = 0;
+      const tick = () => {
+        idx = Math.min(words.length, idx + perStep);
+        upsertBotText(words.slice(0, idx).join(""));
+        if (idx < words.length) setTimeout(tick, delay);
+      };
+      tick();
+    };
 
     try {
       const res = await fetch(`${DASHBOARD_API_BASE_URL}/ai/chat`, {
@@ -184,7 +203,10 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
           if (ev.type === "step") setStep(ev.text);
           else if (ev.type === "sql") { queries.push({ purpose: ev.purpose, sql: ev.sql, rows: ev.rows, error: ev.error }); if (botCreated) upsertBot({ queries: [...queries] }); }
           else if (ev.type === "token") upsertBotText(botText + ev.text);
-          else if (ev.type === "answer") upsertBot({ text: ev.text || botText, verified: ev.verified ?? null, queries: [...queries], options: ev.options || [], scope: ev.scope || undefined });
+          else if (ev.type === "answer") {
+            upsertBot({ text: "", verified: ev.verified ?? null, queries: [...queries], options: ev.options || [], scope: ev.scope || undefined });
+            revealText(ev.text || "");
+          }
           else if (ev.type === "clarify") upsertBot({ text: ev.text || "Could you clarify?", options: ev.options || [] });
           else if (ev.type === "chart" && ev.plotly) appendMsg({ id: uid(), role: "bot", kind: "plotly", figure: ev.plotly });
           else if (ev.type === "table" && ev.table) appendMsg({ id: uid(), role: "bot", kind: "table", table: { ...ev.table, note: ev.note } });
