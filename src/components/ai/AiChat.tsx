@@ -196,7 +196,11 @@ export default function AiChat({ variant = "floater" }: { variant?: "floater" | 
   // Only auto-follow when the user is already at the bottom (don't yank them up while reading).
   useEffect(() => { if (atBottomRef.current) scrollToBottom(); }, [messages, step, busy]);
 
-  const submit = () => { if (!input.trim() || busy) return; send(input); setInput(""); atBottomRef.current = true; };
+  // Any programmatic send (typed input, a follow-up chip, a starter suggestion) should
+  // resume auto-scroll-to-bottom, even if the user had scrolled up to read a prior answer —
+  // otherwise clicking a chip silently starts a new turn with no visible scroll to it.
+  const sendAndFollow = (q: string) => { atBottomRef.current = true; setAtBottom(true); send(q); };
+  const submit = () => { if (!input.trim() || busy) return; sendAndFollow(input); setInput(""); };
 
   const exportAll = async (kind: "excel" | "pdf") => {
     const turns = groupTurns(messages);
@@ -230,7 +234,7 @@ export default function AiChat({ variant = "floater" }: { variant?: "floater" | 
             <div className="text-[12.5px] mt-1.5 max-w-[340px] leading-relaxed" style={{ color: SUB }}>Ask anything about revenue, inventory, procurement, expiry or forecasts — I query the real data and answer with charts.</div>
             <div className="flex flex-wrap gap-2 justify-center mt-6 max-w-[460px]">
               {SUGGESTIONS.map((s) => (
-                <button key={s} onClick={() => send(s)} className="text-[12px] px-3.5 py-1.5 rounded-lg border transition-all hover:-translate-y-0.5" style={{ borderColor: "#e7e9f0", color: "#4b5468", background: "#fff", boxShadow: "0 1px 2px rgba(20,24,40,0.03)" }}>{s}</button>
+                <button key={s} onClick={() => sendAndFollow(s)} className="text-[12px] px-3.5 py-1.5 rounded-lg border transition-all hover:-translate-y-0.5" style={{ borderColor: "#e7e9f0", color: "#4b5468", background: "#fff", boxShadow: "0 1px 2px rgba(20,24,40,0.03)" }}>{s}</button>
               ))}
             </div>
           </div>
@@ -238,7 +242,7 @@ export default function AiChat({ variant = "floater" }: { variant?: "floater" | 
           <div className="mx-auto w-full max-w-[840px] px-4 sm:px-5 py-5 space-y-4">
             {messages.map((m) => (
               <div key={m.id} className="ai-msg">
-                <Message m={m} onOption={m.options && m.options.length ? (o) => send(o) : undefined} />
+                <Message m={m} onOption={m.options && m.options.length ? (o) => sendAndFollow(o) : undefined} />
               </div>
             ))}
             {busy && (

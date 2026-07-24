@@ -188,6 +188,7 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
           else if (ev.type === "clarify") upsertBot({ text: ev.text || "Could you clarify?", options: ev.options || [] });
           else if (ev.type === "chart" && ev.plotly) appendMsg({ id: uid(), role: "bot", kind: "plotly", figure: ev.plotly });
           else if (ev.type === "table" && ev.table) appendMsg({ id: uid(), role: "bot", kind: "table", table: { ...ev.table, note: ev.note } });
+          else if (ev.type === "followups") upsertBot({ options: ev.options || [] });
           else if (ev.type === "error") upsertBotText((botText ? botText + "\n\n" : "") + `⚠️ ${ev.text}`);
         }
       }
