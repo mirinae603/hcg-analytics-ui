@@ -358,6 +358,18 @@ export default function ReplenishmentRiskDetail() {
   useEffect(() => { setData(null); fetch(`${DASHBOARD_API_BASE_URL}/forecast/replenishment-insights?Plant=${encodeURIComponent(region)}`).then((r) => r.json()).then(setData).catch(() => setData(null)); }, [region]);
   const t = data?.totals || {};
 
+  if (!data) return (
+    <div className="-m-4 md:-m-6 p-5 md:p-8" style={{ minHeight: "calc(100vh - 64px)", background: BG }}>
+      <div className="max-w-[1500px] mx-auto animate-pulse">
+        <div className="mb-6"><div className="h-3 w-24 bg-gray-200 rounded mb-2" /><div className="h-8 w-96 max-w-full bg-gray-200 rounded" /></div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-5">
+          {[0, 1, 2].map((i) => <div key={i} className="rounded-[20px] bg-white" style={{ minHeight: 140, border: `1px solid ${BORDER}` }} />)}
+        </div>
+        <div className="rounded-[20px] bg-white" style={{ minHeight: 400, border: `1px solid ${BORDER}` }} />
+      </div>
+    </div>
+  );
+
   return (
     <div className="-m-4 md:-m-6 p-5 md:p-8" style={{ minHeight: "calc(100vh - 64px)", background: BG }}>
       <style jsx global>{`

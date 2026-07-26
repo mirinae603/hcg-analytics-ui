@@ -451,16 +451,16 @@ const ITRCard: React.FC<ITRCardProps> = ({
                 {targetITR}×
               </div>
               <div className="text-xs text-slate-500 font-medium">
-                Highest Ever
+                Target
               </div>
             </div>
-            
+
             <div className="text-center flex-1">
               <div className="text-lg font-medium text-slate-500">
                 {industryAverage}×
               </div>
               <div className="text-xs text-slate-500 font-medium">
-                Rolling Avg
+                Industry Avg
               </div>
             </div>
 

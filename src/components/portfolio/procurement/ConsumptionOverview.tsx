@@ -154,7 +154,16 @@ export default function ConsumptionOverview() {
   const { selectedRegion } = useRegion();
   const region = selectedRegion?.name ?? "All Plants";
   const [data, setData] = useState<any>(null);
-  useEffect(() => { fetch(`${DASHBOARD_API_BASE_URL}/portfolio/consumption/overview?Plant=${encodeURIComponent(region)}`).then((r) => r.json()).then((d) => setData(d || null)).catch(() => setData(null)); }, [region]);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    setLoading(true);
+    fetch(`${DASHBOARD_API_BASE_URL}/portfolio/consumption/overview?Plant=${encodeURIComponent(region)}`)
+      .then((r) => r.json()).then((d) => { setData(d || null); setLoading(false); })
+      .catch(() => { setData(null); setLoading(false); });
+  }, [region]);
+  // true while in flight OR resolved with nothing usable -- never let a failed/slow
+  // fetch fall through to the cards' old confident-zero render.
+  const showSkeleton = loading || !data;
 
   const t = data?.totals || {};
   const cards = data?.cards || {};
@@ -192,10 +201,10 @@ export default function ConsumptionOverview() {
 
       <div className="flex flex-wrap lg:flex-nowrap gap-5 items-stretch mb-5">
         <div className="w-full lg:w-1/3 min-h-[220px]"><BrandPanel title="Consumption KPI's" subtitle="Clinical usage" accent={ROSE} /></div>
-        <div className="w-full lg:w-1/3"><GaugeCard tabs={tabs} /></div>
+        <div className="w-full lg:w-1/3"><GaugeCard tabs={tabs} loading={showSkeleton} /></div>
         <div className="w-full lg:w-1/3"><DonutCard label="Department concentration" headline={cost} headSuffix="total cost" centerLabel="Depts"
           segments={segments} insights={[{ label: "Top-5", value: `${deptTop5.toFixed(0)}%`, color: PLUM }, { label: "Depts", value: countAbbr(nDept), color: "#6b7280" }]}
-          score={{ text: deptTop5 >= 50 ? "Concentrated" : "Spread", value: Math.round(deptTop5), color: deptTop5 >= 50 ? PLUM : "#5aa97e" }} /></div>
+          score={{ text: deptTop5 >= 50 ? "Concentrated" : "Spread", value: Math.round(deptTop5), color: deptTop5 >= 50 ? PLUM : "#5aa97e" }} loading={showSkeleton} /></div>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-stretch">

@@ -232,7 +232,16 @@ export default function ForecastingOverview() {
   const { selectedRegion } = useRegion();
   const region = selectedRegion?.name ?? "All Plants";
   const [data, setData] = useState<any>(null);
-  useEffect(() => { fetch(`${DASHBOARD_API_BASE_URL}/portfolio/forecasting/overview?Plant=${encodeURIComponent(region)}`).then((r) => r.json()).then((d) => setData(d || null)).catch(() => setData(null)); }, [region]);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    setLoading(true);
+    fetch(`${DASHBOARD_API_BASE_URL}/portfolio/forecasting/overview?Plant=${encodeURIComponent(region)}`)
+      .then((r) => r.json()).then((d) => { setData(d || null); setLoading(false); })
+      .catch(() => { setData(null); setLoading(false); });
+  }, [region]);
+  // true while in flight OR resolved with nothing usable -- the metrics bar below renders
+  // a neutral skeleton in that state instead of a confident-looking "0 items" / "₹0".
+  const showSkeleton = loading || !data;
   const t = data?.totals || {};
   const tl = data?.timeline || [];
   const acts = tl.filter((d: any) => d.actual != null).map((d: any) => d.actual);
@@ -279,6 +288,16 @@ export default function ForecastingOverview() {
 
       {/* metrics bar */}
       <Card pad="p-0" className="mb-5 overflow-hidden">
+        {showSkeleton ? (
+          <div className="grid grid-cols-2 lg:grid-cols-4 animate-pulse">
+            {[0, 1, 2, 3].map((i) => (
+              <div key={i} className="p-5" style={{ borderLeft: i % 4 === 0 ? "none" : `1px solid ${LINE}`, borderTop: i >= 2 ? `1px solid ${LINE}` : "none" }}>
+                <div className="h-3 w-2/3 bg-gray-100 rounded mb-4" />
+                <div className="h-7 w-1/2 bg-gray-100 rounded" />
+              </div>
+            ))}
+          </div>
+        ) : (
         <div className="grid grid-cols-2 lg:grid-cols-4">
           {metrics.map((m, i) => (
             <div key={i} className="p-5 relative" style={{ borderLeft: i % 4 === 0 ? "none" : `1px solid ${LINE}`, borderTop: i >= 2 ? `1px solid ${LINE}` : "none" }}>
@@ -294,6 +313,7 @@ export default function ForecastingOverview() {
             </div>
           ))}
         </div>
+        )}
       </Card>
 
       {/* ── STEP 1 · ACT: what to order now + overall stock health ── */}

@@ -313,6 +313,18 @@ export default function CashflowForecastDetail() {
   useEffect(() => { setData(null); fetch(`${DASHBOARD_API_BASE_URL}/forecast/cashflow-insights?Plant=${encodeURIComponent(region)}`).then((r) => r.json()).then(setData).catch(() => setData(null)); }, [region]);
   const t = data?.totals || {};
 
+  if (!data) return (
+    <div className="-m-4 md:-m-6 p-5 md:p-8" style={{ minHeight: "calc(100vh - 64px)", background: BG }}>
+      <div className="max-w-[1500px] mx-auto animate-pulse">
+        <div className="mb-6"><div className="h-3 w-24 bg-gray-200 rounded mb-2" /><div className="h-8 w-96 max-w-full bg-gray-200 rounded" /></div>
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-5">
+          <div className="xl:col-span-8 rounded-[20px] bg-white" style={{ minHeight: 420, border: `1px solid ${BORDER}` }} />
+          <div className="xl:col-span-4 rounded-[20px] bg-white" style={{ minHeight: 420, border: `1px solid ${BORDER}` }} />
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="-m-4 md:-m-6 p-5 md:p-8" style={{ minHeight: "calc(100vh - 64px)", background: BG }}>
       <style jsx global>{`

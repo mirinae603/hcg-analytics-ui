@@ -102,7 +102,16 @@ export default function KpiDrilldown({ kpi }: { kpi: Kpi }) {
       <PageBreadcrumb pageTitle={kpi.title} />
 
       {/* ── Summary stat cards ── */}
-      {statCards.length > 0 && (
+      {loading ? (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="rounded-2xl p-4 animate-pulse" style={{ background: "#f8fafc", border: "1px solid #eef1f0" }}>
+              <div className="h-3 w-2/3 bg-gray-100 rounded mb-3" />
+              <div className="h-7 w-1/2 bg-gray-100 rounded" />
+            </div>
+          ))}
+        </div>
+      ) : statCards.length > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {statCards.map((c, i) => {
             const t = CARD_THEMES[i % CARD_THEMES.length];
@@ -148,28 +157,38 @@ export default function KpiDrilldown({ kpi }: { kpi: Kpi }) {
         {/* Headline gauge card */}
         <div className={`${kpi.chart ? "xl:col-span-4" : "xl:col-span-12"} rounded-2xl p-6 flex flex-col items-center justify-center text-center`}
           style={{ background: "linear-gradient(145deg,#f8fafc 0%,#eff6ff 100%)", border: "1px solid rgba(59,130,246,0.15)", boxShadow: "0 4px 24px rgba(59,130,246,0.06)" }}>
-          <span className="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-4">{kpi.card.label}</span>
-          <div className="relative w-36 h-36">
-            <svg className="w-36 h-36 transform -rotate-90" viewBox="0 0 120 120">
-              <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(0,0,0,0.06)" strokeWidth="9" />
-              <circle cx="60" cy="60" r="52" fill="none" stroke="#465fff" strokeWidth="9" strokeLinecap="round"
-                strokeDasharray={circ} strokeDashoffset={circ * (1 - gaugePct)}
-                style={{ transition: "stroke-dashoffset 1.4s cubic-bezier(0.4,0,0.2,1)", filter: "drop-shadow(0 2px 8px rgba(70,95,255,0.25))" }} />
-            </svg>
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <CountUpValue value={headVal} kind={kpi.card.kind} className="text-2xl font-black text-gray-800 tabular-nums" />
-              <span className="text-[10px] text-gray-400 mt-1">{Math.round(gaugePct * 100)}% of scale</span>
+          {loading ? (
+            <div className="w-full flex flex-col items-center animate-pulse">
+              <div className="h-3 w-24 bg-gray-100 rounded mb-6" />
+              <div className="w-36 h-36 rounded-full bg-gray-100" />
+              <div className="h-3 w-32 bg-gray-100 rounded mt-6" />
             </div>
-          </div>
-          <div className="mt-5 flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full" style={{ background: "#22c55e" }} />
-            <span className="text-xs font-semibold text-gray-500">Live data · {region}</span>
-          </div>
-          {kpi.note && (
-            <span className="mt-3 text-[11px] font-medium px-3 py-1.5 rounded-full"
-              style={{ background: "rgba(251,100,20,0.08)", color: "#fb6514", border: "1px solid rgba(251,100,20,0.2)" }}>
-              ⚠ {kpi.note}
-            </span>
+          ) : (
+            <>
+              <span className="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-4">{kpi.card.label}</span>
+              <div className="relative w-36 h-36">
+                <svg className="w-36 h-36 transform -rotate-90" viewBox="0 0 120 120">
+                  <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(0,0,0,0.06)" strokeWidth="9" />
+                  <circle cx="60" cy="60" r="52" fill="none" stroke="#465fff" strokeWidth="9" strokeLinecap="round"
+                    strokeDasharray={circ} strokeDashoffset={circ * (1 - gaugePct)}
+                    style={{ transition: "stroke-dashoffset 1.4s cubic-bezier(0.4,0,0.2,1)", filter: "drop-shadow(0 2px 8px rgba(70,95,255,0.25))" }} />
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <CountUpValue value={headVal} kind={kpi.card.kind} className="text-2xl font-black text-gray-800 tabular-nums" />
+                  <span className="text-[10px] text-gray-400 mt-1">{Math.round(gaugePct * 100)}% of scale</span>
+                </div>
+              </div>
+              <div className="mt-5 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full" style={{ background: "#22c55e" }} />
+                <span className="text-xs font-semibold text-gray-500">Live data · {region}</span>
+              </div>
+              {kpi.note && (
+                <span className="mt-3 text-[11px] font-medium px-3 py-1.5 rounded-full"
+                  style={{ background: "rgba(251,100,20,0.08)", color: "#fb6514", border: "1px solid rgba(251,100,20,0.2)" }}>
+                  ⚠ {kpi.note}
+                </span>
+              )}
+            </>
           )}
         </div>
       </div>

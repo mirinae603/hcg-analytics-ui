@@ -128,3 +128,27 @@ export function Panel({ children, delay = 140, className = "" }: any) {
     </div>
   );
 }
+
+// Generic neutral pulse skeleton for a whole detail page, shown while its fetch is in
+// flight OR failed -- mirrors ExecCards' CardSkeleton reasoning: a slow/errored request
+// must never fall through to rendering every derived stat as a confident zero.
+export function DetailSkeleton() {
+  return (
+    <>
+      <div className="rounded-[28px] animate-pulse" style={{ minHeight: 308, background: "#e7ebe9" }} />
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
+        {[0, 1, 2].map((i) => (
+          <div key={i} className="rounded-3xl bg-white p-6 animate-pulse" style={{ boxShadow: PANEL_SHADOW, minHeight: 260 }}>
+            <div className="h-5 w-2/3 bg-gray-100 rounded mb-4" />
+            <div className="h-32 bg-gray-100 rounded-2xl mb-4" />
+            <div className="h-3 w-1/2 bg-gray-100 rounded" />
+          </div>
+        ))}
+      </div>
+      <div className="rounded-3xl bg-white overflow-hidden animate-pulse" style={{ boxShadow: PANEL_SHADOW }}>
+        <div className="px-6 py-4 border-b border-gray-50"><div className="h-4 w-40 bg-gray-100 rounded" /></div>
+        <div className="p-6 space-y-2">{Array.from({ length: 6 }).map((_, i) => <div key={i} className="h-10 rounded-lg bg-gray-50" />)}</div>
+      </div>
+    </>
+  );
+}

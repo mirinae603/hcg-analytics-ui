@@ -9,6 +9,7 @@ import { useRegion } from "@/context/RegionContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import { inrAbbr, countAbbr, useMount, CountUp } from "@/components/portfolio/kit";
 import { TbMapPin, TbBuildingHospital, TbChartDots } from "react-icons/tb";
+import { DetailSkeleton } from "./parts";
 
 const KpiTable = dynamic(() => import("../KpiTable"), { ssr: false, loading: () => <div className="p-6">{Array.from({ length: 6 }).map((_, i) => <div key={i} className="h-10 rounded-lg bg-gray-50 animate-pulse mb-2" />)}</div> });
 
@@ -272,7 +273,8 @@ export default function PurchaseByLocationDetail() {
   const { selectedRegion } = useRegion();
   const region = selectedRegion?.name ?? "All Plants";
   const [data, setData] = useState<any>(null);
-  useEffect(() => { fetch(`${DASHBOARD_API_BASE_URL}/kpi/purchase-by-location/insights?Plant=${encodeURIComponent(region)}`).then((r) => r.json()).then(setData).catch(() => setData(null)); }, [region]);
+  useEffect(() => { setData(null); fetch(`${DASHBOARD_API_BASE_URL}/kpi/purchase-by-location/insights?Plant=${encodeURIComponent(region)}`).then((r) => r.json()).then(setData).catch(() => setData(null)); }, [region]);
+  if (!data) return <Shell region={region}><DetailSkeleton /></Shell>;
   const t = data?.totals || {};
   const plants = data?.plants || [];
   return (

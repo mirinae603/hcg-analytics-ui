@@ -21,7 +21,12 @@ const INK = "#1f2333";
 const SUBTLE = "#8a91a0";
 const EMER = "#0e9f6e", TEAL = "#0d9488", INDIGO = "#4f46e5", SKY = "#0ea5e9", AMBER = "#e0992f", ROSE = "#e8604a";
 const pctSign = (n: number) => `${n >= 0 ? "+" : "−"}${Math.abs(n).toFixed(1)}%`;
+const pctPlain = (n: number) => `${n.toFixed(1)}%`;
 const dayFmt = (n: number) => `${n.toFixed(1)} d`;
+// Only "procurement-variance" is a genuine period-over-period delta -- vendor-volume-
+// contribution and fill-rate are static levels/shares, not changes, so a "+" in front of
+// them (e.g. "+55.4%" concentration, "+91.7%" order completion) falsely implies they rose.
+const DELTA_KPI_KEYS = new Set(["procurement-variance"]);
 
 const KPI_META: Record<string, { title: string; Icon: any; ring: string; tint: string }> = {
   "purchase-value": { title: "Purchase Value", Icon: TbCoin, ring: EMER, tint: "#e7f6ef" },
@@ -34,7 +39,10 @@ const KPI_META: Record<string, { title: string; Icon: any; ring: string; tint: s
   "fill-rate": { title: "Fill Rate", Icon: TbProgressCheck, ring: EMER, tint: "#e7f6ef" },
 };
 const KPI_ORDER = ["purchase-value", "monthly-purchase-value", "procurement-variance", "vendor-volume-contribution", "purchase-by-location", "procurement-cycle-time", "vendor-lead-time", "fill-rate"];
-const fmtCard = (kind: string, v: number) => kind === "inr" ? inrAbbr(v) : kind === "days" ? dayFmt(v) : kind === "pct" ? pctSign(v) : countAbbr(v);
+const fmtCard = (kind: string, v: number, key?: string) =>
+  kind === "inr" ? inrAbbr(v) : kind === "days" ? dayFmt(v)
+  : kind === "pct" ? (key && DELTA_KPI_KEYS.has(key) ? pctSign(v) : pctPlain(v))
+  : countAbbr(v);
 
 function SpendFlow({ timeline }: { timeline: any[] }) {
   const on = useMount(140); const [hov, setHov] = useState<number | null>(null);
@@ -100,7 +108,7 @@ function KpiGrid({ cards }: { cards: Record<string, any> }) {
               <span className="flex items-center justify-center rounded-xl flex-shrink-0" style={{ width: 38, height: 38, background: m.tint, color: m.ring }}><Icon size={19} /></span>
               <div className="min-w-0 flex-1">
                 <div className="text-[12.5px] font-semibold truncate" style={{ color: INK }}>{m.title}</div>
-                <div className="flex items-baseline gap-1.5"><span className="text-[16px] font-bold tabular-nums leading-tight" style={{ color: m.ring }}>{fmtCard(c.kind, c.value)}</span><span className="text-[10.5px] truncate" style={{ color: SUBTLE }}>{c.sub}</span></div>
+                <div className="flex items-baseline gap-1.5"><span className="text-[16px] font-bold tabular-nums leading-tight" style={{ color: m.ring }}>{fmtCard(c.kind, c.value, key)}</span><span className="text-[10.5px] truncate" style={{ color: SUBTLE }}>{c.sub}</span></div>
               </div>
               <TbChevronRight size={16} className="flex-shrink-0 transition-transform duration-200 group-hover:translate-x-0.5" style={{ color: "#c4c7d2" }} />
             </Link>
@@ -242,7 +250,21 @@ export default function ProcurementOverview() {
   const { selectedRegion } = useRegion();
   const region = selectedRegion?.name ?? "All Plants";
   const [data, setData] = useState<any>(null);
-  useEffect(() => { fetch(`${DASHBOARD_API_BASE_URL}/portfolio/procurement/overview?Plant=${encodeURIComponent(region)}`).then((r) => r.json()).then((d) => setData(d || null)).catch(() => setData(null)); }, [region]);
+  // "loading" covers BOTH "fetch still in flight" and "fetch failed" -- either way there is
+  // no real data yet, so the executive cards must show a neutral skeleton, never a
+  // confident-looking 0/0%/"Watch fill" as if it were a genuine result (the original bug).
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    setLoading(true);
+    fetch(`${DASHBOARD_API_BASE_URL}/portfolio/procurement/overview?Plant=${encodeURIComponent(region)}`)
+      .then((r) => r.json()).then((d) => { setData(d || null); setLoading(false); })
+      .catch(() => { setData(null); setLoading(false); });
+  }, [region]);
+  // Combined flag passed to the cards below: true while the request is in flight, AND
+  // true if it resolved with nothing usable (failed / empty) -- only false once real
+  // totals are in hand. Never let the "fetch failed" case fall through to the old
+  // confident-zero render.
+  const showSkeleton = loading || !data;
 
   const t = data?.totals || {};
   const cards = data?.cards || {};
@@ -288,10 +310,10 @@ export default function ProcurementOverview() {
       {/* Executive cards row */}
       <div className="flex flex-wrap lg:flex-nowrap gap-5 items-stretch mb-5">
         <div className="w-full lg:w-1/3 min-h-[220px]"><BrandPanel /></div>
-        <div className="w-full lg:w-1/3"><GaugeCard tabs={tabs} /></div>
+        <div className="w-full lg:w-1/3"><GaugeCard tabs={tabs} loading={showSkeleton} /></div>
         <div className="w-full lg:w-1/3"><DonutCard label="Vendor concentration" headline={spend} headSuffix="total spend" centerLabel="Vendors"
           segments={segments} insights={[{ label: "Top-1", value: `${top1.toFixed(0)}%`, color: INDIGO }, { label: "Top-5", value: `${top5.toFixed(0)}%`, color: "#6b7280" }]}
-          score={{ text: top5 >= 50 ? "Concentrated" : "Diverse", value: Math.round(top5), color: top5 >= 50 ? AMBER : EMER }} /></div>
+          score={{ text: top5 >= 50 ? "Concentrated" : "Diversified", value: Math.round(top5), color: top5 >= 50 ? AMBER : EMER }} loading={showSkeleton} /></div>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-stretch">

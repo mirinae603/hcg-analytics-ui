@@ -13,8 +13,26 @@ export type Tab = {
   stats: { value: string; label: string; color: string }[];
 };
 
+// Neutral pulse skeleton -- shown while the parent's fetch is in flight OR failed, so a
+// slow/errored request can never render as a confident "0" ring/badge (the original bug:
+// no visual distinction between "still loading", "fetch failed", and "genuinely zero").
+function CardSkeleton({ rounded = "rounded-2xl sm:rounded-3xl" }: { rounded?: string }) {
+  return (
+    <div className={`relative w-full h-full ${rounded} overflow-hidden animate-pulse`} style={{ background: "white", border: "1px solid #eef1f0" }}>
+      <div className="p-4 lg:p-6">
+        <div className="h-7 w-2/3 bg-gray-100 rounded-lg mb-5" />
+        <div className="h-9 w-1/2 bg-gray-100 rounded mb-4" />
+        <div className="h-px bg-gray-100 mb-4" />
+        <div className="grid grid-cols-3 gap-3">
+          <div className="h-8 bg-gray-100 rounded" /><div className="h-8 bg-gray-100 rounded" /><div className="h-8 bg-gray-100 rounded" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Tabbed gauge card (clone of inventory StockLevelCard) ──
-export function GaugeCard({ tabs, animated = true }: { tabs: Tab[]; animated?: boolean }) {
+export function GaugeCard({ tabs, animated = true, loading = false }: { tabs: Tab[]; animated?: boolean; loading?: boolean }) {
   const [active, setActive] = useState(0);
   const [dispVal, setDispVal] = useState(0);
   const [dispGauge, setDispGauge] = useState(0);
@@ -44,6 +62,7 @@ export function GaugeCard({ tabs, animated = true }: { tabs: Tab[]; animated?: b
     return () => clearInterval(t);
   }, [hover, tabs.length]);
 
+  if (loading) return <CardSkeleton />;
   if (!cur) return null;
   const C = 2 * Math.PI * 42;
   return (
@@ -105,9 +124,9 @@ export function GaugeCard({ tabs, animated = true }: { tabs: Tab[]; animated?: b
 }
 
 // ── Concentration donut (clone of inventory aging donut) ──
-export function DonutCard({ label, headline, headSuffix, segments, centerLabel, insights, score, animated = true }: {
+export function DonutCard({ label, headline, headSuffix, segments, centerLabel, insights, score, animated = true, loading = false }: {
   label: string; headline: number; headSuffix?: string; centerLabel: string; score: { text: string; value: number; color: string };
-  segments: { label: string; value: number; color: string }[]; insights: { label: string; value: string; color: string }[]; animated?: boolean;
+  segments: { label: string; value: number; color: string }[]; insights: { label: string; value: string; color: string }[]; animated?: boolean; loading?: boolean;
 }) {
   const total = useMemo(() => segments.reduce((s, x) => s + x.value, 0) || 1, [segments]);
   const [progress, setProgress] = useState(animated ? 0 : 1);
@@ -121,6 +140,7 @@ export function DonutCard({ label, headline, headSuffix, segments, centerLabel, 
   }, [headline, animated]);
   const R = 50, SW = 12, CIRC = 2 * Math.PI * R;
   let acc = 0;
+  if (loading) return <CardSkeleton rounded="rounded-2xl sm:rounded-3xl" />;
   return (
     <div className="relative w-full h-full flex flex-col rounded-2xl sm:rounded-3xl overflow-hidden transition-all duration-700 cursor-pointer"
       style={{ background: "linear-gradient(135deg,#fff 0%,#f8fafc 50%,#fff 100%)", boxShadow: hover ? "0 12px 34px rgba(20,40,35,0.12)" : "0 4px 24px rgba(0,0,0,0.04)", transform: hover ? "translateY(-2px)" : "none" }}

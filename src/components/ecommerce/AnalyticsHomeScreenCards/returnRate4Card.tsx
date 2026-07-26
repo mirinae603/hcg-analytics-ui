@@ -379,18 +379,18 @@ const ReturnRateCard: React.FC<ReturnRateCardProps> = React.memo(({
                       transform: `scale(${animationProgress})`,
                     }}
                   ></div>
-                  <span className="text-slate-500 font-small">Lowest Ever {targetReturnRate}%</span>
+                  <span className="text-slate-500 font-small">Target {targetReturnRate}%</span>
                 </div>
 
                 {/* Industry */}
                 <div className="flex items-center space-x-2 text-xs">
-                  <div 
+                  <div
                     className="w-2 h-2 rounded-full bg-slate-400 transition-all duration-500"
                     style={{
                       transform: `scale(${animationProgress})`,
                     }}
                   ></div>
-                  <span className="text-slate-500 font-small">Rolling Avg {industryAverage}%</span>
+                  <span className="text-slate-500 font-small">Industry Avg {industryAverage}%</span>
                 </div>
               </div>
             </div>

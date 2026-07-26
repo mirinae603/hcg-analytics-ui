@@ -263,9 +263,12 @@ const AnalyticsDashboardLayout: React.FC = () => {
         <UnavailableKpi label="Return Rate %">
           <ReturnRateCard {...dashboardData.returnRate} />
         </UnavailableKpi>
-        <UnavailableKpi label="Inventory Turnover Ratio">
-          <ITRCard {...dashboardData.inventoryTurnover} />
-        </UnavailableKpi>
+        {/* NOT wrapped in UnavailableKpi: currentITR is a real, live-computed value
+            (backend now uses a portfolio-weighted sum/sum ratio, not a mean-of-ratios --
+            see dashboard_summary.py) -- unlike Return Rate, which really is a hardcoded
+            0.0 literal with no underlying data. Showing "Data N/A" over a genuine number
+            was itself the bug (client screenshot review, 2026-07-25). */}
+        <ITRCard {...dashboardData.inventoryTurnover} />
       </div>
     </div>
   );

@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import { useRegion } from "@/context/RegionContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import { inrAbbr, useMount, smoothPath, CountUp } from "@/components/portfolio/kit";
-import { ProcShell, TableCard, INK, SUBTLE } from "./parts";
+import { ProcShell, TableCard, DetailSkeleton, INK, SUBTLE } from "./parts";
 import { TbActivity, TbArrowUpRight, TbArrowDownRight, TbWaveSine, TbTrendingUp, TbTrendingDown } from "react-icons/tb";
 
 const KpiTable = dynamic(() => import("../KpiTable"), { ssr: false, loading: () => <div className="p-6">{Array.from({ length: 6 }).map((_, i) => <div key={i} className="h-10 rounded-lg bg-gray-50 animate-pulse mb-2" />)}</div> });
@@ -156,7 +156,8 @@ export default function VarianceDetail() {
   const { selectedRegion } = useRegion();
   const region = selectedRegion?.name ?? "All Plants";
   const [data, setData] = useState<any>(null);
-  useEffect(() => { fetch(`${DASHBOARD_API_BASE_URL}/kpi/procurement-variance/insights?Plant=${encodeURIComponent(region)}`).then((r) => r.json()).then(setData).catch(() => setData(null)); }, [region]);
+  useEffect(() => { setData(null); fetch(`${DASHBOARD_API_BASE_URL}/kpi/procurement-variance/insights?Plant=${encodeURIComponent(region)}`).then((r) => r.json()).then(setData).catch(() => setData(null)); }, [region]);
+  if (!data) return <ProcShell title="Procurement variance" subtitle="how monthly spend shifts over time" region={region} bg={PAGE}><DetailSkeleton /></ProcShell>;
   const t = data?.totals || {};
   const tl = data?.timeline || [];
   const avg = Number(t.avg_spend ?? 0);

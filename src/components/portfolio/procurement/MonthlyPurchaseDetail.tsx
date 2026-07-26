@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import { useRegion } from "@/context/RegionContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import { inrAbbr, countAbbr, catName, useMount, smoothPath, CountUp } from "@/components/portfolio/kit";
-import { ProcShell, TableCard, Panel, INK, SUBTLE } from "./parts";
+import { ProcShell, TableCard, Panel, DetailSkeleton, INK, SUBTLE } from "./parts";
 import { TbReceipt, TbPill, TbGridDots, TbCalendarStats, TbCrown, TbChevronUp, TbChevronDown, TbChevronRight } from "react-icons/tb";
 
 const KpiTable = dynamic(() => import("../KpiTable"), { ssr: false, loading: () => <div className="p-6">{Array.from({ length: 6 }).map((_, i) => <div key={i} className="h-10 rounded-lg bg-gray-50 animate-pulse mb-2" />)}</div> });
@@ -241,7 +241,8 @@ export default function MonthlyPurchaseDetail() {
   const { selectedRegion } = useRegion();
   const region = selectedRegion?.name ?? "All Plants";
   const [data, setData] = useState<any>(null);
-  useEffect(() => { fetch(`${DASHBOARD_API_BASE_URL}/kpi/monthly-purchase-value/insights?Plant=${encodeURIComponent(region)}`).then((r) => r.json()).then(setData).catch(() => setData(null)); }, [region]);
+  useEffect(() => { setData(null); fetch(`${DASHBOARD_API_BASE_URL}/kpi/monthly-purchase-value/insights?Plant=${encodeURIComponent(region)}`).then((r) => r.json()).then(setData).catch(() => setData(null)); }, [region]);
+  if (!data) return <ProcShell title="Monthly SKU purchase" subtitle="what you buy each month, by category & SKU" region={region} bg={PAGE}><DetailSkeleton /></ProcShell>;
   const t = data?.totals || {};
   const total = Number(t.total ?? 0), avg = Number(t.avg ?? 0), skus = Number(t.skus ?? 0);
   const groups = data?.groups || [];

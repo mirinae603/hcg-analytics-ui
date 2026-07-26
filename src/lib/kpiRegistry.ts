@@ -126,7 +126,7 @@ export const KPIS: Kpi[] = [
   },
   {
     key: "inventory-turnover-ratio", title: "Inventory Turnover Ratio", short: "Turnover", portfolio: "inventory", icon: "🔁",
-    chart: { type: "bar", groupBy: "material_group", measures: "ITR", top: 12, x: "material_group",
+    chart: { type: "bar", groupBy: "Material Group", measures: "ITR", top: 12, x: "Material Group",
       series: [{ field: "ITR", label: "ITR", color: C.cyan }], valueKind: "num" },
     card: { field: "ITR", agg: "mean", kind: "num", label: "Avg ITR (annualized)" },
     columns: [{ field: "Year", label: "Year" }, { field: "Month", label: "Month" },
@@ -134,7 +134,7 @@ export const KPIS: Kpi[] = [
     note: "Proxy — single inventory snapshot used as average inventory.",
   },
   {
-    key: "inventory-valuation", title: "Inventory Valuation Trend", short: "Valuation", portfolio: "inventory", icon: "📈",
+    key: "inventory-valuation", title: "Inventory Valuation", short: "Valuation", portfolio: "inventory", icon: "📈",
     chart: { type: "bar", groupBy: "Material Group", measures: "Inventory Valuation", top: 12, x: "Material Group",
       series: [{ field: "Inventory Valuation", label: "Valuation", color: C.blue }], valueKind: "inr" },
     card: { field: "Inventory Valuation", agg: "sum", kind: "inr", label: "Valuation" },

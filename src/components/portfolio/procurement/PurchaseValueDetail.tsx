@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import { useRegion } from "@/context/RegionContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import { inrAbbr, countAbbr, catName, useMount } from "@/components/portfolio/kit";
-import { ProcShell, TableCard, Panel, INK, SUBTLE, EMER, TEAL, INDIGO } from "./parts";
+import { ProcShell, TableCard, Panel, DetailSkeleton, INK, SUBTLE, EMER, TEAL, INDIGO } from "./parts";
 import { WaveHero, DonutCard } from "./ExecCards";
 import { TbCoin, TbBuildingFactory2, TbMapPin, TbChartTreemap } from "react-icons/tb";
 
@@ -117,7 +117,8 @@ export default function PurchaseValueDetail() {
   const { selectedRegion } = useRegion();
   const region = selectedRegion?.name ?? "All Plants";
   const [data, setData] = useState<any>(null);
-  useEffect(() => { fetch(`${DASHBOARD_API_BASE_URL}/kpi/purchase-value/insights?Plant=${encodeURIComponent(region)}`).then((r) => r.json()).then(setData).catch(() => setData(null)); }, [region]);
+  useEffect(() => { setData(null); fetch(`${DASHBOARD_API_BASE_URL}/kpi/purchase-value/insights?Plant=${encodeURIComponent(region)}`).then((r) => r.json()).then(setData).catch(() => setData(null)); }, [region]);
+  if (!data) return <ProcShell title="Purchase value" subtitle="what you spend, on what, and with whom" region={region}><DetailSkeleton /></ProcShell>;
   const t = data?.totals || {};
   const spend = Number(t.spend ?? 0), lines = Number(t.lines ?? 0), avgPo = Number(t.avg_po ?? 0), vendors = Number(t.vendors ?? 0);
   const allCats = data?.categories || [];
