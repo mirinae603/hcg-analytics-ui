@@ -1,27 +1,21 @@
-FROM node:18
-
-# Set the working directory inside the container
+FROM node:20-slim AS build
 WORKDIR /app
-
-# Ensure proper permissions
-RUN chown -R node:node /app
-
-# Copy the package.json and lock files
 COPY package*.json ./
-
-# Install dependencies
 RUN npm install
-
-# Copy the rest of the application code
 COPY . .
+ARG NEXT_PUBLIC_DASHBOARD_API
+ENV NEXT_PUBLIC_DASHBOARD_API=${NEXT_PUBLIC_DASHBOARD_API}
+RUN npm run build
 
-# Expose the default port
+FROM node:20-slim
+WORKDIR /app
+ENV NODE_ENV=production
+COPY --from=build /app/package*.json ./
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/.next ./.next
+COPY --from=build /app/public ./public
+COPY --from=build /app/next.config.ts ./next.config.ts
+
+# Cloud hosts inject $PORT; next start binds to it (defaults to 3000 locally).
 EXPOSE 3000
-
-# Set environment variables
-ENV NEXT_PUBLIC_GIT_BRANCH=unknown
-ENV NODE_ENV=development
-ENV PORT=3000
-
-# Run the Next.js development server and ensure the port is dynamic
-CMD ["sh", "-c", "npm run dev -- -p $PORT"]
+CMD ["sh", "-c", "npm run start -- -p ${PORT:-3000}"]
