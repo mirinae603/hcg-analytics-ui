@@ -1,12 +1,11 @@
 FROM node:20-slim AS build
 WORKDIR /app
-COPY package*.json .npmrc ./
-RUN npm install \
-  && ls node_modules/@tailwindcss/ \
-  && (node -e "require('@tailwindcss/oxide')" \
-      || (echo '--- oxide native binding missing, forcing explicit install ---' \
-          && npm install @tailwindcss/oxide-linux-x64-gnu --no-save \
-          && node -e "require('@tailwindcss/oxide')"))
+COPY package.json .npmrc ./
+# package-lock.json is generated on macOS and only carries resolved metadata
+# for darwin-arm64's native optional deps (tailwind oxide, lightningcss, ...).
+# `npm install` treats an existing lock as authoritative and won't re-resolve
+# those for linux, so drop it and let npm resolve fresh for this platform.
+RUN npm install
 COPY . .
 ARG NEXT_PUBLIC_DASHBOARD_API
 ENV NEXT_PUBLIC_DASHBOARD_API=${NEXT_PUBLIC_DASHBOARD_API}
