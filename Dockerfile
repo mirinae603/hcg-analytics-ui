@@ -1,6 +1,6 @@
 FROM node:20-slim AS build
 WORKDIR /app
-COPY package*.json ./
+COPY package*.json .npmrc ./
 RUN npm install
 COPY . .
 ARG NEXT_PUBLIC_DASHBOARD_API
