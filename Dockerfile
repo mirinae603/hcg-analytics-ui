@@ -1,7 +1,12 @@
 FROM node:20-slim AS build
 WORKDIR /app
 COPY package*.json .npmrc ./
-RUN npm install
+RUN npm install \
+  && ls node_modules/@tailwindcss/ \
+  && (node -e "require('@tailwindcss/oxide')" \
+      || (echo '--- oxide native binding missing, forcing explicit install ---' \
+          && npm install @tailwindcss/oxide-linux-x64-gnu --no-save \
+          && node -e "require('@tailwindcss/oxide')"))
 COPY . .
 ARG NEXT_PUBLIC_DASHBOARD_API
 ENV NEXT_PUBLIC_DASHBOARD_API=${NEXT_PUBLIC_DASHBOARD_API}
