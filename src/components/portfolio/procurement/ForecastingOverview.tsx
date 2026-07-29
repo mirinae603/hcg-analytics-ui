@@ -267,8 +267,13 @@ export default function ForecastingOverview() {
 
   const stockOutCount = cnt("Out", radar);
   const metrics = [
-    { label: "Reorder now", value: countAbbr(Number(t.replen_skus ?? 0)), unit: "items", sub: `${inrAbbr(Number(t.replen_value ?? 0))} to restock`, tone: AC },
-    { label: "Running low", value: countAbbr(stockOutCount), unit: "items", sub: "at risk of running out", tone: RED },
+    // Uses the narrow "under 1 month cover" band, matching the Reorder & Stock Risk
+    // page this links to. The wider 19k suggested-requisition count is disclosed there.
+    { label: "Running low · order now", value: countAbbr(Number(t.replen_now_skus ?? 0)), unit: "items", sub: `${inrAbbr(Number(t.replen_now_value ?? 0))} to order · under 1 month cover`, tone: AC },
+    // Deliberately NOT labelled "Stock-out risk": that phrase is already the
+    // Reorder & Stock Risk page's tile for a different figure (15,878 from the
+    // replenishment table vs 17,043 here from the stock radar). Name the source.
+    { label: "Flagged by stock radar", value: countAbbr(stockOutCount), unit: "items", sub: "run-out risk on the radar", tone: RED },
     { label: "Expected use · next month", value: countAbbr(Number(t.next_demand ?? 0)), unit: "units", delta: demandDelta, spark: [...acts, ...fcs], fcFrom: acts.length },
     { label: "Money to restock · next month", value: inrAbbr(Number(t.cashflow_next ?? 0)), unit: "", delta: cfDelta, spark: cfVals, fcFrom: 0 },
   ];

@@ -3,6 +3,7 @@
 // cards, chart & table as a live KPI, but badged "Simulated" and subtly faded so
 // it's unmistakably a preview of what lands once HCG supplies the required data.
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { simKpiByKey } from "@/lib/kpiRegistry";
 import { getSimulated } from "@/lib/simulatedKpi";
@@ -10,7 +11,7 @@ import { simVisual } from "@/lib/simKpiVisual";
 import { fmt } from "@/lib/kpiFormat";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import ApexKpiChart from "./ApexKpiChart";
-import { TbFlask, TbDatabasePlus, TbBulb } from "react-icons/tb";
+import { TbFlask, TbDatabasePlus, TbBulb, TbCircleCheck, TbArrowRight } from "react-icons/tb";
 
 const CARD_THEMES = [
   { from: "#eef2ff", to: "#e0e7ff", border: "rgba(99,102,241,0.22)", accent: "#6366f1", text: "#4338ca" },
@@ -75,6 +76,30 @@ export default function SimulatedKpiPage({ kpiKey }: { kpiKey: string }) {
           </div>
         </div>
       </div>
+
+      {/* ── Real data now exists for this metric → send the reader there ── */}
+      {meta.realHref && (
+        <Link href={meta.realHref}
+          className="group flex items-start gap-3.5 rounded-2xl px-5 py-4 transition-all duration-200 hover:-translate-y-px"
+          style={{ background: "linear-gradient(100deg,#eafaf1 0%,#f2fbf6 100%)", border: "1px solid #a9dfc4" }}>
+          <span className="w-11 h-11 rounded-[13px] flex items-center justify-center shrink-0" style={{ background: "#0a8f5b16", color: "#0a8f5b", boxShadow: "inset 0 0 0 1px #0a8f5b22" }}>
+            <TbCircleCheck size={22} strokeWidth={2} />
+          </span>
+          <div className="flex-1 min-w-[240px]">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3 className="text-[14px] font-extrabold" style={{ color: "#0b4f36" }}>Real data has landed for this metric</h3>
+              <span className="text-[10px] font-bold uppercase tracking-[0.06em] px-2 py-[3px] rounded-full" style={{ background: "#0a8f5b", color: "#fff" }}>Live</span>
+            </div>
+            <p className="text-[12.5px] leading-snug mt-1.5" style={{ color: "#33654f" }}>
+              {meta.realNote} The figures below are the original preview and <b>do not match</b> the live ones.
+            </p>
+            <span className="inline-flex items-center gap-1 text-[12.5px] font-bold mt-2" style={{ color: "#0a8f5b" }}>
+              Open {meta.realLabel}
+              <TbArrowRight size={15} className="transition-transform duration-200 group-hover:translate-x-0.5" />
+            </span>
+          </div>
+        </Link>
+      )}
 
       {/* ── faded content ── */}
       <div style={{ opacity: 0.93, filter: "saturate(0.9)" }}>

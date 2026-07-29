@@ -275,20 +275,37 @@ export type SimKpiMeta = {
   icon: string;
   why: string;        // one-line business value
   requires: string;   // the data field(s) HCG must supply to make it live
+  // Set once HCG supplies the data this preview was waiting on: the preview stays
+  // (it still shows the intended design) but now points at the page carrying the
+  // real numbers, so the two can never be mistaken for each other.
+  realHref?: string;
+  realLabel?: string; // what the real page is called, e.g. "Revenue & Margin"
+  realNote?: string;  // why the numbers differ from this preview
 };
 
 export const SIMULATED_KPIS: SimKpiMeta[] = [
   // ---------------- CONSUMPTION & REVENUE (biggest gap — no sales/billing) ----------------
+  // HCG has since supplied the IP/OP billing extracts these four were waiting on,
+  // so each now carries a link to the page holding the real figures. The preview
+  // stays as a design reference, but can no longer be mistaken for the live number.
   { key: "billable-consumption", title: "Billable vs Non-Billable Consumption", short: "Billable Consumption", portfolio: "consumption", icon: "🧾",
-    why: "Split chargeable vs internal-use consumption", requires: "Billing / charge flag per goods-issue" },
+    why: "Split chargeable vs internal-use consumption", requires: "Billing / charge flag per goods-issue",
+    realHref: "/revenueMargin", realLabel: "Revenue & Margin",
+    realNote: "Billed patient revenue is now reconciled against internal (non-billable) consumption cost on the live page." },
   { key: "return-rate", title: "Return Rate %", short: "Return Rate", portfolio: "consumption", icon: "↩️",
     why: "Returned vs issued units by SKU & department", requires: "Return / write-off transactions" },
   { key: "revenue-per-location", title: "Revenue per Location", short: "Revenue / Location", portfolio: "consumption", icon: "💵",
-    why: "True revenue by hospital (today shown as MRP proxy)", requires: "Actual sales / billing revenue" },
+    why: "True revenue by hospital (today shown as MRP proxy)", requires: "Actual sales / billing revenue",
+    realHref: "/revenueMargin", realLabel: "Revenue & Margin",
+    realNote: "Real billed revenue per hospital is live. This preview used an MRP proxy, so its totals are much lower." },
   { key: "op-ip-revenue", title: "OP / IP Revenue Contribution", short: "OP / IP Split", portfolio: "consumption", icon: "🛏️",
-    why: "Outpatient vs inpatient revenue share", requires: "Patient-type (IP/OP) tag per transaction" },
+    why: "Outpatient vs inpatient revenue share", requires: "Patient-type (IP/OP) tag per transaction",
+    realHref: "/revenueMargin", realLabel: "Revenue & Margin",
+    realNote: "The real IP/OP split comes straight from the billing extract and differs sharply from this modelled estimate." },
   { key: "revenue-margin", title: "Revenue Margin Analysis", short: "Revenue Margin", portfolio: "consumption", icon: "📊",
-    why: "Real sales margin per SKU / category", requires: "True selling price (Selling Price = 0 in source)" },
+    why: "Real sales margin per SKU / category", requires: "True selling price (Selling Price = 0 in source)",
+    realHref: "/revenueMargin", realLabel: "Revenue & Margin",
+    realNote: "True margin (billed MRP − actual cost) is live, by manufacturer, category and item." },
 
   // ---------------- PROCUREMENT ----------------
   { key: "vendor-sla-compliance", title: "Vendor SLA Compliance", short: "Vendor SLA", portfolio: "procurement", icon: "📶",
@@ -304,7 +321,9 @@ export const SIMULATED_KPIS: SimKpiMeta[] = [
 
   // ---------------- FORECASTING ----------------
   { key: "seasonal-forecast", title: "Seasonal / 12-Month Forecast Accuracy", short: "Seasonal Forecast", portfolio: "forecasting", icon: "🗓️",
-    why: "Seasonality + higher accuracy (only 6 mo history today)", requires: "12+ months of consumption history" },
+    why: "Seasonality + higher accuracy (only 6 mo history today)", requires: "12+ months of consumption history",
+    realHref: "/salesQuantityForecast", realLabel: "Demand Forecast",
+    realNote: "This preview's accuracy is illustrative, not a back-test — don't compare it against the live Demand Forecast's measured reliability." },
 ];
 
 export const simulatedByPortfolio = (p: string) => SIMULATED_KPIS.filter((x) => x.portfolio === p);

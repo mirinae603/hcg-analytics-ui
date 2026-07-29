@@ -37,8 +37,11 @@ const PANEL_SHADOW = "0 12px 34px -22px rgba(56,53,47,0.16), 0 2px 7px -4px rgba
 const useMount = (delay = 0) => { const [on, setOn] = useState(false); useEffect(() => { const t = setTimeout(() => setOn(true), 120 + delay); return () => clearTimeout(t); }, [delay]); return on; };
 
 // ── IMMERSIVE VAULT HERO — bronze gradient, blocked capital + glowing aging-depth bars ──
-function VaultHero({ value, skus, reasons, aging }: { value: number; skus: number; reasons: any[]; aging: any[] }) {
+function VaultHero({ value, skus, totalLines, reasons, aging }: { value: number; skus: number; totalLines: number; reasons: any[]; aging: any[] }) {
   const on = useMount(0);
+  // Computed, not hardcoded: the old literal 78% was only right for All Plants and
+  // was off by up to 48 points on individual plants (HN04 is really 30%).
+  const sharePct = totalLines > 0 ? Math.round((skus / totalLines) * 100) : null;
   const noC = reasons.find((r) => /consumption/i.test(r.reason)) || { value: 0 };
   const aged = reasons.find((r) => /aging/i.test(r.reason)) || { value: 0 };
   const fresh = aging.find((a) => a.label === "≤90d") || { value: 0 };
@@ -53,7 +56,7 @@ function VaultHero({ value, skus, reasons, aging }: { value: number; skus: numbe
         <div className="p-7 lg:p-9 lg:w-[420px] flex-shrink-0 flex flex-col justify-center">
           <div className="inline-flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.18em]" style={{ color: "rgba(255,255,255,0.5)" }}><TbLock size={14} />Blocked capital</div>
           <div className="mt-3 text-[54px] leading-none font-bold tabular-nums tracking-tight" style={{ color: "#fff", textShadow: "0 4px 24px rgba(0,0,0,0.3)" }}><CountUp value={value} format={inrAbbr} /></div>
-          <div className="mt-3 text-[13px]" style={{ color: "rgba(255,255,255,0.6)" }}>dormant value · {skus.toLocaleString("en-IN")} SKUs · 78% of stock lines</div>
+          <div className="mt-3 text-[13px]" style={{ color: "rgba(255,255,255,0.6)" }}>dormant value · {skus.toLocaleString("en-IN")} SKUs{sharePct !== null && <> · {sharePct}% of {totalLines.toLocaleString("en-IN")} stock lines</>}</div>
           <div className="mt-6 flex flex-wrap gap-2.5">
             <div className="inline-flex items-center gap-2 px-3.5 py-2 rounded-full" style={{ background: "rgba(125,138,143,0.18)", border: "1px solid rgba(125,138,143,0.32)" }}>
               <span className="w-2 h-2 rounded-full" style={{ background: "#aab6ba" }} /><span className="text-[12px]" style={{ color: "rgba(255,255,255,0.82)" }}>No consumption</span><span className="text-[13px] font-bold tabular-nums" style={{ color: "#c9d2d5" }}>{inrAbbr(noC.value)}</span>
@@ -134,7 +137,7 @@ export default function NonMovingDetail() {
       <PageBreadcrumb pageTitle="Non-Moving Inventory" />
 
       <div className="csv-cards"><div className="csv-card" style={{ animationDelay: "0ms" }}>
-        <VaultHero value={Number(t.blocked_value ?? 0)} skus={Number(t.blocked_skus ?? 0)} reasons={data?.reasons || []} aging={data?.aging || []} />
+        <VaultHero value={Number(t.blocked_value ?? 0)} skus={Number(t.blocked_skus ?? 0)} totalLines={Number(t.total_stock_lines ?? 0)} reasons={data?.reasons || []} aging={data?.aging || []} />
       </div></div>
       <style jsx global>{`
         @keyframes cardIn { from { opacity: 0; transform: translateY(18px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }

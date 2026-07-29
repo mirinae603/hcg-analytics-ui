@@ -13,7 +13,7 @@ const BG = "#e8eaee", CARD = "#ffffff", CREAM = "#f4f3ef", INK = "#1b1c22", INK2
 const RED = "#d86a4f", AMBER = "#dda23f", GREEN = "#5f9d6f", SLATE = "#8b93a8", DARK = "#4b5060";
 const SC: Record<string, string> = { "Stock-out": RED, "Reorder now": AMBER, "Healthy": GREEN, "Overstocked": SLATE, "Dead stock": DARK };
 const SC_BG: Record<string, string> = { "Stock-out": "#f7e6e0", "Reorder now": "#f6ecd5", "Healthy": "#e3efe5", "Overstocked": "#e9ebef", "Dead stock": "#e2e4e9" };
-const ADVICE: Record<string, string> = { "Stock-out": "Out of stock — order immediately", "Reorder now": "Running low — reorder soon", "Healthy": "Well covered — no action", "Overstocked": "More than enough — hold buying", "Dead stock": "Not moving — review or return" };
+const ADVICE: Record<string, string> = { "Stock-out": "Out of stock — order immediately", "Reorder now": "Under 1 month cover — reorder this week", "Healthy": "Well covered — no action", "Overstocked": "More than enough — hold buying", "Dead stock": "Not moving — review or return" };
 const nm = (s: string, n = 26) => (s && s.length > n ? s.slice(0, n - 1) + "…" : s || "—");
 const num = (v: number) => Math.round(Number(v) || 0).toLocaleString("en-IN");
 const inr = (v: number) => { v = Number(v) || 0; const a = Math.abs(v), s = v < 0 ? "-" : ""; if (a >= 1e7) return `${s}₹${(a / 1e7).toFixed(a / 1e7 >= 100 ? 0 : 1)}Cr`; if (a >= 1e5) return `${s}₹${(a / 1e5).toFixed(a / 1e5 >= 100 ? 0 : 1)}L`; if (a >= 1e3) return `${s}₹${(a / 1e3).toFixed(0)}K`; return `${s}₹${Math.round(a)}`; };
@@ -148,7 +148,7 @@ function Spectrum({ spectrum, total, onDrill }: { spectrum: any[]; total: number
       {/* segmented spectrum */}
       <div className="flex gap-1 h-14 mb-2">
         {segs.map((s, i) => (
-          <div key={i} className="rounded-lg relative flex items-center justify-center overflow-hidden group" title={`${s.status} · ${num(s.count)} · ${inr(s.value)}`}
+          <div key={i} className="rounded-lg relative flex items-center justify-center overflow-hidden group" title={`${s.status} · ${num(s.count)} item–locations · ${inr(s.value)} stock on hand`}
             style={{ width: on ? `${Math.max((s.count / tot) * 100, 3)}%` : "0%", background: SC[s.status], transition: `width .9s cubic-bezier(.22,1,.36,1) ${i * 70}ms`, minWidth: 34 }}>
             <span className="text-[12px] font-bold text-white tabular-nums px-1 truncate">{(s.count / tot) >= 0.05 ? num(s.count) : ""}</span>
           </div>
@@ -168,7 +168,7 @@ function Spectrum({ spectrum, total, onDrill }: { spectrum: any[]; total: number
             title={`See the ${num(s.count)} ${s.status} items`}>
             <div className="flex items-center gap-1.5 mb-1"><span className="w-2.5 h-2.5 rounded-full" style={{ background: SC[s.status] }} /><span className="text-[11.5px] font-semibold" style={{ color: INK2 }}>{s.status}</span><TbChevronRight size={12} className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: SC[s.status] }} /></div>
             <div className="text-[18px] font-extrabold tabular-nums leading-none" style={{ color: INK }}>{num(s.count)}</div>
-            <div className="text-[11px] mt-1 tabular-nums" style={{ color: MUT }}>{inr(s.value)} value</div>
+            <div className="text-[11px] mt-1 tabular-nums" style={{ color: MUT }}>{inr(s.value)} stock on hand</div>
           </button>
         ))}
       </div>
@@ -392,10 +392,18 @@ export default function ReplenishmentRiskDetail() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-5">
-          <StatTile icon={TbShoppingCartPlus} color={AMBER} bg="#f6ecd5" label="Reorder now" value={<CountUp value={Number(t.reorder_skus ?? 0)} format={num} />} sub={`${inr(Number(t.reorder_value ?? 0))} to spend`} onClick={() => setDrill({ title: "Reorder now — all items", query: "kind=order_now" })} />
+          <StatTile icon={TbShoppingCartPlus} color={AMBER} bg="#f6ecd5" label="Running low · order this week" value={<CountUp value={Number(t.reorder_now_skus ?? 0)} format={num} />} sub={`${inr(Number(t.reorder_now_value ?? 0))} to order · under 1 month cover`} title="Items with stock still on hand but under one month of cover at forecast usage. Excludes lines already at zero stock — those are counted under Stock-out risk." onClick={() => setDrill({ title: "Running low — under 1 month cover", query: "status=Reorder%20now" })} />
           <StatTile icon={TbPackageOff} color={RED} bg="#f7e6e0" label="Stock-out risk" value={<CountUp value={Number(t.stockout_skus ?? 0)} format={num} />} sub="items with nothing on hand" onClick={() => setDrill({ title: "Stock-out — all items", query: "status=Stock-out" })} />
           <StatTile icon={TbHourglassHigh} color={SLATE} bg="#e9ebef" label="Cash in aging stock" value={inr(Number(t.aging_value ?? 0))} sub={`${num(Number(t.aging_skus ?? 0))} items over 6 months`} onClick={() => setDrill({ title: "Aging stock — all items", query: "kind=aging" })} />
         </div>
+
+        {/* The full requisition file is still one click away, but its overlap with the
+            stock-out tile above (and the fact that its ₹ prices only a fraction of it)
+            is now stated rather than left for the reader to trip over. */}
+        <button onClick={() => setDrill({ title: "Full suggested-order file — all lines", query: "kind=order_now" })}
+          className="w-full text-left mb-5 rounded-2xl px-5 py-3 text-[12px] transition-colors hover:bg-[#f2f3f6]" style={{ background: CARD, border: `1px solid ${BORDER}`, color: MUT }}>
+          The replenishment model suggests an order on <b style={{ color: INK2 }}>{num(Number(t.reorder_skus ?? 0))}</b> item–locations in total — but <b style={{ color: INK2 }}>{num(Number(t.stockout_skus ?? 0))}</b> of those are the stock-out lines counted above, and only <b style={{ color: INK2 }}>{num(Number(t.reorder_priced_skus ?? 0))}</b> carry a unit cost (the {inr(Number(t.reorder_value ?? 0))} figure prices those alone). See the full file →
+        </button>
 
         <div className="mb-5"><Spectrum spectrum={data?.spectrum || []} total={Number(t.total_skus ?? 0)} onDrill={setDrill} /></div>
 
