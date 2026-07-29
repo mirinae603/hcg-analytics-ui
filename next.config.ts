@@ -1,7 +1,13 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // output: 'export' removed — app runs as a Next server with dynamic /kpi/[key] routes.
+  // Static export for Azure Static Web Apps (free tier, no server-side Functions
+  // runtime needed). The one dynamic route (/kpi/[key]) enumerates every real
+  // param via generateStaticParams, so this is safe.
+  output: "export",
+  images: {
+    unoptimized: true,
+  },
   compiler: {
     styledComponents: true
   },
