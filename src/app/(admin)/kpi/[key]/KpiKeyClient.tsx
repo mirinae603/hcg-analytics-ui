@@ -55,6 +55,10 @@ const BESPOKE: Record<string, any> = {
     () => import("@/components/portfolio/inventory/NearExpiryDetail"),
     { ssr: false }
   ),
+  "wastage-rate": dynamic(
+    () => import("@/components/portfolio/inventory/WastageRateDetail"),
+    { ssr: false }
+  ),
   // ── Procurement (ADR-0001) ──
   "purchase-value": dynamic(() => import("@/components/portfolio/procurement/PurchaseValueDetail"), { ssr: false }),
   "monthly-purchase-value": dynamic(() => import("@/components/portfolio/procurement/MonthlyPurchaseDetail"), { ssr: false }),
@@ -64,6 +68,7 @@ const BESPOKE: Record<string, any> = {
   "procurement-cycle-time": dynamic(() => import("@/components/portfolio/procurement/CycleTimeDetail"), { ssr: false }),
   "vendor-lead-time": dynamic(() => import("@/components/portfolio/procurement/VendorLeadTimeDetail"), { ssr: false }),
   "fill-rate": dynamic(() => import("@/components/portfolio/procurement/FillRateDetail"), { ssr: false }),
+  "vendor-volume-vs-margin": dynamic(() => import("@/components/portfolio/procurement/VendorMarginDetail"), { ssr: false }),
 
   // ── Consumption & Revenue ──
   "unit-sold-per-sku": dynamic(() => import("@/components/portfolio/procurement/UnitsConsumedDetail"), { ssr: false }),

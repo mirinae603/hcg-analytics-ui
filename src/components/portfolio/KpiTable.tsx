@@ -7,7 +7,11 @@ import { Col } from "@/lib/kpiRegistry";
 import { fmt } from "@/lib/kpiFormat";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 
-export default function KpiTable({ kpiKey, plant, columns }: { kpiKey: string; plant?: string; columns: Col[] }) {
+export default function KpiTable({ kpiKey, plant, columns, endpoint }: { kpiKey: string; plant?: string; columns: Col[]; endpoint?: string }) {
+  // `endpoint` overrides the default `/kpi/{kpiKey}/table` URL — needed for KPIs whose
+  // backend route doesn't follow the generic nested-table naming convention (e.g.
+  // /kpi/vendor-volume-vs-margin-table is a flat route, not /kpi/vendor-volume-vs-margin/table).
+  const base = endpoint ?? `/kpi/${kpiKey}/table`;
   const [rows, setRows] = useState<any[]>([]);
   const [rowCount, setRowCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -27,7 +31,7 @@ export default function KpiTable({ kpiKey, plant, columns }: { kpiKey: string; p
       if (globalFilter) p.set("global_filter", globalFilter);
       if (sorting[0]) { p.set("sort_field", sorting[0].id); p.set("sort_order", sorting[0].desc ? "desc" : "asc"); }
       try {
-        const res = await fetch(`${DASHBOARD_API_BASE_URL}/kpi/${kpiKey}/table?${p.toString()}`, { signal: ctrl.signal });
+        const res = await fetch(`${DASHBOARD_API_BASE_URL}${base}?${p.toString()}`, { signal: ctrl.signal });
         const d = await res.json();
         setRows(d.data || []); setRowCount(d.total || 0); setIsError(false);
       } catch (e: any) { if (e.name !== "AbortError") { setIsError(true); setRows([]); } }
@@ -35,7 +39,7 @@ export default function KpiTable({ kpiKey, plant, columns }: { kpiKey: string; p
     };
     run();
     return () => ctrl.abort();
-  }, [kpiKey, plant, pagination.pageIndex, pagination.pageSize, sorting, globalFilter]);
+  }, [base, plant, pagination.pageIndex, pagination.pageSize, sorting, globalFilter]);
 
   const cols = useMemo<MRT_ColumnDef<any>[]>(
     () => columns.map((c) => ({
@@ -48,7 +52,7 @@ export default function KpiTable({ kpiKey, plant, columns }: { kpiKey: string; p
   const exportCsv = async () => {
     const p = new URLSearchParams(); if (plant) p.set("Plant", plant);
     p.set("page", "0"); p.set("page_size", "5000"); if (globalFilter) p.set("global_filter", globalFilter);
-    const res = await fetch(`${DASHBOARD_API_BASE_URL}/kpi/${kpiKey}/table?${p.toString()}`);
+    const res = await fetch(`${DASHBOARD_API_BASE_URL}${base}?${p.toString()}`);
     const d = await res.json();
     const head = columns.map((c) => `"${c.label}"`).join(",");
     const body = (d.data || []).map((r: any) => columns.map((c) => `"${String(r[c.field] ?? "").replace(/"/g, '""')}"`).join(",")).join("\n");

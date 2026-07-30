@@ -5,7 +5,7 @@ import { useRegion } from "@/context/RegionContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import { CARD_SH, inrAbbr, countAbbr, catName, useMount, smoothPath } from "@/components/portfolio/kit";
 import { GaugeCard, DonutCard, BrandPanel, Tab } from "./ExecCards";
-import { TbCoin, TbReceipt, TbTrendingDown, TbBuildingFactory2, TbMapPin, TbClockHour4, TbTruckDelivery, TbProgressCheck, TbChevronRight, TbFlask } from "react-icons/tb";
+import { TbCoin, TbReceipt, TbTrendingDown, TbBuildingFactory2, TbMapPin, TbClockHour4, TbTruckDelivery, TbProgressCheck, TbChevronRight, TbFlask, TbChartArrowsVertical } from "react-icons/tb";
 import { simulatedByPortfolio } from "@/lib/kpiRegistry";
 import { getSimulated } from "@/lib/simulatedKpi";
 import { simVisual } from "@/lib/simKpiVisual";
@@ -37,8 +37,9 @@ const KPI_META: Record<string, { title: string; Icon: any; ring: string; tint: s
   "procurement-cycle-time": { title: "Cycle Time", Icon: TbClockHour4, ring: SKY, tint: "#e6f4fb" },
   "vendor-lead-time": { title: "Vendor Lead Time", Icon: TbTruckDelivery, ring: AMBER, tint: "#fcf2e1" },
   "fill-rate": { title: "Fill Rate", Icon: TbProgressCheck, ring: EMER, tint: "#e7f6ef" },
+  "vendor-volume-vs-margin": { title: "Vendor Volume vs Margin", Icon: TbChartArrowsVertical, ring: INDIGO, tint: "#eef0fb" },
 };
-const KPI_ORDER = ["purchase-value", "monthly-purchase-value", "procurement-variance", "vendor-volume-contribution", "purchase-by-location", "procurement-cycle-time", "vendor-lead-time", "fill-rate"];
+const KPI_ORDER = ["purchase-value", "monthly-purchase-value", "procurement-variance", "vendor-volume-contribution", "purchase-by-location", "procurement-cycle-time", "vendor-lead-time", "fill-rate", "vendor-volume-vs-margin"];
 const fmtCard = (kind: string, v: number, key?: string) =>
   kind === "inr" ? inrAbbr(v) : kind === "days" ? dayFmt(v)
   : kind === "pct" ? (key && DELTA_KPI_KEYS.has(key) ? pctSign(v) : pctPlain(v))
@@ -97,7 +98,7 @@ function KpiGrid({ cards }: { cards: Record<string, any> }) {
   return (
     <div className="rounded-[26px] bg-white p-6 flex flex-col flex-1" style={{ boxShadow: CARD_SH }}>
       <h3 className="text-[16px] font-semibold" style={{ color: INK }}>Explore metrics</h3>
-      <p className="text-[12px] mt-0.5 mb-4" style={{ color: SUBTLE }}>8 procurement KPIs · click to drill in</p>
+      <p className="text-[12px] mt-0.5 mb-4" style={{ color: SUBTLE }}>9 procurement KPIs · click to drill in</p>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 flex-1">
         {KPI_ORDER.map((key) => {
           const m = KPI_META[key]; const c = cards[key] || { value: 0, kind: "num", sub: "" }; const Icon = m.Icon;

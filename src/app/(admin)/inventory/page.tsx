@@ -128,6 +128,17 @@ export default function InventoryPage() {
       const chartFetches = inventoryKpis.map(async (kpi) => {
         if (UNAVAILABLE_KEYS.has(kpi.key) || !kpi.chart) return { key: kpi.key, data: [] };
         try {
+          // wastage-rate is a bespoke endpoint (no generic /kpi/{key} route) — fetch its
+          // insights shape and map by_plant into the chart's plant/wastage_pct records so
+          // this tile gets a real "Largest: HC16 4.12%" insight instead of a placeholder.
+          if (kpi.key === "wastage-rate") {
+            const res = await fetch(
+              `${DASHBOARD_API_BASE_URL}/kpi/wastage-rate/insights?Plant=${encodeURIComponent(regionName)}`
+            );
+            if (!res.ok) return { key: kpi.key, data: [] };
+            const json = await res.json();
+            return { key: kpi.key, data: Array.isArray(json?.by_plant) ? json.by_plant : [] };
+          }
           const params = new URLSearchParams({ Plant: regionName });
           if (kpi.chart.groupBy) params.set("group_by", kpi.chart.groupBy);
           if (kpi.chart.measures) params.set("measures", kpi.chart.measures);

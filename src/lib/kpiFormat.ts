@@ -20,6 +20,7 @@ export const fmt = (v: any, kind?: Kind) => {
     case "pct": return pct(Number(v));
     case "num": return num(Number(v), 2);
     case "date": return String(v).slice(0, 10);
+    case "bool": return v === true || v === "true" ? "Yes" : "No";
     default: return String(v);
   }
 };

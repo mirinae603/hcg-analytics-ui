@@ -2,7 +2,7 @@
 // Field names match the backend generic endpoints (/kpi/{key}, /kpi/{key}/table,
 // /portfolio/{name}/summary). Only the 28 buildable KPIs are listed.
 
-export type Kind = "inr" | "num" | "pct" | "date" | "text";
+export type Kind = "inr" | "num" | "pct" | "date" | "text" | "bool";
 export type Col = { field: string; label: string; kind?: Kind };
 export type ChartCfg = {
   type: "line" | "bar" | "donut";
@@ -125,6 +125,24 @@ export const KPIS: Kpi[] = [
       { field: "expiry_bucket", label: "Bucket" }, { field: "total_cost", label: "Value", kind: "inr" }],
   },
   {
+    // Bespoke page — backend exposes a single /kpi/wastage-rate/insights endpoint (no
+    // generic /kpi/{key} chart/table route), built directly off the same kpi_near_expiry /
+    // kpi_stock_value loaders as Near-Expiry so the expired-value figure is guaranteed to
+    // reconcile between the two pages. `chart` here is NOT fetched generically — the
+    // Inventory grid (src/app/(admin)/inventory/page.tsx) special-cases this key to call
+    // the bespoke insights endpoint and map its by_plant array into this x/series shape,
+    // so the overview tile shows a real "Largest: HC16 4.12%"-style insight instead of a
+    // placeholder. Keep x/series in sync with that special-case if either changes.
+    key: "wastage-rate", title: "Wastage %", short: "Wastage %", portfolio: "inventory", icon: "🗑️",
+    chart: { type: "bar", x: "plant", series: [{ field: "wastage_pct", label: "Wastage %", color: C.red }], valueKind: "pct" },
+    card: { field: "wastage_pct_value", agg: "mean", kind: "pct", label: "Wastage % (Value)" },
+    summary: [{ field: "wastage_pct_value", agg: "mean", kind: "pct", label: "Wastage % (Value)" },
+              { field: "wastage_pct_qty", agg: "mean", kind: "pct", label: "Wastage % (Qty)" }],
+    columns: [{ field: "plant", label: "Plant" }, { field: "expired_value", label: "Expired Value", kind: "inr" },
+      { field: "stock_value", label: "Stock Value", kind: "inr" }, { field: "wastage_pct", label: "Wastage %", kind: "pct" }],
+    note: "Expired value reconciles exactly with the Near-Expiry page's Expired bucket.",
+  },
+  {
     key: "inventory-turnover-ratio", title: "Inventory Turnover Ratio", short: "Turnover", portfolio: "inventory", icon: "🔁",
     chart: { type: "bar", groupBy: "Material Group", measures: "ITR", top: 12, x: "Material Group",
       series: [{ field: "ITR", label: "ITR", color: C.cyan }], valueKind: "num" },
@@ -208,6 +226,25 @@ export const KPIS: Kpi[] = [
     card: { field: "fill_rate_pct", agg: "mean", kind: "pct", label: "Avg Fill Rate" },
     columns: [{ field: "plant", label: "Plant" }, { field: "ordered_qty", label: "Ordered", kind: "num" },
       { field: "open_qty", label: "Open", kind: "num" }, { field: "fill_rate_pct", label: "Fill Rate %", kind: "pct" }],
+  },
+  {
+    // Bespoke page only (no generic /kpi/{key} chart/summary backend config exists for
+    // this key — legacy_kpi.py exposes only /kpi/vendor-volume-vs-margin (chart array,
+    // top-200 by grn_volume) and /kpi/vendor-volume-vs-margin-table (paginated)). This
+    // registry entry exists so byKey() resolves the /kpi/vendor-volume-vs-margin route
+    // instead of 404ing; VendorMarginDetail.tsx fetches the real endpoints directly.
+    key: "vendor-volume-vs-margin", title: "Vendor Volume vs Margin", short: "Volume vs Margin", portfolio: "procurement", icon: "📐",
+    // NOTE: field names below are documentation-only (bespoke page bypasses the generic
+    // chart/table fetch entirely — see comment above). card/summary use the /kpi/vendor-
+    // volume-vs-margin (chart) endpoint's actual keys; columns use the -table endpoint's.
+    card: { field: "Margin (%)", agg: "mean", kind: "pct", label: "Avg Margin %" },
+    summary: [{ field: "Margin (%)", agg: "mean", kind: "pct", label: "Avg Margin %" },
+              { field: "GRN Volume", agg: "sum", kind: "num", label: "Total GRN Volume" }],
+    columns: [{ field: "year", label: "Year" }, { field: "period", label: "Month" }, { field: "vendorName", label: "Vendor" },
+      { field: "grnVolume", label: "GRN Volume", kind: "num" }, { field: "averageUnitCost", label: "Avg Unit Cost", kind: "inr" },
+      { field: "sellingPrice", label: "Selling Price (MRP)", kind: "inr" }, { field: "margin", label: "Margin %", kind: "pct" },
+      { field: "sampleSize", label: "Sample Size", kind: "num" }, { field: "isStable", label: "Stable (n≥5)", kind: "bool" }],
+    note: "MRP-proxy margin, value-weighted, on outlier-clean GRN rows — vendor-months with <5 clean lines are flagged, never hidden.",
   },
 
   // ---------------- CONSUMPTION & REVENUE ----------------
