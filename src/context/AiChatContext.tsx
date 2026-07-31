@@ -1,15 +1,16 @@
 "use client";
-// Multi-session AI-Analyst state. One provider (mounted in the admin layout) backs
-// both the floating assistant and the /ai page. Sessions persist to localStorage so
-// you can browse history and continue any past conversation. Streams the SSE /ai/chat.
+// Shared multi-session AI-Analyst state. One provider (mounted in the admin layout)
+// backs both the floating assistant and the /ai page. Sessions and messages are now
+// persisted on the backend (SQLite via app/api/chat.py) and are DELIBERATELY common
+// to every signed-in user — any account can list, open, and continue any session,
+// tagged with (not restricted by) who created it. The backend is the source of truth
+// on load/refresh; a thin localStorage entry just remembers which tab was open so a
+// page refresh reopens the same conversation instead of always landing on the newest.
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
-import { DASHBOARD_API_BASE_URL } from "@/utils/config";
+import { apiFetch, ApiError } from "@/utils/api";
+import { getUser } from "@/utils/auth";
 
-const SESSIONS_KEY = "hcg_ai_sessions_v2";
-const ACTIVE_KEY = "hcg_ai_active_v2";
-const LEGACY_KEY = "hcg_ai_chat_v1";
-const MAX_SESSIONS = 40;
-const MAX_MSGS = 160;
+const ACTIVE_KEY = "hcg_ai_active_session_v3"; // which tab was open — NOT chat content
 
 export type AiQuery = { purpose?: string; sql?: string; rows?: number; error?: string };
 export type AiMsg = {
@@ -22,28 +23,89 @@ export type AiMsg = {
   verified?: string | null;
   queries?: AiQuery[];
   options?: string[];
-  scope?: string;   // filters this answer applied — threaded back so a terse follow-up inherits it
+  scope?: string;
 };
-export type AiSession = { id: string; title: string; messages: AiMsg[]; createdAt: number; updatedAt: number };
+export type SessionCreator = { id: number; name: string; email: string } | null;
+export type AiSession = {
+  id: string;
+  title: string;
+  messages: AiMsg[];
+  createdAt: number;
+  updatedAt: number;
+  createdBy?: SessionCreator;
+  messageCount?: number;
+  /** true once `messages` reflects a real GET /chat/sessions/{id} fetch (not just list metadata) */
+  loaded?: boolean;
+};
+
+type BackendMessage = { id: number; role: "user" | "assistant"; content: any; created_at: string };
 
 type Ctx = {
   sessions: AiSession[];
   activeId: string;
+  activeSession: AiSession | null;
   messages: AiMsg[];
   busy: boolean;
   step: string;
   open: boolean;
+  loadingSessions: boolean;
+  loadingActive: boolean;
+  listError: string | null;
+  currentUserId: number | null;
   setOpen: (v: boolean) => void;
   send: (q: string) => void;
   newChat: () => void;
   switchSession: (id: string) => void;
-  deleteSession: (id: string) => void;
-  renameSession: (id: string, title: string) => void;
+  refreshSessions: () => void;
 };
 
 const AiChatContext = createContext<Ctx | null>(null);
-const uid = () => `${Date.now()}-${Math.round(Math.random() * 1e6)}`;
+const uid = () => `tmp-${Date.now()}-${Math.round(Math.random() * 1e6)}`;
 const titleFrom = (q: string) => q.trim().replace(/\s+/g, " ").slice(0, 52) || "New chat";
+const toMs = (iso?: string) => { const t = Date.parse(iso || ""); return Number.isNaN(t) ? Date.now() : t; };
+
+// ---------- backend <-> frontend message/session shape mapping ----------
+
+function assistantContentToMsgs(baseId: string, content: any): AiMsg[] {
+  const c = content && typeof content === "object" ? content : { text: String(content ?? "") };
+  const isError = c.kind === "error";
+  let text: string = c.text || "";
+  if (isError && text && !text.trim().startsWith("⚠️")) text = `⚠️ ${text}`;
+  const out: AiMsg[] = [{
+    id: `${baseId}-text`,
+    role: "bot",
+    kind: "text",
+    text,
+    // Backend now persists the orchestrator's own "ok" | "corrected" | "flagged" | null
+    // signal verbatim — same shape the live SSE /ai/chat stream has always sent.
+    verified: c.verified ?? null,
+    options: c.options || [],
+    queries: c.queries || [],
+  }];
+  if (c.chart) out.push({ id: `${baseId}-chart`, role: "bot", kind: "plotly", figure: c.chart });
+  if (c.table) out.push({ id: `${baseId}-table`, role: "bot", kind: "table", table: c.table });
+  return out;
+}
+
+function backendMsgToFrontend(m: BackendMessage): AiMsg[] {
+  if (m.role === "user") {
+    return [{ id: String(m.id), role: "user", kind: "text", text: typeof m.content === "string" ? m.content : String(m.content ?? "") }];
+  }
+  return assistantContentToMsgs(String(m.id), m.content);
+}
+
+function sessionListItemToLocal(s: any, existing?: AiSession): AiSession {
+  return {
+    id: String(s.id),
+    title: s.title || "New chat",
+    messages: existing?.loaded ? existing.messages : [],
+    createdAt: existing?.createdAt ?? toMs(s.created_at),
+    updatedAt: toMs(s.updated_at),
+    createdBy: s.created_by || null,
+    messageCount: s.message_count,
+    loaded: existing?.loaded || false,
+  };
+}
 
 export function AiChatProvider({ children }: { children: React.ReactNode }) {
   const [sessions, setSessions] = useState<AiSession[]>([]);
@@ -51,78 +113,100 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
   const [busy, setBusy] = useState(false);
   const [step, setStep] = useState("");
   const [open, setOpen] = useState(false);
+  const [loadingSessions, setLoadingSessions] = useState(true);
+  const [loadingActive, setLoadingActive] = useState(false);
+  const [listError, setListError] = useState<string | null>(null);
 
   const sessionsRef = useRef<AiSession[]>([]);
   const activeRef = useRef<string>("");
   const busyRef = useRef(false);
-  const loaded = useRef(false);
+  const currentUser = useRef(getUser());
 
-  // keep refs in lockstep with state so async streaming reads are never stale
   const commit = useCallback((updater: AiSession[] | ((s: AiSession[]) => AiSession[])) => {
     const next = typeof updater === "function" ? (updater as any)(sessionsRef.current) : updater;
     sessionsRef.current = next;
     setSessions(next);
   }, []);
-  const setActive = useCallback((id: string) => { activeRef.current = id; setActiveId(id); }, []);
-
-  // ── load / migrate once ──
-  useEffect(() => {
-    let ss: AiSession[] = [];
-    try {
-      const raw = localStorage.getItem(SESSIONS_KEY);
-      if (raw) { const arr = JSON.parse(raw); if (Array.isArray(arr)) ss = arr; }
-    } catch { /* noop */ }
-    if (!ss.length) {
-      try {
-        const legacy = localStorage.getItem(LEGACY_KEY);
-        if (legacy) {
-          const msgs = JSON.parse(legacy);
-          if (Array.isArray(msgs) && msgs.length) {
-            const first = msgs.find((m: AiMsg) => m.role === "user");
-            ss = [{ id: uid(), title: first ? titleFrom(first.text || "Chat") : "Chat", messages: msgs, createdAt: Date.now(), updatedAt: Date.now() }];
-          }
-          localStorage.removeItem(LEGACY_KEY);
-        }
-      } catch { /* noop */ }
-    }
-    let act = "";
-    try { act = localStorage.getItem(ACTIVE_KEY) || ""; } catch { /* noop */ }
-    if (!ss.find((s) => s.id === act)) act = ss[0]?.id || "";
-    sessionsRef.current = ss; setSessions(ss);
-    activeRef.current = act; setActiveId(act);
-    loaded.current = true;
+  const setActive = useCallback((id: string) => {
+    activeRef.current = id;
+    setActiveId(id);
+    try { if (id) localStorage.setItem(ACTIVE_KEY, id); else localStorage.removeItem(ACTIVE_KEY); } catch { /* noop */ }
   }, []);
 
-  // ── persist (bounded), idle only ──
-  useEffect(() => {
-    if (!loaded.current || busy) return;
+  // ---- list of ALL sessions from every user — backend is the source of truth ----
+  const refreshSessions = useCallback(async (): Promise<AiSession[]> => {
+    setListError(null);
     try {
-      const trimmed = sessions.slice(0, MAX_SESSIONS).map((s) => ({ ...s, messages: s.messages.slice(-MAX_MSGS) }));
-      localStorage.setItem(SESSIONS_KEY, JSON.stringify(trimmed));
-      localStorage.setItem(ACTIVE_KEY, activeId);
-    } catch { /* quota — ignore */ }
-  }, [sessions, activeId, busy]);
+      const data = await apiFetch<{ sessions: any[] }>("/chat/sessions");
+      const list = (data.sessions || []).map((s) => sessionListItemToLocal(s, sessionsRef.current.find((x) => x.id === String(s.id))));
+      commit(list);
+      return list;
+    } catch (e) {
+      setListError(e instanceof ApiError ? e.message : "Couldn't load conversations. Please try again.");
+      return sessionsRef.current;
+    }
+  }, [commit]);
 
-  const createSession = useCallback((): string => {
-    const id = uid();
-    commit((ss) => [{ id, title: "New chat", messages: [], createdAt: Date.now(), updatedAt: Date.now() }, ...ss]);
-    setActive(id);
-    return id;
+  // one-time bootstrap: load the list, then restore whichever tab was open last
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setLoadingSessions(true);
+      const list = await refreshSessions();
+      if (cancelled) return;
+      let restore = "";
+      try { restore = localStorage.getItem(ACTIVE_KEY) || ""; } catch { /* noop */ }
+      if (!list.find((s) => s.id === restore)) restore = list[0]?.id || "";
+      if (restore) setActive(restore);
+      setLoadingSessions(false);
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ---- fetch a session's full message history the first time it's opened (any user's) ----
+  const ensureLoaded = useCallback(async (id: string) => {
+    const sess = sessionsRef.current.find((s) => s.id === id);
+    if (!sess || sess.loaded) return;
+    setLoadingActive(true);
+    try {
+      const detail = await apiFetch<{ id: number; title: string; created_by: any; messages: BackendMessage[] }>(`/chat/sessions/${id}`);
+      const msgs = (detail.messages || []).flatMap(backendMsgToFrontend);
+      commit((ss) => ss.map((s) => (s.id === id ? { ...s, messages: msgs, title: detail.title || s.title, createdBy: detail.created_by || s.createdBy, loaded: true } : s)));
+    } catch {
+      // Leave unloaded rather than throw — switching away and back tries again, which
+      // beats a hard error for what's usually just a transient network blip.
+    } finally {
+      setLoadingActive(false);
+    }
+  }, [commit]);
+
+  useEffect(() => { if (activeId) ensureLoaded(activeId); }, [activeId, ensureLoaded]);
+
+  const createSession = useCallback(async (): Promise<string> => {
+    const detail = await apiFetch<{ id: number; title: string; created_by: any }>("/chat/sessions", {
+      method: "POST",
+      body: JSON.stringify({}),
+    });
+    const sess: AiSession = {
+      id: String(detail.id), title: detail.title || "New chat", messages: [],
+      createdAt: Date.now(), updatedAt: Date.now(),
+      createdBy: detail.created_by || null, messageCount: 0, loaded: true,
+    };
+    commit((ss) => [sess, ...ss]);
+    setActive(sess.id);
+    return sess.id;
   }, [commit, setActive]);
 
   const newChat = useCallback(() => {
-    // reuse an existing empty session if the current one is already blank
     const cur = sessionsRef.current.find((s) => s.id === activeRef.current);
-    if (cur && cur.messages.length === 0) { setOpen(true); return; }
-    createSession();
+    if (cur && cur.loaded && cur.messages.length === 0) { setOpen(true); return; }
+    createSession().catch(() => setListError("Couldn't start a new chat — please try again."));
   }, [createSession]);
 
-  const switchSession = useCallback((id: string) => { if (sessionsRef.current.find((s) => s.id === id)) setActive(id); }, [setActive]);
-  const renameSession = useCallback((id: string, title: string) => commit((ss) => ss.map((s) => (s.id === id ? { ...s, title: title.slice(0, 80) || s.title } : s))), [commit]);
-  const deleteSession = useCallback((id: string) => {
-    commit((ss) => ss.filter((s) => s.id !== id));
-    if (activeRef.current === id) setActive(sessionsRef.current[0]?.id || "");
-  }, [commit, setActive]);
+  const switchSession = useCallback((id: string) => {
+    if (sessionsRef.current.find((s) => s.id === id)) setActive(id);
+  }, [setActive]);
 
   const writeMsgs = useCallback((sid: string, updater: (m: AiMsg[]) => AiMsg[], meta?: Partial<AiSession>) => {
     commit((ss) => ss.map((s) => (s.id === sid ? { ...s, messages: updater(s.messages), updatedAt: Date.now(), ...(meta || {}) } : s)));
@@ -131,102 +215,53 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
   const send = useCallback(async (q: string) => {
     const query = q.trim();
     if (!query || busyRef.current) return;
-    busyRef.current = true; setBusy(true); setStep("Understanding your question");
+    busyRef.current = true; setBusy(true); setStep("Consulting HCG data");
 
     let sid = activeRef.current;
-    if (!sid || !sessionsRef.current.find((s) => s.id === sid)) sid = createSession();
+    if (!sid || !sessionsRef.current.find((s) => s.id === sid)) {
+      try { sid = await createSession(); } catch {
+        busyRef.current = false; setBusy(false); setStep("");
+        setListError("Couldn't start a new chat — please try again.");
+        return;
+      }
+    }
     const sess = sessionsRef.current.find((s) => s.id === sid);
     const isFirst = !sess || sess.messages.length === 0;
 
-    const history = (sess?.messages || [])
-      .filter((m) => m.kind === "text" && m.text)
-      .slice(-24)   // kept in sync with backend HISTORY_MESSAGES — deeper memory for long sessions
-      // Append the answer's scope marker ONLY into the history payload (not the displayed
-      // text) so a terse follow-up server-side can inherit the exact prior filters.
-      .map((m) => ({
-        role: m.role === "user" ? "user" : "assistant",
-        content: m.text + (m.role === "bot" && m.scope ? `\n[active scope: ${m.scope}]` : ""),
-      }));
-
-    writeMsgs(sid, (m) => [...m, { id: uid(), role: "user", kind: "text", text: query }], isFirst ? { title: titleFrom(query) } : undefined);
-
-    const botId = uid();
-    let botText = ""; let botCreated = false;
-    const queries: AiQuery[] = [];
-    const upsertBot = (patch: Partial<AiMsg>) => writeMsgs(sid, (m) => {
-      if (!botCreated) { botCreated = true; return [...m, { id: botId, role: "bot", kind: "text", text: botText, queries: [...queries], ...patch }]; }
-      return m.map((x) => (x.id === botId ? { ...x, ...patch } : x));
-    });
-    const upsertBotText = (t: string) => { botText = t; upsertBot({ text: t }); };
-    const appendMsg = (msg: AiMsg) => writeMsgs(sid, (m) => [...m, msg]);
-    // Cosmetic-only "typewriter" reveal of an already-complete, already-audited answer —
-    // the full text is in hand the instant the "answer" event arrives, this only staggers
-    // WHEN it appears on screen so it doesn't look like a wall of text dumped all at once.
-    // Reveals by word (never mid-word) and always finishes fast regardless of length.
-    const revealText = (full: string) => {
-      if (!full) { upsertBotText(""); return; }
-      const words = full.split(/(\s+)/);
-      const steps = Math.min(words.length, 28);
-      if (steps <= 1) { upsertBotText(full); return; }
-      const perStep = Math.ceil(words.length / steps);
-      const delay = Math.min(700, Math.max(200, full.length * 3)) / steps;
-      let idx = 0;
-      const tick = () => {
-        idx = Math.min(words.length, idx + perStep);
-        upsertBotText(words.slice(0, idx).join(""));
-        if (idx < words.length) setTimeout(tick, delay);
-      };
-      tick();
-    };
+    const optimisticId = uid();
+    writeMsgs(sid, (m) => [...m, { id: optimisticId, role: "user", kind: "text", text: query }], isFirst ? { title: titleFrom(query) } : undefined);
 
     try {
-      const res = await fetch(`${DASHBOARD_API_BASE_URL}/ai/chat`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query, history }),
+      const res = await apiFetch<{ user_message: BackendMessage; assistant_message: BackendMessage }>(`/chat/sessions/${sid}/messages`, {
+        method: "POST",
+        body: JSON.stringify({ query }),
       });
-      if (!res.body) throw new Error("no stream");
-      const reader = res.body.getReader();
-      const dec = new TextDecoder();
-      let buf = "";
-      // eslint-disable-next-line no-constant-condition
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
-        buf += dec.decode(value, { stream: true });
-        const parts = buf.split("\n\n");
-        buf = parts.pop() || "";
-        for (const part of parts) {
-          const line = part.trim();
-          if (!line.startsWith("data:")) continue;
-          let ev: any;
-          try { ev = JSON.parse(line.slice(5).trim()); } catch { continue; }
-          if (ev.type === "step") setStep(ev.text);
-          else if (ev.type === "sql") { queries.push({ purpose: ev.purpose, sql: ev.sql, rows: ev.rows, error: ev.error }); if (botCreated) upsertBot({ queries: [...queries] }); }
-          else if (ev.type === "token") upsertBotText(botText + ev.text);
-          else if (ev.type === "answer") {
-            upsertBot({ text: "", verified: ev.verified ?? null, queries: [...queries], options: ev.options || [], scope: ev.scope || undefined });
-            revealText(ev.text || "");
-          }
-          else if (ev.type === "clarify") upsertBot({ text: ev.text || "Could you clarify?", options: ev.options || [] });
-          else if (ev.type === "chart" && ev.plotly) appendMsg({ id: uid(), role: "bot", kind: "plotly", figure: ev.plotly });
-          else if (ev.type === "table" && ev.table) appendMsg({ id: uid(), role: "bot", kind: "table", table: { ...ev.table, note: ev.note } });
-          else if (ev.type === "followups") upsertBot({ options: ev.options || [] });
-          else if (ev.type === "error") upsertBotText((botText ? botText + "\n\n" : "") + `⚠️ ${ev.text}`);
-        }
-      }
-    } catch (e: any) {
-      upsertBotText(botText || `⚠️ Couldn't reach the AI Analyst. ${e?.message || ""}`);
+      const assistantMsgs = backendMsgToFrontend(res.assistant_message);
+      writeMsgs(sid, (m) => {
+        const withReal = m.map((x) => (x.id === optimisticId ? { id: String(res.user_message.id), role: "user" as const, kind: "text" as const, text: query } : x));
+        return [...withReal, ...assistantMsgs];
+      });
+    } catch (e) {
+      writeMsgs(sid, (m) => [...m, {
+        id: uid(), role: "bot", kind: "text",
+        text: `⚠️ Couldn't reach the AI Analyst. ${e instanceof ApiError ? e.message : ""}`.trim(),
+      }]);
     } finally {
       busyRef.current = false; setBusy(false); setStep("");
-      // nudge a persist now that we're idle
-      commit((ss) => [...ss]);
+      refreshSessions();
     }
-  }, [createSession, writeMsgs, commit]);
+  }, [createSession, writeMsgs, refreshSessions]);
 
-  const messages = sessions.find((s) => s.id === activeId)?.messages || [];
+  const activeSession = sessions.find((s) => s.id === activeId) || null;
+  const messages = activeSession?.messages || [];
 
   return (
-    <AiChatContext.Provider value={{ sessions, activeId, messages, busy, step, open, setOpen, send, newChat, switchSession, deleteSession, renameSession }}>
+    <AiChatContext.Provider value={{
+      sessions, activeId, activeSession, messages, busy, step, open,
+      loadingSessions, loadingActive, listError,
+      currentUserId: currentUser.current?.id ?? null,
+      setOpen, send, newChat, switchSession, refreshSessions,
+    }}>
       {children}
     </AiChatContext.Provider>
   );

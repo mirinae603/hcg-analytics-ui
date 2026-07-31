@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { TbSend, TbChartBar, TbShieldCheck, TbDatabase, TbChevronDown, TbFileSpreadsheet, TbFileTypePdf, TbDownload, TbArrowDown, TbPlus } from "react-icons/tb";
+import { TbSend, TbChartBar, TbShieldCheck, TbDatabase, TbChevronDown, TbFileSpreadsheet, TbFileTypePdf, TbDownload, TbArrowDown, TbPlus, TbUserCircle } from "react-icons/tb";
 import { useAiChat, AiMsg } from "@/context/AiChatContext";
 import { groupTurns, exportExcel, exportPdf, Turn } from "@/lib/aiExport";
 import AnalystMark from "./AnalystMark";
@@ -187,7 +187,8 @@ function QueriesDisclosure({ queries }: { queries: NonNullable<AiMsg["queries"]>
 }
 
 export default function AiChat({ variant = "floater" }: { variant?: "floater" | "page" }) {
-  const { messages, busy, step, send, newChat } = useAiChat();
+  const { messages, busy, step, send, newChat, activeSession, loadingActive, currentUserId } = useAiChat();
+  const stillLoadingHistory = loadingActive && !!activeSession && !activeSession.loaded;
   const [input, setInput] = useState("");
   const [atBottom, setAtBottom] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -234,7 +235,12 @@ export default function AiChat({ variant = "floater" }: { variant?: "floater" | 
       `}</style>
 
       <div ref={scrollRef} onScroll={onScroll} className="ai-scroll flex-1 min-h-0 overflow-y-auto relative">
-        {messages.length === 0 ? (
+        {stillLoadingHistory ? (
+          <div className="min-h-full flex flex-col items-center justify-center text-center px-4 py-10">
+            <span className="w-6 h-6 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: `${SUB} transparent ${SUB} ${SUB}` }} />
+            <div className="text-[12.5px] mt-3" style={{ color: SUB }}>Loading conversation…</div>
+          </div>
+        ) : messages.length === 0 ? (
           <div className="min-h-full flex flex-col items-center justify-center text-center px-4 py-10">
             <AnalystMark size={52} />
             <div className="text-[16px] font-semibold mt-4" style={{ color: INK }}>HCG AI Analyst</div>
@@ -247,6 +253,12 @@ export default function AiChat({ variant = "floater" }: { variant?: "floater" | 
           </div>
         ) : (
           <div className="mx-auto w-full max-w-[840px] px-4 sm:px-5 py-5 space-y-4">
+            {activeSession?.createdBy && (
+              <div className="flex items-center gap-1.5 text-[11px] pb-1" style={{ color: SUB }}>
+                <TbUserCircle size={13} />
+                Started by {activeSession.createdBy.id === currentUserId ? "you" : (activeSession.createdBy.name || activeSession.createdBy.email)}
+              </div>
+            )}
             {messages.map((m) => (
               <div key={m.id} className="ai-msg">
                 <Message m={m} onOption={m.options && m.options.length ? (o) => sendAndFollow(o) : undefined} />

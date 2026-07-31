@@ -12,7 +12,7 @@ import {
   TbCoin, TbReceipt, TbTrendingDown, TbBuildingFactory2, TbMapPin, TbClockHour4, TbTruckDelivery, TbProgressCheck,
   TbPill, TbBuildingHospital,
   TbTargetArrow, TbRadar2, TbChartDots3, TbChartLine, TbCashBanknote, TbReload,
-  TbLogin2, TbUserPlus, TbHome, TbLogout2, TbMessage2,
+  TbLogin2, TbUserPlus, TbHome, TbLogout2, TbMessage2, TbShieldCheck,
 } from "react-icons/tb";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -95,7 +95,7 @@ function portfolioOf(path: string): string | null {
 
 const AppSidebar: React.FC = () => {
   const { isMobileOpen, toggleMobileSidebar } = useSidebar();
-  const { logout } = useAuth();
+  const { logout, isAdmin } = useAuth();
   const pathname = usePathname();
   const routePf = useMemo(() => portfolioOf(pathname), [pathname]);
 
@@ -180,6 +180,22 @@ const AppSidebar: React.FC = () => {
               <TbMessage2 size={21} style={{ color: pathname.startsWith("/ai") ? "#3b5bdb" : MUTED }} />
             </Link>
           </div>
+
+          {/* Admin — only shown to role=admin accounts (server also enforces this on
+              every /admin/* endpoint; hiding the link is just so members never see a
+              dead-end 403). */}
+          {isAdmin && (
+            <div className="w-full px-3 pb-3 mb-1 flex justify-center" style={{ borderBottom: `1px solid ${BORDER}` }}>
+              <Link href="/admin" title="Admin — Approve accounts"
+                className="group relative flex items-center justify-center rounded-[12px] transition-colors duration-150"
+                style={{ width: 46, height: 46, background: pathname.startsWith("/admin") ? ACCENT_SOFT : "transparent" }}
+                onMouseOver={(e) => { if (!pathname.startsWith("/admin")) (e.currentTarget as HTMLElement).style.background = HOVER; }}
+                onMouseOut={(e) => { if (!pathname.startsWith("/admin")) (e.currentTarget as HTMLElement).style.background = "transparent"; }}>
+                <span className="absolute left-[-12px] top-1/2 -translate-y-1/2 rounded-r-full transition-all duration-300" style={{ width: 2.5, height: pathname.startsWith("/admin") ? 20 : 0, background: ACCENT }} />
+                <TbShieldCheck size={21} style={{ color: pathname.startsWith("/admin") ? ACCENT : MUTED }} />
+              </Link>
+            </div>
+          )}
 
           <div className="flex-1 w-full px-3 flex flex-col gap-1 overflow-y-auto no-scrollbar">
             {PANELS.map((p) => <Tile key={p.key} p={p} />)}
