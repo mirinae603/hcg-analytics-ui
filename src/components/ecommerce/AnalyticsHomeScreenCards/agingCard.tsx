@@ -20,6 +20,8 @@ interface StockAgingCardProps {
   label?: string;
   className?: string;
   animated?: boolean;
+  /** Card-level controls (the material-category chip). Rendered in the header. */
+  headerSlot?: React.ReactNode;
 }
 
 const StockAgingCard: React.FC<StockAgingCardProps> = ({
@@ -27,7 +29,8 @@ const StockAgingCard: React.FC<StockAgingCardProps> = ({
   totalItems,
   label = 'Stock Health',
   className = '',
-  animated = true
+  animated = true,
+  headerSlot
 }) => {
   const [displayData, setDisplayData] = useState(animated ? 
     { fresh: 0, aging: 0, problem: 0, deadStock: 0 } : 
@@ -132,8 +135,9 @@ const StockAgingCard: React.FC<StockAgingCardProps> = ({
         }}
       >
         
-        {/* Subtle background pattern */}
-        <div className="absolute inset-0 opacity-[0.02]">
+        {/* Subtle background pattern. pointer-events-none: it covers the whole card, so
+            without it the card's own controls (the category chip) are unclickable. */}
+        <div className="absolute inset-0 opacity-[0.02] pointer-events-none">
           <div className="absolute inset-0" style={{
             backgroundImage: `radial-gradient(circle at 20% 50%, ${health.color} 2px, transparent 2px),
                             radial-gradient(circle at 80% 50%, ${health.color} 1px, transparent 1px)`,
@@ -161,6 +165,7 @@ const StockAgingCard: React.FC<StockAgingCardProps> = ({
             
             {/* Health Score - Responsive */}
             <div className="flex items-center space-x-2 self-start">
+              {headerSlot}
               <div 
                 className="px-2 sm:px-3 py-1 sm:py-1.5 rounded-md text-xs font-medium border"
                 style={{ 

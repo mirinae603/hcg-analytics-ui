@@ -22,12 +22,13 @@
 // Two lines at the call site. That is the difference between this landing on fifteen
 // charts and landing on two.
 //
-// SCOPE IS NOT THE CALLER'S PROBLEM
-// ---------------------------------
-// The hook reads the active plant and category from useScope() itself. A caller cannot
-// forget to pass them, which is exactly how the previous round's per-file wiring left
-// the most-viewed component on the app unscoped. Category is sent explicitly rather than
-// left to the fetch interceptor so the cache key and the request always agree.
+// PLANT IS NOT THE CALLER'S PROBLEM; CATEGORY IS THE CARD'S
+// ---------------------------------------------------------
+// The hook reads the active plant from RegionContext itself, so a caller cannot forget
+// it. Category is different: there is no global category scope, so a drill request is
+// only narrowed when the CARD it was launched from is itself split by category. Pass
+// `category` on the spec in that case; omit it and the request carries no Category at
+// all, which is the correct default for every card that cannot be split.
 //
 // PASSING null DISABLES IT
 // ------------------------
@@ -35,12 +36,12 @@
 // switch drill-down off per mode (e.g. a "Top SKUs" grouping, where drilling from an
 // item into items is circular) without conditional hooks.
 import React, { useCallback, useEffect, useMemo, useRef } from 'react'
-import { useScope } from '@/context/CategoryContext'
+import { useRegion } from '@/context/RegionContext'
 import { useDrillDown, DrillFact } from '@/components/portfolio/DrillTooltip'
-import { DrillQuery, DrillResult } from '@/lib/drilldown'
+import { DrillQuery, DrillResult, DrillBy } from '@/lib/drilldown'
+import { noteLiveDrill, runDrillSelfCheck } from '@/lib/drillSelfCheck'
 
-/** What the returned items are grouped by — mirrors the backend's `_BY_DIRECT`. */
-export type DrillBy = 'material' | 'material_group' | 'plant' | 'vendor' | 'category' | 'department'
+export type { DrillBy }
 
 export type DrillBindSpec = {
   /** Registry KPI key (or a /drill/meta extra like `reorder-priority`). */
@@ -72,6 +73,13 @@ export type DrillBindSpec = {
   details?: (slice: string) => DrillFact[]
   /** Non-/drill/top-items source, for slices computed inside a bespoke endpoint. */
   fetcher?: (q: DrillQuery, signal?: AbortSignal) => Promise<DrillResult>
+  /**
+   * Material category to narrow the breakdown to — ONLY when the card this drill hangs
+   * off is itself split by category, in which case pass that card's own selection so the
+   * panel and the chart above it agree. Omitted (the default) sends no Category param,
+   * i.e. the breakdown covers every category, exactly like the chart it came from.
+   */
+  category?: string
 }
 
 /** Handlers a chart already needs on the same element; bind() calls them first. */
@@ -102,14 +110,35 @@ function useDrillCursor() {
 }
 
 /**
+ * Dev-only wiring for the self-check.
+ *
+ * Exposes `__drillCheck()` in the console and runs it automatically on `?drillcheck=1`,
+ * so verifying all ~34 configs is one call instead of hovering thirty charts. Installed
+ * from here because this hook is the one thing every drilled chart already imports.
+ */
+function useDrillSelfCheck() {
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'production' || typeof window === 'undefined') return
+    const w = window as any
+    if (w.__drillCheck) return
+    w.__drillCheck = runDrillSelfCheck
+    if (new URLSearchParams(window.location.search).has('drillcheck')) {
+      runDrillSelfCheck()
+    }
+  }, [])
+}
+
+/**
  * Attach `/drill/top-items` to any element.
  *
  * Returns `bind(slice)` — a spreadable prop bag — and `panel`, which must be rendered
  * once somewhere inside the component (it portals to <body>, so position is irrelevant).
  */
 export function useDrillBind(spec: DrillBindSpec | null) {
-  const { region, catValue } = useScope()
+  const { selectedRegion } = useRegion()
+  const region = selectedRegion?.name ?? 'All Plants'
   useDrillCursor()
+  useDrillSelfCheck()
 
   // The callbacks (format / details / fetcher) are recreated on every render at every
   // call site. Holding them in a ref and keying the spec on its scalar fields keeps the
@@ -120,10 +149,16 @@ export function useDrillBind(spec: DrillBindSpec | null) {
 
   const key = [
     spec?.kpi, spec?.dim, spec?.by, spec?.measure, spec?.label, spec?.dimLabel,
-    spec?.n, !!spec?.details, !!spec?.fetcher, spec?.pinOnClick !== false, region, catValue,
+    spec?.n, !!spec?.details, !!spec?.fetcher, spec?.pinOnClick !== false, region, spec?.category ?? '',
   ].join('|')
 
   const pins = spec?.pinOnClick !== false
+
+  // Dev drift guard: a config wired here but absent from WIRED_DRILLS would not be
+  // covered by __drillCheck(), which is how a stale list quietly stops being a check.
+  useEffect(() => {
+    if (spec) noteLiveDrill(spec.kpi, spec.dim, spec.by ?? 'material')
+  }, [spec?.kpi, spec?.dim, spec?.by]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const resolved = useMemo(() => {
     const s = live.current
@@ -137,9 +172,10 @@ export function useDrillBind(spec: DrillBindSpec | null) {
       dimLabel: s.dimLabel,
       n: s.n,
       canPin: s.pinOnClick !== false,
-      // Both scope axes, every time. Category is "" when unfiltered, which sends nothing.
+      // Plant always comes from the header selector. Category comes from the card, and
+      // is undefined unless that card actually offers a category control.
       plant: region,
-      category: catValue || undefined,
+      category: s.category || undefined,
       format: (v: number) => (live.current?.format ?? String)(v),
       details: s.details ? (sl: string) => live.current?.details?.(sl) ?? [] : undefined,
       fetcher: s.fetcher

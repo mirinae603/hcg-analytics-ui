@@ -9,9 +9,11 @@
 // including the 7 that are legitimately 0% (never a blank dash — a real, verified zero).
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { useScope } from "@/context/CategoryContext";
+import { useRegion } from "@/context/RegionContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
+import { useCardCategory, useCardScopedData } from "@/components/common/CardCategoryFilter";
+import { useDrillBind } from "@/components/portfolio/useDrillBind";
 import { TbTrash, TbScale, TbArrowUpRight } from "react-icons/tb";
 
 const FONT = "Outfit, 'Segoe UI', sans-serif";
@@ -79,10 +81,38 @@ function WastageHero({ t }: { t: Totals }) {
 }
 
 // ── By-plant breakdown — ALL 26 plants, sorted by wastage %, zeros shown explicitly ──
-function ByPlant({ rows }: { rows: PlantRow[] }) {
+function ByPlant({ rows, cat, loading }: { rows: PlantRow[]; cat: any; loading: boolean }) {
   const on = useMount(140);
   const sorted = [...rows].sort((a, b) => b.wastage_pct - a.wastage_pct);
   const max = Math.max(...sorted.map((r) => r.wastage_pct), 0.01);
+
+  // DRILLING A RATIO, CAREFULLY.
+  //
+  // Wastage % is expired_value / stock_value — two different tables — and ranking ten
+  // SKUs BY that ratio underneath the parent ratio would imply the parts sum to the
+  // whole, which is false. That is why this chart carried no drill.
+  //
+  // But the bar already prints the rupee NUMERATOR next to the percentage, and
+  // "which items expired at this hospital" is exactly the question in front of it.
+  // Expired value IS additive, so the panel ranks by it and every share it reports is
+  // a share of THAT — of this plant's expired rupees, never of the percentage. The
+  // percentage travels along as a fact so the two numbers can never be confused for
+  // one another. Backend: /drill/top-items resolves wastage-rate to
+  // drill_expired_grain (kpi_near_expiry, Expired bucket only), whose per-plant sums
+  // equal this page's own expired_value exactly.
+  const drill = useDrillBind({
+    kpi: "wastage-rate", dim: "plant", by: "material", measure: "expired_value",
+    label: "expired items", dimLabel: "Hospital", format: inrAbbr, category: cat.drill,
+    details: (slice) => {
+      const r = sorted.find((x) => x.plant === slice);
+      if (!r) return [];
+      return [
+        { label: "Wastage %", value: r.wastage_pct == null ? "—" : `${r.wastage_pct.toFixed(2)}%` },
+        { label: "Stock value", value: inrAbbr(r.stock_value) },
+      ];
+    },
+  });
+
   return (
     <div className="rounded-3xl bg-white p-5 md:p-6" style={{ boxShadow: PANEL_SHADOW }}>
       <div className="flex items-start justify-between flex-wrap gap-2 mb-4">
@@ -90,13 +120,19 @@ function ByPlant({ rows }: { rows: PlantRow[] }) {
           <h3 className="text-[15px] font-semibold" style={{ color: INK }}>Wastage % by plant</h3>
           <p className="text-xs mt-0.5" style={{ color: SLATE }}>all {sorted.length} plants · expired value ÷ stock value · a 0.00% here is a verified result, not missing data</p>
         </div>
+        {cat.chip}
       </div>
+      {cat.note(!loading && sorted.every((r) => !r.expired_value)) && <div className="mb-4">{cat.note(true)}</div>}
       <div className="space-y-2">
         {sorted.map((r, i) => {
           const w = (r.wastage_pct / max) * 100;
           const color = r.wastage_pct >= 2 ? RUST : r.wastage_pct > 0 ? AMBER : "#c7cdd3";
           return (
-            <div key={r.plant} className="flex items-center gap-3">
+            // A verified 0.00% plant has nothing expired to list, so it gets no drill
+            // and no pointer cursor. The bar still shows, because a real zero is the
+            // point of this chart.
+            <div key={r.plant} className="flex items-center gap-3 rounded-lg hover:bg-[#faf8f4] transition-colors"
+              {...drill.bind(r.expired_value > 0 ? r.plant : null)}>
               <span className="text-[11.5px] font-semibold flex-shrink-0" style={{ width: 46, color: INK }}>{r.plant}</span>
               <div className="flex-1 h-6 rounded-lg overflow-hidden relative" style={{ background: "#f1ede6" }}>
                 <div className="h-full rounded-lg flex items-center" style={{ width: on ? `${Math.max(w, r.wastage_pct > 0 ? 3 : 0)}%` : "0%", background: color, transition: `width 0.8s cubic-bezier(0.22,1,0.36,1) ${i * 20}ms` }} />
@@ -108,22 +144,31 @@ function ByPlant({ rows }: { rows: PlantRow[] }) {
         })}
         {!sorted.length && <div className="py-8 text-center text-gray-400 text-sm">No data.</div>}
       </div>
+      {drill.panel}
     </div>
   );
 }
 
 export default function WastageRateDetail() {
-  const { region, category, filtered, catParam, scopeKey } = useScope();
+  const { selectedRegion } = useRegion();
+  const region = selectedRegion?.name ?? "All Plants";
   const [data, setData] = useState<{ totals: Totals; by_plant: PlantRow[] } | null>(null);
 
   useEffect(() => {
     setData(null);
-    fetch(`${DASHBOARD_API_BASE_URL}/kpi/wastage-rate/insights?Plant=${encodeURIComponent(region)}${catParam}`)
+    fetch(`${DASHBOARD_API_BASE_URL}/kpi/wastage-rate/insights?Plant=${encodeURIComponent(region)}`)
       .then((r) => r.json()).then((d) => setData(d || null)).catch(() => setData(null));
-  }, [region, catParam]);
+  }, [region]);
 
   const t = data?.totals || null;
-  const byPlant = data?.by_plant || [];
+
+  // Expiry write-off is a STOCK figure (expired value / stock value), so every
+  // category that holds stock has a real number here — including the ones that read
+  // zero on consumption-derived pages.
+  const cat = useCardCategory({ accent: RUST });
+  const scoped = useCardScopedData(data, cat.category, (c, signal) =>
+    fetch(`${DASHBOARD_API_BASE_URL}/kpi/wastage-rate/insights?Plant=${encodeURIComponent(region)}&Category=${encodeURIComponent(c)}`, { signal }).then((r) => r.json()));
+  const byPlant = scoped.data?.by_plant || [];
 
   return (
     <div className="-m-4 md:-m-6 p-4 md:p-6 space-y-4 min-w-0" style={{ background: MIST, minHeight: "calc(100vh - 64px)", fontFamily: FONT }}>
@@ -144,7 +189,7 @@ export default function WastageRateDetail() {
             @keyframes cardIn { from { opacity: 0; transform: translateY(18px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
             .csv-card { animation: cardIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; min-width: 0; }
           `}</style>
-          <div className="csv-card" style={{ animationDelay: "160ms" }}><ByPlant rows={byPlant} /></div>
+          <div className="csv-card" style={{ animationDelay: "160ms" }}><ByPlant rows={byPlant} cat={cat} loading={scoped.loading} /></div>
         </>
       )}
     </div>

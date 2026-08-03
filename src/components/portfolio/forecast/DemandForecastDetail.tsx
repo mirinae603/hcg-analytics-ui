@@ -5,7 +5,8 @@
 // (thin restrained micro-viz). Neutral canvas, near-black ink, ONE warm accent,
 // lots of whitespace. Real HCG forecast data underneath.
 import React, { useEffect, useState, useId } from "react";
-import { useScope } from "@/context/CategoryContext";
+import { useRegion } from "@/context/RegionContext";
+import { useCardCategory, useCardScopedData } from "@/components/common/CardCategoryFilter";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import { countAbbr, useMount, CountUp } from "@/components/portfolio/kit";
 import { TbBox, TbSearch, TbArrowUpRight, TbArrowDownRight, TbChevronRight, TbChevronDown, TbCalendarEvent, TbFileText, TbDroplet, TbVaccine, TbClipboardList } from "react-icons/tb";
@@ -218,7 +219,7 @@ function NextMonths({ timeline }: { timeline: any[] }) {
   );
 }
 
-function CategoryShare({ rows }: { rows: any[] }) {
+function CategoryShare({ rows, cat, loading }: { rows: any[]; cat: any; loading: boolean }) {
   const on = useMount(240);
   const src = (rows || []);
   const shown = src.slice(0, 6);
@@ -229,8 +230,12 @@ function CategoryShare({ rows }: { rows: any[] }) {
     <Card className="h-full flex flex-col" pad="p-6">
       <div className="flex items-baseline justify-between mb-5">
         <h3 className="text-[16px] font-bold" style={{ color: INK }}>Demand by category</h3>
-        <span className="text-[12px] font-medium" style={{ color: MUT }}>share of 3-month forecast</span>
+        <div className="flex items-center gap-2.5">
+          {cat.chip}
+          <span className="text-[12px] font-medium" style={{ color: MUT }}>share of 3-month forecast</span>
+        </div>
       </div>
+      {cat.note(!loading && src.length === 0) && <div className="mb-4">{cat.note(true)}</div>}
       {/* segmented pastel share bar */}
       <div className="flex gap-1 h-11 mb-5">
         {segs.map((s, i) => (
@@ -326,9 +331,15 @@ function ItemExplorer({ region }: { region: string }) {
 }
 
 export default function DemandForecastDetail() {
-  const { region, category, filtered, catParam, scopeKey } = useScope();
+  const { selectedRegion } = useRegion();
+  const region = selectedRegion?.name ?? "All Plants";
   const [data, setData] = useState<any>(null);
-  useEffect(() => { setData(null); fetch(`${DASHBOARD_API_BASE_URL}/forecast/demand-insights?Plant=${encodeURIComponent(region)}${catParam}`).then((r) => r.json()).then(setData).catch(() => setData(null)); }, [region, catParam]);
+  useEffect(() => { setData(null); fetch(`${DASHBOARD_API_BASE_URL}/forecast/demand-insights?Plant=${encodeURIComponent(region)}`).then((r) => r.json()).then(setData).catch(() => setData(null)); }, [region]);
+  // Demand is forecast off consumption history, so onco has almost none — the chip
+  // greys it and the card carries the backend's own one-line explanation.
+  const cat = useCardCategory({ accent: ACCENT, domain: "consumption" });
+  const scoped = useCardScopedData(data, cat.category, (c, signal) =>
+    fetch(`${DASHBOARD_API_BASE_URL}/forecast/demand-insights?Plant=${encodeURIComponent(region)}&Category=${encodeURIComponent(c)}`, { signal }).then((r) => r.json()));
   const t = data?.totals || {};
 
   if (!data) return (
@@ -375,7 +386,7 @@ export default function DemandForecastDetail() {
 
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-stretch mt-5">
           <div className="xl:col-span-5"><NextMonths timeline={data?.timeline || []} /></div>
-          <div className="xl:col-span-7"><CategoryShare rows={data?.by_category || []} /></div>
+          <div className="xl:col-span-7"><CategoryShare rows={scoped.data?.by_category || []} cat={cat} loading={scoped.loading} /></div>
         </div>
 
         <div className="mt-5"><ItemExplorer region={region} /></div>

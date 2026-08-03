@@ -1,9 +1,10 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import { useScope } from "@/context/CategoryContext";
+import { useRegion } from "@/context/RegionContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import { useDrillBind } from "@/components/portfolio/useDrillBind";
+import { useCardCategory, useCardScopedData } from "@/components/common/CardCategoryFilter";
 import { TbCoins, TbTag, TbArrowUpRight, TbStack2, TbLayersIntersect } from "react-icons/tb";
 
 const KpiTable = dynamic(() => import("../KpiTable"), {
@@ -170,9 +171,9 @@ const VALUATION_DRILL = {
 };
 
 // ── Capital concentration — value by category as a cost+markup stacked bar (no track) ──
-function ConcentrationCard({ cats }: { cats: any[] }) {
+function ConcentrationCard({ cats, cat, loading }: { cats: any[]; cat: any; loading: boolean }) {
   const on = useMount(120);
-  const drill = useDrillBind(VALUATION_DRILL);
+  const drill = useDrillBind({ ...VALUATION_DRILL, category: cat.drill });
   const sorted = [...cats].sort((a, b) => b.cost - a.cost).slice(0, 10);
   const max = Math.max(...sorted.map((c) => c.mrp), 1);
   return (
@@ -183,10 +184,12 @@ function ConcentrationCard({ cats }: { cats: any[] }) {
           <p className="text-[12px] mt-0.5" style={{ color: SUBTLE }}>where your money sits · book cost + unrealized markup</p>
         </div>
         <div className="flex items-center gap-4">
+          {cat.chip}
           <span className="inline-flex items-center gap-1.5 text-[11px] font-medium" style={{ color: "#6b7488" }}><span className="w-2.5 h-2.5 rounded-full" style={{ background: VIOLET }} />Cost</span>
           <span className="inline-flex items-center gap-1.5 text-[11px] font-medium" style={{ color: "#6b7488" }}><span className="w-2.5 h-2.5 rounded-full" style={{ background: AMBER }} />Markup</span>
         </div>
       </div>
+      {cat.note(!loading && sorted.length === 0) && <div className="mt-3">{cat.note(true)}</div>}
       <div className="mt-5 flex-1 flex flex-col justify-between gap-2.5">
         {sorted.map((c, i) => {
           const costW = Math.max((c.cost / max) * 100, 3), mkW = Math.max(((c.mrp - c.cost) / max) * 100, 0);
@@ -288,16 +291,21 @@ const COLUMNS = [
 ];
 
 export default function ValuationDetail() {
-  const { region, category, filtered, catParam, scopeKey } = useScope();
+  const { selectedRegion } = useRegion();
+  const region = selectedRegion?.name ?? "All Plants";
   const [data, setData] = useState<any>(null);
 
   useEffect(() => {
-    fetch(`${DASHBOARD_API_BASE_URL}/kpi/inventory-valuation/insights?Plant=${encodeURIComponent(region)}${catParam}`).then((r) => r.json()).then((d) => setData(d || null)).catch(() => setData(null));
-  }, [region, catParam]);
+    fetch(`${DASHBOARD_API_BASE_URL}/kpi/inventory-valuation/insights?Plant=${encodeURIComponent(region)}`).then((r) => r.json()).then((d) => setData(d || null)).catch(() => setData(null));
+  }, [region]);
+
+  const cat = useCardCategory({ accent: VIOLET });
+  const scoped = useCardScopedData(data, cat.category, (c, signal) =>
+    fetch(`${DASHBOARD_API_BASE_URL}/kpi/inventory-valuation/insights?Plant=${encodeURIComponent(region)}&Category=${encodeURIComponent(c)}`, { signal }).then((r) => r.json()));
 
   const t = data?.totals || {};
   // `raw` is the untouched "M065-INJECTIONS" the drill-down sends; `name` is the stripped label.
-  const cats: any[] = useMemo(() => (data?.categories || []).map((c: any) => ({ ...c, raw: c.name, name: catName(c.name) })), [data]);
+  const cats: any[] = useMemo(() => (scoped.data?.categories || []).map((c: any) => ({ ...c, raw: c.name, name: catName(c.name) })), [scoped.data]);
   const cost = Number(t.cost ?? 0), mrp = Number(t.mrp ?? 0), markup = Number(t.markup ?? 0), markupPct = Number(t.markup_pct ?? 0);
 
   return (
@@ -319,7 +327,7 @@ export default function ValuationDetail() {
             <StatCard tint={TINT_AMBER} icon={TbArrowUpRight} label="Unrealized markup" value={markup} format={inrAbbr} sub={`+${markupPct.toFixed(0)}% over book cost`} pct={mrp ? (markup / mrp) * 100 : 0} barLabel="of retail value" delay={160} />
           </div>
           <AgeProfileCard age={data?.age || []} totals={t} />
-          <ConcentrationCard cats={cats} />
+          <ConcentrationCard cats={cats} cat={cat} loading={scoped.loading} />
         </div>
         <div className="xl:col-span-4 flex flex-col gap-5 min-w-0">
           <ValueStructureCard totals={t} />

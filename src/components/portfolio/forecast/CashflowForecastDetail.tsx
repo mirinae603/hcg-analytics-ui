@@ -4,7 +4,8 @@
 // COLUMNS + a cumulative cash-out line (combo), a budget DONUT, a spend leaderboard,
 // and a TEAL money accent. Values are forecast consumption cost = cash to restock.
 import React, { useEffect, useState } from "react";
-import { useScope } from "@/context/CategoryContext";
+import { useRegion } from "@/context/RegionContext";
+import { useCardCategory, useCardScopedData } from "@/components/common/CardCategoryFilter";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import { useMount, CountUp } from "@/components/portfolio/kit";
 import { TbSearch, TbChevronRight, TbChevronDown, TbCurrencyRupee, TbReceipt2, TbBox, TbFlask, TbStethoscope, TbWallet, TbArrowUpRight, TbArrowDownRight } from "react-icons/tb";
@@ -188,7 +189,7 @@ function BudgetSummary({ data }: { data: any }) {
   );
 }
 
-function CategoryDonut({ rows, total }: { rows: any[]; total: number }) {
+function CategoryDonut({ rows, total, cat, loading }: { rows: any[]; total: number; cat: any; loading: boolean }) {
   const on = useMount(220);
   const src = (rows || []).slice(0, 8);
   const shown = src.slice(0, 7);
@@ -201,8 +202,12 @@ function CategoryDonut({ rows, total }: { rows: any[]; total: number }) {
     <Card className="h-full" pad="p-6">
       <div className="flex items-baseline justify-between mb-2">
         <h3 className="text-[16px] font-bold" style={{ color: INK }}>Budget by category</h3>
-        <span className="text-[12px] font-medium" style={{ color: MUT }}>where spend concentrates</span>
+        <div className="flex items-center gap-2.5">
+          {cat.chip}
+          <span className="text-[12px] font-medium" style={{ color: MUT }}>where spend concentrates</span>
+        </div>
       </div>
+      {cat.note(!loading && segs.length === 0) && <div className="mb-3">{cat.note(true)}</div>}
       <div className="flex items-center gap-6 flex-wrap">
         <div className="relative flex-shrink-0" style={{ width: 180, height: 180 }}>
           <svg viewBox="0 0 180 180" width="180" height="180">
@@ -307,9 +312,16 @@ function ItemExplorer({ region }: { region: string }) {
 }
 
 export default function CashflowForecastDetail() {
-  const { region, category, filtered, catParam, scopeKey } = useScope();
+  const { selectedRegion } = useRegion();
+  const region = selectedRegion?.name ?? "All Plants";
   const [data, setData] = useState<any>(null);
-  useEffect(() => { setData(null); fetch(`${DASHBOARD_API_BASE_URL}/forecast/cashflow-insights?Plant=${encodeURIComponent(region)}${catParam}`).then((r) => r.json()).then(setData).catch(() => setData(null)); }, [region, catParam]);
+  useEffect(() => { setData(null); fetch(`${DASHBOARD_API_BASE_URL}/forecast/cashflow-insights?Plant=${encodeURIComponent(region)}`).then((r) => r.json()).then(setData).catch(() => setData(null)); }, [region]);
+  // The budget is replenishment quantity x unit cost, and replenishment is forecast off
+  // consumption — so onco is near-empty here for the same real reason as everywhere
+  // downstream of fact_consumption, and the chip says so.
+  const cat = useCardCategory({ accent: TEAL, domain: "consumption" });
+  const scoped = useCardScopedData(data, cat.category, (c, signal) =>
+    fetch(`${DASHBOARD_API_BASE_URL}/forecast/cashflow-insights?Plant=${encodeURIComponent(region)}&Category=${encodeURIComponent(c)}`, { signal }).then((r) => r.json()));
   const t = data?.totals || {};
 
   if (!data) return (
@@ -356,7 +368,7 @@ export default function CashflowForecastDetail() {
 
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-stretch mt-5">
           <div className="xl:col-span-5"><BudgetSummary data={data} /></div>
-          <div className="xl:col-span-7"><CategoryDonut rows={data?.by_category || []} total={Number(t.total_horizon ?? 0)} /></div>
+          <div className="xl:col-span-7"><CategoryDonut rows={scoped.data?.by_category || []} total={Number(scoped.data?.totals?.total_horizon ?? 0)} cat={cat} loading={scoped.loading} /></div>
         </div>
 
         <div className="mt-5"><ItemExplorer region={region} /></div>

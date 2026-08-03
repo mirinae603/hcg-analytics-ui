@@ -4,13 +4,12 @@
 // then a consumption flow + KPI grid, with category & department side panels.
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { useScope } from "@/context/CategoryContext";
+import { useRegion } from "@/context/RegionContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import { inrAbbr, countAbbr, catName, useMount, smoothPath } from "@/components/portfolio/kit";
 import { GaugeCard, DonutCard, BrandPanel, type Tab } from "./ExecCards";
-import UnscopedBadge from "@/components/common/UnscopedBadge";
-import { notScopedReason } from "@/lib/categoryScope";
 import { useDrillBind } from "@/components/portfolio/useDrillBind";
+import { useCardCategory, useCardScopedData } from "@/components/common/CardCategoryFilter";
 import { TbActivityHeartbeat, TbPill, TbBuildingHospital, TbChevronRight, TbFlask, TbReportMedical, TbReportMoney } from "react-icons/tb";
 
 const PAGE = "#F6F0F2", INK = "#33262e", SUB = "#9a8b92";
@@ -23,9 +22,24 @@ const KPI_META: Record<string, any> = {
   "consumption-by-department": { title: "Consumption by Department", Icon: TbBuildingHospital, tint: "#efe7f6", ring: PLUM },
 };
 
-function ConsumptionFlow({ timeline }: { timeline: any[] }) {
+function ConsumptionFlow({ timeline, cat, loading }: { timeline: any[]; cat: any; loading: boolean }) {
   const on = useMount(140); const [hov, setHov] = useState<number | null>(null);
-  const data = timeline || []; if (!data.length) return null;
+  const data = timeline || [];
+  // Was `if (!data.length) return null` — with a card-level filter that would make the
+  // whole card VANISH the moment someone picked Onco Drugs, which reads as the app
+  // breaking. It now stays put and says why it is empty.
+  if (!data.length) {
+    return (
+      <div className="rounded-3xl bg-white p-6 flex flex-col" style={{ boxShadow: CARD_SH }}>
+        <div className="flex items-start justify-between flex-wrap gap-2">
+          <div><h3 className="text-[16px] font-semibold flex items-center gap-2" style={{ color: INK }}><TbActivityHeartbeat size={17} style={{ color: ROSE }} />Consumption flow</h3>
+            <p className="text-[12px] mt-0.5" style={{ color: SUB }}>monthly internal consumption cost · units in tooltip</p></div>
+          {cat.chip}
+        </div>
+        <div className="mt-4">{cat.note(true) ?? <span className="text-[12.5px]" style={{ color: SUB }}>No consumption in this window.</span>}</div>
+      </div>
+    );
+  }
   const W = 760, H = 260, PADX = 18, PADT = 24, PADB = 34;
   const iW = W - PADX * 2, iH = H - PADT - PADB;
   const max = Math.max(...data.map((d) => d.cost), 1) * 1.12;
@@ -39,8 +53,12 @@ function ConsumptionFlow({ timeline }: { timeline: any[] }) {
       <div className="flex items-start justify-between flex-wrap gap-2">
         <div><h3 className="text-[16px] font-semibold flex items-center gap-2" style={{ color: INK }}><TbActivityHeartbeat size={17} style={{ color: ROSE }} />Consumption flow</h3>
           <p className="text-[12px] mt-0.5" style={{ color: SUB }}>monthly internal consumption cost · units in tooltip</p></div>
-        <span className="text-[11px] font-medium px-2.5 py-1 rounded-full" style={{ background: `${ROSE}14`, color: DEEP }}>avg {inrAbbr(avg)}/mo</span>
+        <div className="flex items-center gap-2">
+          {cat.chip}
+          <span className="text-[11px] font-medium px-2.5 py-1 rounded-full" style={{ background: `${ROSE}14`, color: DEEP }}>avg {inrAbbr(avg)}/mo</span>
+        </div>
       </div>
+      {cat.note(!loading && total === 0) && <div className="mt-3">{cat.note(true)}</div>}
       <div className="relative mt-3" style={{ height: 220 }}>
         <svg viewBox={`0 0 ${W} ${H}`} width="100%" height="100%" preserveAspectRatio="none" style={{ display: "block", overflow: "visible" }} onMouseLeave={() => setHov(null)}>
           <defs><linearGradient id="coFlow" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={ROSE} stopOpacity="0.28" /><stop offset="100%" stopColor={CORAL} stopOpacity="0.02" /></linearGradient></defs>
@@ -67,24 +85,34 @@ function ConsumptionFlow({ timeline }: { timeline: any[] }) {
   );
 }
 
-function KpiGrid({ cards }: { cards: Record<string, any> }) {
+// Both KPI tiles carry their own chip. The chip sits OUTSIDE the <Link> — the whole tile
+// navigates to /kpi/{key}, so a control nested inside it would route away on every click
+// instead of filtering. Both headline values genuinely move (units-consumed 22,556,856 →
+// 5,552,140 for Consumables; the department tile's headline is total consumption cost,
+// 671,016,030 → 199,946,392), so both earn one.
+function KpiGrid({ scopes }: { scopes: Record<string, { card: any; cat: any }> }) {
   return (
     <div className="rounded-3xl bg-white p-6" style={{ boxShadow: CARD_SH }}>
       <h3 className="text-[15px] font-semibold mb-3" style={{ color: INK }}>Consumption & Revenue KPIs</h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {Object.keys(KPI_META).map((key) => { const m = KPI_META[key]; const Icon = m.Icon; const c = cards[key] || {};
+        {Object.keys(KPI_META).map((key) => { const m = KPI_META[key]; const Icon = m.Icon;
+          const c = scopes[key]?.card ?? {}; const cat = scopes[key]?.cat;
           const val = c.kind === "inr" ? inrAbbr(Number(c.value ?? 0)) : countAbbr(Number(c.value ?? 0));
           return (
-            <Link key={key} href={`/kpi/${key}`} className="group flex items-center gap-3 rounded-2xl p-3.5 transition-all duration-200" style={{ border: "1px solid #f1e9ed", background: "#fff" }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.boxShadow = "0 10px 26px -14px rgba(90,40,60,0.28)"; (e.currentTarget as HTMLElement).style.transform = "translateY(-2px)"; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.boxShadow = "none"; (e.currentTarget as HTMLElement).style.transform = "none"; }}>
-              <span className="flex items-center justify-center rounded-xl flex-shrink-0" style={{ width: 38, height: 38, background: m.tint, color: m.ring }}><Icon size={19} /></span>
-              <div className="min-w-0 flex-1">
-                <div className="text-[12.5px] font-semibold truncate" style={{ color: "#3c2f36" }}>{m.title}</div>
-                <div className="text-[13px] font-bold tabular-nums" style={{ color: m.ring }}>{val} <span className="text-[10.5px] font-medium" style={{ color: SUB }}>{c.sub}</span></div>
-              </div>
-              <TbChevronRight size={16} className="flex-shrink-0 transition-transform duration-200 group-hover:translate-x-0.5" style={{ color: "#d7c6ce" }} />
-            </Link>
+            <div key={key} className="relative">
+              {cat && <div className="absolute right-2.5 top-2 z-20">{cat.chip}</div>}
+              <Link href={`/kpi/${key}`} className="group flex items-center gap-3 rounded-2xl p-3.5 pt-9 transition-all duration-200" style={{ border: "1px solid #f1e9ed", background: "#fff" }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.boxShadow = "0 10px 26px -14px rgba(90,40,60,0.28)"; (e.currentTarget as HTMLElement).style.transform = "translateY(-2px)"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.boxShadow = "none"; (e.currentTarget as HTMLElement).style.transform = "none"; }}>
+                <span className="flex items-center justify-center rounded-xl flex-shrink-0" style={{ width: 38, height: 38, background: m.tint, color: m.ring }}><Icon size={19} /></span>
+                <div className="min-w-0 flex-1">
+                  <div className="text-[12.5px] font-semibold truncate" style={{ color: "#3c2f36" }}>{m.title}</div>
+                  <div className="text-[13px] font-bold tabular-nums" style={{ color: m.ring }}>{val} <span className="text-[10.5px] font-medium" style={{ color: SUB }}>{c.sub}</span></div>
+                </div>
+                <TbChevronRight size={16} className="flex-shrink-0 transition-transform duration-200 group-hover:translate-x-0.5" style={{ color: "#d7c6ce" }} />
+              </Link>
+              {cat?.note(!Number(c.value)) && <div className="mt-2">{cat.note(true)}</div>}
+            </div>
           ); })}
         {/* Real revenue & margin from IP+OP billing (retired the old simulated revenue tiles) */}
         <Link href="/revenueMargin" className="group flex items-center gap-3 rounded-2xl p-3.5 transition-all duration-200 sm:col-span-2" style={{ border: "1px solid #d7ece0", background: "linear-gradient(120deg,#f0faf5,#ffffff)" }}
@@ -103,18 +131,25 @@ function KpiGrid({ cards }: { cards: Record<string, any> }) {
   );
 }
 
-function CategoriesCard({ categories }: { categories: any[] }) {
+function CategoriesCard({ categories, cat, loading }: { categories: any[]; cat: any; loading: boolean }) {
   const on = useMount(220);
   const rows = (categories || []).slice(0, 7);
   const drill = useDrillBind({
     kpi: "unit-sold-per-sku", dim: "material_group", by: "material", measure: "consumption_cost",
-    label: "items", dimLabel: "Category · 6-month consumption", format: inrAbbr,
+    label: "items", dimLabel: "Category · 6-month consumption", format: inrAbbr, category: cat.drill,
   });
   const max = Math.max(...rows.map((r: any) => r.value), 1);
   return (
     <div className="rounded-3xl bg-white p-6 flex flex-col flex-1" style={{ boxShadow: CARD_SH }}>
-      <h3 className="text-[15px] font-semibold flex items-center gap-2" style={{ color: INK }}><TbFlask size={16} style={{ color: ROSE }} />Consumption by category</h3>
-      <p className="text-[12px] mt-0.5 mb-3" style={{ color: SUB }}>material group · by cost</p>
+      <div className="flex items-start justify-between gap-2">
+        <div>
+          <h3 className="text-[15px] font-semibold flex items-center gap-2" style={{ color: INK }}><TbFlask size={16} style={{ color: ROSE }} />Consumption by category</h3>
+          <p className="text-[12px] mt-0.5" style={{ color: SUB }}>material group · by cost</p>
+        </div>
+        {cat.chip}
+      </div>
+      {cat.note(!loading && rows.every((r: any) => !r.value)) && <div className="mt-3">{cat.note(true)}</div>}
+      <div className="mb-3" />
       <div className="flex-1 flex flex-col justify-between gap-2.5">
         {rows.map((r: any, i: number) => { const uncat = r.uncat; const col = uncat ? GREY : ROSE; return (
           // The "Uncategorized" row deliberately gets no drill-down: it is every line whose
@@ -136,17 +171,11 @@ function CategoriesCard({ categories }: { categories: any[] }) {
   );
 }
 
-function DepartmentsCard({ departments, unscoped }: { departments: any[]; unscoped?: boolean }) {
+function DepartmentsCard({ departments }: { departments: any[] }) {
   const rows = (departments || []).slice(0, 6);
   return (
     <div className="rounded-3xl bg-white p-6 flex flex-col flex-1" style={{ boxShadow: CARD_SH }}>
-      <div className="flex items-start justify-between gap-2">
-        <h3 className="text-[15px] font-semibold flex items-center gap-2" style={{ color: INK }}><TbBuildingHospital size={16} style={{ color: PLUM }} />Top departments</h3>
-        {/* Departmental consumption is recorded per cost centre and month with no item
-            column, so this list is identical under every category. Saying so beats
-            letting ₹3.34 Cr of all-category spend sit under an "Onco Drugs only" banner. */}
-        {unscoped && <UnscopedBadge reason={notScopedReason("consumption-by-department") ?? ""} />}
-      </div>
+      <h3 className="text-[15px] font-semibold flex items-center gap-2" style={{ color: INK }}><TbBuildingHospital size={16} style={{ color: PLUM }} />Top departments</h3>
       <p className="text-[12px] mt-0.5 mb-1" style={{ color: SUB }}>by consumption cost · cost-center code</p>
       <div className="flex-1 flex flex-col justify-between divide-y divide-gray-50">
         {rows.map((r: any, i: number) => (
@@ -168,53 +197,74 @@ function DepartmentsCard({ departments, unscoped }: { departments: any[]; unscop
 }
 
 export default function ConsumptionOverview() {
-  const { region, category, filtered, catParam, scopeKey } = useScope();
+  const { selectedRegion } = useRegion();
+  const region = selectedRegion?.name ?? "All Plants";
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     setLoading(true);
-    fetch(`${DASHBOARD_API_BASE_URL}/portfolio/consumption/overview?Plant=${encodeURIComponent(region)}${catParam}`)
+    fetch(`${DASHBOARD_API_BASE_URL}/portfolio/consumption/overview?Plant=${encodeURIComponent(region)}`)
       .then((r) => r.json()).then((d) => { setData(d || null); setLoading(false); })
       .catch(() => { setData(null); setLoading(false); });
-  }, [region, catParam]);
+  }, [region]);
   // true while in flight OR resolved with nothing usable -- never let a failed/slow
   // fetch fall through to the cards' old confident-zero render.
   const showSkeleton = loading || !data;
 
-  const t = data?.totals || {};
-  const cards = data?.cards || {};
-  const timeline = data?.timeline || [];
+  // Consumption-derived: onco legitimately reads ~zero because HCG dispenses it through
+  // IP/OP billing rather than internal consumption movements. The chip greys that bucket
+  // and the card explains an empty result rather than looking broken.
+  //
+  // One `useCardCategory` + `useCardScopedData` pair PER CARD, all pointed at the same
+  // overview URL. They share nothing: filtering the flow chart to Consumables leaves the
+  // gauge, the KPI tiles and the category bars each showing whatever they were showing.
+  const overview = (c: string, signal: AbortSignal) =>
+    fetch(`${DASHBOARD_API_BASE_URL}/portfolio/consumption/overview?Plant=${encodeURIComponent(region)}&Category=${encodeURIComponent(c)}`, { signal }).then((r) => r.json());
+
+  const cat = useCardCategory({ accent: ROSE, domain: "consumption", label: "Consumption by category" });
+  const scoped = useCardScopedData(data, cat.category, overview);
+  const gaugeCat = useCardCategory({ accent: ROSE, domain: "consumption", label: "Consumption totals" });
+  const gaugeScoped = useCardScopedData(data, gaugeCat.category, overview);
+  const flowCat = useCardCategory({ accent: ROSE, domain: "consumption", label: "Consumption flow" });
+  const flowScoped = useCardScopedData(data, flowCat.category, overview);
+  const unitsCat = useCardCategory({ accent: ROSE, domain: "consumption", label: "Units consumed per SKU" });
+  const unitsScoped = useCardScopedData(data, unitsCat.category, overview);
+  const deptKpiCat = useCardCategory({ accent: PLUM, domain: "consumption", label: "Consumption by department" });
+  const deptKpiScoped = useCardScopedData(data, deptKpiCat.category, overview);
+
+  const t = gaugeScoped.data?.totals || {};
+  const timeline = flowScoped.data?.timeline || [];
   const cost = Number(t.cost ?? 0), units = Number(t.units ?? 0), nDept = Number(t.departments ?? 0);
   const nMat = Number(t.materials ?? 0), nPlants = Number(t.plants ?? 0), mom = Number(t.last_mom ?? 0);
   const deptTop5 = Number(t.dept_top5 ?? 0);
   const peak = Math.max(...timeline.map((x: any) => x.cost), 1);
   const avgM = Number(t.avg_month ?? 0);
   const departments = data?.departments || [];
+  // The department donut and the department leaderboard stay on the PAGE's unscoped
+  // totals. kpi_consumption_by_department is cut at plant x cost-centre x month, with no
+  // material column, so `departments` is byte-identical under every category — the
+  // backend says so itself with `departments_category_scoped: false`. Feeding them the
+  // gauge's scoped totals would leave the donut re-slicing an unscoped denominator.
+  const ut = data?.totals || {};
+  const uCost = Number(ut.cost ?? 0), uDeptTop5 = Number(ut.dept_top5 ?? 0), uNDept = Number(ut.departments ?? 0);
 
   const tabs: Tab[] = [
     { key: "cost", tab: "Cost", label: "Internal consumption cost", value: cost, fmt: inrAbbr, gauge: peak ? avgM / peak : 0, gaugeLabel: "avg of peak month", color: ROSE, status: { text: mom >= 0 ? "Usage up" : "Usage down", color: mom >= 0 ? ROSE : "#5aa97e" }, stats: [{ value: pctSign(mom), label: "MoM", color: mom >= 0 ? ROSE : "#5aa97e" }, { value: inrAbbr(peak), label: "peak mo", color: "#a99aa1" }, { value: inrAbbr(avgM), label: "avg mo", color: "#a99aa1" }] },
     { key: "units", tab: "Units", label: "Units consumed", value: units, fmt: countAbbr, gauge: Math.min(nMat / 15000, 1), gaugeLabel: "SKU coverage", color: CORAL, status: { text: "Across SKUs", color: CORAL }, stats: [{ value: countAbbr(units), label: "units", color: "#a99aa1" }, { value: countAbbr(nMat), label: "SKUs", color: "#a99aa1" }, { value: `${nPlants}`, label: "plants", color: "#a99aa1" }] },
-    { key: "dept", tab: "Depts", label: "Consuming departments", value: nDept, fmt: countAbbr, gauge: deptTop5 / 100, gaugeLabel: "top-5 share", color: PLUM, status: { text: deptTop5 >= 50 ? "Concentrated" : "Distributed", color: PLUM }, stats: [{ value: `${deptTop5.toFixed(0)}%`, label: "top-5", color: PLUM }, { value: countAbbr(nDept), label: "depts", color: "#a99aa1" },
-      // scoped cost ÷ unscoped dept count is a nonsense ratio under a filter (it read
-      // "₹2 avg/dept" under Onco Drugs). Only shown when both sides share a scope.
-      ...(filtered ? [] : [{ value: inrAbbr(cost / Math.max(nDept, 1)), label: "avg/dept", color: "#a99aa1" }])] },
+    // The Depts tab is REMOVED while this card's filter is on, not annotated. Its figures
+    // (730 departments, top-5 share) are portfolio-wide and identical for every category,
+    // so leaving it in would put a number the control visibly cannot move inside a card
+    // the control is acting on. Clearing the filter brings it straight back.
+    ...(gaugeCat.active ? [] : [{ key: "dept", tab: "Depts", label: "Consuming departments", value: nDept, fmt: countAbbr, gauge: deptTop5 / 100, gaugeLabel: "top-5 share", color: PLUM, status: { text: deptTop5 >= 50 ? "Concentrated" : "Distributed", color: PLUM }, stats: [{ value: `${deptTop5.toFixed(0)}%`, label: "top-5", color: PLUM }, { value: countAbbr(nDept), label: "depts", color: "#a99aa1" }, { value: inrAbbr(cost / Math.max(nDept, 1)), label: "avg/dept", color: "#a99aa1" }] } as Tab]),
   ];
 
-  // Concentration is built from SHARES, not rupees, and the difference only shows up
-  // under a category filter. `cost` is scoped; `departments[].value` is not (the
-  // departmental frame has no material column — see notScopedReason). Mixing them made
-  // the top department's ₹3.34 Cr dwarf an Onco Drugs total of ₹1.8 K, so the donut
-  // rendered "Top department 100.0% / All others 0.0%" while the caption underneath
-  // still said "Top-5 19%". Shares are internally consistent at any scope, and because
-  // DonutCard normalises by the segment sum, the unfiltered donut is pixel-identical to
-  // before: value/cost*100 has the same ratios as value.
-  const top1Share = Number(departments[0]?.share ?? 0);
+  const top1v = Number(departments[0]?.value ?? 0);
+  const top5v = uCost * uDeptTop5 / 100;
   const segments = [
-    { label: "Top department", value: top1Share, color: PLUM },
-    { label: "Depts 2–5", value: Math.max(0, deptTop5 - top1Share), color: "#c4a3d4" },
-    { label: "All others", value: Math.max(0, 100 - deptTop5), color: "#e7dceb" },
+    { label: "Top department", value: top1v, color: PLUM },
+    { label: "Depts 2–5", value: Math.max(0, top5v - top1v), color: "#c4a3d4" },
+    { label: "All others", value: Math.max(0, uCost - top5v), color: "#e7dceb" },
   ];
-  const deptUnscopedReason = notScopedReason("consumption-by-department") ?? "";
 
   return (
     <div className="-m-4 md:-m-6 p-4 md:p-6 min-w-0" style={{ background: PAGE, minHeight: "calc(100vh - 64px)" }}>
@@ -228,28 +278,26 @@ export default function ConsumptionOverview() {
 
       <div className="flex flex-wrap lg:flex-nowrap gap-5 items-stretch mb-5">
         <div className="w-full lg:w-1/3 min-h-[220px]"><BrandPanel title="Consumption KPI's" subtitle="Clinical usage" accent={ROSE} /></div>
-        <div className="w-full lg:w-1/3"><GaugeCard tabs={tabs} loading={showSkeleton} /></div>
-        {/* Everything INSIDE this card — segments, top-5 share, dept count — is
-            portfolio-wide (the departmental frame has no material column), and the badge
-            says so. The headline was the one scoped figure in it, so under Onco Drugs the
-            card read "₹1,795 total cost" above shares covering all ₹67.10 Cr, with an
-            "All categories" badge on top. Falling back to the department COUNT keeps the
-            whole card on one footing; unfiltered it is unchanged. */}
-        <div className="w-full lg:w-1/3"><DonutCard label="Department concentration"
-          headline={filtered ? nDept : cost} headSuffix={filtered ? "departments" : "total cost"} centerLabel="Depts"
-          segments={segments} insights={[{ label: "Top-5", value: `${deptTop5.toFixed(0)}%`, color: PLUM }, { label: "Depts", value: countAbbr(nDept), color: "#6b7280" }]}
-          score={{ text: deptTop5 >= 50 ? "Concentrated" : "Spread", value: Math.round(deptTop5), color: deptTop5 >= 50 ? PLUM : "#5aa97e" }} loading={showSkeleton}
-          badge={filtered ? <UnscopedBadge reason={deptUnscopedReason} /> : undefined} /></div>
+        <div className="w-full lg:w-1/3"><GaugeCard tabs={tabs} loading={showSkeleton} headerSlot={gaugeCat.chip}
+          note={gaugeCat.note(!gaugeScoped.loading && cost === 0)} /></div>
+        {/* No chip: kpi_consumption_by_department has no material grain, so every segment
+            here is identical under every category. A control would be inert. */}
+        <div className="w-full lg:w-1/3"><DonutCard label="Department concentration" headline={uCost} headSuffix="total cost" centerLabel="Depts"
+          segments={segments} insights={[{ label: "Top-5", value: `${uDeptTop5.toFixed(0)}%`, color: PLUM }, { label: "Depts", value: countAbbr(uNDept), color: "#6b7280" }]}
+          score={{ text: uDeptTop5 >= 50 ? "Concentrated" : "Spread", value: Math.round(uDeptTop5), color: uDeptTop5 >= 50 ? PLUM : "#5aa97e" }} loading={showSkeleton} /></div>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-stretch">
         <div className="xl:col-span-8 flex flex-col gap-5 min-w-0">
-          <ConsumptionFlow timeline={timeline} />
-          <KpiGrid cards={cards} />
+          <ConsumptionFlow timeline={timeline} cat={flowCat} loading={flowScoped.loading} />
+          <KpiGrid scopes={{
+            "unit-sold-per-sku": { card: (unitsScoped.data?.cards || {})["unit-sold-per-sku"] || {}, cat: unitsCat },
+            "consumption-by-department": { card: (deptKpiScoped.data?.cards || {})["consumption-by-department"] || {}, cat: deptKpiCat },
+          }} />
         </div>
         <div className="xl:col-span-4 flex flex-col gap-5 min-w-0">
-          <CategoriesCard categories={data?.categories || []} />
-          <DepartmentsCard departments={departments} unscoped={filtered} />
+          <CategoriesCard categories={scoped.data?.categories || []} cat={cat} loading={scoped.loading} />
+          <DepartmentsCard departments={departments} />
         </div>
       </div>
 

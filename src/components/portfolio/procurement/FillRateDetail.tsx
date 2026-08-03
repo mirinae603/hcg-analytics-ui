@@ -7,6 +7,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { useRegion } from "@/context/RegionContext";
+import { useDrillBind } from "@/components/portfolio/useDrillBind";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import { countAbbr, useMount, CountUp } from "@/components/portfolio/kit";
 import { TbProgressCheck, TbTargetArrow, TbAlertTriangle } from "react-icons/tb";
@@ -124,6 +125,15 @@ function PriorityScatter({ plants }: { plants: any[] }) {
   const yP = (c: number) => PADT + innerH - (Math.max(0, Math.min(100, c)) / 100) * innerH;
   const rP = (o: number) => 4 + Math.sqrt(o / geo.maxOpen) * 15;
   const xticks = [1e3, 1e4, 1e5, 1e6, 1e7].filter((v) => Math.log10(v) >= geo.l0 - 0.3 && Math.log10(v) <= geo.l0 + geo.span + 0.3);
+  // Ranked by ORDERED UNITS, not by fill %. Fill rate is a ratio: listing ten items
+  // under a parent percentage would imply the parts sum to the whole, which is false.
+  // Ordered units are additive, they are the bubble's x axis, and "what did this
+  // under-filled site actually order" is the question the chart provokes.
+  // kpi_fill_rate is one row per plant, so the drill re-routes to fact_po for material.
+  const drill = useDrillBind({
+    kpi: "fill-rate", dim: "plant", by: "material", measure: "ordered_qty",
+    label: "items", dimLabel: "Hospital · units ordered", format: countAbbr,
+  });
   return (
     <Card delay={140} className="bg-white p-6 flex flex-col flex-1">
       <div className="flex items-start justify-between flex-wrap gap-2">
@@ -150,7 +160,7 @@ function PriorityScatter({ plants }: { plants: any[] }) {
           <text x={PADL + innerW / 2} y={H - 8} textAnchor="middle" style={{ fontSize: 10, fill: "#8a9a92", fontWeight: 600 }}>units ordered · log scale →</text>
           {/* bubbles */}
           {data.map((d, i) => { const c = fillCol(d.comp); const active = hov === i; const dim = hov != null && !active; const r = rP(d.open); return (
-            <g key={i} onMouseEnter={() => setHov(i)} style={{ cursor: "pointer", opacity: on ? (dim ? 0.32 : 1) : 0, transform: on ? "scale(1)" : "scale(0.4)", transformOrigin: `${xP(d.ordered)}px ${yP(d.comp)}px`, transition: `opacity 0.4s ease ${(i % 12) * 30}ms, transform 0.6s cubic-bezier(0.34,1.3,0.64,1) ${(i % 12) * 30}ms` }}>
+            <g key={i} {...drill.bind(d.plant, { onMouseEnter: () => setHov(i) })} style={{ cursor: "pointer", opacity: on ? (dim ? 0.32 : 1) : 0, transform: on ? "scale(1)" : "scale(0.4)", transformOrigin: `${xP(d.ordered)}px ${yP(d.comp)}px`, transition: `opacity 0.4s ease ${(i % 12) * 30}ms, transform 0.6s cubic-bezier(0.34,1.3,0.64,1) ${(i % 12) * 30}ms` }}>
               <circle cx={xP(d.ordered)} cy={yP(d.comp)} r={r} fill={`${c}2b`} stroke={c} strokeWidth={active ? 2.5 : 1.4} />
               {r > 9 && <circle cx={xP(d.ordered)} cy={yP(d.comp)} r={r * 0.4} fill={c} opacity={active ? 0.95 : 0.66} />}
             </g>
@@ -164,6 +174,7 @@ function PriorityScatter({ plants }: { plants: any[] }) {
             </div>
           </div>
         ); })()}
+        {drill.panel}
       </div>
     </Card>
   );

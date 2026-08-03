@@ -5,7 +5,7 @@ import { useRegion } from "@/context/RegionContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import { useDrillBind } from "@/components/portfolio/useDrillBind";
-import NotScopedNote from "@/components/common/NotScopedNote";
+import { useCardCategory } from "@/components/common/CardCategoryFilter";
 import { TbScale, TbHourglassLow, TbTargetArrow, TbStack2, TbChartGridDots } from "react-icons/tb";
 
 const KpiTable = dynamic(() => import("../KpiTable"), {
@@ -188,18 +188,18 @@ function ConcentrationCard({ nFor80, topShare, topName, totalRisk }: { nFor80: n
 
 // ── Marimekko — the signature "distribution chart": column width = category size,
 //    column height split into fresh/aging/risk. Big + tall-coral = a big stagnant problem. ──
-function Marimekko({ cols, grand, region }: { cols: any[]; grand: number; region: string }) {
+function Marimekko({ cols, grand, region, cat }: { cols: any[]; grand: number; region: string; cat: any }) {
   const on = useMount(80);
   const [hov, setHov] = useState<{ ci: number; ti: number } | null>(null);
   // Bound to the COLUMN, not to the fresh/aging/risk blocks inside it. A block is two
   // age buckets at once (risk = 181-365 plus 365+) and the endpoint slices one dimension,
   // so a per-block panel would print a total the block does not show. The column total
-  // it does print — ?28.08 Cr under M065 — is exactly what this returns.
-  // This frame has no material column, so the useful leaf is the hospital: a wide column
-  // means "we hold a lot of this", and the next question is where it is sitting.
+  // it does print — Rs 28.08 Cr under M065 — is exactly what this returns.
+  // by=material: the parquet has no material column, but the drill re-routes to the
+  // fact frame it was built from, so "what is actually in this column" is answerable.
   const drill = useDrillBind({
-    kpi: "aging-distribution", dim: "material_group", by: "plant", measure: "stock_value",
-    label: "hospitals", dimLabel: "Category · total held", format: inrAbbr,
+    kpi: "aging-distribution", dim: "material_group", by: "material", measure: "stock_value",
+    label: "items", dimLabel: "Category · total held", format: inrAbbr, category: cat.drill,
   });
   const hd = hov ? { col: cols[hov.ci], tier: TIERS[hov.ti] } : null;
   return (
@@ -210,9 +210,11 @@ function Marimekko({ cols, grand, region }: { cols: any[]; grand: number; region
           <p className="text-xs text-gray-400 mt-0.5">column width = category value · height = age mix · {region}</p>
         </div>
         <div className="flex items-center gap-3 text-[11px] font-medium text-gray-500">
+          {cat.chip}
           {[FRESH, AGING, RISK].map((t) => <span key={t.key} className="inline-flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm" style={{ background: t.bar }} />{t.label.split(" · ")[0]}</span>)}
         </div>
       </div>
+      {cat.note(cols.length === 0) && <div className="mt-3">{cat.note(true)}</div>}
       <div className="mt-2 text-[11px] font-medium min-h-[18px]" style={{ color: hd ? INK : "#9a90a0" }}>
         {hd ? <span>{hd.col.name} · <b style={{ color: hd.tier.bar }}>{hd.tier.label.split(" · ")[0]}</b> — {inrAbbr(hd.col[hd.tier.key])} ({pctStr(hd.col.total ? hd.col[hd.tier.key] / hd.col.total : 0)} of category · {inrAbbr(hd.col.total)} total)</span>
           : <span>hover a block — widest columns are your biggest categories; tall coral = most stagnant</span>}
@@ -255,16 +257,27 @@ function Marimekko({ cols, grand, region }: { cols: any[]; grand: number; region
 }
 
 // ── Stagnant capital leaderboard — where to act to reduce stagnant inventory ──
-function StagnantLeaderboard({ rows, region }: { rows: any[]; region: string }) {
+function StagnantLeaderboard({ rows, region, cat }: { rows: any[]; region: string; cat: any }) {
   const on = useMount(160);
   const max = Math.max(...rows.map((r) => r.risk), 1);
+  const drill = useDrillBind({
+    kpi: "aging-distribution", dim: "material_group", by: "material", measure: "stock_value",
+    label: "items", dimLabel: "Category · total held", format: inrAbbr, category: cat.drill,
+  });
   return (
     <div className="csv-card rounded-3xl bg-white p-5 md:p-6 flex flex-col" style={{ animationDelay: "460ms", boxShadow: PANEL_SHADOW }}>
-      <h3 className="text-[15px] font-semibold text-gray-900 flex items-center gap-2"><TbHourglassLow size={16} style={{ color: RISK.bar }} />Stagnant capital by category</h3>
-      <p className="text-xs text-gray-400 mt-0.5 mb-4">value stuck past 180 days · with fresh-to-risk mix · {region}</p>
+      <div className="flex items-start justify-between gap-2">
+        <div>
+          <h3 className="text-[15px] font-semibold text-gray-900 flex items-center gap-2"><TbHourglassLow size={16} style={{ color: RISK.bar }} />Stagnant capital by category</h3>
+          <p className="text-xs text-gray-400 mt-0.5">value stuck past 180 days · with fresh-to-risk mix · {region}</p>
+        </div>
+        {cat.chip}
+      </div>
+      {cat.note(rows.length === 0) && <div className="mt-3">{cat.note(true)}</div>}
+      <div className="mb-4" />
       <div className="space-y-3.5 flex-1">
         {rows.slice(0, 9).map((r, i) => (
-          <div key={i}>
+          <div key={i} {...drill.bind(r.raw)}>
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-[12.5px] font-medium text-gray-700 truncate pr-2" title={r.name}>{r.name}</span>
               <div className="flex items-center gap-2 flex-shrink-0">
@@ -285,6 +298,7 @@ function StagnantLeaderboard({ rows, region }: { rows: any[]; region: string }) 
           </div>
         ))}
         {!rows.length && <div className="py-12 text-center text-gray-400 text-sm">No data.</div>}
+        {drill.panel}
       </div>
     </div>
   );
@@ -303,13 +317,34 @@ export default function AgingDistributionDetail() {
   const region = selectedRegion?.name ?? "All Plants";
   const [buckets, setBuckets] = useState<any[]>([]);
   const [matrix, setMatrix] = useState<any[]>([]);
+  const [leaderMatrix, setLeaderMatrix] = useState<any[]>([]);
+
+  // kpi_aging_distribution is plant x material_group x aging_bucket — no material
+  // column — so `?Category=` used to be an invisible no-op on it. The endpoint now
+  // serves a filtered request from drill_inventory_grain, the fact frame the ETL built
+  // that parquet from, which reproduces it cell for cell and does carry the category.
+  // Two chips, because the two panels answer different questions.
+  const mekkoCat = useCardCategory({ accent: PLUM });
+  const leaderCat = useCardCategory({ accent: RISK.bar });
 
   useEffect(() => {
     const bp = new URLSearchParams({ Plant: region, group_by: "aging_bucket", measures: "stock_value,stock_qty,sku_count" });
     fetch(`${DASHBOARD_API_BASE_URL}/kpi/aging-distribution?${bp}`).then((r) => r.json()).then((d) => setBuckets(Array.isArray(d) ? d : [])).catch(() => setBuckets([]));
-    const mp = new URLSearchParams({ Plant: region, group_by: "material_group,aging_bucket", measures: "stock_value,sku_count" });
-    fetch(`${DASHBOARD_API_BASE_URL}/kpi/aging-distribution?${mp}`).then((r) => r.json()).then((d) => setMatrix(Array.isArray(d) ? d : [])).catch(() => setMatrix([]));
   }, [region]);
+
+  useEffect(() => {
+    const ac = new AbortController();
+    const mp = new URLSearchParams({ Plant: region, group_by: "material_group,aging_bucket", measures: "stock_value,sku_count", ...mekkoCat.q });
+    fetch(`${DASHBOARD_API_BASE_URL}/kpi/aging-distribution?${mp}`, { signal: ac.signal }).then((r) => r.json()).then((d) => setMatrix(Array.isArray(d) ? d : [])).catch(() => {});
+    return () => ac.abort();
+  }, [region, mekkoCat.category]);
+
+  useEffect(() => {
+    const ac = new AbortController();
+    const mp = new URLSearchParams({ Plant: region, group_by: "material_group,aging_bucket", measures: "stock_value,sku_count", ...leaderCat.q });
+    fetch(`${DASHBOARD_API_BASE_URL}/kpi/aging-distribution?${mp}`, { signal: ac.signal }).then((r) => r.json()).then((d) => setLeaderMatrix(Array.isArray(d) ? d : [])).catch(() => {});
+    return () => ac.abort();
+  }, [region, leaderCat.category]);
 
   const catName = (g: string) => String(g).replace(/^M\d+-/, "");
 
@@ -324,16 +359,18 @@ export default function AgingDistributionDetail() {
   }, [buckets]);
 
   // per-category fresh/aging/risk composition
-  const cats = useMemo(() => {
+  const rollup = (rows: any[]) => {
     const by: Record<string, any> = {};
-    matrix.forEach((r) => {
+    rows.forEach((r) => {
       const g = String(r.material_group); const tier = TIER_OF[r.aging_bucket]; const v = Number(r.stock_value ?? 0);
       // `raw` keeps the "M065-" prefix the drill-down has to send back to the API.
       by[g] = by[g] || { raw: g, name: catName(g), fresh: 0, aging: 0, risk: 0, total: 0, skus: 0 };
       by[g].total += v; if (tier) by[g][tier] += v; by[g].skus += Number(r.sku_count ?? 0);
     });
     return Object.values(by).map((c: any) => ({ ...c, riskPct: c.total ? c.risk / c.total : 0 }));
-  }, [matrix]);
+  };
+  const cats = useMemo(() => rollup(matrix), [matrix]);        // eslint-disable-line react-hooks/exhaustive-deps
+  const leaderCats = useMemo(() => rollup(leaderMatrix), [leaderMatrix]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Marimekko columns: top 8 by total + Other
   const mekko = useMemo(() => {
@@ -359,7 +396,7 @@ export default function AgingDistributionDetail() {
   }, [cats, totals]);
 
   // stagnant leaderboard + concentration
-  const leaderboard = useMemo(() => [...cats].filter((c) => c.risk > 0).sort((a, b) => b.risk - a.risk), [cats]);
+  const leaderboard = useMemo(() => [...leaderCats].filter((c) => c.risk > 0).sort((a, b) => b.risk - a.risk), [leaderCats]);
   const conc = useMemo(() => {
     const totalRisk = leaderboard.reduce((s, c) => s + c.risk, 0) || 1;
     let cum = 0, n = leaderboard.length;
@@ -370,7 +407,6 @@ export default function AgingDistributionDetail() {
   return (
     <div className="-m-4 md:-m-6 p-4 md:p-6 space-y-5 min-w-0" style={{ background: MIST, minHeight: "calc(100vh - 64px)" }}>
       <PageBreadcrumb pageTitle="Aging Distribution" />
-      <NotScopedNote reason="This view is built on the pre-aggregated aging parquet, which has no material column to re-cut." />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 csv-cards">
         <div className="csv-card" style={{ animationDelay: "0ms" }}><BalanceCard fresh={totals.fresh} aging={totals.aging} risk={totals.risk} total={totals.total} /></div>
@@ -385,9 +421,9 @@ export default function AgingDistributionDetail() {
         .csv-cards > .csv-card > * { height: 100%; }
       `}</style>
 
-      <Marimekko cols={mekko.cols} grand={mekko.grand} region={region} />
+      <Marimekko cols={mekko.cols} grand={mekko.grand} region={region} cat={mekkoCat} />
 
-      <StagnantLeaderboard rows={leaderboard} region={region} />
+      <StagnantLeaderboard rows={leaderboard} region={region} cat={leaderCat} />
 
       <div className="csv-card rounded-3xl bg-white overflow-hidden" style={{ animationDelay: "560ms", boxShadow: PANEL_SHADOW }}>
         <div className="px-6 py-4 border-b border-gray-50">

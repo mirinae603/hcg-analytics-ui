@@ -1,10 +1,11 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import { useScope } from "@/context/CategoryContext";
+import { useRegion } from "@/context/RegionContext";
 import { useDrillBind } from "@/components/portfolio/useDrillBind";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
+import { useCardCategory, useCardScopedData } from "@/components/common/CardCategoryFilter";
 import { TbClockExclamation, TbStack2 } from "react-icons/tb";
 
 const KpiTable = dynamic(() => import("../KpiTable"), {
@@ -98,18 +99,25 @@ function EmberHero({ totals, buckets, timeline }: { totals: any; buckets: any[];
 }
 
 // ── Near-expiry by category (light) ──
-function ByCategory({ cats, region }: { cats: any[]; region: string }) {
+function ByCategory({ cats, region, cat, loading }: { cats: any[]; region: string; cat: any; loading: boolean }) {
   const on = useMount(120); const max = Math.max(...cats.map((c) => c.value), 1);
   const catName = (g: string) => String(g).replace(/^M\d+-/, "");
   // Ranked by batch cost, exactly like the bar — so the panel's total is the bar's total.
   const drill = useDrillBind({
     kpi: "near-expiry", dim: "material_group", by: "material", measure: "total_cost",
-    label: "items", dimLabel: "Category", format: inrAbbr,
+    label: "items", dimLabel: "Category", format: inrAbbr, category: cat.drill,
   });
   return (
     <div className="csv-card rounded-3xl bg-white p-5 md:p-6 flex flex-col" style={{ animationDelay: "200ms", boxShadow: PANEL_SHADOW }}>
-      <h3 className="text-[15px] font-semibold text-gray-900 flex items-center gap-2"><TbStack2 size={16} style={{ color: AMBER }} />Expiry exposure by category</h3>
-      <p className="text-xs text-gray-400 mt-0.5 mb-4">cost value near expiry · {region}</p>
+      <div className="flex items-start justify-between gap-2">
+        <div>
+          <h3 className="text-[15px] font-semibold text-gray-900 flex items-center gap-2"><TbStack2 size={16} style={{ color: AMBER }} />Expiry exposure by category</h3>
+          <p className="text-xs text-gray-400 mt-0.5">cost value near expiry · {region}</p>
+        </div>
+        {cat.chip}
+      </div>
+      {cat.note(!loading && cats.length === 0) && <div className="mt-3">{cat.note(true)}</div>}
+      <div className="mb-4" />
       <div className="space-y-2.5 flex-1">
         {cats.slice(0, 10).map((c, i) => (
           <div key={i} className="flex items-center gap-3" {...drill.bind(c.name)}>
@@ -136,7 +144,7 @@ const COLUMNS = [
 ];
 
 // ── FULL EXPIRY LADDER (client #3) — 6 clickable slabs → item drill ──
-function ExpiryLadder({ ladder, asof, onDrill }: { ladder: any[]; asof?: string; onDrill: (slab: string) => void }) {
+function ExpiryLadder({ ladder, asof, onDrill, cat, loading }: { ladder: any[]; asof?: string; onDrill: (slab: string) => void; cat: any; loading: boolean }) {
   const on = useMount(140);
   const byId: Record<string, any> = {}; (ladder || []).forEach((s) => { byId[s.slab] = s; });
   const rows = SLAB_ORDER.map((s) => ({ slab: s, value: 0, items: 0, lines: 0, ...(byId[s] || {}), meta: SLAB_META[s] }));
@@ -149,10 +157,14 @@ function ExpiryLadder({ ladder, asof, onDrill }: { ladder: any[]; asof?: string;
           <h3 className="text-[15px] font-semibold text-gray-900 flex items-center gap-2"><TbClockExclamation size={16} style={{ color: MAROON }} />Expiry ladder</h3>
           <p className="text-xs text-gray-400 mt-0.5">shelf-life bands by cost value{asof ? ` · as on ${asof}` : ""} · click a band to see items</p>
         </div>
-        <div className="inline-flex items-center gap-2 text-[11px] font-semibold px-3 py-1.5 rounded-full" style={{ background: "#f7e7e2", color: MAROON, border: "1px solid #ecccc4" }}>
-          <span className="w-1.5 h-1.5 rounded-full" style={{ background: MAROON }} />{inrAbbr(actionable)} within 180 days
+        <div className="flex items-center gap-2.5">
+          {cat.chip}
+          <div className="inline-flex items-center gap-2 text-[11px] font-semibold px-3 py-1.5 rounded-full" style={{ background: "#f7e7e2", color: MAROON, border: "1px solid #ecccc4" }}>
+            <span className="w-1.5 h-1.5 rounded-full" style={{ background: MAROON }} />{inrAbbr(actionable)} within 180 days
+          </div>
         </div>
       </div>
+      {cat.note(!loading && rows.every((r) => !r.value)) && <div className="mb-4">{cat.note(true)}</div>}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         {rows.map((r, i) => (
           <button key={r.slab} type="button" onClick={() => onDrill(r.slab)}
@@ -258,13 +270,23 @@ function ExpiryDrill({ slab, region, onClose }: { slab: string | null; region: s
 }
 
 export default function NearExpiryDetail() {
-  const { region, category, filtered, catParam, scopeKey } = useScope();
+  const { selectedRegion } = useRegion();
+  const region = selectedRegion?.name ?? "All Plants";
   const [data, setData] = useState<any>(null);
   const [drill, setDrill] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch(`${DASHBOARD_API_BASE_URL}/kpi/near-expiry/insights?Plant=${encodeURIComponent(region)}${catParam}`).then((r) => r.json()).then((d) => setData(d || null)).catch(() => setData(null));
-  }, [region, catParam]);
+    fetch(`${DASHBOARD_API_BASE_URL}/kpi/near-expiry/insights?Plant=${encodeURIComponent(region)}`).then((r) => r.json()).then((d) => setData(d || null)).catch(() => setData(null));
+  }, [region]);
+
+  // Two independent card filters — the ladder and the category bars answer different
+  // questions ("how soon" vs "what"), so cutting one to Onco should not cut the other.
+  const ladderCat = useCardCategory({ accent: MAROON });
+  const ladderScoped = useCardScopedData(data, ladderCat.category, (c, signal) =>
+    fetch(`${DASHBOARD_API_BASE_URL}/kpi/near-expiry/insights?Plant=${encodeURIComponent(region)}&Category=${encodeURIComponent(c)}`, { signal }).then((r) => r.json()));
+  const catCat = useCardCategory({ accent: AMBER });
+  const catScoped = useCardScopedData(data, catCat.category, (c, signal) =>
+    fetch(`${DASHBOARD_API_BASE_URL}/kpi/near-expiry/insights?Plant=${encodeURIComponent(region)}&Category=${encodeURIComponent(c)}`, { signal }).then((r) => r.json()));
 
   return (
     <div className="-m-4 md:-m-6 p-4 md:p-6 space-y-4 min-w-0" style={{ background: MIST, minHeight: "calc(100vh - 64px)" }}>
@@ -278,9 +300,9 @@ export default function NearExpiryDetail() {
         .csv-card { animation: cardIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; min-width: 0; }
       `}</style>
 
-      <ExpiryLadder ladder={data?.ladder || []} asof={data?.ladder_asof} onDrill={setDrill} />
+      <ExpiryLadder ladder={ladderScoped.data?.ladder || []} asof={data?.ladder_asof} onDrill={setDrill} cat={ladderCat} loading={ladderScoped.loading} />
 
-      <ByCategory cats={data?.categories || []} region={region} />
+      <ByCategory cats={catScoped.data?.categories || []} region={region} cat={catCat} loading={catScoped.loading} />
 
       <div className="csv-card rounded-3xl bg-white overflow-hidden" style={{ animationDelay: "320ms", boxShadow: PANEL_SHADOW }}>
         <div className="px-6 py-4 border-b border-gray-50">

@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import { useRegion } from "@/context/RegionContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
-import NotScopedNote from "@/components/common/NotScopedNote";
+import { useCardCategory, useCardScopedData } from "@/components/common/CardCategoryFilter";
 import { useDrillBind } from "@/components/portfolio/useDrillBind";
 import { TbGauge, TbHourglassHigh, TbFilter, TbSnowflake, TbLayoutGrid, TbChartDots } from "react-icons/tb";
 
@@ -177,11 +177,13 @@ function DecayFunnelCard({ buckets, total, agedOver180, agedPct }: { buckets: an
   // "₹31 Cr sits in 0-30 days" -> "of WHAT?". The bars are drawn straight off
   // /kpi/aging-distribution grouped by aging_bucket, and the drill reads the same
   // parquet, so the panel's slice total is the bar's own number to the rupee.
-  // by=material_group, not material: this frame is pre-aggregated to plant x group x
-  // bucket and has no material column at all, so group IS the leaf here.
+  // by=material now, not by=material_group: the parquet has no material column, but
+  // the drill endpoint re-routes to drill_inventory_grain — the fact frame the ETL
+  // built that parquet FROM — which reproduces the bar to the rupee AND carries
+  // material. The leaf is the actual item at last.
   const drill = useDrillBind({
-    kpi: "aging-distribution", dim: "aging_bucket", by: "material_group", measure: "stock_value",
-    label: "categories", dimLabel: "Age band", format: inrAbbr,
+    kpi: "aging-distribution", dim: "aging_bucket", by: "material", measure: "stock_value",
+    label: "items", dimLabel: "Age band", format: inrAbbr,
   });
   return (
     <Card>
@@ -245,7 +247,7 @@ function FrozenCard({ frozen, frozenPct, frozenSkus, oldest, cumPts }: { frozen:
 }
 
 // ── Category × Age heatmap — signature interactive chart ──
-function CategoryHeatmap({ heat, region }: { heat: any; region: string }) {
+function CategoryHeatmap({ heat, region, cat, loading }: { heat: any; region: string; cat: any; loading: boolean }) {
   const [hov, setHov] = useState<{ ri: number; ci: number } | null>(null);
   const rgba = (rgb: number[], a: number) => `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${a})`;
   const hd = hov && heat.rows[hov.ri] ? { cat: heat.rows[hov.ri].name, band: BANDS[hov.ci], val: heat.rows[hov.ri].cells[hov.ci], catTotal: heat.rows[hov.ri].total } : null;
@@ -256,11 +258,15 @@ function CategoryHeatmap({ heat, region }: { heat: any; region: string }) {
           <h3 className="text-[15px] font-semibold text-gray-900 flex items-center gap-2"><TbLayoutGrid size={16} style={{ color: TEAL }} />Where the stock ages</h3>
           <p className="text-xs text-gray-400 mt-0.5">stock value · top categories × age band · {region}</p>
         </div>
-        <div className="text-[11px] font-medium min-h-[18px]" style={{ color: hd ? INK : "#9aa6a0" }}>
-          {hd ? <span>{hd.cat} · <b style={{ color: hd.band.bar }}>{hd.band.label}</b> — {inrAbbr(hd.val)} ({hd.catTotal ? Math.round((hd.val / hd.catTotal) * 100) : 0}% of category)</span>
-            : <span className="inline-flex items-center gap-1.5">fresh <span className="w-16 h-2 rounded-full inline-block" style={{ background: RAIL }} /> aged · hover a cell</span>}
+        <div className="flex items-center gap-2.5">
+          {cat.chip}
+          <div className="text-[11px] font-medium min-h-[18px]" style={{ color: hd ? INK : "#9aa6a0" }}>
+            {hd ? <span>{hd.cat} · <b style={{ color: hd.band.bar }}>{hd.band.label}</b> — {inrAbbr(hd.val)} ({hd.catTotal ? Math.round((hd.val / hd.catTotal) * 100) : 0}% of category)</span>
+              : <span className="inline-flex items-center gap-1.5">fresh <span className="w-16 h-2 rounded-full inline-block" style={{ background: RAIL }} /> aged · hover a cell</span>}
+          </div>
         </div>
       </div>
+      {cat.note(!loading && heat.rows.length === 0) && <div className="mt-3">{cat.note(true)}</div>}
 
       {heat.rows.length ? (
         <div className="mt-4 overflow-x-auto">
@@ -403,15 +409,27 @@ export default function InventoryAgingDetail() {
   const [bucketData, setBucketData] = useState<any[]>([]);
   const [matrix, setMatrix] = useState<any[]>([]);
   const [skus, setSkus] = useState<any[]>([]);
+  // The heatmap is category x age band, so a category cut is the obvious question to
+  // ask of it. Only it re-fetches; the gauges above stay on the whole portfolio.
+  const heatCat = useCardCategory({ accent: TEAL });
 
   useEffect(() => {
     fetch(`${DASHBOARD_API_BASE_URL}/kpi/inventory-aging/summary?Plant=${encodeURIComponent(region)}`).then((r) => r.json()).then((s) => setSummary(s || {})).catch(() => {});
     const bp = new URLSearchParams({ Plant: region, group_by: "aging_bucket", measures: "stock_value,stock_qty,sku_count" });
     fetch(`${DASHBOARD_API_BASE_URL}/kpi/aging-distribution?${bp}`).then((r) => r.json()).then((d) => setBucketData(Array.isArray(d) ? d : [])).catch(() => setBucketData([]));
-    const mp = new URLSearchParams({ Plant: region, group_by: "material_group,aging_bucket", measures: "stock_value" });
-    fetch(`${DASHBOARD_API_BASE_URL}/kpi/aging-distribution?${mp}`).then((r) => r.json()).then((d) => setMatrix(Array.isArray(d) ? d : [])).catch(() => setMatrix([]));
     fetch(`${DASHBOARD_API_BASE_URL}/kpi/inventory-aging?Plant=${encodeURIComponent(region)}`).then((r) => r.json()).then((d) => setSkus(Array.isArray(d) ? d : [])).catch(() => setSkus([]));
   }, [region]);
+
+  const [heatLoading, setHeatLoading] = useState(false);
+  useEffect(() => {
+    const ac = new AbortController();
+    setHeatLoading(true);
+    const mp = new URLSearchParams({ Plant: region, group_by: "material_group,aging_bucket", measures: "stock_value", ...heatCat.q });
+    fetch(`${DASHBOARD_API_BASE_URL}/kpi/aging-distribution?${mp}`, { signal: ac.signal })
+      .then((r) => r.json()).then((d) => { setMatrix(Array.isArray(d) ? d : []); setHeatLoading(false); })
+      .catch(() => { if (!ac.signal.aborted) { setMatrix([]); setHeatLoading(false); } });
+    return () => ac.abort();
+  }, [region, heatCat.category]);
 
   const catName = (g: string) => String(g).replace(/^M\d+-/, "");
 
@@ -451,7 +469,6 @@ export default function InventoryAgingDetail() {
   return (
     <div className="-m-4 md:-m-6 p-4 md:p-6 space-y-5 min-w-0" style={{ background: MIST, minHeight: "calc(100vh - 64px)" }}>
       <PageBreadcrumb pageTitle="Inventory Aging" />
-      <NotScopedNote reason="The bucket and category matrices here come from the pre-aggregated aging parquet, which has no material column to re-cut." />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 csv-cards">
         <div className="csv-card" style={{ animationDelay: "0ms" }}><FreshnessGauge score={prof.freshPct * 100} freshVal={prof.freshVal} total={prof.total} /></div>
@@ -466,7 +483,7 @@ export default function InventoryAgingDetail() {
         .csv-cards > .csv-card > * { height: 100%; }
       `}</style>
 
-      <CategoryHeatmap heat={heat} region={region} />
+      <CategoryHeatmap heat={heat} region={region} cat={heatCat} loading={heatLoading} />
       <SkuScatter skus={skus} region={region} />
 
       <div className="csv-card rounded-3xl bg-white overflow-hidden" style={{ animationDelay: "560ms", boxShadow: PANEL_SHADOW }}>

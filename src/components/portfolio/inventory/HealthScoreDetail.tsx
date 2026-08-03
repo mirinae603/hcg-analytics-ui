@@ -1,10 +1,11 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import { useScope } from "@/context/CategoryContext";
+import { useRegion } from "@/context/RegionContext";
 import { useDrillBind } from "@/components/portfolio/useDrillBind";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
+import { useCardCategory, useCardScopedData } from "@/components/common/CardCategoryFilter";
 import { TbActivityHeartbeat, TbShieldCheck, TbAlertTriangle, TbActivity, TbRadar2, TbReportMedical } from "react-icons/tb";
 
 const KpiTable = dynamic(() => import("../KpiTable"), {
@@ -255,16 +256,23 @@ function TierScorecard({ tiers, totalSkus, totalValue, region }: { tiers: any[];
 }
 
 // ── Category report card — graded categories with tier mix ──
-function CategoryReportCard({ cats, region }: { cats: any[]; region: string }) {
+function CategoryReportCard({ cats, region, cat, loading }: { cats: any[]; region: string; cat: any; loading: boolean }) {
   const on = useMount(160);
   const drill = useDrillBind({
     kpi: "inventory-health-score", dim: "material_group", by: "material", measure: "closing_stock_value",
-    label: "items", dimLabel: "Category", format: inrAbbr,
+    label: "items", dimLabel: "Category", format: inrAbbr, category: cat.drill,
   });
   return (
     <div className="csv-card rounded-3xl bg-white p-5 md:p-6" style={{ animationDelay: "520ms", boxShadow: PANEL_SHADOW }}>
-      <h3 className="text-[15px] font-semibold text-gray-900 flex items-center gap-2"><TbReportMedical size={16} style={{ color: TEAL }} />Category report card</h3>
-      <p className="text-xs text-gray-400 mt-0.5 mb-4">average health grade + tier mix by category · {region}</p>
+      <div className="flex items-start justify-between gap-2">
+        <div>
+          <h3 className="text-[15px] font-semibold text-gray-900 flex items-center gap-2"><TbReportMedical size={16} style={{ color: TEAL }} />Category report card</h3>
+          <p className="text-xs text-gray-400 mt-0.5">average health grade + tier mix by category · {region}</p>
+        </div>
+        {cat.chip}
+      </div>
+      {cat.note(!loading && cats.length === 0) && <div className="mt-3">{cat.note(true)}</div>}
+      <div className="mb-4" />
       <div className="space-y-3">
         {cats.map((c, i) => {
           const totalMix = c.mix.healthy + c.mix.watch + c.mix.atrisk || 1;
@@ -309,19 +317,26 @@ const COLUMNS = [
 ];
 
 export default function HealthScoreDetail() {
-  const { region, category, filtered, catParam, scopeKey } = useScope();
+  const { selectedRegion } = useRegion();
+  const region = selectedRegion?.name ?? "All Plants";
   const [data, setData] = useState<any>(null);
 
   useEffect(() => {
-    fetch(`${DASHBOARD_API_BASE_URL}/kpi/inventory-health-score/insights?Plant=${encodeURIComponent(region)}${catParam}`).then((r) => r.json()).then((d) => setData(d || null)).catch(() => setData(null));
-  }, [region, catParam]);
+    fetch(`${DASHBOARD_API_BASE_URL}/kpi/inventory-health-score/insights?Plant=${encodeURIComponent(region)}`).then((r) => r.json()).then((d) => setData(d || null)).catch(() => setData(null));
+  }, [region]);
+
+  // Only the category report card is split — the tier cards above stay whole so a
+  // filtered category can be read against the portfolio it came out of.
+  const cat = useCardCategory({ accent: TEAL });
+  const scoped = useCardScopedData(data, cat.category, (c, signal) =>
+    fetch(`${DASHBOARD_API_BASE_URL}/kpi/inventory-health-score/insights?Plant=${encodeURIComponent(region)}&Category=${encodeURIComponent(c)}`, { signal }).then((r) => r.json()));
 
   const t = data?.totals || {};
   const tiers: any[] = data?.tiers || [];
   const catName = (g: string) => String(g).replace(/^M\d+-/, "");
   // `raw` keeps the untouched "M065-INJECTIONS" the drill-down has to send; `name` is the
   // prefix-stripped label the card shows. Losing the prefix would match zero rows.
-  const cats = useMemo(() => (data?.categories || []).map((c: any) => ({ ...c, raw: c.name, name: catName(c.name) })), [data]);
+  const cats = useMemo(() => (scoped.data?.categories || []).map((c: any) => ({ ...c, raw: c.name, name: catName(c.name) })), [scoped.data]);
   const healthy = tiers.find((x) => x.tier === "Healthy") || { tier: "Healthy", count: 0, value: 0, avg_score: 0, avg_aging: 0, moving_pct: 0 };
   const atRisk = tiers.find((x) => x.tier === "At Risk") || { tier: "At Risk", count: 0, value: 0, avg_score: 0, avg_aging: 0, moving_pct: 0 };
 
@@ -347,7 +362,7 @@ export default function HealthScoreDetail() {
         <div className="xl:col-span-7"><TierScorecard tiers={tiers} totalSkus={Number(t.total_skus ?? 0)} totalValue={Number(t.total_value ?? 0)} region={region} /></div>
       </div>
 
-      <CategoryReportCard cats={cats} region={region} />
+      <CategoryReportCard cats={cats} region={region} cat={cat} loading={scoped.loading} />
 
       <div className="csv-card rounded-3xl bg-white overflow-hidden" style={{ animationDelay: "600ms", boxShadow: PANEL_SHADOW }}>
         <div className="px-6 py-4 border-b border-gray-50">

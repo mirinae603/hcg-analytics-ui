@@ -6,6 +6,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { useRegion } from "@/context/RegionContext";
+import { useDrillBind } from "@/components/portfolio/useDrillBind";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import { inrAbbr, countAbbr, useMount, CountUp } from "@/components/portfolio/kit";
 import { TbMapPin, TbBuildingHospital, TbChartDots } from "react-icons/tb";
@@ -133,6 +134,13 @@ function HexCartogram({ plants }: { plants: any[] }) {
     const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2, s = S * scale;
     return raw.map((p) => ({ ...p, X: (p.x - cx) * scale + W / 2, Y: (p.y - cy) * scale + H / 2, s }));
   }, [plants]);
+  // kpi_purchase_by_location is ONE ROW PER PLANT, so its only `by` was plant — the bar
+  // drilling into itself. The drill re-routes to fact_po, which carries material, so
+  // "what did this hospital actually buy" is answerable.
+  const drill = useDrillBind({
+    kpi: "purchase-by-location", dim: "plant", by: "material", measure: "purchase_value",
+    label: "items", dimLabel: "Hospital · spend", format: inrAbbr,
+  });
   if (!cells.length) return null;
   return (
     <Card delay={140} className="bg-white p-6 flex flex-col flex-1">
@@ -148,7 +156,7 @@ function HexCartogram({ plants }: { plants: any[] }) {
       <div className="relative mt-2 flex-1 flex items-center justify-center" style={{ minHeight: 300 }}>
         <svg viewBox={`0 0 ${W} ${H}`} width="100%" height="100%" preserveAspectRatio="xMidYMid meet" style={{ display: "block", overflow: "visible" }} onMouseLeave={() => setHov(null)}>
           {cells.map((c) => { const t = c.d.share / c.maxShare; const fill = spendColor(t); const active = hov === c.i; const dim = hov != null && !active; const light = t < 0.42; return (
-            <g key={c.i} onMouseEnter={() => setHov(c.i)} style={{ cursor: "pointer", transformOrigin: `${c.X}px ${c.Y}px`, transform: on ? "scale(1)" : "scale(0)", opacity: on ? (dim ? 0.45 : 1) : 0, transition: `transform 0.6s cubic-bezier(0.34,1.4,0.64,1) ${c.i * 55}ms, opacity 0.35s ease ${on ? 0 : c.i * 55}ms` }}>
+            <g key={c.i} {...drill.bind(c.d.plant, { onMouseEnter: () => setHov(c.i) })} style={{ cursor: "pointer", transformOrigin: `${c.X}px ${c.Y}px`, transform: on ? "scale(1)" : "scale(0)", opacity: on ? (dim ? 0.45 : 1) : 0, transition: `transform 0.6s cubic-bezier(0.34,1.4,0.64,1) ${c.i * 55}ms, opacity 0.35s ease ${on ? 0 : c.i * 55}ms` }}>
               <path d={hexPath(c.X, c.Y, c.s * 0.94)} fill={fill} stroke={active ? DEEP : "#fff"} strokeWidth={active ? 3 : 2.5} style={{ filter: active ? `drop-shadow(0 8px 16px ${DEEP}55)` : "none" }} />
               <text x={c.X} y={c.Y - 2} textAnchor="middle" style={{ fontSize: c.s > 44 ? 12.5 : 10.5, fontWeight: 800, fill: light ? INK : "#fff" }}>{pName(c.d.plant, 7)}</text>
               <text x={c.X} y={c.Y + 14} textAnchor="middle" style={{ fontSize: 10, fontWeight: 700, fill: light ? "#5b7079" : "rgba(255,255,255,0.9)" }} className="tabular-nums">{c.d.share.toFixed(1)}%</text>
@@ -163,6 +171,7 @@ function HexCartogram({ plants }: { plants: any[] }) {
             </div>
           </div>
         ); })()}
+        {drill.panel}
       </div>
     </Card>
   );

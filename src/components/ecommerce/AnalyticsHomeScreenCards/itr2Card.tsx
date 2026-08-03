@@ -12,6 +12,8 @@ export interface ITRCardProps {
   industryAverage?: number;
   className?: string;
   animated?: boolean;
+  /** Card-level controls (the material-category chip). Rendered in the header. */
+  headerSlot?: React.ReactNode;
 }
 // 1. Express Lane — Cheetah Head (speed & agility)
 const OptimizedIcon = () => (
@@ -66,7 +68,8 @@ const ITRCard: React.FC<ITRCardProps> = ({
   targetITR = 12,
   industryAverage = 8,
   className = '',
-  animated = true
+  animated = true,
+  headerSlot
 }) => {
   const [displayITR, setDisplayITR] = useState(animated ? 0 : currentITR);
   const [beltSpeed, setBeltSpeed] = useState(0);
@@ -230,9 +233,10 @@ const ITRCard: React.FC<ITRCardProps> = ({
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        {/* Subtle background pattern */}
-        <div 
-          className="absolute inset-0 opacity-5"
+        {/* Subtle background pattern. pointer-events-none: it covers the whole card, so
+            without it the card's own controls (the category chip) are unclickable. */}
+        <div
+          className="absolute inset-0 opacity-5 pointer-events-none"
           style={{
             backgroundImage: `radial-gradient(circle at 20% 50%, ${status.color} 1px, transparent 1px), radial-gradient(circle at 80% 50%, ${status.color} 1px, transparent 1px)`,
             backgroundSize: '30px 30px'
@@ -287,17 +291,20 @@ const ITRCard: React.FC<ITRCardProps> = ({
             </div>
           </div>
         
-          <div
-  className="px-2 py-1.5 rounded-lg text-xs font-small backdrop-blur-sm transition-all duration-300 ml-0 flex items-center"
-  style={{
-    background: `linear-gradient(135deg, ${status.color}15, ${status.color}25)`,
-    color: status.color,
-    boxShadow: `0 4px 15px ${status.color}15`,
-    whiteSpace: 'nowrap',
-  }}
->
-  {status.description}
-</div>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {headerSlot}
+            <div
+              className="px-2 py-1.5 rounded-lg text-xs font-small backdrop-blur-sm transition-all duration-300 ml-0 flex items-center"
+              style={{
+                background: `linear-gradient(135deg, ${status.color}15, ${status.color}25)`,
+                color: status.color,
+                boxShadow: `0 4px 15px ${status.color}15`,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {status.description}
+            </div>
+          </div>
 
         </div>
 

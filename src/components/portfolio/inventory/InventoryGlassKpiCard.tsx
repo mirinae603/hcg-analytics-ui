@@ -220,6 +220,10 @@ const colorThemes = [
   },
 ];
 
+/** Each tile's own accent, so its category chip belongs to the tile it sits on rather
+ *  than importing a foreign brand colour. Index-matched to `colorThemes`. */
+export const GLASS_ACCENTS = colorThemes.map((t) => t.chartColor);
+
 interface ThemeProps {
   $cardTheme: (typeof colorThemes)[0];
 }

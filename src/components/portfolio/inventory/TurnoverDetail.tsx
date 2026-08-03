@@ -1,10 +1,11 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import { useScope } from "@/context/CategoryContext";
+import { useRegion } from "@/context/RegionContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import { useDrillBind } from "@/components/portfolio/useDrillBind";
+import { useCardCategory, useCardScopedData } from "@/components/common/CardCategoryFilter";
 import { TbSnowflake, TbBolt, TbArrowDownRight, TbGauge } from "react-icons/tb";
 
 const KpiTable = dynamic(() => import("../KpiTable"), {
@@ -174,9 +175,9 @@ const VELOCITY_DRILL = {
 };
 
 // Main chart card — category velocity (ranked pill bars on a soft dotted field)
-function VelocityCard({ cats, itr, region }: any) {
+function VelocityCard({ cats, itr, region, cat, loading }: any) {
   const on = useMount(120);
-  const drill = useDrillBind(VELOCITY_DRILL);
+  const drill = useDrillBind({ ...VELOCITY_DRILL, category: cat.drill });
   const sorted = [...cats].sort((a, b) => b.itr - a.itr).slice(0, 10);
   const max = Math.max(...sorted.map((c) => c.itr), 1);
   return (
@@ -187,9 +188,11 @@ function VelocityCard({ cats, itr, region }: any) {
           <p className="text-[12px] mt-0.5" style={{ color: SUBTLE }}>turns per year · fast movers vs slow sitters</p>
         </div>
         <div className="flex items-center gap-3 text-[11px] font-medium" style={{ color: "#6b7488" }}>
+          {cat.chip}
           {[["Slow", SLOW], ["Moderate", MOD], ["Fast", FAST]].map(([l, c]) => <span key={l} className="inline-flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full" style={{ background: c as string }} />{l}</span>)}
         </div>
       </div>
+      {cat.note(!loading && sorted.length === 0) && <div className="mt-3">{cat.note(true)}</div>}
       <div className="mt-5 flex-1 flex flex-col justify-between gap-2.5">
         {sorted.map((c, i) => { const col = speedColor(c.itr); const w = Math.max((c.itr / max) * 100, 4); return (
           <div key={i} className="flex items-center gap-3" {...drill.bind(c.raw)}>
@@ -277,16 +280,24 @@ const COLUMNS = [
 ];
 
 export default function TurnoverDetail() {
-  const { region, category, filtered, catParam, scopeKey } = useScope();
+  const { selectedRegion } = useRegion();
+  const region = selectedRegion?.name ?? "All Plants";
   const [data, setData] = useState<any>(null);
 
   useEffect(() => {
-    fetch(`${DASHBOARD_API_BASE_URL}/kpi/inventory-turnover-ratio/insights?Plant=${encodeURIComponent(region)}${catParam}`).then((r) => r.json()).then((d) => setData(d || null)).catch(() => setData(null));
-  }, [region, catParam]);
+    fetch(`${DASHBOARD_API_BASE_URL}/kpi/inventory-turnover-ratio/insights?Plant=${encodeURIComponent(region)}`).then((r) => r.json()).then((d) => setData(d || null)).catch(() => setData(null));
+  }, [region]);
+
+  // Turns = COGS / inventory, and COGS comes from consumption — so onco reads a near
+  // zero turn rate here for the same real reason it does everywhere downstream of
+  // fact_consumption. The chip's note says which, instead of leaving a flat chart.
+  const cat = useCardCategory({ accent: BLUE, domain: "consumption" });
+  const scoped = useCardScopedData(data, cat.category, (c, signal) =>
+    fetch(`${DASHBOARD_API_BASE_URL}/kpi/inventory-turnover-ratio/insights?Plant=${encodeURIComponent(region)}&Category=${encodeURIComponent(c)}`, { signal }).then((r) => r.json()));
 
   const t = data?.totals || {};
   // `raw` is the untouched "M065-INJECTIONS" the drill-down sends; `name` is the stripped label.
-  const cats: any[] = useMemo(() => (data?.categories || []).map((c: any) => ({ ...c, raw: c.name, name: catName(c.name) })), [data]);
+  const cats: any[] = useMemo(() => (scoped.data?.categories || []).map((c: any) => ({ ...c, raw: c.name, name: catName(c.name) })), [scoped.data]);
   const inv = Number(t.inventory ?? 0), cogs = Number(t.cogs_6mo ?? 0), itr = Number(t.portfolio_itr ?? 0);
   const dead = useMemo(() => (data?.bands || []).find((b: any) => b.key === "dead")?.value ?? 0, [data]);
   const moving = Math.max(0, inv - dead);
@@ -313,7 +324,7 @@ export default function TurnoverDetail() {
             <StatCard tint={TINT_MINT} icon={TbBolt} label="Actively moving" value={moving} format={inrAbbr} sub="the part that actually turns" pct={inv ? (moving / inv) * 100 : 0} barLabel="of inventory value" delay={160} />
           </div>
           <TrendCard timeline={data?.timeline || []} />
-          <VelocityCard cats={cats} itr={itr} region={region} />
+          <VelocityCard cats={cats} itr={itr} region={region} cat={cat} loading={scoped.loading} />
         </div>
         <div className="xl:col-span-4 flex flex-col gap-5 min-w-0">
           <SpeedMixList bands={data?.bands || []} />

@@ -25,6 +25,8 @@ export interface StockLevelCardProps {
   className?: string;
   theme?: Partial<ColorTheme>;
   animated?: boolean;
+  /** Slot for the card's own controls (e.g. the material-category chip). */
+  headerSlot?: React.ReactNode;
 }
 
 interface ColorTheme {
@@ -85,7 +87,8 @@ const StockLevelCard: React.FC<StockLevelCardProps> = ({
   lastUpdated,
   className = '',
   theme: customTheme = {},
-  animated = true
+  animated = true,
+  headerSlot
 }) => {
   const mergedTheme: ColorTheme = { ...defaultTheme, ...customTheme };
   const [displayStock, setDisplayStock] = useState(animated ? 0 : currentStock);
@@ -494,8 +497,11 @@ const formatCurrency = (amount: number): string => {
       >
         {/* Elegant refresh effect */}
         {isRefreshing && (
-          <div 
-            className="absolute inset-0 opacity-20"
+          <div
+            // pointer-events-none: this is a decorative sweep laid over the whole card.
+            // Without it, every periodic refresh swallowed clicks on the card's own
+            // controls (the category chip in headerSlot) for the length of the animation.
+            className="absolute inset-0 opacity-20 pointer-events-none"
             style={{
               background: `linear-gradient(45deg, transparent 30%, ${currentMetric.color}15 50%, transparent 70%)`,
               animation: 'elegant-sweep 2.4s ease-out'
@@ -507,6 +513,7 @@ const formatCurrency = (amount: number): string => {
         <div className="flex-1 items-center p-3 sm:p-4 lg:p-6">
           {/* Header with metric tabs */}
           <div className="mb-0">
+            {headerSlot && <div className="mb-2 flex justify-end">{headerSlot}</div>}
             {/* Smart metric selector with proper colors */}
             <div className="flex space-x-1 bg-gray-50 rounded-lg p-1">
               {/* {(['stock', 'value', 'revenue', 'margin'] as const).map((metric) => { */}

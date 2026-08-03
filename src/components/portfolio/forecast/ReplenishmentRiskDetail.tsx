@@ -4,7 +4,8 @@
 // spectrum (too little → too much), twin risk leaderboards, an aging-cash ladder
 // and a per-item status checker. Traffic-light semantics for at-a-glance triage.
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useScope } from "@/context/CategoryContext";
+import { useRegion } from "@/context/RegionContext";
+import { useCardCategory, useCardScopedData } from "@/components/common/CardCategoryFilter";
 import { useDrillBind } from "@/components/portfolio/useDrillBind";
 import { fetchReorderBandDrill } from "@/lib/drilldown";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
@@ -34,7 +35,7 @@ const topBar = (x: number, y: number, w: number, h: number, r: number) => { r = 
 
 // Slide-over drill — the full item list behind any risk cut (the client's #1 ask:
 // "which items are at risk — I should get the list"). Searchable + CSV export.
-function RiskDrill({ drill, region, catParam, onClose }: { drill: any; region: string; catParam: string; onClose: () => void }) {
+function RiskDrill({ drill, region, onClose }: { drill: any; region: string; onClose: () => void }) {
   const [q, setQ] = useState("");
   const [d, setD] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -42,9 +43,9 @@ function RiskDrill({ drill, region, catParam, onClose }: { drill: any; region: s
   useEffect(() => {
     if (!drill) return;
     setLoading(true); setQ(""); setD(null);
-    fetch(`${DASHBOARD_API_BASE_URL}/forecast/risk-items?${drill.query}&Plant=${encodeURIComponent(region)}${catParam}&limit=500`)
+    fetch(`${DASHBOARD_API_BASE_URL}/forecast/risk-items?${drill.query}&Plant=${encodeURIComponent(region)}&limit=500`)
       .then((r) => r.json()).then(setD).catch(() => setD({ items: [], count: 0, returned: 0 })).finally(() => setLoading(false));
-  }, [drill, region, catParam]);
+  }, [drill, region]);
   const items = (d?.items || []).filter((it: any) => !q || (it.desc || "").toLowerCase().includes(q.toLowerCase()) || String(it.material).includes(q));
   const exportCsv = () => {
     const rows = d?.items || []; if (!rows.length) return;
@@ -110,7 +111,7 @@ function RiskDrill({ drill, region, catParam, onClose }: { drill: any; region: s
 // 19,014 lines AND carries ₹0, because none of those lines has a unit cost on file.
 // Sorting this queue by rupees would therefore bury 84% of it at a fake zero — which
 // is exactly why "Priority" is the default sort and value is opt-in.
-function PriorityLadder({ bands, totals, active, onPick }: { bands: any[]; totals: any; active: number | null; onPick: (b: number | null) => void }) {
+function PriorityLadder({ bands, totals, active, onPick, cat, loading }: { bands: any[]; totals: any; active: number | null; onPick: (b: number | null) => void; cat: any; loading: boolean }) {
   const on = useMount(160);
   const rows = bands || [];
   // "15,878 lines are out of stock" -> "which ones do I order first?". priority_band is
@@ -123,6 +124,8 @@ function PriorityLadder({ bands, totals, active, onPick }: { bands: any[]; total
     kpi: "reorder-priority", dim: "priority_band", by: "material",
     label: "lines to order", dimLabel: "Priority band · quantity to order",
     format: num, fetcher: fetchReorderBandDrill, pinOnClick: false,
+    // Inherits this card's own category so the panel and the band bar above it agree.
+    category: cat.drill,
   });
   const max = Math.max(...rows.map((r) => r.lines), 1);
   const totalLines = Number(totals?.reorder_lines ?? 0);
@@ -130,8 +133,12 @@ function PriorityLadder({ bands, totals, active, onPick }: { bands: any[]; total
     <Card>
       <div className="flex items-baseline justify-between flex-wrap gap-2 mb-1">
         <h2 className="text-[18px] font-bold" style={{ color: INK }}>What to order, in order</h2>
-        <span className="text-[12.5px] font-medium" style={{ color: MUT }}>{num(totalLines)} item–locations need an order</span>
+        <div className="flex items-center gap-2.5">
+          {cat.chip}
+          <span className="text-[12.5px] font-medium" style={{ color: MUT }}>{num(totalLines)} item–locations need an order</span>
+        </div>
       </div>
+      {cat.note(!loading && totalLines === 0) && <div className="mb-3">{cat.note(true)}</div>}
       <p className="text-[12.5px] mb-5" style={{ color: MUT }}>
         Every line the replenishment model flags, ranked by how soon it runs out — not by how much it costs. Work down from the top.
       </p>
@@ -204,7 +211,7 @@ const SORTS = [
   { key: "demand", label: "Monthly use" },
 ] as const;
 
-function PriorityQueue({ region, catParam, band, onBand }: { region: string; catParam: string; band: number | null; onBand: (b: number | null) => void }) {
+function PriorityQueue({ region, band, onBand, category }: { region: string; band: number | null; onBand: (b: number | null) => void; category: string }) {
   const [q, setQ] = useState("");
   const [dq, setDq] = useState("");
   const [sort, setSort] = useState<string>("priority");
@@ -215,19 +222,22 @@ function PriorityQueue({ region, catParam, band, onBand }: { region: string; cat
 
   // Debounce the search so typing doesn't fire a request per keystroke.
   useEffect(() => { const t = setTimeout(() => setDq(q), 300); return () => clearTimeout(t); }, [q]);
-  useEffect(() => { setLimit(50); }, [dq, sort, band, region, catParam]);
+  useEffect(() => { setLimit(50); }, [dq, sort, band, region, category]);
 
   useEffect(() => {
     const ctrl = new AbortController();
     setLoading(true);
+    // The requisition list is the SAME card as the priority ladder above it — one chip
+    // governs both, because a band bar and the lines inside that band must not disagree.
     const p = new URLSearchParams({ Plant: region, sort, limit: String(limit) });
     if (band) p.set("band", String(band));
+    if (category) p.set("Category", category);
     if (dq) p.set("q", dq);
-    fetch(`${DASHBOARD_API_BASE_URL}/forecast/reorder-priority?${p.toString()}${catParam}`, { signal: ctrl.signal })
+    fetch(`${DASHBOARD_API_BASE_URL}/forecast/reorder-priority?${p.toString()}`, { signal: ctrl.signal })
       .then((r) => r.json()).then((j) => { setD(j); setLoading(false); first.current = false; })
       .catch((e) => { if (e.name !== "AbortError") { setD(null); setLoading(false); } });
     return () => ctrl.abort();
-  }, [region, catParam, band, dq, sort, limit]);
+  }, [region, band, dq, sort, limit, category]);
 
   const items = d?.items || [];
   const exportCsv = () => {
@@ -593,15 +603,23 @@ function ItemChecker({ region }: { region: string }) {
 }
 
 export default function ReplenishmentRiskDetail() {
-  const { region, category, filtered, catParam, scopeKey } = useScope();
+  const { selectedRegion } = useRegion();
+  const region = selectedRegion?.name ?? "All Plants";
   const [data, setData] = useState<any>(null);
   const [drill, setDrill] = useState<any>(null);
   const [band, setBand] = useState<number | null>(null);
   useEffect(() => {
     setData(null);
-    fetch(`${DASHBOARD_API_BASE_URL}/forecast/replenishment-insights?Plant=${encodeURIComponent(region)}${catParam}`)
+    fetch(`${DASHBOARD_API_BASE_URL}/forecast/replenishment-insights?Plant=${encodeURIComponent(region)}`)
       .then((r) => r.json()).then(setData).catch(() => setData(null));
-  }, [scopeKey]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [region]);
+  // ONE card filter for the reorder card — the ladder and the requisition list under it
+  // are two halves of the same card, so they share a chip. Reorder demand is
+  // consumption-derived, so the chip greys onco with the backend's own explanation.
+  const reorderCat = useCardCategory({ accent: AMBER, domain: "reorder" });
+  const reorderScoped = useCardScopedData(data, reorderCat.category, (c, signal) =>
+    fetch(`${DASHBOARD_API_BASE_URL}/forecast/replenishment-insights?Plant=${encodeURIComponent(region)}&Category=${encodeURIComponent(c)}`, { signal }).then((r) => r.json()));
+
   const t = data?.totals || {};
   const reorder = data?.reorder || {};
 
@@ -633,7 +651,7 @@ export default function ReplenishmentRiskDetail() {
           <div>
             <div className="text-[11px] font-semibold uppercase tracking-[0.14em] mb-1.5" style={{ color: MUT }}>Forecasting</div>
             <h1 className="text-[29px] font-extrabold leading-none tracking-tight" style={{ color: INK }}>Reorder &amp; Stock Risk</h1>
-            <p className="text-[13px] mt-2" style={{ color: MUT }}>What to reorder now, and what's sitting too long · {region}{filtered ? ` · ${category.name}` : ""}</p>
+            <p className="text-[13px] mt-2" style={{ color: MUT }}>What to reorder now, and what's sitting too long · {region}</p>
           </div>
           <span title="6-month back-test accuracy measured at the aggregate/category level — reliable for planning totals, not a per-item guarantee." className="inline-flex items-center gap-2 text-[12.5px] font-semibold px-3.5 py-2 rounded-xl cursor-help" style={{ color: INK2, background: CARD, border: `1px solid ${BORDER}` }}><span className="w-2 h-2 rounded-full" style={{ background: GREEN }} />{Number(t.accuracy ?? 0).toFixed(0)}% forecast reliability</span>
         </div>
@@ -657,11 +675,11 @@ export default function ReplenishmentRiskDetail() {
         </div>
 
         <div className="mb-5">
-          <PriorityLadder bands={data?.priority || []} totals={reorder} active={band} onPick={(b) => { setBand(b); document.getElementById("order-list")?.scrollIntoView({ behavior: "smooth", block: "start" }); }} />
+          <PriorityLadder bands={reorderScoped.data?.priority || []} totals={reorderScoped.data?.reorder || {}} active={band} onPick={(b) => { setBand(b); document.getElementById("order-list")?.scrollIntoView({ behavior: "smooth", block: "start" }); }} cat={reorderCat} loading={reorderScoped.loading} />
         </div>
 
         <div className="mb-5" id="order-list" style={{ scrollMarginTop: 88 }}>
-          <PriorityQueue region={region} catParam={catParam} band={band} onBand={setBand} />
+          <PriorityQueue region={region} band={band} onBand={setBand} category={reorderCat.category} />
         </div>
 
         <div className="mb-5"><Spectrum spectrum={data?.spectrum || []} total={Number(t.total_skus ?? 0)} onDrill={setDrill} /></div>
@@ -683,7 +701,7 @@ export default function ReplenishmentRiskDetail() {
         </div>
       </div>
 
-      <RiskDrill drill={drill} region={region} catParam={catParam} onClose={() => setDrill(null)} />
+      <RiskDrill drill={drill} region={region} onClose={() => setDrill(null)} />
     </div>
   );
 }

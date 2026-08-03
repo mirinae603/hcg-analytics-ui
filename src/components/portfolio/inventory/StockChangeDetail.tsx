@@ -1,9 +1,11 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import { useScope } from "@/context/CategoryContext";
+import { useRegion } from "@/context/RegionContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
+import { useCardCategory, useCardScopedData } from "@/components/common/CardCategoryFilter";
+import { useDrillBind } from "@/components/portfolio/useDrillBind";
 import { TbArrowUpRight, TbArrowDownRight } from "react-icons/tb";
 
 const KpiTable = dynamic(() => import("../KpiTable"), {
@@ -118,7 +120,7 @@ function ImmersiveHero({ months, net, inflow, outflow, skus }: { months: any[]; 
 }
 
 // ── Monthly flow chart — inflow up / outflow down + net line ──
-function FlowChart({ months, region }: { months: any[]; region: string }) {
+function FlowChart({ months, region, cat, loading }: { months: any[]; region: string; cat: any; loading: boolean }) {
   const on = useMount(160);
   const [hov, setHov] = useState<number | null>(null);
   const W = 920, H = 320, padX = 20, padTop = 26, padBot = 32;
@@ -129,6 +131,34 @@ function FlowChart({ months, region }: { months: any[]; region: string }) {
   const nx = (i: number) => padX + bw * i + bw / 2, ny = (v: number) => zeroY - (v / netMax) * (upH * 0.8);
   const netLine = smooth(months.map((m, i) => [nx(i), ny(on ? m.net : 0)]));
   const hd = hov != null ? months[hov] : null;
+
+  // THE SLICE MUST CARRY THE YEAR. kpi_stock_change holds December 2025 AND December
+  // 2026, so `dim=month, slice="December"` sums both and reports Rs 84.3 L under a bar
+  // drawn at Rs 3.8 L — a 22x overstatement, delivered confidently. `year_month` is a
+  // composite dimension the backend derives for exactly this reason, and `year` rides
+  // on each monthly row so this never has to parse the "Dec 26" axis label.
+  const period = (m: any) => `${m.year}-${m.month}`;
+  const facts = (slice: string) => {
+    const m = months.find((x) => period(x) === slice);
+    return m ? [
+      { label: "Received", value: numAbbr(m.inflow) },
+      { label: "Consumed", value: numAbbr(m.outflow) },
+      { label: "Net", value: signed(m.net) },
+    ] : [];
+  };
+  // Two bars, two questions, two drills — "received WHAT" and "consumed WHAT" are not
+  // the same list, and one panel ranked by a net delta would answer neither. The net
+  // line itself gets nothing: what is inside a change is two months, not ten items.
+  const inDrill = useDrillBind({
+    kpi: "stock-change", dim: "year_month", by: "material", measure: "inflow",
+    label: "items received", dimLabel: "Received in", format: numAbbr,
+    category: cat.drill, details: facts,
+  });
+  const outDrill = useDrillBind({
+    kpi: "stock-change", dim: "year_month", by: "material", measure: "outflow",
+    label: "items consumed", dimLabel: "Consumed in", format: numAbbr,
+    category: cat.drill, details: facts,
+  });
   return (
     <div className="csv-card rounded-3xl bg-white p-5 md:p-6" style={{ animationDelay: "180ms", boxShadow: PANEL_SHADOW }}>
       <div className="flex items-center justify-between flex-wrap gap-2">
@@ -137,13 +167,15 @@ function FlowChart({ months, region }: { months: any[]; region: string }) {
           <p className="text-xs text-gray-400 mt-0.5">inflow (up) · outflow (down) · net line · {region}</p>
         </div>
         <div className="flex items-center gap-3 text-[11px] font-medium text-gray-500">
+          {cat.chip}
           <span className="inline-flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm" style={{ background: INFLOW }} />Inflow</span>
           <span className="inline-flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm" style={{ background: OUTFLOW }} />Outflow</span>
           <span className="inline-flex items-center gap-1.5"><span className="w-3 h-[2px]" style={{ background: NET }} />Net</span>
         </div>
       </div>
+      {cat.note(!loading && months.every((m: any) => !m.inflow && !m.outflow)) && <div className="mt-3">{cat.note(true)}</div>}
       <div className="mt-2 text-[11px] font-medium min-h-[18px]" style={{ color: hd ? INK : "#9aa1ae" }}>
-        {hd ? <span>{hd.label} · in <b style={{ color: INFLOW }}>{numAbbr(hd.inflow)}</b> · out <b style={{ color: OUTFLOW }}>{numAbbr(hd.outflow)}</b> · net <b style={{ color: hd.net >= 0 ? INFLOW : OUTFLOW }}>{signed(hd.net)}</b></span> : <span>each bar pair shows what came in vs what went out that month</span>}
+        {hd ? <span>{hd.label} · in <b style={{ color: INFLOW }}>{numAbbr(hd.inflow)}</b> · out <b style={{ color: OUTFLOW }}>{numAbbr(hd.outflow)}</b> · net <b style={{ color: hd.net >= 0 ? INFLOW : OUTFLOW }}>{signed(hd.net)}</b></span> : <span>each bar pair shows what came in vs what went out that month · hover a bar for the items inside it</span>}
       </div>
       {months.length ? (
         <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ height: "auto", marginTop: 6 }} onMouseLeave={() => setHov(null)}>
@@ -152,8 +184,13 @@ function FlowChart({ months, region }: { months: any[]; region: string }) {
             const x = padX + bw * i, inH = (m.inflow / maxIn) * upH * 0.92, outHh = (m.outflow / maxOut) * dnH * 0.92, active = hov === i;
             return (
               <g key={i} onMouseEnter={() => setHov(i)} style={{ cursor: "pointer" }}>
-                <rect x={x + bw * 0.2} y={on ? zeroY - inH : zeroY} width={bw * 0.6} height={on ? inH : 0} rx="3" fill={INFLOW} opacity={active ? 1 : 0.82} style={{ transition: `all 0.8s cubic-bezier(0.34,1.1,0.64,1) ${i * 35}ms` }} />
-                <rect x={x + bw * 0.2} y={zeroY} width={bw * 0.6} height={on ? outHh : 0} rx="3" fill={OUTFLOW} opacity={active ? 1 : 0.82} style={{ transition: `all 0.8s cubic-bezier(0.34,1.1,0.64,1) ${i * 35}ms` }} />
+                {/* Consumption data stops in May 26, so Jun–Dec draw a zero outflow bar.
+                    bind(null) there rather than opening a panel of ten items at 0.00,
+                    which reads as a broken drill rather than as an empty month. */}
+                <rect x={x + bw * 0.2} y={on ? zeroY - inH : zeroY} width={bw * 0.6} height={on ? inH : 0} rx="3" fill={INFLOW} opacity={active ? 1 : 0.82} style={{ transition: `all 0.8s cubic-bezier(0.34,1.1,0.64,1) ${i * 35}ms` }}
+                  {...inDrill.bind(m.inflow > 0 ? period(m) : null, { onMouseEnter: () => setHov(i) })} />
+                <rect x={x + bw * 0.2} y={zeroY} width={bw * 0.6} height={on ? outHh : 0} rx="3" fill={OUTFLOW} opacity={active ? 1 : 0.82} style={{ transition: `all 0.8s cubic-bezier(0.34,1.1,0.64,1) ${i * 35}ms` }}
+                  {...outDrill.bind(m.outflow > 0 ? period(m) : null, { onMouseEnter: () => setHov(i) })} />
                 <text x={x + bw / 2} y={H - padBot + 18} textAnchor="middle" fontSize="10.5" fill={active ? INK : "#9aa1ae"} fontFamily={FONT} fontWeight={active ? 700 : 500}>{m.label}</text>
               </g>
             );
@@ -162,6 +199,8 @@ function FlowChart({ months, region }: { months: any[]; region: string }) {
           {months.map((m, i) => <circle key={i} cx={nx(i)} cy={ny(on ? m.net : 0)} r={hov === i ? 5 : 3} fill="#fff" stroke={NET} strokeWidth="2" style={{ transition: "all 0.8s cubic-bezier(0.34,1.1,0.64,1)" }} />)}
         </svg>
       ) : <div className="py-20 text-center text-gray-400 text-sm">No data.</div>}
+      {inDrill.panel}
+      {outDrill.panel}
     </div>
   );
 }
@@ -192,12 +231,19 @@ const COLUMNS = [
 ];
 
 export default function StockChangeDetail() {
-  const { region, category, filtered, catParam, scopeKey } = useScope();
+  const { selectedRegion } = useRegion();
+  const region = selectedRegion?.name ?? "All Plants";
   const [data, setData] = useState<any>(null);
 
   useEffect(() => {
-    fetch(`${DASHBOARD_API_BASE_URL}/kpi/stock-change/insights?Plant=${encodeURIComponent(region)}${catParam}`).then((r) => r.json()).then((d) => setData(d || null)).catch(() => setData(null));
-  }, [region, catParam]);
+    fetch(`${DASHBOARD_API_BASE_URL}/kpi/stock-change/insights?Plant=${encodeURIComponent(region)}`).then((r) => r.json()).then((d) => setData(d || null)).catch(() => setData(null));
+  }, [region]);
+
+  // Only the monthly flow chart is split; the hero above keeps the whole portfolio so
+  // a category's flow can be read against it.
+  const cat = useCardCategory({ accent: NET });
+  const scoped = useCardScopedData(data, cat.category, (c, signal) =>
+    fetch(`${DASHBOARD_API_BASE_URL}/kpi/stock-change/insights?Plant=${encodeURIComponent(region)}&Category=${encodeURIComponent(c)}`, { signal }).then((r) => r.json()));
 
   const t = data?.totals || {};
   const months: any[] = data?.monthly || [];
@@ -215,7 +261,7 @@ export default function StockChangeDetail() {
         .csv-card { min-width: 0; }
       `}</style>
 
-      <FlowChart months={months} region={region} />
+      <FlowChart months={scoped.data?.monthly || []} region={region} cat={cat} loading={scoped.loading} />
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
         <Movers rows={data?.risers || []} kind="up" region={region} />

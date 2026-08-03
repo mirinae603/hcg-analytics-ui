@@ -2,8 +2,6 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRegion } from "@/context/RegionContext";
-import { useScope } from "@/context/CategoryContext";
-import UnscopedBadge from "@/components/common/UnscopedBadge";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import { CARD_SH, inrAbbr, countAbbr, catName, useMount, smoothPath } from "@/components/portfolio/kit";
 import { GaugeCard, DonutCard, BrandPanel, Tab } from "./ExecCards";
@@ -252,11 +250,6 @@ function SavingsCard({ region }: { region: string }) {
 export default function ProcurementOverview() {
   const { selectedRegion } = useRegion();
   const region = selectedRegion?.name ?? "All Plants";
-  // Procurement is category-neutral on purpose (CATEGORY_SCOPED_PORTFOLIOS omits it):
-  // purchase-value returns zero rows under a Category, and scoping only its sibling
-  // monthly-purchase-value would put two different totals under the same label. The page
-  // is therefore correct but the scope banner above it is not, so say so here.
-  const { filtered } = useScope();
   const [data, setData] = useState<any>(null);
   // "loading" covers BOTH "fetch still in flight" and "fetch failed" -- either way there is
   // no real data yet, so the executive cards must show a neutral skeleton, never a
@@ -303,12 +296,7 @@ export default function ProcurementOverview() {
     <div className="-m-4 md:-m-6 p-4 md:p-6 min-w-0" style={{ background: PAGE, minHeight: "calc(100vh - 64px)" }}>
       <div className="flex items-end justify-between flex-wrap gap-2 mb-5">
         <div>
-          <div className="flex items-center gap-2 flex-wrap">
-            <h1 className="text-[24px] font-bold leading-tight" style={{ color: INK }}>Procurement</h1>
-            {filtered && (
-              <UnscopedBadge reason="Procurement metrics are measured per vendor and per PO, not per material category." />
-            )}
-          </div>
+          <h1 className="text-[24px] font-bold leading-tight" style={{ color: INK }}>Procurement</h1>
           <p className="text-[13px] mt-1" style={{ color: SUBTLE }}>spend, vendors & supply performance · {region}</p>
         </div>
         <div className="flex items-center gap-2.5 flex-wrap">

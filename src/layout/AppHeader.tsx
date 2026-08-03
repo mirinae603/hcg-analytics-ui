@@ -3,7 +3,6 @@ import { ThemeToggleButton } from "@/components/common/ThemeToggleButton";
 import NotificationDropdown from "@/components/header/NotificationDropdown";
 import UserDropdown from "@/components/header/UserDropdown";
 import RegionFilter from "@/components/header/RegionFilter";
-import CategoryFilter from "@/components/header/CategoryFilter";
 import { useSidebar } from "@/context/SidebarContext";
 import Image from "next/image";
 import Link from "next/link";
@@ -155,10 +154,7 @@ const AppHeader: React.FC = () => {
                 <span className="hidden text-sm font-medium sm:inline">{back.label}</span>
               </Link>
             )}
-            {/* The two scope selectors sit together and share a visual language:
-                RegionFilter = "which hospital", CategoryFilter = "which kind of stock". */}
             <RegionFilter />
-            <CategoryFilter />
             {/* <!-- Dark Mode Toggler --> */}
 
            {/* <NotificationDropdown />  */}

@@ -4,6 +4,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { useRegion } from "@/context/RegionContext";
+import { useCardCategory, useCardScopedData } from "@/components/common/CardCategoryFilter";
+import { useDrillBind } from "@/components/portfolio/useDrillBind";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import { inrAbbr, countAbbr, catName, useMount, CountUp, smoothPath } from "@/components/portfolio/kit";
 import { TbPill, TbCoin, TbCurrencyRupee, TbBoxMultiple, TbLayoutGrid, TbChartDots, TbArrowUpRight, TbArrowDownRight, TbFlame, TbTrophy } from "react-icons/tb";
@@ -78,8 +80,16 @@ function Ring({ pct, size = 78, color = ROSE, center }: any) {
 }
 
 // ── heatmap (units/cost toggle) ──
-function Heatmap({ matrix }: { matrix: any }) {
+function Heatmap({ matrix, cat, loading }: { matrix: any; cat: any; loading: boolean }) {
   const [metric, setMetric] = useState<"units" | "cost">("units");
+  // Row = material group, so "what did this row actually consume" is the next question.
+  // Ranked by the metric the toggle is showing, so the panel's total is the row's total.
+  const drill = useDrillBind({
+    kpi: "unit-sold-per-sku", dim: "material_group", by: "material",
+    measure: metric === "units" ? "total_units" : "consumption_cost",
+    label: "items", dimLabel: "Category · 6-month consumption",
+    format: metric === "units" ? countAbbr : inrAbbr, category: cat.drill,
+  });
   const [hov, setHov] = useState<{ r: number; c: number } | null>(null);
   const labels: string[] = matrix?.labels || [];
   const rows: any[] = matrix?.rows || [];
@@ -95,11 +105,15 @@ function Heatmap({ matrix }: { matrix: any }) {
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div><h3 className="text-[16px] font-semibold flex items-center gap-2" style={{ color: INK }}><TbLayoutGrid size={16} style={{ color: ROSE }} />Where usage lands</h3>
           <p className="text-[12px] mt-0.5" style={{ color: SUB }}>top categories × month · hover a cell</p></div>
+        <div className="flex items-center gap-2.5">
+        {cat.chip}
         <div className="flex items-center gap-0.5 p-1 rounded-full" style={{ background: "#f2e7ec" }}>
           {(["units", "cost"] as const).map((m) => <button key={m} onClick={() => setMetric(m)} className="text-xs font-semibold px-3.5 py-1.5 rounded-full transition-all capitalize"
             style={metric === m ? { background: "#fff", color: DEEP, boxShadow: "0 2px 6px rgba(160,68,106,0.2)" } : { background: "transparent", color: "#b08d99" }}>{m}</button>)}
         </div>
+        </div>
       </div>
+      {cat.note(!loading && rows.length === 0) && <div className="mt-3">{cat.note(true)}</div>}
       {rows.length ? (
         <div className="mt-4 overflow-x-auto"><div style={{ minWidth: 560 }}>
           <div className="grid items-center gap-1.5 mb-1.5" style={{ gridTemplateColumns: gcols }}>
@@ -107,7 +121,7 @@ function Heatmap({ matrix }: { matrix: any }) {
             <span className="text-[10.5px] font-semibold text-right pr-1" style={{ color: "#b7a7ae" }}>Total</span>
           </div>
           {rows.map((r, ri) => { const cv = cells(r); const rowMax = Math.max(...cv, 1); return (
-            <div key={ri} className="grid items-center gap-1.5 mb-1.5" style={{ gridTemplateColumns: gcols }} onMouseLeave={() => setHov((h) => (h && h.r === ri ? null : h))}>
+            <div key={ri} className="grid items-center gap-1.5 mb-1.5" style={{ gridTemplateColumns: gcols }} onMouseLeave={() => setHov((h) => (h && h.r === ri ? null : h))} {...drill.bind(r.uncat ? undefined : r.name)}>
               <span className="text-[11.5px] font-medium truncate pr-1" title={catName(r.name)} style={{ color: r.uncat ? "#b7a7ae" : hov?.r === ri ? INK : "#5c4c54" }}>{catName(r.name)}</span>
               {cv.map((v: number, ci: number) => { const t = Math.sqrt(v / rowMax); const active = hov?.r === ri && hov?.c === ci; return (
                 <div key={ci} onMouseEnter={() => setHov({ r: ri, c: ci })} className="h-9 rounded-lg flex items-center justify-center transition-all"
@@ -127,6 +141,7 @@ function Heatmap({ matrix }: { matrix: any }) {
         {hd ? <span>{hd.cat} · <b style={{ color: ROSE }}>{hd.mon}</b> — {fmt(hd.val)} ({hd.tot ? Math.round((hd.val / hd.tot) * 100) : 0}% of category)</span>
           : <span className="inline-flex items-center gap-1.5">low <span className="w-14 h-2 rounded-full inline-block" style={{ background: `linear-gradient(90deg,${rgba(0.12)},${ROSE})` }} /> high</span>}
       </div>
+      {drill.panel}
     </div>
   );
 }
@@ -225,6 +240,11 @@ export default function UnitsConsumedDetail() {
   const region = selectedRegion?.name ?? "All Plants";
   const [data, setData] = useState<any>(null);
   useEffect(() => { fetch(`${DASHBOARD_API_BASE_URL}/kpi/unit-sold-per-sku/insights?Plant=${encodeURIComponent(region)}`).then((r) => r.json()).then(setData).catch(() => setData(null)); }, [region]);
+  // Consumption-derived — see the note the chip surfaces when a category has no
+  // internal consumption (onco, dispensed through IP/OP billing instead).
+  const cat = useCardCategory({ accent: ROSE, domain: "consumption" });
+  const scoped = useCardScopedData(data, cat.category, (c, signal) =>
+    fetch(`${DASHBOARD_API_BASE_URL}/kpi/unit-sold-per-sku/insights?Plant=${encodeURIComponent(region)}&Category=${encodeURIComponent(c)}`, { signal }).then((r) => r.json()));
   const t = data?.totals || {};
   const tl = data?.timeline || [];
   const uVals = tl.map((d: any) => d.units), cVals = tl.map((d: any) => d.cost);
@@ -272,7 +292,7 @@ export default function UnitsConsumedDetail() {
           </div>
         </Card>
       </div>
-      <Heatmap matrix={data?.matrix} />
+      <Heatmap matrix={scoped.data?.matrix} cat={cat} loading={scoped.loading} />
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-stretch">
         <div className="xl:col-span-7 flex flex-col min-w-0"><Scatter skus={scatter} /></div>
         <div className="xl:col-span-5 flex flex-col min-w-0"><Leaderboard skus={skus} scatter={scatter} /></div>

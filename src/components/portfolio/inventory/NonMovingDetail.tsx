@@ -1,9 +1,10 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import { useScope } from "@/context/CategoryContext";
+import { useRegion } from "@/context/RegionContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
+import { useCardCategory, useCardScopedData } from "@/components/common/CardCategoryFilter";
 import { useDrillBind } from "@/components/portfolio/useDrillBind";
 import { TbLock, TbSnowflake, TbStack2 } from "react-icons/tb";
 
@@ -99,17 +100,24 @@ function VaultHero({ value, skus, totalLines, reasons, aging }: { value: number;
 }
 
 // ── Blocked capital by category (clean card) ──
-function BlockedByCategory({ cats, region }: { cats: any[]; region: string }) {
+function BlockedByCategory({ cats, region, cat, loading }: { cats: any[]; region: string; cat: any; loading: boolean }) {
   const on = useMount(120); const max = Math.max(...cats.map((c) => c.value), 1);
   const catName = (g: string) => String(g).replace(/^M\d+-/, "");
   const drill = useDrillBind({
     kpi: "non-moving-inventory", dim: "material_group", by: "material", measure: "closing_stock_value",
-    label: "items", dimLabel: "Category", format: inrAbbr,
+    label: "items", dimLabel: "Category", format: inrAbbr, category: cat.drill,
   });
   return (
     <div className="csv-card rounded-3xl bg-white p-5 md:p-6 flex flex-col" style={{ animationDelay: "200ms", boxShadow: PANEL_SHADOW }}>
-      <h3 className="text-[15px] font-semibold text-gray-900 flex items-center gap-2"><TbStack2 size={16} style={{ color: RUST }} />Blocked capital by category</h3>
-      <p className="text-xs text-gray-400 mt-0.5 mb-4">where the dormant value sits · {region}</p>
+      <div className="flex items-start justify-between gap-2">
+        <div>
+          <h3 className="text-[15px] font-semibold text-gray-900 flex items-center gap-2"><TbStack2 size={16} style={{ color: RUST }} />Blocked capital by category</h3>
+          <p className="text-xs text-gray-400 mt-0.5">where the dormant value sits · {region}</p>
+        </div>
+        {cat.chip}
+      </div>
+      {cat.note(!loading && cats.length === 0) && <div className="mt-3">{cat.note(true)}</div>}
+      <div className="mb-4" />
       <div className="space-y-2.5 flex-1">
         {cats.slice(0, 10).map((c, i) => (
           <div key={i} className="flex items-center gap-3" {...drill.bind(c.name)}>
@@ -136,12 +144,17 @@ const COLUMNS = [
 ];
 
 export default function NonMovingDetail() {
-  const { region, category, filtered, catParam, scopeKey } = useScope();
+  const { selectedRegion } = useRegion();
+  const region = selectedRegion?.name ?? "All Plants";
   const [data, setData] = useState<any>(null);
 
   useEffect(() => {
-    fetch(`${DASHBOARD_API_BASE_URL}/kpi/non-moving-inventory/insights?Plant=${encodeURIComponent(region)}${catParam}`).then((r) => r.json()).then((d) => setData(d || null)).catch(() => setData(null));
-  }, [region, catParam]);
+    fetch(`${DASHBOARD_API_BASE_URL}/kpi/non-moving-inventory/insights?Plant=${encodeURIComponent(region)}`).then((r) => r.json()).then((d) => setData(d || null)).catch(() => setData(null));
+  }, [region]);
+
+  const cat = useCardCategory({ accent: RUST });
+  const scoped = useCardScopedData(data, cat.category, (c, signal) =>
+    fetch(`${DASHBOARD_API_BASE_URL}/kpi/non-moving-inventory/insights?Plant=${encodeURIComponent(region)}&Category=${encodeURIComponent(c)}`, { signal }).then((r) => r.json()));
 
   const t = data?.totals || {};
 
@@ -157,7 +170,7 @@ export default function NonMovingDetail() {
         .csv-card { animation: cardIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; min-width: 0; }
       `}</style>
 
-      <BlockedByCategory cats={data?.categories || []} region={region} />
+      <BlockedByCategory cats={scoped.data?.categories || []} region={region} cat={cat} loading={scoped.loading} />
 
       <div className="csv-card rounded-3xl bg-white overflow-hidden" style={{ animationDelay: "320ms", boxShadow: PANEL_SHADOW }}>
         <div className="px-6 py-4 border-b border-gray-50">

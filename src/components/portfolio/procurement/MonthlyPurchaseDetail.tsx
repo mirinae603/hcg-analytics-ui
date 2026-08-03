@@ -2,6 +2,8 @@
 import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { useRegion } from "@/context/RegionContext";
+import { useCardCategory, useCardScopedData } from "@/components/common/CardCategoryFilter";
+import { useDrillBind } from "@/components/portfolio/useDrillBind";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import { inrAbbr, countAbbr, catName, useMount, smoothPath, CountUp } from "@/components/portfolio/kit";
 import { ProcShell, TableCard, Panel, DetailSkeleton, INK, SUBTLE } from "./parts";
@@ -153,9 +155,18 @@ function CategoryRankPanel({ groups, matrix, total }: { groups: any[]; matrix: a
 }
 
 // ── Category × month heatmap — Spend ↔ Margin% toggle ──
-function Heatmap({ matrix, marginMatrix }: { matrix: any; marginMatrix?: any }) {
+function Heatmap({ matrix, marginMatrix, cat }: { matrix: any; marginMatrix?: any; cat: any }) {
   const on = useMount(180); const [hov, setHov] = useState<[number, number] | null>(null);
   const [mode, setMode] = useState<"spend" | "margin">("spend");
+  // kpi_monthly_purchase_value is the ONE procurement aggregate that kept its material
+  // column, so "what did we actually buy in this category" is answerable here and
+  // nowhere else in procurement. Off in margin mode: margin % is a ratio and a top-10
+  // list under it would imply the parts sum to the whole.
+  const drill = useDrillBind(mode === "margin" ? null : {
+    kpi: "monthly-purchase-value", dim: "material_group", by: "material",
+    measure: "monthly_purchase_value", label: "items", dimLabel: "Category · 6-month spend",
+    format: inrAbbr, category: cat.drill,
+  });
   const hasMargin = !!(marginMatrix && marginMatrix.rows && marginMatrix.rows.length);
   const isMargin = mode === "margin" && hasMargin;
   const active = isMargin ? marginMatrix : matrix;
@@ -180,6 +191,7 @@ function Heatmap({ matrix, marginMatrix }: { matrix: any; marginMatrix?: any }) 
         <h3 className="text-[16px] font-semibold flex items-center gap-2" style={{ color: INK }}><TbGridDots size={16} style={{ color: accent }} />Category × month heatmap</h3>
         <div className="flex items-center gap-2">
           {hasMargin && <div className="flex items-center gap-0.5 p-0.5 rounded-full" style={{ background: "#f1f2f7" }}><Toggle v="spend" label="Spend" /><Toggle v="margin" label="Margin %" /></div>}
+          {cat.chip}
           <span className="text-[11px] font-medium px-2.5 py-1 rounded-full" style={{ background: `rgba(${accentRGB},0.1)`, color: accent }}>{matrix.rows.length} categories</span>
         </div>
       </div>
@@ -190,7 +202,7 @@ function Heatmap({ matrix, marginMatrix }: { matrix: any; marginMatrix?: any }) 
           <span className="text-[11px] font-semibold text-right pr-1" style={{ color: "#9aa1b3" }}>Total</span>
         </div>
         {rows.map((r, ri) => (
-          <div key={ri} className="grid items-center gap-1.5 mb-1.5" style={{ gridTemplateColumns: cols }} onMouseLeave={() => setHov((h) => (h && h[0] === ri ? null : h))}>
+          <div key={ri} className="grid items-center gap-1.5 mb-1.5" style={{ gridTemplateColumns: cols }} onMouseLeave={() => setHov((h) => (h && h[0] === ri ? null : h))} {...drill.bind(r.name)}>
             <span className="text-[12px] font-medium truncate pr-2" style={{ color: "#4b5468" }} title={catName(r.name)}>{catName(r.name)}</span>
             {r.values.map((v: number | null, ci: number) => { const ratio = cellRatio(v); const act = hov && hov[0] === ri && hov[1] === ci; const empty = isMargin && v == null;
               return <div key={ci} onMouseEnter={() => setHov([ri, ci])} className="relative h-11 rounded-lg flex items-center justify-center cursor-default transition-all duration-300"
@@ -202,6 +214,7 @@ function Heatmap({ matrix, marginMatrix }: { matrix: any; marginMatrix?: any }) 
           </div>
         ))}
       </div></div>
+      {drill.panel}
     </div>
   );
 }
@@ -242,6 +255,13 @@ export default function MonthlyPurchaseDetail() {
   const region = selectedRegion?.name ?? "All Plants";
   const [data, setData] = useState<any>(null);
   useEffect(() => { setData(null); fetch(`${DASHBOARD_API_BASE_URL}/kpi/monthly-purchase-value/insights?Plant=${encodeURIComponent(region)}`).then((r) => r.json()).then(setData).catch(() => setData(null)); }, [region]);
+  // The only procurement card with a category chip, because kpi_monthly_purchase_value
+  // is the only procurement aggregate that still carries `material`. Spend is a
+  // purchase-order figure, not a consumption one, so every category has real data here
+  // — including onco, whose Rs 236.73 Cr of buying is invisible on the consumption side.
+  const cat = useCardCategory({ accent: "#6366f1" });
+  const scoped = useCardScopedData(data, cat.category, (c, signal) =>
+    fetch(`${DASHBOARD_API_BASE_URL}/kpi/monthly-purchase-value/insights?Plant=${encodeURIComponent(region)}&Category=${encodeURIComponent(c)}`, { signal }).then((r) => r.json()));
   if (!data) return <ProcShell title="Monthly SKU purchase" subtitle="what you buy each month, by category & SKU" region={region} bg={PAGE}><DetailSkeleton /></ProcShell>;
   const t = data?.totals || {};
   const total = Number(t.total ?? 0), avg = Number(t.avg ?? 0), skus = Number(t.skus ?? 0);
@@ -264,7 +284,7 @@ export default function MonthlyPurchaseDetail() {
         <div className="xl:col-span-4 flex flex-col min-w-0"><CategoryRankPanel groups={groups} matrix={data?.matrix} total={total} /></div>
       </div>
 
-      <Heatmap matrix={data?.matrix} marginMatrix={data?.margin_matrix} />
+      <Heatmap matrix={scoped.data?.matrix} marginMatrix={scoped.data?.margin_matrix} cat={cat} />
 
       <SkuBars rows={data?.top_skus || []} />
 

@@ -5,11 +5,10 @@ import { KPIS, Kpi, simulatedByPortfolio } from "@/lib/kpiRegistry";
 import { getSimulated } from "@/lib/simulatedKpi";
 import { fmt } from "@/lib/kpiFormat";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
-import { useScope } from "@/context/CategoryContext";
-import { catParamFor, isCategoryScopedPath, notScopedReason } from "@/lib/categoryScope";
-import UnscopedBadge from "@/components/common/UnscopedBadge";
+import { useRegion } from "@/context/RegionContext";
 import AnalyticsDashboardLayout from "@/components/ecommerce/AnalyticsHomeScreenCards/analyticsHomeScreenCard";
 import InventoryGlassKpiCard from "@/components/portfolio/inventory/InventoryGlassKpiCard";
+import InventoryGlassKpiTile, { fetchKpiChart } from "@/components/portfolio/inventory/InventoryGlassKpiTile";
 
 // Greys out a KPI card with a "Data N/A" badge
 const UnavailableKpi: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
@@ -28,19 +27,6 @@ const UnavailableKpi: React.FC<{ label: string; children: React.ReactNode }> = (
 
 // Inventory KPIs from registry
 const inventoryKpis: Kpi[] = KPIS.filter((k) => k.portfolio === "inventory");
-
-// The endpoint each tile actually calls (wastage-rate has no generic /kpi/{key} route).
-// Asking the scope resolver about that exact path — instead of about the KPI key — means
-// the badge below can never disagree with what the request really carried.
-const tileEndpoint = (key: string) => (key === "wastage-rate" ? "/kpi/wastage-rate/insights" : `/kpi/${key}`);
-
-// True for a tile whose figure is portfolio-wide even while a category filter is on.
-// Today that is only Aging Distribution: it ships pre-aggregated to plant × material
-// group × bucket, with no material dimension left to filter on. The scope banner says
-// "every figure below covers this category only", so a tile that quietly ignores the
-// filter has to say so — otherwise ₹30.99 Cr of *all* stock reads as ₹30.99 Cr of
-// Consumables. The number is right; only the label would have been wrong.
-const showsAllCategories = (key: string) => !isCategoryScopedPath(tileEndpoint(key));
 
 // All inventory KPIs (A1–A10 + Near-Expiry) are buildable from the HCG data
 // per the KPI workbook. A4 Turnover & A5 Valuation are proxies (noted on page).
@@ -110,7 +96,8 @@ function computeInsights(kpi: Kpi, chartData: any[]): string[] {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function InventoryPage() {
-  const { region: regionName, catParam, scopeKey, filtered } = useScope();
+  const { selectedRegion } = useRegion();
+  const regionName = selectedRegion?.name ?? "All Plants";
 
   // Executive card data (summary node per KPI)
   const [summaryData, setSummaryData] = useState<Record<string, any>>({});
@@ -126,7 +113,7 @@ export default function InventoryPage() {
       try {
         // Fetch summary for all inventory KPIs
         const summaryRes = await fetch(
-          `${DASHBOARD_API_BASE_URL}/portfolio/inventory/summary?region=${regionName}${catParam}`
+          `${DASHBOARD_API_BASE_URL}/portfolio/inventory/summary?region=${regionName}`
         );
         if (summaryRes.ok) {
           const summaryJson = await summaryRes.json();
@@ -139,32 +126,13 @@ export default function InventoryPage() {
       // Fetch AGGREGATED chart series for each KPI (≈12 rows) — NOT the raw
       // 5000-row table. Uses the same group_by/measures/top params as the
       // drill-down so each card downloads <1 KB instead of ~1 MB.
+      // The URL is built by `fetchKpiChart`, shared with InventoryGlassKpiTile, so a
+      // tile's category-filtered request is byte-identical to this one bar the extra
+      // `&Category=` — a filtered tile cannot silently diverge in group_by/measures/top.
       const chartFetches = inventoryKpis.map(async (kpi) => {
         if (UNAVAILABLE_KEYS.has(kpi.key) || !kpi.chart) return { key: kpi.key, data: [] };
         try {
-          // wastage-rate is a bespoke endpoint (no generic /kpi/{key} route) — fetch its
-          // insights shape and map by_plant into the chart's plant/wastage_pct records so
-          // this tile gets a real "Largest: HC16 4.12%" insight instead of a placeholder.
-          if (kpi.key === "wastage-rate") {
-            const res = await fetch(
-              `${DASHBOARD_API_BASE_URL}/kpi/wastage-rate/insights?Plant=${encodeURIComponent(regionName)}${catParam}`
-            );
-            if (!res.ok) return { key: kpi.key, data: [] };
-            const json = await res.json();
-            return { key: kpi.key, data: Array.isArray(json?.by_plant) ? json.by_plant : [] };
-          }
-          const params = new URLSearchParams({ Plant: regionName });
-          if (kpi.chart.groupBy) params.set("group_by", kpi.chart.groupBy);
-          if (kpi.chart.measures) params.set("measures", kpi.chart.measures);
-          if (kpi.chart.top) params.set("top", String(kpi.chart.top));
-          // catParamFor() is a no-op for KPIs the backend cannot split by category,
-          // which keeps the one endpoint that would return 0 rows out of harm's way.
-          const res = await fetch(
-            `${DASHBOARD_API_BASE_URL}/kpi/${kpi.key}?${params.toString()}${catParamFor(kpi.key, catParam)}`
-          );
-          if (!res.ok) return { key: kpi.key, data: [] };
-          const json = await res.json();
-          return { key: kpi.key, data: Array.isArray(json) ? json : (json?.data ?? []) };
+          return { key: kpi.key, data: await fetchKpiChart(kpi, regionName, "") };
         } catch {
           return { key: kpi.key, data: [] };
         }
@@ -181,7 +149,7 @@ export default function InventoryPage() {
 
     loadAll();
     return () => { cancelled = true; };
-  }, [scopeKey]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [regionName]);
 
   return (
     <div className="space-y-10 p-0">
@@ -202,7 +170,6 @@ export default function InventoryPage() {
             {inventoryKpis.map((kpi, i) => {
               const isUnavailable = UNAVAILABLE_KEYS.has(kpi.key);
               const data = chartDataMap[kpi.key] ?? [];
-              const insights = computeInsights(kpi, data);
 
               return (
                 <div
@@ -229,17 +196,12 @@ export default function InventoryPage() {
                       Data N/A
                     </span>
                   )}
-                  {!isUnavailable && filtered && showsAllCategories(kpi.key) && (
-                    <UnscopedBadge
-                      className="absolute top-3 right-3 z-20"
-                      reason={notScopedReason(kpi.key) ?? "This metric has no material-level breakdown in the source data."}
-                    />
-                  )}
-                  <InventoryGlassKpiCard
+                  <InventoryGlassKpiTile
                     kpi={kpi}
                     index={i}
-                    insights={insights}
-                    chartData={data}
+                    region={regionName}
+                    pageData={data}
+                    insightsOf={computeInsights}
                   />
                 </div>
               );

@@ -1,9 +1,11 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import { useScope } from "@/context/CategoryContext";
+import { useRegion } from "@/context/RegionContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
+import { useCardCategory, useCardScopedData } from "@/components/common/CardCategoryFilter";
+import { useDrillBind } from "@/components/portfolio/useDrillBind";
 import { TbCalendarStats, TbAlertTriangle, TbStack3, TbZzz, TbChartHistogram, TbReload, TbAnchor } from "react-icons/tb";
 
 const KpiTable = dynamic(() => import("../KpiTable"), {
@@ -195,7 +197,7 @@ function IdleCapitalCard({ value, count, totalValue, totalSkus }: { value: numbe
 }
 
 // ── Coverage distribution histogram — signature interactive chart (moving SKUs) ──
-function CoverageHistogram({ bands, region }: { bands: any[]; region: string }) {
+function CoverageHistogram({ bands, region, cat, loading }: { bands: any[]; region: string; cat: any; loading: boolean }) {
   const on = useMount(80);
   const [metric, setMetric] = useState<"count" | "value">("count");
   const [hov, setHov] = useState<number | null>(null);
@@ -203,6 +205,33 @@ function CoverageHistogram({ bands, region }: { bands: any[]; region: string }) 
   const max = Math.max(...data.map((d) => (metric === "count" ? d.count : d.value)), 1);
   const fmt = (d: any) => (metric === "count" ? d.count.toLocaleString("en-IN") : inrAbbr(d.value));
   const hd = hov != null ? data[hov] : null;
+
+  // "30–90 days holds Rs 1.84 Cr — of WHAT?" The band is computed from doh_days
+  // inside /kpi/days-on-hand/insights, so it is not a column on kpi_doh; the backend
+  // materialises it on drill_doh_grain from that endpoint's own band definition, and
+  // the panel's slice_total reproduces this bar to the paisa in every category.
+  //
+  // Ranked by RUPEES in both metric modes on purpose. In SKU mode the bar counts
+  // stock lines, and ranking ten materials by a count of 1 each would be a list in
+  // which every row ties — so the value ranking stays and the bar's own count and
+  // quantity ride along as facts, which is what the chart's footer showed anyway.
+  const drill = useDrillBind({
+    kpi: "days-on-hand", dim: "doh_band", by: "material", measure: "stock_value_cost",
+    label: "items", dimLabel: "Cover band", format: inrAbbr, category: cat.drill,
+    details: (slice) => {
+      const d = data.find((x) => x.key === slice);
+      if (!d) return [];
+      return [
+        { label: "Cover", value: d.label },
+        // The bar counts plant x material lines; the list below counts distinct
+        // materials, and the same drug stocked at four hospitals is four of the
+        // former and one of the latter. Naming it "stock lines" is the difference
+        // between two honest numbers and one apparent contradiction.
+        { label: "Stock lines", value: d.count.toLocaleString("en-IN") },
+        { label: "Units", value: numAbbr(d.qty) },
+      ];
+    },
+  });
   return (
     <div className="csv-card rounded-3xl bg-white p-5 md:p-6" style={{ animationDelay: "380ms", boxShadow: PANEL_SHADOW }}>
       <div className="flex items-center justify-between flex-wrap gap-2">
@@ -210,13 +239,19 @@ function CoverageHistogram({ bands, region }: { bands: any[]; region: string }) 
           <h3 className="text-[15px] font-semibold text-gray-900 flex items-center gap-2"><TbChartHistogram size={16} style={{ color: INDIGO }} />Coverage distribution</h3>
           <p className="text-xs text-gray-400 mt-0.5">moving SKUs by days of cover · {region}</p>
         </div>
+        <div className="flex items-center gap-2.5">
+        {cat.chip}
         <div className="flex items-center gap-0.5 p-1 rounded-full" style={{ background: "#e6e9f2" }}>
           {(["count", "value"] as const).map((m) => (
             <button key={m} onClick={() => setMetric(m)} className="text-xs font-semibold px-3.5 py-1.5 rounded-full transition-all capitalize"
               style={metric === m ? { background: "#fff", color: INDIGO, boxShadow: "0 2px 6px rgba(93,108,171,0.2)" } : { background: "transparent", color: "#8b92a8" }}>{m === "count" ? "SKUs" : "Value"}</button>
           ))}
         </div>
+        </div>
       </div>
+      {cat.note(!loading && data.every((d: any) => !d.count && !d.value)) && (
+        <div className="mt-3">{cat.note(true)}</div>
+      )}
       <div className="mt-5 flex items-end gap-3 sm:gap-5" style={{ height: 230 }} onMouseLeave={() => setHov(null)}>
         {data.map((d, i) => {
           const v = metric === "count" ? d.count : d.value;
@@ -224,7 +259,10 @@ function CoverageHistogram({ bands, region }: { bands: any[]; region: string }) 
           const active = hov === i;
           const healthy = d.key === "healthy";
           return (
-            <div key={d.key} className="flex-1 flex flex-col items-center justify-end h-full" onMouseEnter={() => setHov(i)}>
+            // An empty band has nothing inside it, so it gets no drill and no pointer
+            // cursor — bind(null) is inert rather than a panel reading "No items".
+            <div key={d.key} className="flex-1 flex flex-col items-center justify-end h-full"
+              {...drill.bind(d.value > 0 ? d.key : null, { onMouseEnter: () => setHov(i) })}>
               <span className="text-[11px] font-bold tabular-nums mb-1.5" style={{ color: active ? INK : "#6b7280", opacity: on ? 1 : 0, transition: "opacity 0.5s ease 0.6s" }}>{fmt(d)}</span>
               <div className="w-full rounded-t-lg relative" style={{ height: on ? `${Math.max(h, 1.5)}%` : "0%", background: d.grad, transition: `height 0.9s cubic-bezier(0.34,1.1,0.64,1) ${i * 60}ms`, boxShadow: active ? `0 8px 20px -6px ${d.bar}aa` : healthy ? `0 0 0 2px ${d.bar}55` : "none", outline: active ? `2px solid ${d.bar}` : "none" }} />
             </div>
@@ -240,8 +278,9 @@ function CoverageHistogram({ bands, region }: { bands: any[]; region: string }) 
       </div>
       <div className="mt-3 text-[11px] font-medium" style={{ color: hd ? INK : "#9aa1b2" }}>
         {hd ? <span><b style={{ color: hd.bar }}>{hd.label}</b> — {hd.count.toLocaleString("en-IN")} SKUs · {inrAbbr(hd.value)} · {numAbbr(hd.qty)} units</span>
-          : <span className="inline-flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm" style={{ background: "#7cbf9c" }} />green band = the 30–90 day healthy target · hover a bar</span>}
+          : <span className="inline-flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm" style={{ background: "#7cbf9c" }} />green band = the 30–90 day healthy target · hover a bar for the items inside it</span>}
       </div>
+      {drill.panel}
     </div>
   );
 }
@@ -311,12 +350,21 @@ const COLUMNS = [
 ];
 
 export default function DaysOnHandDetail() {
-  const { region, category, filtered, catParam, scopeKey } = useScope();
+  const { selectedRegion } = useRegion();
+  const region = selectedRegion?.name ?? "All Plants";
   const [data, setData] = useState<any>(null);
 
   useEffect(() => {
-    fetch(`${DASHBOARD_API_BASE_URL}/kpi/days-on-hand/insights?Plant=${encodeURIComponent(region)}${catParam}`).then((r) => r.json()).then((d) => setData(d || null)).catch(() => setData(null));
-  }, [region, catParam]);
+    fetch(`${DASHBOARD_API_BASE_URL}/kpi/days-on-hand/insights?Plant=${encodeURIComponent(region)}`).then((r) => r.json()).then((d) => setData(d || null)).catch(() => setData(null));
+  }, [region]);
+
+  // Days-on-hand is CONSUMPTION-derived (cover = stock / daily consumption), so onco
+  // legitimately reads near-zero here — HCG dispenses it through IP/OP billing, not
+  // through internal consumption movements. The chip's own note says so rather than
+  // leaving an empty histogram looking like a broken filter.
+  const cat = useCardCategory({ accent: INDIGO, domain: "consumption" });
+  const scoped = useCardScopedData(data, cat.category, (c, signal) =>
+    fetch(`${DASHBOARD_API_BASE_URL}/kpi/days-on-hand/insights?Plant=${encodeURIComponent(region)}&Category=${encodeURIComponent(c)}`, { signal }).then((r) => r.json()));
 
   const t = data?.totals || {};
   const bands = data?.bands || [];
@@ -340,7 +388,7 @@ export default function DaysOnHandDetail() {
         .csv-cards > .csv-card > * { height: 100%; }
       `}</style>
 
-      <CoverageHistogram bands={bands} region={region} />
+      <CoverageHistogram bands={scoped.data?.bands || []} region={region} cat={cat} loading={scoped.loading} />
 
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-4">
         <div className="xl:col-span-7"><ReorderPriority rows={data?.reorder || []} region={region} /></div>

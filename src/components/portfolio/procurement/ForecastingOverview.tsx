@@ -4,7 +4,10 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { useScope } from "@/context/CategoryContext";
+import { useRegion } from "@/context/RegionContext";
+import { useCardCategory, useCardScopedData, type CardDomain } from "@/components/common/CardCategoryFilter";
+import { useDrillBind } from "@/components/portfolio/useDrillBind";
+import { fetchReorderBandDrill } from "@/lib/drilldown";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import { inrAbbr, countAbbr, useMount, CountUp, smoothPath } from "@/components/portfolio/kit";
 import { TbTargetArrow, TbCoin, TbTrendingUp, TbReload, TbArrowUpRight as TbUp, TbArrowDownRight, TbArrowNarrowRight, TbFlask } from "react-icons/tb";
@@ -66,7 +69,7 @@ function Spark({ vals, fcFrom, c = AC }: { vals: number[]; fcFrom: number; c?: s
 }
 
 // ── forecast hero ──
-function Forecast({ timeline, t }: { timeline: any[]; t: any }) {
+function Forecast({ timeline, t, cat, loading }: { timeline: any[]; t: any; cat: any; loading: boolean }) {
   const on = useMount(120); const [hov, setHov] = useState<number | null>(null);
   const data = timeline || [];
   const W = 1000, H = 300, PADX = 8, PADT = 20, PADB = 34;
@@ -86,7 +89,18 @@ function Forecast({ timeline, t }: { timeline: any[]; t: any }) {
     const lPts = [br, ...fI.map((i) => ({ x: X(i), y: Y(data[i].lower) }))];
     return { aPts, aLine: smoothPath(aPts), fLine: smoothPath(fPts), cone: `${smoothPath(uPts)} ${lPts.slice().reverse().map((p) => `L ${p.x} ${p.y}`).join(" ")} Z`, nowX: X(lastA) };
   }, [timeline]);
-  if (!model) return <Card className="flex items-center justify-center" style={{ minHeight: 380 }}><span style={{ color: MUT }}>Loading forecast…</span></Card>;
+  if (!model) return (
+    // Was a bare "Loading forecast…" — with a card-level filter this is also the state a
+    // legitimately empty category lands in (onco has 3 consumption rows in six months),
+    // and "Loading…" forever is exactly what a broken filter looks like.
+    <Card className="flex flex-col justify-center" style={{ minHeight: 380 }}>
+      <div className="flex items-start justify-between gap-3">
+        <div className="text-[12px] font-semibold uppercase tracking-[0.08em]" style={{ color: MUT2 }}>Expected usage</div>
+        {cat.chip}
+      </div>
+      <div className="mt-4">{cat.note(true) ?? <span style={{ color: MUT }}>Loading forecast…</span>}</div>
+    </Card>
+  );
   return (
     <Card className="flex flex-col" style={{ minHeight: 380 }}>
       <div className="flex items-start justify-between flex-wrap gap-3">
@@ -98,8 +112,16 @@ function Forecast({ timeline, t }: { timeline: any[]; t: any }) {
           </div>
           <div className="mt-2 text-[12.5px]" style={{ color: MUT }}>Likely range <b style={{ color: INK }}>{countAbbr(Number(t?.next_lower ?? 0))} – {countAbbr(Number(t?.next_upper ?? 0))}</b> units</div>
         </div>
-        <span className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-2.5 py-1 rounded-lg" style={{ background: `${GREEN}12`, color: GREEN }}><TbTargetArrow size={13} />{Number(t?.accuracy ?? 0).toFixed(0)}% reliable</span>
+        <div className="flex items-center gap-2 flex-wrap">
+          {cat.chip}
+          {/* The reliability pill is HIDDEN while this card is filtered. `totals.accuracy`
+              is one back-test statistic for the whole model — it returns 85.7 for All,
+              Onco, Consumables and Unclassified alike. Leaving it on a filtered card
+              would assert a per-category accuracy the model never computed. */}
+          {!cat.active && <span className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-2.5 py-1 rounded-lg" style={{ background: `${GREEN}12`, color: GREEN }}><TbTargetArrow size={13} />{Number(t?.accuracy ?? 0).toFixed(0)}% reliable</span>}
+        </div>
       </div>
+      {cat.note(!loading && !Number(t?.next_demand)) && <div className="mt-3">{cat.note(true)}</div>}
       <div className="relative mt-4 flex-1" style={{ minHeight: 230 }}>
         <svg viewBox={`0 0 ${W} ${H}`} width="100%" height="100%" preserveAspectRatio="none" style={{ display: "block", overflow: "visible" }} onMouseLeave={() => setHov(null)}>
           <defs>
@@ -137,17 +159,31 @@ function Forecast({ timeline, t }: { timeline: any[]; t: any }) {
   );
 }
 
-function Horizon({ timeline }: any) {
+function Horizon({ timeline, cat, loading }: any) {
   const on = useMount(180);
   const fc = (timeline || []).filter((d: any) => d.is_forecast);
-  if (!fc.length) return null;
   const max = Math.max(...fc.map((d: any) => d.forecast), 1);
-  return (
+  // Was `if (!fc.length) return null` — a card that DISAPPEARS when you filter it reads
+  // as the page breaking, so it now stays and states the reason.
+  if (!fc.length) return (
     <Card className="flex flex-col flex-1" pad="p-5" style={{ minHeight: 130 }}>
       <div className="flex items-baseline justify-between mb-3">
         <div className="text-[12px] font-semibold uppercase tracking-[0.06em]" style={{ color: MUT2 }}>Expected use by month</div>
-        <span className="text-[11.5px]" style={{ color: MUT2 }}>units · next {fc.length} months</span>
+        {cat.chip}
       </div>
+      {cat.note(true) ?? <span className="text-[12px]" style={{ color: MUT2 }}>No forecast in this window.</span>}
+    </Card>
+  );
+  return (
+    <Card className="flex flex-col flex-1" pad="p-5" style={{ minHeight: 130 }}>
+      <div className="flex items-baseline justify-between mb-3 gap-2 flex-wrap">
+        <div className="text-[12px] font-semibold uppercase tracking-[0.06em]" style={{ color: MUT2 }}>Expected use by month</div>
+        <div className="flex items-center gap-2">
+          {cat.chip}
+          <span className="text-[11.5px]" style={{ color: MUT2 }}>units · next {fc.length} months</span>
+        </div>
+      </div>
+      {cat.note(!loading && fc.every((m: any) => !Number(m.forecast))) && <div className="mb-3">{cat.note(true)}</div>}
       <div className="flex-1 flex flex-col justify-around gap-2">
         {fc.map((m: any, i: number) => (
           <div key={i} className="flex items-center gap-3">
@@ -161,8 +197,14 @@ function Horizon({ timeline }: any) {
   );
 }
 
-function AgingCard({ segs, total }: any) {
+function AgingCard({ segs, total, cat, loading }: any) {
   const on = useMount(140);
+  // Ranked by the stock sitting behind each status — the same measure the arc lengths
+  // are counted from is `count`, but "what is turning slow" is a value question.
+  const drill = useDrillBind({
+    kpi: "aging-risk-forecast", dim: "aging_risk_forecast", by: "material", measure: "closing_stock",
+    label: "items", dimLabel: "90-day outlook", format: countAbbr, category: cat.drill,
+  });
   const rising = segs.find((s: any) => s.status === "Rising") || { count: 0 };
   const stable = segs.find((s: any) => s.status === "Stable") || { count: 0 };
   const riskPct = total ? Math.round((rising.count / total) * 100) : 0;
@@ -171,8 +213,12 @@ function AgingCard({ segs, total }: any) {
     <Card className="flex flex-col flex-1" style={{ minHeight: 234 }}>
       <div className="flex items-baseline justify-between">
         <div className="text-[12px] font-semibold uppercase tracking-[0.06em]" style={{ color: MUT2 }}>Slow-moving stock</div>
-        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: `${AMBER}16`, color: "#c17d10" }}>next 90 days</span>
+        <div className="flex items-center gap-2">
+          {cat.chip}
+          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: `${AMBER}16`, color: "#c17d10" }}>next 90 days</span>
+        </div>
       </div>
+      {cat.note(!loading && total === 0) && <div className="mt-3">{cat.note(true)}</div>}
       <div className="flex items-center gap-5 mt-3 flex-1">
         <div className="relative flex-shrink-0" style={{ width: 128, height: 128 }}>
           <svg width="128" height="128" viewBox="0 0 128 128" className="-rotate-90">
@@ -184,16 +230,17 @@ function AgingCard({ segs, total }: any) {
         </div>
         <div className="flex-1 min-w-0 space-y-3">
           <div>
-            <div className="flex items-center justify-between mb-0.5"><span className="inline-flex items-center gap-2"><span className="w-2.5 h-2.5 rounded-sm" style={{ background: AMBER }} /><span className="text-[12.5px] font-medium" style={{ color: "#4a5068" }}>Turning slow</span></span><span className="text-[14px] font-bold tabular-nums" style={{ color: INK }}>{countAbbr(rising.count)}</span></div>
+            <div className="flex items-center justify-between mb-0.5" {...drill.bind("Rising")}><span className="inline-flex items-center gap-2"><span className="w-2.5 h-2.5 rounded-sm" style={{ background: AMBER }} /><span className="text-[12.5px] font-medium" style={{ color: "#4a5068" }}>Turning slow</span></span><span className="text-[14px] font-bold tabular-nums" style={{ color: INK }}>{countAbbr(rising.count)}</span></div>
             <div className="text-[11px]" style={{ color: MUT2 }}>review before they expire</div>
           </div>
           <div>
-            <div className="flex items-center justify-between mb-0.5"><span className="inline-flex items-center gap-2"><span className="w-2.5 h-2.5 rounded-sm" style={{ background: GREEN }} /><span className="text-[12.5px] font-medium" style={{ color: "#4a5068" }}>Moving well</span></span><span className="text-[14px] font-bold tabular-nums" style={{ color: INK }}>{countAbbr(stable.count)}</span></div>
+            <div className="flex items-center justify-between mb-0.5" {...drill.bind("Stable")}><span className="inline-flex items-center gap-2"><span className="w-2.5 h-2.5 rounded-sm" style={{ background: GREEN }} /><span className="text-[12.5px] font-medium" style={{ color: "#4a5068" }}>Moving well</span></span><span className="text-[14px] font-bold tabular-nums" style={{ color: INK }}>{countAbbr(stable.count)}</span></div>
             <div className="text-[11px]" style={{ color: MUT2 }}>healthy turnover</div>
           </div>
         </div>
       </div>
       <div className="mt-auto pt-3 text-[11.5px]" style={{ color: MUT2, borderTop: `1px solid ${LINE}` }}><span className="pt-3 inline-block"><b style={{ color: INK }}>{countAbbr(rising.count)}</b> of {countAbbr(total)} items likely to turn slow-moving in 90 days — review to avoid expiry & tied-up cash</span></div>
+      {drill.panel}
     </Card>
   );
 }
@@ -207,8 +254,16 @@ const BAND_SOFT: Record<number, string> = { 1: "#fdecec", 2: "#fbeee2", 3: "#fdf
 // rupee value, so its number-one line was an item with 806 months of cover that merely
 // happened to be expensive — the opposite of a priority list. The queue is ordered by
 // how soon the line runs out, then by monthly usage.
-function Reorder({ rows, totals }: { rows: any[]; totals: any }) {
+function Reorder({ rows, totals, cat, loading }: { rows: any[]; totals: any; cat: any; loading: boolean }) {
   const on = useMount(200); const data = (rows || []).slice(0, 7);
+  // The band chip on each row is the priority band; drilling it lists the whole band's
+  // queue, not just the seven shown. Ranked on replenishment QUANTITY, because only
+  // ~16% of these lines carry a unit cost — a rupee sort would bury the rest at Rs 0.
+  const drill = useDrillBind({
+    kpi: "reorder-priority", dim: "priority_band", by: "material", label: "lines",
+    dimLabel: "Priority band", format: countAbbr, fetcher: fetchReorderBandDrill,
+    category: cat.drill,
+  });
   // Bars encode monthly usage — the tiebreak the backend actually sorts on, and a figure
   // that exists for every line. Rupees exist for only 16.5% of them.
   const max = Math.max(...data.map((r) => Number(r.demand_monthly) || 0), 1);
@@ -216,17 +271,21 @@ function Reorder({ rows, totals }: { rows: any[]; totals: any }) {
     <Card className="flex flex-col flex-1" style={{ minHeight: 234 }}>
       <div className="flex items-baseline justify-between mb-1 flex-wrap gap-1">
         <div className="text-[12px] font-semibold uppercase tracking-[0.06em]" style={{ color: MUT2 }}>Priority reorder list</div>
-        <span className="text-[11.5px]" style={{ color: MUT2 }} title={totals?.value_disclosure || ""}>
-          top 7 of {countAbbr(Number(totals?.reorder_lines ?? 0))} lines · most urgent first
-        </span>
+        <div className="flex items-center gap-2.5">
+          {cat.chip}
+          <span className="text-[11.5px]" style={{ color: MUT2 }} title={totals?.value_disclosure || ""}>
+            top 7 of {countAbbr(Number(totals?.reorder_lines ?? 0))} lines · most urgent first
+          </span>
+        </div>
       </div>
+      {cat.note(!loading && data.length === 0) && <div className="mt-3">{cat.note(true)}</div>}
       <div className="flex-1 flex flex-col justify-between mt-2">
         {data.map((r, i) => {
           const c = BAND_C[r.priority_band] || AC;
           return (
             <div key={`${r.material}-${r.plant}-${i}`} className="group flex items-center gap-3.5 rounded-xl px-2 py-1.5 -mx-2 transition-colors hover:bg-[#f7f6ff]">
               <span className="w-6 h-6 rounded-lg flex items-center justify-center text-[11px] font-bold tabular-nums flex-shrink-0"
-                title={r.priority_label} style={{ background: BAND_SOFT[r.priority_band] || ACSOFT, color: c }}>{r.priority_band}</span>
+                title={r.priority_label} style={{ background: BAND_SOFT[r.priority_band] || ACSOFT, color: c }} {...drill.bind(r.priority_band)}>{r.priority_band}</span>
               <div className="min-w-0" style={{ width: 190 }}>
                 <div className="text-[12.5px] font-semibold truncate" style={{ color: "#2b3050" }} title={r.desc}>{nm(r.desc, 26)}</div>
                 <div className="text-[10.5px] tabular-nums" style={{ color: MUT2 }}>order {countAbbr(r.reorder_qty)} · {r.plant}</div>
@@ -241,49 +300,128 @@ function Reorder({ rows, totals }: { rows: any[]; totals: any }) {
           );
         })}
         {!data.length && <div className="py-8 text-center text-sm" style={{ color: MUT2 }}>No data.</div>}
+        {drill.panel}
       </div>
     </Card>
   );
 }
 
+/**
+ * One "See the full details" tile, with its own category control.
+ *
+ * A component rather than three inline blocks because each tile needs its OWN hooks and
+ * hooks cannot be called inside the `.map`. The chip is rendered outside the <Link>: the
+ * whole tile navigates, so a control nested inside it would route away rather than
+ * filter. All three headline values genuinely move — expected-demand 4,007,448 → 908,070
+ * for Consumables, cash-flow 119,292,910 → 35,122,671, stock-replenishment 1,107 → 369.
+ */
+function ExploreTile({ kpiKey, region, pageData, domain }: { kpiKey: string; region: string; pageData: any; domain: CardDomain }) {
+  const m = KPI_META[kpiKey]; const Icon = m.Icon;
+  const cat = useCardCategory({ accent: AC, domain, label: m.title, allLabel: "All" });
+  const scoped = useCardScopedData(pageData, cat.category, (c, signal) =>
+    fetch(`${DASHBOARD_API_BASE_URL}/portfolio/forecasting/overview?Plant=${encodeURIComponent(region)}&Category=${encodeURIComponent(c)}`, { signal }).then((r) => r.json()));
+  const c = (scoped.data?.cards || {})[kpiKey] || {};
+  const val = c.kind === "inr" ? inrAbbr(Number(c.value ?? 0)) : c.kind === "pct" ? `${Number(c.value ?? 0).toFixed(0)}%` : countAbbr(Number(c.value ?? 0));
+  return (
+    <div className="relative">
+      <div className="absolute right-3 top-[18px] z-20">{cat.chip}</div>
+      <Link href={m.href} className="fc-card group rounded-[18px] p-5 block" style={{ background: CARD, border: `1px solid ${BORDER}`, boxShadow: SH }}
+        onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.boxShadow = "0 8px 30px -12px rgba(109,94,252,0.35)"; (e.currentTarget as HTMLElement).style.transform = "translateY(-2px)"; (e.currentTarget as HTMLElement).style.borderColor = "#dcd8ff"; }}
+        onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.boxShadow = SH; (e.currentTarget as HTMLElement).style.transform = "none"; (e.currentTarget as HTMLElement).style.borderColor = BORDER; }}>
+        <div className="flex items-center justify-between">
+          <span className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: ACSOFT, color: AC }}><Icon size={20} /></span>
+          <TbArrowNarrowRight size={18} style={{ color: MUT2 }} className="transition-transform group-hover:translate-x-1 mr-[86px]" />
+        </div>
+        <div className="mt-4 text-[21px] font-bold tabular-nums leading-none" style={{ color: INK }}>{val}</div>
+        <div className="mt-1.5 text-[13px] font-semibold" style={{ color: "#333850" }}>{m.title}</div>
+        <div className="text-[11.5px] mt-0.5" style={{ color: MUT2 }}>{m.sub}</div>
+      </Link>
+      {cat.note(!scoped.loading && !Number(c.value)) && <div className="mt-2">{cat.note(true)}</div>}
+    </div>
+  );
+}
+
 export default function ForecastingOverview() {
-  const { region, category, filtered, catParam, scopeKey } = useScope();
+  const { selectedRegion } = useRegion();
+  const region = selectedRegion?.name ?? "All Plants";
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     setLoading(true);
-    fetch(`${DASHBOARD_API_BASE_URL}/portfolio/forecasting/overview?Plant=${encodeURIComponent(region)}${catParam}`)
+    fetch(`${DASHBOARD_API_BASE_URL}/portfolio/forecasting/overview?Plant=${encodeURIComponent(region)}`)
       .then((r) => r.json()).then((d) => { setData(d || null); setLoading(false); })
       .catch(() => { setData(null); setLoading(false); });
-  }, [region, catParam]);
+  }, [region]);
   // true while in flight OR resolved with nothing usable -- the metrics bar below renders
   // a neutral skeleton in that state instead of a confident-looking "0 items" / "₹0".
   const showSkeleton = loading || !data;
+
+  // Two cards on this page can be cut by category; the rest of the page cannot, so the
+  // rest of the page shows nothing. The slow-moving donut is stock-derived (every
+  // category has data); the reorder queue is consumption-derived demand, so onco is
+  // greyed there with the backend's own explanation.
+  // One hook pair PER CARD, all against the same overview URL. Every node this page
+  // renders except `totals.accuracy` moves under `?Category=` (verified endpoint-side),
+  // so every card here gets a chip and each one narrows only itself.
+  const ov = (c: string, signal: AbortSignal) =>
+    fetch(`${DASHBOARD_API_BASE_URL}/portfolio/forecasting/overview?Plant=${encodeURIComponent(region)}&Category=${encodeURIComponent(c)}`, { signal }).then((r) => r.json());
+
+  const agingCat = useCardCategory({ accent: AMBER, label: "Slow-moving stock" });
+  const agingScoped = useCardScopedData(data, agingCat.category, ov);
+  const reorderCat = useCardCategory({ accent: AC, domain: "reorder", label: "Priority reorder list" });
+  const reorderScoped = useCardScopedData(data, reorderCat.category, ov);
+  // The four cells of the metrics bar. `allLabel: "All"` keeps each chip narrow enough to
+  // sit beside an uppercase tile label in a quarter-width cell.
+  const m1Cat = useCardCategory({ accent: AC, domain: "reorder", label: "To order · full requisition", allLabel: "All" });
+  const m1Scoped = useCardScopedData(data, m1Cat.category, ov);
+  const m2Cat = useCardCategory({ accent: RED, domain: "reorder", label: "Flagged by stock radar", allLabel: "All" });
+  const m2Scoped = useCardScopedData(data, m2Cat.category, ov);
+  const m3Cat = useCardCategory({ accent: AC, domain: "consumption", label: "Expected use next month", allLabel: "All" });
+  const m3Scoped = useCardScopedData(data, m3Cat.category, ov);
+  const m4Cat = useCardCategory({ accent: AC, domain: "consumption", label: "Money to restock next month", allLabel: "All" });
+  const m4Scoped = useCardScopedData(data, m4Cat.category, ov);
+  const radarCat = useCardCategory({ accent: RED, domain: "reorder", label: "Stock replenishment radar" });
+  const radarScoped = useCardScopedData(data, radarCat.category, ov);
+  const fcCat = useCardCategory({ accent: AC, domain: "consumption", label: "Expected usage forecast" });
+  const fcScoped = useCardScopedData(data, fcCat.category, ov);
+  const hzCat = useCardCategory({ accent: AC2, domain: "consumption", label: "Expected use by month" });
+  const hzScoped = useCardScopedData(data, hzCat.category, ov);
+
   const t = data?.totals || {};
   const tl = data?.timeline || [];
-  const acts = tl.filter((d: any) => d.actual != null).map((d: any) => d.actual);
-  const fcs = tl.filter((d: any) => d.is_forecast).map((d: any) => d.forecast);
-  const demandDelta = acts.length && fcs.length && acts[acts.length - 1] ? ((fcs[0] - acts[acts.length - 1]) / acts[acts.length - 1]) * 100 : 0;
   const cfVals = (data?.cashflow || []).map((d: any) => d.forecast);
-  const cfDelta = cfVals.length >= 2 && cfVals[0] ? ((cfVals[cfVals.length - 1] - cfVals[0]) / cfVals[0]) * 100 : 0;
   const radar = data?.radar || [], aging = data?.aging || [];
   const radarSegs = radar.map((r: any) => ({ ...r, color: r.status === "Healthy" ? GREEN : r.status.includes("Out") ? RED : AMBER }));
-  const radarTotal = radar.reduce((s: number, r: any) => s + r.count, 0);
-  const agingSegs = aging.map((r: any) => ({ ...r, color: r.status === "Rising" ? AMBER : GREEN }));
-  const agingTotal = aging.reduce((s: number, r: any) => s + r.count, 0);
-  const cards = data?.cards || {};
+  const agingScopedRows = agingScoped.data?.aging || [];
+  const agingSegs = agingScopedRows.map((r: any) => ({ ...r, color: r.status === "Rising" ? AMBER : GREEN }));
+  const agingTotal = agingScopedRows.reduce((s: number, r: any) => s + r.count, 0);
   const cnt = (name: string, list: any[]) => Number((list.find((x: any) => x.status.includes(name)) || {}).count || 0);
+
+  // ── the forecast chart's own copy ──
+  const fcTl = fcScoped.data?.timeline || [];
+  const fcT = fcScoped.data?.totals || {};
+  // ── the horizon card's own copy ──
+  const hzTl = hzScoped.data?.timeline || [];
+  // ── the radar card's own copy ──
+  const rRadar = radarScoped.data?.radar || [], rAging = radarScoped.data?.aging || [], rT = radarScoped.data?.totals || {};
   const radarMetrics = {
-    stockOutMaterials: cnt("Out", radar),
-    replenishmentQty: Number(t.replen_qty ?? 0),
-    inventoryRisk: cnt("Rising", aging),
-    demandForecast: Number(t.next_demand ?? 0),
-    safeStock: cnt("Healthy", radar),
-    totalStock: radarTotal,
+    stockOutMaterials: cnt("Out", rRadar),
+    replenishmentQty: Number(rT.replen_qty ?? 0),
+    inventoryRisk: cnt("Rising", rAging),
+    demandForecast: Number(rT.next_demand ?? 0),
+    safeStock: cnt("Healthy", rRadar),
+    totalStock: rRadar.reduce((s: number, r: any) => s + r.count, 0),
   };
 
-  const stockOutCount = cnt("Out", radar);
-  const reorder = data?.reorder || {};
+  // ── the metrics bar, one scoped payload per cell ──
+  const m3Tl = m3Scoped.data?.timeline || [];
+  const m3Acts = m3Tl.filter((d: any) => d.actual != null).map((d: any) => d.actual);
+  const m3Fcs = m3Tl.filter((d: any) => d.is_forecast).map((d: any) => d.forecast);
+  const demandDelta = m3Acts.length && m3Fcs.length && m3Acts[m3Acts.length - 1] ? ((m3Fcs[0] - m3Acts[m3Acts.length - 1]) / m3Acts[m3Acts.length - 1]) * 100 : 0;
+  const m4Cf = (m4Scoped.data?.cashflow || []).map((d: any) => d.forecast);
+  const cfDelta = m4Cf.length >= 2 && m4Cf[0] ? ((m4Cf[m4Cf.length - 1] - m4Cf[0]) / m4Cf[0]) * 100 : 0;
+  const stockOutCount = cnt("Out", m2Scoped.data?.radar || []);
+  const reorder = m1Scoped.data?.reorder || {};
   const metrics = [
     // Leads with the FULL requisition (19,014 lines), matching the Reorder & Stock Risk
     // page. This used to show the 1,107 "under 1 month cover" band, which excluded every
@@ -295,13 +433,15 @@ export default function ForecastingOverview() {
       unit: "lines",
       sub: `${countAbbr(Number(reorder.out_of_stock_lines ?? 0))} already at zero stock · ${inrAbbr(Number(reorder.reorder_value_priced ?? 0))} priced on ${Number(reorder.priced_share_pct ?? 0).toFixed(0)}% of lines`,
       tone: AC,
+      cat: m1Cat,
+      empty: !m1Scoped.loading && !Number(reorder.reorder_lines),
     },
     // Deliberately NOT labelled "Stock-out risk": that phrase is already the
     // Reorder & Stock Risk page's tile for a different figure (15,878 from the
     // replenishment table vs 17,043 here from the stock radar). Name the source.
-    { label: "Flagged by stock radar", value: countAbbr(stockOutCount), unit: "items", sub: "run-out risk on the radar", tone: RED },
-    { label: "Expected use · next month", value: countAbbr(Number(t.next_demand ?? 0)), unit: "units", delta: demandDelta, spark: [...acts, ...fcs], fcFrom: acts.length },
-    { label: "Money to restock · next month", value: inrAbbr(Number(t.cashflow_next ?? 0)), unit: "", delta: cfDelta, spark: cfVals, fcFrom: 0 },
+    { label: "Flagged by stock radar", value: countAbbr(stockOutCount), unit: "items", sub: "run-out risk on the radar", tone: RED, cat: m2Cat, empty: !m2Scoped.loading && !stockOutCount },
+    { label: "Expected use · next month", value: countAbbr(Number((m3Scoped.data?.totals || {}).next_demand ?? 0)), unit: "units", delta: demandDelta, spark: [...m3Acts, ...m3Fcs], fcFrom: m3Acts.length, cat: m3Cat, empty: !m3Scoped.loading && !Number((m3Scoped.data?.totals || {}).next_demand) },
+    { label: "Money to restock · next month", value: inrAbbr(Number((m4Scoped.data?.totals || {}).cashflow_next ?? 0)), unit: "", delta: cfDelta, spark: m4Cf, fcFrom: 0, cat: m4Cat, empty: !m4Scoped.loading && !Number((m4Scoped.data?.totals || {}).cashflow_next) },
   ];
 
   return (
@@ -332,15 +472,19 @@ export default function ForecastingOverview() {
         <div className="grid grid-cols-2 lg:grid-cols-4">
           {metrics.map((m, i) => (
             <div key={i} className="p-5 relative" style={{ borderLeft: i % 4 === 0 ? "none" : `1px solid ${LINE}`, borderTop: i >= 2 ? `1px solid ${LINE}` : "none" }}>
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-2 flex-wrap">
                 <span className="text-[11.5px] font-semibold uppercase tracking-[0.05em]" style={{ color: MUT2 }}>{m.label}</span>
-                {m.delta != null && <Delta pct={m.delta} />}
+                <span className="inline-flex items-center gap-1.5">
+                  {m.delta != null && <Delta pct={m.delta} />}
+                  {m.cat.chip}
+                </span>
               </div>
               <div className="mt-3 flex items-end gap-1.5">
                 <span className="text-[27px] leading-none font-bold tabular-nums tracking-tight" style={{ color: (m as any).tone || INK }}>{m.value}</span>
                 {m.unit && <span className="text-[12px] font-medium mb-0.5" style={{ color: MUT2 }}>{m.unit}</span>}
               </div>
               <div className="mt-2 h-[34px] flex items-end">{m.spark ? <Spark vals={m.spark} fcFrom={m.fcFrom!} /> : <span className="text-[12px]" style={{ color: MUT }}>{m.sub}</span>}</div>
+              {m.cat.note(m.empty) && <div className="mt-2">{m.cat.note(true)}</div>}
             </div>
           ))}
         </div>
@@ -350,38 +494,29 @@ export default function ForecastingOverview() {
       {/* ── STEP 1 · ACT: what to order now + overall stock health ── */}
       <SectionLabel n={1} title="Order these first" hint="highest-value items your stock won't cover" />
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-stretch">
-        <div className="xl:col-span-8 flex flex-col"><Reorder rows={data?.priority_queue || []} totals={data?.reorder || {}} /></div>
-        <div className="xl:col-span-4 flex items-center justify-center rounded-[18px]" style={{ background: "#fff", border: "1px solid #ecedf4", boxShadow: SH, padding: "8px 0" }}><StockRadarCard region={region} metrics={radarMetrics} /></div>
+        <div className="xl:col-span-8 flex flex-col"><Reorder rows={reorderScoped.data?.priority_queue || []} totals={reorderScoped.data?.reorder || {}} cat={reorderCat} loading={reorderScoped.loading} /></div>
+        <div className="xl:col-span-4 flex flex-col items-center justify-center rounded-[18px]" style={{ background: "#fff", border: "1px solid #ecedf4", boxShadow: SH, padding: "8px 0" }}>
+          <StockRadarCard region={region} metrics={radarMetrics} headerSlot={radarCat.chip} />
+          {radarCat.note(!radarScoped.loading && !radarMetrics.totalStock) && <div className="px-4 pb-3 w-full">{radarCat.note(true)}</div>}
+        </div>
       </div>
 
       {/* ── STEP 2 · PLAN: expected usage ahead + slow-moving stock ── */}
       <SectionLabel n={2} title="The outlook ahead" hint="expected usage for the next 3 months, and stock turning slow" className="mt-8" />
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-stretch">
-        <div className="xl:col-span-8 flex flex-col"><Forecast timeline={tl} t={t} /></div>
+        <div className="xl:col-span-8 flex flex-col"><Forecast timeline={fcTl} t={fcT} cat={fcCat} loading={fcScoped.loading} /></div>
         <div className="xl:col-span-4 flex flex-col gap-5">
-          <AgingCard segs={agingSegs} total={agingTotal} />
-          <Horizon timeline={tl} />
+          <AgingCard segs={agingSegs} total={agingTotal} cat={agingCat} loading={agingScoped.loading} />
+          <Horizon timeline={hzTl} cat={hzCat} loading={hzScoped.loading} />
         </div>
       </div>
 
       {/* ── STEP 3 · DRILL IN: full breakdowns ── */}
       <SectionLabel n={3} title="See the full details" hint="item-by-item usage, budget and stock risk" className="mt-8" />
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {Object.keys(KPI_META).map((key) => { const m = KPI_META[key]; const Icon = m.Icon; const c = cards[key] || {};
-          const val = c.kind === "inr" ? inrAbbr(Number(c.value ?? 0)) : c.kind === "pct" ? `${Number(c.value ?? 0).toFixed(0)}%` : countAbbr(Number(c.value ?? 0));
-          return (
-            <Link key={key} href={m.href} className="fc-card group rounded-[18px] p-5 block" style={{ background: CARD, border: `1px solid ${BORDER}`, boxShadow: SH }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.boxShadow = "0 8px 30px -12px rgba(109,94,252,0.35)"; (e.currentTarget as HTMLElement).style.transform = "translateY(-2px)"; (e.currentTarget as HTMLElement).style.borderColor = "#dcd8ff"; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.boxShadow = SH; (e.currentTarget as HTMLElement).style.transform = "none"; (e.currentTarget as HTMLElement).style.borderColor = BORDER; }}>
-              <div className="flex items-center justify-between">
-                <span className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: ACSOFT, color: AC }}><Icon size={20} /></span>
-                <TbArrowNarrowRight size={18} style={{ color: MUT2 }} className="transition-transform group-hover:translate-x-1" />
-              </div>
-              <div className="mt-4 text-[21px] font-bold tabular-nums leading-none" style={{ color: INK }}>{val}</div>
-              <div className="mt-1.5 text-[13px] font-semibold" style={{ color: "#333850" }}>{m.title}</div>
-              <div className="text-[11.5px] mt-0.5" style={{ color: MUT2 }}>{m.sub}</div>
-            </Link>
-          ); })}
+        <ExploreTile kpiKey="expected-demand" region={region} pageData={data} domain="consumption" />
+        <ExploreTile kpiKey="cash-flow-forecast" region={region} pageData={data} domain="consumption" />
+        <ExploreTile kpiKey="stock-replenishment" region={region} pageData={data} domain="reorder" />
         {SIM_FORECAST.map(({ meta, Icon, accent, val }) => (
           <Link key={meta.key} href={`/kpi/${meta.key}`} className="fc-card group rounded-[18px] p-5 block" style={{ background: CARD, border: `1px solid ${BORDER}`, boxShadow: SH, opacity: 0.62, filter: "saturate(0.72)" }}
             onMouseEnter={(e) => { const t = e.currentTarget as HTMLElement; t.style.opacity = "1"; t.style.filter = "none"; t.style.boxShadow = "0 8px 30px -12px rgba(109,94,252,0.35)"; t.style.transform = "translateY(-2px)"; t.style.borderColor = "#dcd8ff"; }}

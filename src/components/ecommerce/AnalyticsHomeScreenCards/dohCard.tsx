@@ -19,6 +19,8 @@ export interface DOHCardProps {
   className?: string;
   theme?: Partial<PremiumTheme>;
   animated?: boolean;
+  /** Card-level controls (the material-category chip). Rendered in the header. */
+  headerSlot?: React.ReactNode;
 }
 
 interface PremiumTheme {
@@ -63,7 +65,8 @@ const DOHPremiumCard: React.FC<DOHCardProps> = ({
   lastCalculated,
   className = '',
   theme: customTheme = {},
-  animated = true
+  animated = true,
+  headerSlot
 }) => {
   const mergedTheme: PremiumTheme = { ...defaultTheme, ...customTheme };
   const [displayDays, setDisplayDays] = useState(animated ? 0 : daysOnHand);
@@ -287,8 +290,10 @@ const DOHPremiumCard: React.FC<DOHCardProps> = ({
       >
         {/* Enhanced frosty shimmer effect */}
         {isRefreshing && (
-          <div 
-            className="absolute inset-0 opacity-30"
+          <div
+            // pointer-events-none: decorative sweep laid over the whole card. Without it
+            // every periodic refresh swallows clicks on the card's own category chip.
+            className="absolute inset-0 opacity-30 pointer-events-none"
             style={{
               background: `linear-gradient(45deg, 
                 transparent 30%, 
@@ -343,7 +348,10 @@ const DOHPremiumCard: React.FC<DOHCardProps> = ({
               )}
             </div>
 
-            {trend && getTrendVisualization()}
+            <div className="flex items-center gap-2 flex-shrink-0">
+              {headerSlot}
+              {trend && getTrendVisualization()}
+            </div>
           </div>
 
           {/* Days Display with Liquid Container */}

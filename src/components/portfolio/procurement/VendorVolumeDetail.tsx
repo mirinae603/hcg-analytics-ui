@@ -270,12 +270,15 @@ function BubbleGalaxy({ vendors }: { vendors: any[] }) {
 function Leaders({ vendors, t }: { vendors: any[]; t: any }) {
   const on = useMount(260);
   const rows = (vendors || []).slice(0, 8);
-  // kpi_vendor_volume has no material column, so "top 10 items from this vendor" does not
-  // exist in the source. The question that DOES have an answer — and the one a buyer
-  // actually asks looking at an 11%-of-spend supplier — is which hospitals they serve.
+  // kpi_vendor_volume is plant x vendor with no material column, which is why this used
+  // to answer "which hospitals do they serve" — a real question, but not the first one a
+  // buyer asks in front of an 11%-of-spend supplier. The drill endpoint now re-routes to
+  // fact_po, where vendor and material sit on the same row, so the panel answers WHAT
+  // you buy from them. Totals still reconcile to the bar: fact_po grouped by vendor IS
+  // kpi_vendor_volume.
   const drill = useDrillBind({
-    kpi: "vendor-volume-contribution", dim: "vendor", by: "plant", measure: "vendor_value",
-    label: "hospitals", dimLabel: "Vendor · total spend", format: inrAbbr,
+    kpi: "vendor-volume-contribution", dim: "vendor", by: "material", measure: "vendor_value",
+    label: "items", dimLabel: "Vendor · total spend", format: inrAbbr,
   });
   const maxShare = Math.max(...rows.map((r: any) => r.share), 1);
   return (

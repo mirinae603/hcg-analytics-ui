@@ -1,9 +1,10 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import { useScope } from "@/context/CategoryContext";
+import { useRegion } from "@/context/RegionContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
+import { useCardCategory, useCardScopedData } from "@/components/common/CardCategoryFilter";
 import { useDrillBind } from "@/components/portfolio/useDrillBind";
 import { TbAlertOctagon, TbGridDots } from "react-icons/tb";
 
@@ -146,21 +147,35 @@ function RiskMatrix({ data, region }: { data: any; region: string }) {
   );
 }
 
-function HighRiskCategories({ cats, region }: { cats: any[]; region: string }) {
+function HighRiskCategories({ cats, region, cat, loading }: { cats: any[]; region: string; cat: any; loading: boolean }) {
   const on = useMount(160); const max = Math.max(...cats.map((c) => c.value), 1);
   const catName = (g: string) => String(g).replace(/^M\d+-/, "");
+  // `c.name` is the untouched "M065-INJECTIONS" the API groups by; the label beside it
+  // strips the prefix, and sending that instead would match no rows.
+  const drill = useDrillBind({
+    kpi: "inventory-risk", dim: "material_group", by: "material", measure: "closing_stock_value",
+    label: "items", dimLabel: "Category", format: inrAbbr, category: cat.drill,
+  });
   return (
     <div className="csv-card rounded-3xl bg-white p-5 md:p-6 flex flex-col" style={{ animationDelay: "240ms", boxShadow: PANEL_SHADOW }}>
-      <h3 className="text-[15px] font-semibold text-gray-900 flex items-center gap-2"><TbAlertOctagon size={16} style={{ color: HIGH }} />High-risk categories</h3>
-      <p className="text-xs text-gray-400 mt-0.5 mb-4">value flagged high-risk · {region}</p>
+      <div className="flex items-start justify-between gap-2">
+        <div>
+          <h3 className="text-[15px] font-semibold text-gray-900 flex items-center gap-2"><TbAlertOctagon size={16} style={{ color: HIGH }} />High-risk categories</h3>
+          <p className="text-xs text-gray-400 mt-0.5">value flagged high-risk · {region}</p>
+        </div>
+        {cat.chip}
+      </div>
+      {cat.note(!loading && cats.length === 0) && <div className="mt-3">{cat.note(true)}</div>}
+      <div className="mb-4" />
       <div className="space-y-2.5 flex-1">
         {cats.slice(0, 8).map((c, i) => (
-          <div key={i}>
+          <div key={i} {...drill.bind(c.name)}>
             <div className="flex items-center justify-between mb-1"><span className="text-[12px] font-medium text-gray-700 truncate pr-2" title={catName(c.name)}>{catName(c.name)}</span><span className="text-[11px] font-semibold tabular-nums flex-shrink-0" style={{ color: HIGH }}>{inrAbbr(c.value)}</span></div>
             <div className="h-2 rounded-full overflow-hidden" style={{ background: "#f0e6e4" }}><div className="h-full rounded-full" style={{ width: on ? `${(c.value / max) * 100}%` : "0%", background: "linear-gradient(90deg,#dca85e,#d65f54)", transition: `width 0.9s ease ${i * 50}ms` }} /></div>
           </div>
         ))}
         {!cats.length && <div className="py-12 text-center text-gray-400 text-sm">No data.</div>}
+        {drill.panel}
       </div>
     </div>
   );
@@ -173,12 +188,17 @@ const COLUMNS = [
 ];
 
 export default function RiskDetail() {
-  const { region, category, filtered, catParam, scopeKey } = useScope();
+  const { selectedRegion } = useRegion();
+  const region = selectedRegion?.name ?? "All Plants";
   const [data, setData] = useState<any>(null);
 
   useEffect(() => {
-    fetch(`${DASHBOARD_API_BASE_URL}/kpi/inventory-risk/insights?Plant=${encodeURIComponent(region)}${catParam}`).then((r) => r.json()).then((d) => setData(d || null)).catch(() => setData(null));
-  }, [region, catParam]);
+    fetch(`${DASHBOARD_API_BASE_URL}/kpi/inventory-risk/insights?Plant=${encodeURIComponent(region)}`).then((r) => r.json()).then((d) => setData(d || null)).catch(() => setData(null));
+  }, [region]);
+
+  const cat = useCardCategory({ accent: HIGH });
+  const scoped = useCardScopedData(data, cat.category, (c, signal) =>
+    fetch(`${DASHBOARD_API_BASE_URL}/kpi/inventory-risk/insights?Plant=${encodeURIComponent(region)}&Category=${encodeURIComponent(c)}`, { signal }).then((r) => r.json()));
 
   const t = data?.totals || {};
   const tiers: any[] = data?.tiers || [];
@@ -197,7 +217,7 @@ export default function RiskDetail() {
 
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-4">
         <div className="xl:col-span-8"><RiskMatrix data={data} region={region} /></div>
-        <div className="xl:col-span-4"><HighRiskCategories cats={data?.categories || []} region={region} /></div>
+        <div className="xl:col-span-4"><HighRiskCategories cats={scoped.data?.categories || []} region={region} cat={cat} loading={scoped.loading} /></div>
       </div>
 
       <div className="csv-card rounded-3xl bg-white overflow-hidden" style={{ animationDelay: "340ms", boxShadow: PANEL_SHADOW }}>

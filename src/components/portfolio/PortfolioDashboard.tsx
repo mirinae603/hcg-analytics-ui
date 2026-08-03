@@ -1,29 +1,26 @@
 "use client";
 import { useEffect, useState } from "react";
 import { byPortfolio, PORTFOLIOS } from "@/lib/kpiRegistry";
-import { useScope } from "@/context/CategoryContext";
-import { isPortfolioScoped } from "@/lib/categoryScope";
+import { useRegion } from "@/context/RegionContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import ExecutiveKpiCard from "./ExecutiveKpiCard";
 
 export default function PortfolioDashboard({ portfolio }: { portfolio: string }) {
   const meta = PORTFOLIOS.find((p) => p.key === portfolio);
   const kpis = byPortfolio(portfolio);
-  const { region, category, filtered, catParam, scopeKey } = useScope();
-  const scoped = isPortfolioScoped(portfolio);
+  const { selectedRegion } = useRegion();
+  const region = selectedRegion?.name ?? "All Plants";
   const [summary, setSummary] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setLoading(true);
-    // A portfolio summary fans out to every KPI it contains, so the weakest member sets
-    // the rule — Procurement holds purchase-value, which returns 0 rows under a Category.
-    fetch(`${DASHBOARD_API_BASE_URL}/portfolio/${portfolio}/summary?Plant=${encodeURIComponent(region)}${scoped ? catParam : ""}`)
+    fetch(`${DASHBOARD_API_BASE_URL}/portfolio/${portfolio}/summary?Plant=${encodeURIComponent(region)}`)
       .then((r) => r.json())
       .then(setSummary)
       .catch(() => setSummary({}))
       .finally(() => setLoading(false));
-  }, [portfolio, scopeKey]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [portfolio, region]);
 
   return (
     <div className="space-y-6">
@@ -35,12 +32,7 @@ export default function PortfolioDashboard({ portfolio }: { portfolio: string })
         </div>
         <div>
           <h1 className="text-xl font-bold text-gray-800">{meta?.name} Portfolio</h1>
-          <p className="text-sm text-gray-400 mt-0.5">
-            {meta?.desc} · {kpis.length} KPIs · {region}
-            {filtered && (scoped
-              ? <span style={{ color: "#a56a15" }}> · {category.name}</span>
-              : <span title="Procurement metrics are measured per vendor and per PO, not per material category."> · all categories (not split by category)</span>)}
-          </p>
+          <p className="text-sm text-gray-400 mt-0.5">{meta?.desc} · {kpis.length} KPIs · {region}</p>
         </div>
         {loading && (
           <div className="ml-auto flex items-center gap-2">

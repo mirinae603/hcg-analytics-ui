@@ -16,8 +16,8 @@
 //   same information is reachable on a tablet as on a desktop.
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { TbX, TbChevronRight } from 'react-icons/tb'
-import { DrillResult, DrillQuery, fetchDrill, drillCacheKey } from '@/lib/drilldown'
+import { TbX, TbChevronRight, TbAlertTriangle } from 'react-icons/tb'
+import { DrillResult, DrillQuery, DrillError, fetchDrill, drillCacheKey } from '@/lib/drilldown'
 
 const HOVER_INTENT_MS = 200
 const PANEL_W = 340
@@ -37,6 +37,52 @@ function remember(k: string, v: DrillResult) {
 
 type Anchor = { x: number; y: number }
 export type DrillFact = { label: string; value: string }
+
+// ─── failure, made loud ───────────────────────────────────────────────────────
+/**
+ * THE bug this file had: `.catch(() => setFailed(true))` rendered a single grey line
+ * reading "Breakdown unavailable for this slice." — indistinguishable from a chart
+ * nobody had wired, and identical for every cause. Six charts shipped that way and
+ * nothing on screen or in the console said a word.
+ *
+ * A failure now carries what broke and why, is drawn in the panel as an obvious
+ * amber state, and is logged once per distinct (kpi, dim, by, status) in dev. Once
+ * per combination, not per hover: a user sweeping a 12-bar chart would otherwise
+ * bury the console under the same line twelve times.
+ */
+export type DrillFailure = {
+  status: number
+  detail: string
+  kpi: string
+  dim: string
+  by: string
+  slice: string
+}
+
+function toFailure(e: any, q: DrillQuery): DrillFailure {
+  const isDrill = e instanceof DrillError
+  return {
+    status: isDrill ? e.status : 0,
+    detail: isDrill ? e.detail : String(e?.message ?? e ?? 'network error'),
+    kpi: q.kpi, dim: q.dim, by: q.by, slice: q.slice,
+  }
+}
+
+const REPORTED = new Set<string>()
+
+export function reportDrillFailure(f: DrillFailure) {
+  if (process.env.NODE_ENV === 'production') return
+  const k = `${f.kpi}|${f.dim}|${f.by}|${f.status}`
+  if (REPORTED.has(k)) return
+  REPORTED.add(k)
+  // eslint-disable-next-line no-console
+  console.error(
+    `[drill] ${f.kpi} · dim=${f.dim} · by=${f.by} → HTTP ${f.status || 'ERR'}\n` +
+    `        slice="${f.slice}"\n` +
+    `        ${f.detail}\n` +
+    `        contract: GET /drill/matrix?kpi=${f.kpi}`
+  )
+}
 type Spec = Omit<DrillQuery, 'slice'> & {
   /** Formats the measure — pass the chart's own formatter so the panel speaks its language. */
   format: (n: number) => string
@@ -71,7 +117,10 @@ export function useDrillDown(spec: Spec | null) {
   const [pinned, setPinned] = useState(false)
   const [data, setData] = useState<DrillResult | null>(null)
   const [loading, setLoading] = useState(false)
-  const [failed, setFailed] = useState(false)
+  // The REASON, not a boolean. A failed drill used to set a flag that rendered one
+  // grey line, so a chart wired to a dimension its KPI does not have looked exactly
+  // like a chart nobody wired at all — which is how six of them shipped broken.
+  const [failure, setFailure] = useState<DrillFailure | null>(null)
 
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const abort = useRef<AbortController | null>(null)
@@ -94,16 +143,18 @@ export function useDrillDown(spec: Spec | null) {
     const q: DrillQuery = { ...spec, slice: s }
     const key = drillCacheKey(q)
     const hit = CACHE.get(key)
-    if (hit) { setData(hit); setLoading(false); setFailed(false); return }
+    if (hit) { setData(hit); setLoading(false); setFailure(null); return }
 
-    setLoading(true); setFailed(false); setData(null)
+    setLoading(true); setFailure(null); setData(null)
     const ac = new AbortController()
     abort.current = ac
     ;(spec.fetcher ?? fetchDrill)(q, ac.signal)
       .then((r) => { remember(key, r); if (!ac.signal.aborted) { setData(r); setLoading(false) } })
       .catch((e) => {
         if (ac.signal.aborted || e?.name === 'AbortError') return
-        setFailed(true); setLoading(false)
+        const f = toFailure(e, q)
+        reportDrillFailure(f)
+        setFailure(f); setLoading(false)
       })
   }, [spec])
 
@@ -111,7 +162,7 @@ export function useDrillDown(spec: Spec | null) {
   const enter = useCallback((s: string, x: number, y: number) => {
     if (!spec || pinnedRef.current || coarse) return
     cancelPending()
-    setSlice(s); setAnchor({ x, y }); setData(null); setLoading(false); setFailed(false)
+    setSlice(s); setAnchor({ x, y }); setData(null); setLoading(false); setFailure(null)
     timer.current = setTimeout(() => load(s), HOVER_INTENT_MS)
   }, [spec, coarse, cancelPending, load])
 
@@ -123,7 +174,7 @@ export function useDrillDown(spec: Spec | null) {
   const leave = useCallback(() => {
     if (pinnedRef.current) return
     cancelPending()
-    setSlice(null); setData(null); setLoading(false); setFailed(false)
+    setSlice(null); setData(null); setLoading(false); setFailure(null)
   }, [cancelPending])
 
   /** Tap / click — freeze the panel so it can be read and scrolled. */
@@ -136,7 +187,7 @@ export function useDrillDown(spec: Spec | null) {
 
   const close = useCallback(() => {
     cancelPending()
-    setPinned(false); setSlice(null); setData(null); setLoading(false); setFailed(false)
+    setPinned(false); setSlice(null); setData(null); setLoading(false); setFailure(null)
   }, [cancelPending])
 
   useEffect(() => () => cancelPending(), [cancelPending])
@@ -156,7 +207,7 @@ export function useDrillDown(spec: Spec | null) {
         anchor={anchor}
         pinned={pinned}
         loading={loading}
-        failed={failed}
+        failure={failure}
         data={data}
         format={spec.format}
         label={spec.label}
@@ -200,13 +251,13 @@ function Row({ it, max, format }: { it: any; max: number; format: (n: number) =>
 }
 
 function DrillPanel({
-  slice, anchor, pinned, loading, failed, data, format, label, dimLabel, facts = [], canPin = true, onClose,
+  slice, anchor, pinned, loading, failure, data, format, label, dimLabel, facts = [], canPin = true, onClose,
 }: {
   slice: string
   anchor: Anchor
   pinned: boolean
   loading: boolean
-  failed: boolean
+  failure: DrillFailure | null
   data: DrillResult | null
   format: (n: number) => string
   label: string
@@ -325,13 +376,42 @@ function DrillPanel({
           </>
         )}
 
-        {!loading && failed && (
-          <div className="px-2 py-4 text-center text-[11.5px]" style={{ color: MUT }}>
-            Breakdown unavailable for this slice.
+        {/* Loud on purpose. A drill that could not load has to look BROKEN, not
+            merely empty — "no items in this slice" and "this chart is wired to a
+            dimension its KPI does not have" are different facts and must not render
+            the same. In dev the exact combination is shown so it is fixable without
+            opening the network tab. */}
+        {!loading && failure && (
+          <div className="px-2.5 py-3">
+            <div
+              className="flex items-start gap-2 rounded-xl px-3 py-2.5"
+              style={{ background: '#fff8ed', border: '1px solid #f6dfb8' }}
+            >
+              <TbAlertTriangle size={15} className="mt-[1px] flex-shrink-0" style={{ color: '#c2761a' }} />
+              <div className="min-w-0">
+                <div className="text-[12px] font-bold leading-tight" style={{ color: '#8a5410' }}>
+                  Couldn&apos;t load this breakdown
+                </div>
+                <div className="mt-1 text-[11px] leading-snug" style={{ color: '#9a6a2c' }}>
+                  {failure.status === 0
+                    ? 'The request did not reach the analytics API.'
+                    : `The analytics API answered ${failure.status} for this slice.`}
+                </div>
+                {process.env.NODE_ENV !== 'production' && (
+                  <div
+                    className="mt-2 rounded-lg px-2 py-1.5 text-[10px] leading-snug"
+                    style={{ background: 'rgba(194,118,26,0.09)', color: '#8a5410', wordBreak: 'break-word' }}
+                  >
+                    <b>{failure.kpi}</b> · dim={failure.dim} · by={failure.by}
+                    {failure.detail ? <div className="mt-1 opacity-80">{failure.detail}</div> : null}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         )}
 
-        {!loading && !failed && data && (
+        {!loading && !failure && data && (
           data.items.length ? (
             <>
               <div className="flex items-baseline justify-between px-1.5 pb-1 pt-1">

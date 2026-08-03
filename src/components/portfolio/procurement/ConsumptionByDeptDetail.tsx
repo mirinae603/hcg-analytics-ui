@@ -4,6 +4,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { useRegion } from "@/context/RegionContext";
+import { useDrillBind } from "@/components/portfolio/useDrillBind";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import { inrAbbr, countAbbr, useMount, CountUp, smoothPath } from "@/components/portfolio/kit";
 import { TbBuildingHospital, TbChartTreemap, TbStack2, TbCoin, TbUsersGroup, TbCrown, TbChartHistogram, TbArrowUpRight, TbArrowDownRight } from "react-icons/tb";
@@ -94,6 +95,18 @@ function Ring({ pct, size = 78, center }: any) {
 
 function Treemap({ departments }: { departments: any[] }) {
   const on = useMount(160); const [hov, setHov] = useState<number | null>(null);
+  // kpi_consumption_by_department is plant x cost-centre x month — no material column —
+  // which is exactly why a department block could never say what was consumed inside it.
+  // The drill endpoint re-routes to drill_consumption_grain, the fact frame that
+  // aggregate was built from, so the block opens onto real items.
+  //
+  // NO category chip on this card: the department aggregate itself cannot be cut by
+  // material category (verified — `?Category=` returns byte-identical JSON), and a
+  // control that cannot act is the thing this whole design removed.
+  const drill = useDrillBind({
+    kpi: "consumption-by-department", dim: "department", by: "material",
+    measure: "consumption_cost", label: "items", dimLabel: "Cost centre", format: inrAbbr,
+  });
   const items = (departments || []).filter((d) => d.value > 0).slice(0, 24).map((d) => ({ value: d.value, it: d }));
   const rects = squarify(items, 100, 100);
   const maxV = Math.max(...items.map((i) => i.value), 1);
@@ -107,7 +120,7 @@ function Treemap({ departments }: { departments: any[] }) {
       <div className="relative w-full" style={{ height: 380 }}>
         {rects.map((r, i) => { const d = r.it; const tt = Math.sqrt(d.value / maxV); const col = RAMP[Math.min(RAMP.length - 1, Math.floor((1 - tt) * RAMP.length))]; const active = hov === i; const big = r.w > 20 && r.h > 14; const mid = r.w > 12 && r.h > 9;
           return (
-            <div key={i} onMouseEnter={() => setHov(i)} onMouseLeave={() => setHov(null)} className="absolute rounded-lg overflow-hidden flex flex-col justify-center px-2"
+            <div key={i} {...drill.bind(d.code, { onMouseEnter: () => setHov(i), onMouseLeave: () => setHov(null) })} className="absolute rounded-lg overflow-hidden flex flex-col justify-center px-2"
               style={{ left: `${r.x}%`, top: `${r.y}%`, width: `calc(${r.w}% - 4px)`, height: `calc(${r.h}% - 4px)`, background: col, transform: on ? (active ? "scale(1.015)" : "scale(1)") : "scale(0.8)", opacity: on ? 1 : 0, transition: `all .5s cubic-bezier(.34,1.1,.64,1) ${i * 22}ms`, boxShadow: active ? "0 10px 26px -10px rgba(70,44,96,0.5)" : "none", zIndex: active ? 5 : 1, cursor: "default", outline: active ? "2px solid #fff" : "none", outlineOffset: -2 }}>
               {mid && <div className="text-white font-bold tabular-nums leading-tight truncate" style={{ fontSize: big ? 12.5 : 10 }}>{d.code}</div>}
               {big && <div className="text-white/85 tabular-nums leading-tight truncate" style={{ fontSize: 11 }}>{inrAbbr(d.value)} · {d.share.toFixed(1)}%</div>}
@@ -119,6 +132,7 @@ function Treemap({ departments }: { departments: any[] }) {
             <div className="text-[11px] tabular-nums" style={{ color: PLUM }}>{inrAbbr(rects[hov].it.value)} · {rects[hov].it.share.toFixed(1)}% · {countAbbr(rects[hov].it.qty)} units</div>
           </div>
         )}
+        {drill.panel}
       </div>
     </div>
   );

@@ -7,7 +7,7 @@ import { Col } from "@/lib/kpiRegistry";
 import { fmt } from "@/lib/kpiFormat";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 
-export default function KpiTable({ kpiKey, plant, category, columns, endpoint }: { kpiKey: string; plant?: string; category?: string; columns: Col[]; endpoint?: string }) {
+export default function KpiTable({ kpiKey, plant, columns, endpoint, category }: { kpiKey: string; plant?: string; columns: Col[]; endpoint?: string; category?: string }) {
   // `endpoint` overrides the default `/kpi/{kpiKey}/table` URL — needed for KPIs whose
   // backend route doesn't follow the generic nested-table naming convention (e.g.
   // /kpi/vendor-volume-vs-margin-table is a flat route, not /kpi/vendor-volume-vs-margin/table).
@@ -26,6 +26,7 @@ export default function KpiTable({ kpiKey, plant, category, columns, endpoint }:
       setIsLoading(true);
       const p = new URLSearchParams();
       if (plant) p.set("Plant", plant);
+      // Only ever set when the CARD this table belongs to offers a category control.
       if (category) p.set("Category", category);
       p.set("page", String(pagination.pageIndex));
       p.set("page_size", String(pagination.pageSize));
@@ -40,6 +41,9 @@ export default function KpiTable({ kpiKey, plant, category, columns, endpoint }:
     };
     run();
     return () => ctrl.abort();
+    // `category` MUST stay in these deps: it is read above, so leaving it out let the
+    // chart and gauge above the table move to Onco Drugs while the table underneath
+    // silently kept showing All Categories.
   }, [base, plant, category, pagination.pageIndex, pagination.pageSize, sorting, globalFilter]);
 
   const cols = useMemo<MRT_ColumnDef<any>[]>(
@@ -51,7 +55,10 @@ export default function KpiTable({ kpiKey, plant, category, columns, endpoint }:
     })), [columns]);
 
   const exportCsv = async () => {
-    const p = new URLSearchParams(); if (plant) p.set("Plant", plant); if (category) p.set("Category", category);
+    const p = new URLSearchParams(); if (plant) p.set("Plant", plant);
+    // Export what is on screen. Without this a reader who filtered the card to Onco
+    // Drugs downloads the whole unfiltered portfolio under an "Onco" mental label.
+    if (category) p.set("Category", category);
     p.set("page", "0"); p.set("page_size", "5000"); if (globalFilter) p.set("global_filter", globalFilter);
     const res = await fetch(`${DASHBOARD_API_BASE_URL}${base}?${p.toString()}`);
     const d = await res.json();

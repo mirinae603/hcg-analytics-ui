@@ -62,6 +62,8 @@ export interface StockRadarCardProps {
   animated?: boolean;
   // Optional real-data override (bypasses hardcoded REGION_DATA + region guard)
   metrics?: { stockOutMaterials: number; replenishmentQty: number; inventoryRisk: number; demandForecast: number; safeStock: number; totalStock: number };
+  /** Card-level controls (the material-category chip). Rendered in the header. */
+  headerSlot?: React.ReactNode;
 }
 
 const StockRadarCard: React.FC<StockRadarCardProps> = ({
@@ -70,7 +72,8 @@ const StockRadarCard: React.FC<StockRadarCardProps> = ({
   riskLevel = 'medium',
   className = '',
   animated = true,
-  metrics
+  metrics,
+  headerSlot
 }) => {
   const hasData = !!metrics || isValidRegion(region);
   // Real-data override when provided, else region-specific data with fallbacks
@@ -213,19 +216,22 @@ const StockRadarCard: React.FC<StockRadarCardProps> = ({
             </div>
           </div>
         
-          <div
-            className="px-3 py-1.5 rounded-xl text-xs font-medium backdrop-blur-sm transition-all duration-300 flex items-center"
-            style={{
-              background: `linear-gradient(135deg, ${config.color}06, ${config.color}10)`,
-              color: config.color,
-              border: `1px solid ${config.color}15`,
-            }}
-          >
-            <div 
-              className="w-1.5 h-1.5 rounded-full mr-2 animate-pulse"
-              style={{ backgroundColor: config.color }}
-            />
-            {finalRiskLevel.toUpperCase()}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {headerSlot}
+            <div
+              className="px-3 py-1.5 rounded-xl text-xs font-medium backdrop-blur-sm transition-all duration-300 flex items-center"
+              style={{
+                background: `linear-gradient(135deg, ${config.color}06, ${config.color}10)`,
+                color: config.color,
+                border: `1px solid ${config.color}15`,
+              }}
+            >
+              <div
+                className="w-1.5 h-1.5 rounded-full mr-2 animate-pulse"
+                style={{ backgroundColor: config.color }}
+              />
+              {finalRiskLevel.toUpperCase()}
+            </div>
           </div>
         </div>
 

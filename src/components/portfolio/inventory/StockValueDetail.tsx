@@ -1,10 +1,11 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import { useScope } from "@/context/CategoryContext";
+import { useRegion } from "@/context/RegionContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import { useDrillBind } from "@/components/portfolio/useDrillBind";
+import { useCardCategory } from "@/components/common/CardCategoryFilter";
 import { TbReportMoney, TbTrophy, TbTargetArrow, TbBoxMultiple, TbChartAreaLine } from "react-icons/tb";
 // Actual premium components from the /stockChange page — reused as-is, real data.
 import WarehouseInventoryCard from "@/components/ecommerce/cards_collection/stockvaluecard";
@@ -252,8 +253,15 @@ function RiskTile({ label, value, sub, color, soft }: { label: string; value: nu
     </div>
   );
 }
-function ValueAtRiskPanel({ risk, animate, region }: { risk: any; animate: boolean; region: string }) {
+function ValueAtRiskPanel({ risk, animate, region, cat, empty }: { risk: any; animate: boolean; region: string; cat: any; empty: boolean }) {
   const pct = (v: number) => (risk.total ? `${Math.round((v / risk.total) * 100)}%` : "—");
+  // The aging ladder is cut from fact_inventory, so it really does split by material
+  // category — /kpi/aging-distribution serves a filtered request from the fact grain
+  // the parquet was built from, and the buckets still sum to the category's own total.
+  const drill = useDrillBind({
+    kpi: "aging-distribution", dim: "aging_bucket", by: "material", measure: "stock_value",
+    label: "items", dimLabel: "Age band", format: inrAbbr, category: cat.drill,
+  });
   return (
     <div className="csv-card rounded-3xl bg-white p-5 md:p-6" style={{ animationDelay: "380ms", boxShadow: PANEL_SHADOW }}>
       <div className="flex items-center justify-between flex-wrap gap-2">
@@ -261,8 +269,12 @@ function ValueAtRiskPanel({ risk, animate, region }: { risk: any; animate: boole
           <h3 className="text-[15px] font-semibold text-gray-900">Stock value at risk</h3>
           <p className="text-xs text-gray-400 mt-0.5">value health by inventory age · {region}</p>
         </div>
-        <span className="text-[11px] font-medium text-gray-400 inline-flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-gray-300" />snapshot · 31 May 2026</span>
+        <div className="flex items-center gap-2.5">
+          {cat.chip}
+          <span className="text-[11px] font-medium text-gray-400 inline-flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-gray-300" />snapshot · 31 May 2026</span>
+        </div>
       </div>
+      {cat.note(empty) && <div className="mt-3">{cat.note(empty)}</div>}
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
         <RiskTile label="Healthy · ≤90 days" value={risk.fresh} sub={`${pct(risk.fresh)} of value · fresh stock`} color="#5ea38f" soft="#eef6f2" />
@@ -278,7 +290,7 @@ function ValueAtRiskPanel({ risk, animate, region }: { risk: any; animate: boole
             const w = risk.total ? (b.value / risk.total) * 100 : 0;
             return (
               <div key={band.key} title={`${band.label}: ${inrAbbr(b.value)} (${Math.round(w)}%)`} className="relative flex items-center justify-center"
-                style={{ width: animate ? `${w}%` : "0%", background: band.bar, transition: `width 1s cubic-bezier(0.22,1,0.36,1) ${i * 80}ms` }}>
+                style={{ width: animate ? `${w}%` : "0%", background: band.bar, transition: `width 1s cubic-bezier(0.22,1,0.36,1) ${i * 80}ms` }} {...drill.bind(band.key)}>
                 {w >= 8 && <span className="text-[11px] font-bold text-white tabular-nums" style={{ textShadow: "0 1px 2px rgba(0,0,0,0.18)" }}>{Math.round(w)}%</span>}
               </div>
             );
@@ -298,6 +310,7 @@ function ValueAtRiskPanel({ risk, animate, region }: { risk: any; animate: boole
             );
           })}
         </div>
+        {drill.panel}
       </div>
     </div>
   );
@@ -327,8 +340,15 @@ const periwinkleRamp = (n: number) => {
 };
 
 export default function StockValueDetail() {
-  const { region, category, filtered, catValue, catParam, scopeKey } = useScope();
+  const { selectedRegion } = useRegion();
+  const region = selectedRegion?.name ?? "All Plants";
   const [mode, setMode] = useState<GroupMode>(GROUP_MODES[0]);
+  // THREE independent card filters, not one page filter. Each governs only the panel
+  // it sits on, so the breakdown can be cut to Onco while the hero tiles above still
+  // show the whole 60.47 Cr for comparison.
+  const riskCat = useCardCategory({ accent: CORAL });
+  const barCat = useCardCategory({ accent: CORAL });
+  const mrpCat = useCardCategory({ accent: CORAL });
   const [catData, setCatData] = useState<any[]>([]);
   const [barData, setBarData] = useState<any[]>([]);
   const [summary, setSummary] = useState<any>({});
@@ -346,27 +366,25 @@ export default function StockValueDetail() {
   }, []);
 
   useEffect(() => {
-    const cp = new URLSearchParams({ Plant: region, group_by: "material_group", measures: "stock_value_cost,stock_value_mrp,stock_qty", top: "500", ...(catValue ? { Category: catValue } : {}) });
+    const cp = new URLSearchParams({ Plant: region, group_by: "material_group", measures: "stock_value_cost,stock_value_mrp,stock_qty", top: "500" });
     fetch(`${DASHBOARD_API_BASE_URL}/kpi/current-stock-value?${cp}`).then((r) => r.json()).then((c) => setCatData(Array.isArray(c) ? c : [])).catch(() => {});
-    fetch(`${DASHBOARD_API_BASE_URL}/kpi/current-stock-value/summary?Plant=${encodeURIComponent(region)}${catParam}`).then((r) => r.json()).then((s) => setSummary(s || {})).catch(() => {});
-    // Value-at-risk: stock value split by inventory age, plus near-expiry value (both reconcile to total cost).
-    // /kpi/aging-distribution ships pre-aggregated and cannot be re-cut by category, so
-    // its /insights sibling is used instead — it recomputes from fact_inventory and is
-    // verified to reproduce the committed parquet exactly. Without this the aging panel
-    // would still read ₹60.5 Cr while the headline above it read ₹25.2 Cr.
-    fetch(`${DASHBOARD_API_BASE_URL}/kpi/aging-distribution/insights?Plant=${encodeURIComponent(region)}${catParam}`)
-      .then((r) => r.json())
-      .then((d) => setAging((d?.buckets || []).map((b: any) => ({ aging_bucket: b.bucket, stock_value: b.value, stock_qty: b.qty, sku_count: b.skus }))))
-      .catch(() => setAging([]));
-    const ep = new URLSearchParams({ Plant: region, group_by: "expiry_bucket", measures: "total_cost,qty", top: "10", ...(catValue ? { Category: catValue } : {}) });
+    fetch(`${DASHBOARD_API_BASE_URL}/kpi/current-stock-value/summary?Plant=${encodeURIComponent(region)}`).then((r) => r.json()).then((s) => setSummary(s || {})).catch(() => {});
+  }, [region]);
+
+  // Value-at-risk: stock value split by inventory age, plus near-expiry value (both
+  // reconcile to total cost). Its own effect because its own chip governs it.
+  useEffect(() => {
+    const ap = new URLSearchParams({ Plant: region, group_by: "aging_bucket", measures: "stock_value,stock_qty,sku_count", top: "10", ...riskCat.q });
+    fetch(`${DASHBOARD_API_BASE_URL}/kpi/aging-distribution?${ap}`).then((r) => r.json()).then((d) => setAging(Array.isArray(d) ? d : [])).catch(() => setAging([]));
+    const ep = new URLSearchParams({ Plant: region, group_by: "expiry_bucket", measures: "total_cost,qty", top: "10", ...riskCat.q });
     fetch(`${DASHBOARD_API_BASE_URL}/kpi/near-expiry?${ep}`).then((r) => r.json()).then((d) => setExpiry(Array.isArray(d) ? d : [])).catch(() => setExpiry([]));
-  }, [scopeKey]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [region, riskCat.category]);
 
   useEffect(() => {
     setLoading(true);
-    const cp = new URLSearchParams({ Plant: region, group_by: mode.field, measures: "stock_value_cost,stock_value_mrp,stock_qty", top: "12", ...(catValue ? { Category: catValue } : {}) });
+    const cp = new URLSearchParams({ Plant: region, group_by: mode.field, measures: "stock_value_cost,stock_value_mrp,stock_qty", top: "12", ...barCat.q });
     fetch(`${DASHBOARD_API_BASE_URL}/kpi/current-stock-value?${cp}`).then((r) => r.json()).then((d) => setBarData(Array.isArray(d) ? d : [])).catch(() => setBarData([])).finally(() => setLoading(false));
-  }, [scopeKey, mode]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [region, mode, barCat.category]);
 
   const catName = (g: string) => String(g).replace(/^M\d+-/, "");
   const labelFor = (d: any) => { let v = String(d[mode.field] ?? "—"); if (mode.field === "plant") v = plantMap[v] || v; else if (mode.field === "material_group") v = catName(v); return v; };
@@ -402,15 +420,27 @@ export default function StockValueDetail() {
     return { pts, n80, count: sorted.length };
   }, [catData]);
 
-  // Cost-vs-MRP headroom: top 6 categories by cost.
+  // Cost-vs-MRP headroom: top 6 categories by cost. Its own chip means its own copy of
+  // the category cut — the page-wide `catData` stays unfiltered for the hero tiles.
+  const [mrpData, setMrpData] = useState<any[]>([]);
+  useEffect(() => {
+    if (!mrpCat.category) { setMrpData([]); return; }
+    const ac = new AbortController();
+    const p = new URLSearchParams({ Plant: region, group_by: "material_group", measures: "stock_value_cost,stock_value_mrp,stock_qty", top: "500", ...mrpCat.q });
+    fetch(`${DASHBOARD_API_BASE_URL}/kpi/current-stock-value?${p}`, { signal: ac.signal })
+      .then((r) => r.json()).then((d) => setMrpData(Array.isArray(d) ? d : [])).catch(() => {});
+    return () => ac.abort();
+  }, [region, mrpCat.category]);
+  const mrpSource = mrpCat.category ? mrpData : catData;
+
   const costMrp = useMemo(() => {
-    const sorted = [...catData].sort((a, b) => b.stock_value_cost - a.stock_value_cost).slice(0, 6);
+    const sorted = [...mrpSource].sort((a, b) => b.stock_value_cost - a.stock_value_cost).slice(0, 6);
     const maxMrp = Math.max(...sorted.map((d) => Number(d.stock_value_mrp ?? 0)), 1);
     return sorted.map((d) => {
       const cost = Number(d.stock_value_cost ?? 0), mrp = Number(d.stock_value_mrp ?? 0);
       return { raw: String(d.material_group ?? ""), name: catName(d.material_group), cost, mrp, costPct: (cost / maxMrp) * 100, mrpPct: (mrp / maxMrp) * 100, markup: cost ? ((mrp - cost) / cost) * 100 : 0 };
     });
-  }, [catData]);
+  }, [mrpSource]);
 
   // Custom inline horizontal bars (no chart lib): exact control of label↔bar spacing, soft gradient fills, elegant hover card.
   const barMax = Math.max(...barData.map((d) => Number(d.stock_value_cost ?? 0)), 1);
@@ -431,7 +461,7 @@ export default function StockValueDetail() {
     barDrillDim
       ? {
           kpi: "current-stock-value", dim: barDrillDim, by: "material", measure: "stock_value_cost",
-          label: "items", dimLabel: mode.label, format: inrAbbr,
+          label: "items", dimLabel: mode.label, format: inrAbbr, category: barCat.drill,
           // The panel REPLACES this chart's hover card, so it has to carry what that card
           // said — MRP, quantity and markup — or the drill-down is a net loss.
           details: (s) => {
@@ -449,7 +479,7 @@ export default function StockValueDetail() {
   // Cost-vs-MRP panel: same underlying cut, so the same drill answers it.
   const mrpDrill = useDrillBind({
     kpi: "current-stock-value", dim: "material_group", by: "material", measure: "stock_value_cost",
-    label: "items", dimLabel: "Category", format: inrAbbr,
+    label: "items", dimLabel: "Category", format: inrAbbr, category: mrpCat.drill,
   });
 
   const costMrpRatio = insights.totalMrp ? insights.totalCost / insights.totalMrp : 0;
@@ -502,7 +532,7 @@ export default function StockValueDetail() {
       `}</style>
 
       {/* ── Value-at-risk strip (NEW dimension: is the value healthy?) ── */}
-      <ValueAtRiskPanel risk={risk} animate={animate} region={region} />
+      <ValueAtRiskPanel risk={risk} animate={animate} region={region} cat={riskCat} empty={riskCat.active && risk.total === 0} />
 
       {/* ── Breakdown (interactive) + Cost-vs-MRP headroom ── */}
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-4">
@@ -512,13 +542,17 @@ export default function StockValueDetail() {
               <h3 className="text-[15px] font-semibold text-gray-900">Stock value breakdown</h3>
               <p className="text-xs text-gray-400 mt-0.5">by {mode.label.toLowerCase()} · {region}</p>
             </div>
+            <div className="flex items-center gap-2.5">
+            {barCat.chip}
             <div className="flex items-center gap-0.5 p-1 rounded-full" style={{ background: "#efe9df" }}>
               {GROUP_MODES.map((m) => (
                 <button key={m.key} onClick={() => setMode(m)} className="text-xs font-semibold px-3.5 py-1.5 rounded-full transition-all"
                   style={mode.key === m.key ? { background: "#fff", color: CORAL, boxShadow: "0 2px 6px rgba(214,128,106,0.18)" } : { background: "transparent", color: "#9a8f80" }}>{m.label}</button>
               ))}
             </div>
+            </div>
           </div>
+          {barCat.note(!loading && barRows.length === 0) && <div className="px-6 pb-3">{barCat.note(true)}</div>}
           <div className="px-5 pb-5 pt-1">
             {loading ? (
               <div className="space-y-2.5 py-3">
@@ -563,8 +597,14 @@ export default function StockValueDetail() {
 
         {/* Cost vs MRP headroom — distinct insight */}
         <div className="csv-card xl:col-span-4 rounded-3xl bg-white p-5 flex flex-col" style={{ animationDelay: "500ms", boxShadow: PANEL_SHADOW }}>
-          <h3 className="text-[15px] font-semibold text-gray-900">Cost vs MRP</h3>
-          <p className="text-xs text-gray-400 mt-0.5">markup headroom · top categories</p>
+          <div className="flex items-start justify-between gap-2">
+            <div>
+              <h3 className="text-[15px] font-semibold text-gray-900">Cost vs MRP</h3>
+              <p className="text-xs text-gray-400 mt-0.5">markup headroom · top categories</p>
+            </div>
+            {mrpCat.chip}
+          </div>
+          {mrpCat.note(costMrp.length === 0) && <div className="mt-3">{mrpCat.note(true)}</div>}
           <div className="flex items-center gap-4 mt-2 mb-4 text-[11px]">
             <span className="flex items-center gap-1.5 text-gray-500"><span className="w-2.5 h-2.5 rounded-sm" style={{ background: ACCENT }} />Cost</span>
             <span className="flex items-center gap-1.5 text-gray-500"><span className="w-2.5 h-2.5 rounded-sm" style={{ background: "#f4e7e0" }} />MRP headroom</span>
