@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { useRegion } from "@/context/RegionContext";
-import { useCardCategory, useCardScopedData } from "@/components/common/CardCategoryFilter";
+import { useCardCategory, useCardScope, useCardScopedData } from "@/components/common/CardCategoryFilter";
 import { useDrillBind } from "@/components/portfolio/useDrillBind";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import { inrAbbr, countAbbr, catName, useMount, smoothPath, CountUp } from "@/components/portfolio/kit";
@@ -122,15 +122,22 @@ function TrendLines({ matrix, metric, metricLabel }: { matrix: any; metric: numb
 
 // ── Category breakdown sidebar (Halo-Lab "Developed areas" style) ──
 const RANK_COLORS = ["#6366f1", "#fb7185", "#2dd4bf", "#f59e0b", "#a855f7", "#0ea5e9"];
-function CategoryRankPanel({ groups, matrix, total }: { groups: any[]; matrix: any; total: number }) {
+function CategoryRankPanel({ groups, matrix, total, cat }: { groups: any[]; matrix: any; total: number; cat: any }) {
   const on = useMount(220);
   const items = groups.slice(0, 6);
   const max = items[0]?.value || 1;
   const byName: Record<string, number[]> = {}; (matrix?.rows || []).forEach((r: any) => { byName[r.name] = r.values; });
   return (
     <div className="rounded-[28px] bg-white p-6 lg:p-7 flex flex-col flex-1" style={{ boxShadow: SOFT_SH }}>
-      <h3 className="text-[18px] font-bold tracking-tight" style={{ color: INK }}>Category breakdown</h3>
-      <p className="text-[12.5px] mt-0.5 mb-5" style={{ color: SUBTLE }}>share of spend · monthly trend</p>
+      <div className="flex items-start justify-between gap-2">
+        <div>
+          <h3 className="text-[18px] font-bold tracking-tight" style={{ color: INK }}>Category breakdown</h3>
+          <p className="text-[12.5px] mt-0.5" style={{ color: SUBTLE }}>share of spend · monthly trend</p>
+        </div>
+        {cat.chip}
+      </div>
+      {cat.note(!items.length) && <div className="mt-3">{cat.note(true)}</div>}
+      <div className="mb-5" />
       <div className="flex-1 flex flex-col justify-between gap-4">
         {items.map((g: any, i: number) => {
           const share = total ? (g.value / total) * 100 : 0; const w = Math.max((g.value / max) * 100, 4);
@@ -171,8 +178,11 @@ function Heatmap({ matrix, marginMatrix, cat }: { matrix: any; marginMatrix?: an
   const isMargin = mode === "margin" && hasMargin;
   const active = isMargin ? marginMatrix : matrix;
   const labels: string[] = active?.labels || []; const rows: any[] = active?.rows || [];
-  if (!matrix?.rows?.length) return null;
-  const spendMax = Math.max(...(matrix.rows || []).flatMap((r: any) => r.values), 1);
+  // Once a category is on, the card must stay on screen even if it came back empty —
+  // otherwise the control that produced the empty result vanishes with it and there is
+  // no way back to All Categories.
+  if (!matrix?.rows?.length && !cat.active) return null;
+  const spendMax = Math.max(...(matrix?.rows || []).flatMap((r: any) => r.values), 1);
   const MARGIN_REF = 60; // % ceiling for the margin colour ramp
   const accent = isMargin ? "#0d9488" : "#6366f1";
   const accentRGB = isMargin ? "13,148,136" : "99,102,241";
@@ -192,10 +202,11 @@ function Heatmap({ matrix, marginMatrix, cat }: { matrix: any; marginMatrix?: an
         <div className="flex items-center gap-2">
           {hasMargin && <div className="flex items-center gap-0.5 p-0.5 rounded-full" style={{ background: "#f1f2f7" }}><Toggle v="spend" label="Spend" /><Toggle v="margin" label="Margin %" /></div>}
           {cat.chip}
-          <span className="text-[11px] font-medium px-2.5 py-1 rounded-full" style={{ background: `rgba(${accentRGB},0.1)`, color: accent }}>{matrix.rows.length} categories</span>
+          <span className="text-[11px] font-medium px-2.5 py-1 rounded-full" style={{ background: `rgba(${accentRGB},0.1)`, color: accent }}>{matrix?.rows?.length ?? 0} categories</span>
         </div>
       </div>
       <p className="text-[12px] mb-4" style={{ color: SUBTLE }}>{isMargin ? "MRP-proxy margin % by category · darker = higher margin · — = no matched-MRP buys" : "monthly purchase value by category · darker = more spend"}</p>
+      {cat.note(!rows.length) && <div className="mb-4">{cat.note(true)}</div>}
       <div className="overflow-x-auto"><div style={{ minWidth: 660 }}>
         <div className="grid items-center gap-1.5 mb-1.5" style={{ gridTemplateColumns: cols }}>
           <span />{labels.map((l) => <span key={l} className="text-[11px] font-semibold text-center" style={{ color: "#9aa1b3" }}>{l}</span>)}
@@ -220,12 +231,19 @@ function Heatmap({ matrix, marginMatrix, cat }: { matrix: any; marginMatrix?: an
 }
 
 // ── Top SKUs leaderboard ──
-function SkuBars({ rows }: { rows: any[] }) {
+function SkuBars({ rows, cat }: { rows: any[]; cat: any }) {
   const on = useMount(160); const max = Math.max(...rows.map((r) => r.value), 1);
   return (
     <div className="rounded-[26px] bg-white p-6 flex flex-col" style={{ boxShadow: SOFT_SH }}>
-      <h3 className="text-[16px] font-semibold" style={{ color: INK }}>Top SKUs by spend</h3>
-      <p className="text-[12px] mt-0.5 mb-4" style={{ color: SUBTLE }}>largest single-material purchases</p>
+      <div className="flex items-start justify-between gap-2">
+        <div>
+          <h3 className="text-[16px] font-semibold" style={{ color: INK }}>Top SKUs by spend</h3>
+          <p className="text-[12px] mt-0.5" style={{ color: SUBTLE }}>largest single-material purchases</p>
+        </div>
+        {cat.chip}
+      </div>
+      {cat.note(!rows.length) && <div className="mt-3">{cat.note(true)}</div>}
+      <div className="mb-4" />
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
         {rows.map((r, i) => { const w = Math.max((r.value / max) * 100, 4); const col = LINE_COLORS[i % LINE_COLORS.length]; return (
           <div key={i}>
@@ -254,14 +272,18 @@ export default function MonthlyPurchaseDetail() {
   const { selectedRegion } = useRegion();
   const region = selectedRegion?.name ?? "All Plants";
   const [data, setData] = useState<any>(null);
-  useEffect(() => { setData(null); fetch(`${DASHBOARD_API_BASE_URL}/kpi/monthly-purchase-value/insights?Plant=${encodeURIComponent(region)}`).then((r) => r.json()).then(setData).catch(() => setData(null)); }, [region]);
-  // The only procurement card with a category chip, because kpi_monthly_purchase_value
-  // is the only procurement aggregate that still carries `material`. Spend is a
-  // purchase-order figure, not a consumption one, so every category has real data here
-  // — including onco, whose Rs 236.73 Cr of buying is invisible on the consumption side.
-  const cat = useCardCategory({ accent: "#6366f1" });
+  const url = `/kpi/monthly-purchase-value/insights?Plant=${encodeURIComponent(region)}`;
+  useEffect(() => { setData(null); fetch(`${DASHBOARD_API_BASE_URL}${url}`).then((r) => r.json()).then(setData).catch(() => setData(null)); }, [region]); // eslint-disable-line react-hooks/exhaustive-deps
+  // kpi_monthly_purchase_value is the one procurement aggregate that still carries
+  // `material`, so these three take the cut NATIVELY — no rebuild. Spend is a
+  // purchase-order figure, not a consumption one, so every bucket has real data here
+  // — including onco, whose Rs 236.73 Cr of buying is invisible on the consumption side,
+  // and Unclassified, which holds Rs 0.00 of stock and Rs 272.35 Cr of purchase orders.
+  const cat = useCardCategory({ accent: "#6366f1", domain: "procurement", label: "Category × month heatmap" });
   const scoped = useCardScopedData(data, cat.category, (c, signal) =>
-    fetch(`${DASHBOARD_API_BASE_URL}/kpi/monthly-purchase-value/insights?Plant=${encodeURIComponent(region)}&Category=${encodeURIComponent(c)}`, { signal }).then((r) => r.json()));
+    fetch(`${DASHBOARD_API_BASE_URL}${url}&Category=${encodeURIComponent(c)}`, { signal }).then((r) => r.json()));
+  const rankCat = useCardScope(url, data, { accent: "#fb7185", domain: "procurement", label: "Category breakdown" });
+  const skuCat = useCardScope(url, data, { accent: "#2dd4bf", domain: "procurement", label: "Top SKUs by spend" });
   if (!data) return <ProcShell title="Monthly SKU purchase" subtitle="what you buy each month, by category & SKU" region={region} bg={PAGE}><DetailSkeleton /></ProcShell>;
   const t = data?.totals || {};
   const total = Number(t.total ?? 0), avg = Number(t.avg ?? 0), skus = Number(t.skus ?? 0);
@@ -281,12 +303,12 @@ export default function MonthlyPurchaseDetail() {
 
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 items-stretch">
         <div className="xl:col-span-8 flex flex-col min-w-0"><TrendLines matrix={data?.matrix} metric={total ? (topGroupVal / total) * 100 : 0} metricLabel={`${catName(String(t.top_group ?? "—")).slice(0, 16)} of spend`} /></div>
-        <div className="xl:col-span-4 flex flex-col min-w-0"><CategoryRankPanel groups={groups} matrix={data?.matrix} total={total} /></div>
+        <div className="xl:col-span-4 flex flex-col min-w-0"><CategoryRankPanel groups={rankCat.data?.groups || []} matrix={rankCat.data?.matrix} total={Number(rankCat.data?.totals?.total ?? 0)} cat={rankCat} /></div>
       </div>
 
       <Heatmap matrix={scoped.data?.matrix} marginMatrix={scoped.data?.margin_matrix} cat={cat} />
 
-      <SkuBars rows={data?.top_skus || []} />
+      <SkuBars rows={skuCat.data?.top_skus || []} cat={skuCat} />
 
       <TableCard title="Material × month purchase detail" sub="paginated · sortable · filterable · export CSV">
         <KpiTable kpiKey="monthly-purchase-value" plant={region} columns={COLUMNS} />

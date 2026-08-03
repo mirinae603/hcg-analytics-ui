@@ -78,13 +78,79 @@ export type CategoryOption = {
  * `stock` is the default because a stock-derived card can never legitimately be empty
  * for a category that holds stock, so the generic wording is the right one there.
  */
-export type CardDomain = 'stock' | 'consumption' | 'billing' | 'reorder'
+export type CardDomain = 'stock' | 'consumption' | 'billing' | 'reorder' | 'procurement'
 
-const HAS_KEY: Record<CardDomain, keyof CategoryCoverage> = {
+const HAS_KEY: Partial<Record<CardDomain, keyof CategoryCoverage>> = {
   stock: 'has_stock',
   consumption: 'has_consumption',
   billing: 'has_billing',
   reorder: 'has_reorder',
+  // `procurement` deliberately has no entry. /meta/categories' coverage block is built
+  // from the stock / consumption / billing / reorder frames, none of which describes
+  // what a hospital BUYS, so there is no honest has_* verdict to inherit — and every
+  // one of the six buckets holds real PO spend, so there is nothing to flag anyway.
+  // See PROC_SHARE below for the number the procurement menu uses instead.
+}
+
+// The MEASURED amount behind each domain, as opposed to the has_* heuristic above.
+// The two answer different questions and the menu needs both:
+//   has_* is a JUDGEMENT ("is there meaningfully any?") — has_consumption is false for
+//     Onco Drugs, which holds Rs 1,794 against Rs 25.2 Cr of stock. Real, but a rounding
+//     error. That bucket stays SELECTABLE and flagged "no data", because the emptiness
+//     is itself the finding.
+//   VALUE_KEY is a FACT ("is it exactly zero?") — Unclassified holds Rs 0.00 of stock,
+//     full stop. Offering it on a stock card is offering a guaranteed-blank result, so
+//     it is hidden there. It reappears by itself on reorder cards, where it holds
+//     10,614 of the 19,014 lines.
+const VALUE_KEY: Partial<Record<CardDomain, keyof CategoryCoverage>> = {
+  stock: 'stock_value',
+  consumption: 'consumption_cost',
+  billing: 'billed_revenue',
+  reorder: 'reorder_lines',
+  // `procurement` is served by PROC_SHARE, not by `coverage` — see below.
+}
+
+// ── the procurement domain's own measure ──────────────────────────────────────
+// PO spend per material bucket. It cannot come from `coverage`, and taking the stock
+// number instead would be wrong in BOTH directions on the same row: Unclassified holds
+// Rs 0.00 of stock and Rs 272.35 Cr of purchase orders — 41.9%, the LARGEST bucket on
+// procurement. Reading `stock_value` there would hide the biggest thing on the page
+// (the zero test above) and, if it survived, would print "0.0%" beside it.
+//
+// One request for the whole session, fired lazily the first time a procurement menu is
+// opened, so a page that is never filtered issues nothing extra. It fails soft: with no
+// shares the menu shows every bucket with no share hint, which is exactly what it did
+// before this existed — never a hidden bucket and never a wrong percentage.
+export type ProcShare = { value: number; share_pct: number }
+let PROC_PROMISE: Promise<Record<string, ProcShare>> | null = null
+
+function loadProcurementShares(): Promise<Record<string, ProcShare>> {
+  if (!PROC_PROMISE) {
+    const q = 'kpi=purchase-value&dim=material_category&by=material_category&measure=purchase_value&top=20'
+    PROC_PROMISE = fetch(`${DASHBOARD_API_BASE_URL}/drill/top-items?${q}`)
+      .then((r) => {
+        if (!r.ok) throw new Error(`drill/top-items ${r.status}`)
+        return r.json()
+      })
+      .then((j) => {
+        const out: Record<string, ProcShare> = {}
+        for (const it of (Array.isArray(j?.items) ? j.items : [])) {
+          out[String(it.key ?? it.name)] = {
+            value: Number(it.value ?? 0),
+            share_pct: Number(it.share_pct ?? 0),
+          }
+        }
+        if (!Object.keys(out).length) throw new Error('drill/top-items returned no buckets')
+        return out
+      })
+      .catch((e) => { PROC_PROMISE = null; throw e })
+  }
+  return PROC_PROMISE
+}
+
+/** Reset hook for tests and a hard data refresh (mirrors resetCategoryOptions). */
+export function resetProcurementShares() {
+  PROC_PROMISE = null
 }
 
 // ── options, fetched exactly once for the whole app ──────────────────────────
@@ -160,19 +226,43 @@ export type CardCategory = {
  * computes from the data rather than declaring; every entry was confirmed by curling
  * the endpoint with and without the param and diffing the response.
  *
- * The absentees are all the same story: the aggregate was cut past material grain
- * (kpi_vendor_volume is plant x vendor, kpi_fill_rate is one row per plant,
- * kpi_consumption_by_department is plant x cost-centre x month), or its `category`
- * column means something else entirely — kpi_purchase_value's is the PO SPEND
- * taxonomy, 1,360 values like "BARBOUR SUTURE", not our six reporting buckets.
+ * The procurement entries below are served by a REGRAIN, not by a column: the
+ * aggregates were cut past material grain (kpi_vendor_volume is plant x vendor,
+ * kpi_fill_rate is one row per plant), so the backend rebuilds the request from
+ * fact_po / fact_grn at material grain. That is invisible from the response, which is
+ * exactly why this list and GET /meta/category-support exist.
+ *
+ * The absentees: kpi_consumption_by_department is plant x cost-centre x month with no
+ * rebuild, and vendor-lead-time REFUSES the cut outright (400) because re-applying its
+ * `gr_lines >= 3` median gate inside a bucket changes the vendor population it counts.
+ * Note also that a `category` column is not evidence of support — kpi_purchase_value
+ * carries the PO SPEND taxonomy, 1,360 values like "BARBOUR SUTURE", which is a
+ * different dimension that happens to share the name.
  */
 export const CATEGORY_CAPABLE_KPIS = new Set([
   'current-stock-value', 'inventory-aging', 'aging-distribution', 'days-on-hand',
   'inventory-health-score', 'non-moving-inventory', 'inventory-risk', 'stock-change',
   'near-expiry', 'inventory-turnover-ratio', 'inventory-valuation',
-  'unit-sold-per-sku', 'monthly-purchase-value',
+  'unit-sold-per-sku',
   'stock-radar', 'aging-risk-forecast', 'fulfillment-rate',
   'reorder-priority', 'replenishment',
+  // Procurement. Every one of these was curled with and without the param and diffed;
+  // `vendor-lead-time` is deliberately absent (it answers 400, not a filtered number).
+  'purchase-value', 'monthly-purchase-value', 'procurement-variance',
+  'vendor-volume-contribution', 'purchase-by-location', 'procurement-cycle-time',
+  'fill-rate', 'vendor-volume-vs-margin',
+])
+
+/**
+ * Which of those KPIs are PROCUREMENT, i.e. measured in purchase orders rather than in
+ * stock on hand. Only the generic drill-down page needs this — every bespoke page names
+ * its own domain — but it matters: on the stock domain Unclassified is hidden for
+ * holding Rs 0.00 of stock, and on procurement it is the largest bucket there is.
+ */
+export const PROCUREMENT_KPIS = new Set([
+  'purchase-value', 'monthly-purchase-value', 'procurement-variance',
+  'vendor-volume-contribution', 'purchase-by-location', 'procurement-cycle-time',
+  'fill-rate', 'vendor-volume-vs-margin',
 ])
 
 export type CardCategoryOpts = {
@@ -244,7 +334,8 @@ export function useCardCategory(opts: CardCategoryOpts = {}): CardCategory {
   // alarming than a blank card, because it looks like the filter half-worked. Whenever
   // `/meta/categories` says the bucket has no data in THIS card's domain, the line is
   // shown regardless of what survived.
-  const domainMissing = !!option?.coverage && option.coverage[HAS_KEY[domain]] === false
+  const hasKey = HAS_KEY[domain]
+  const domainMissing = !!option?.coverage && !!hasKey && option.coverage[hasKey] === false
   const note = useCallback(
     (isEmpty: boolean) => {
       if (!active || !(isEmpty || domainMissing)) return null
@@ -552,8 +643,45 @@ function CategoryMenu({
 
   // The "All" row comes from the backend as a real option (key "All", the full
   // portfolio total). It is the reset, not a category, so it is rendered separately.
-  const cats = useMemo(() => options.filter((o) => o.key !== 'All'), [options])
   const hasKey = HAS_KEY[domain]
+  const valueKey = VALUE_KEY[domain]
+
+  // Procurement measures itself. Loaded here rather than in the hook so a page nobody
+  // filters makes no extra request at all — the menu only exists once it is opened.
+  const [procShare, setProcShare] = useState<Record<string, ProcShare> | null>(null)
+  useEffect(() => {
+    if (domain !== 'procurement') return
+    let alive = true
+    loadProcurementShares().then(
+      (s) => { if (alive) setProcShare(s) },
+      () => { if (alive) setProcShare(null) },   // fail soft: no hints, nothing hidden
+    )
+    return () => { alive = false }
+  }, [domain])
+
+  // What this card's domain measures for a given bucket, whichever source that is.
+  const measured = useCallback(
+    (o: CategoryOption): number | undefined => {
+      if (domain === 'procurement') return procShare ? procShare[o.key]?.value ?? 0 : undefined
+      return valueKey ? (o.coverage?.[valueKey] as number | undefined) : undefined
+    },
+    [domain, procShare, valueKey],
+  )
+
+  // Drop any bucket that measures EXACTLY zero in this card's domain — picking it could
+  // only ever return a blank card, so offering it is offering a dead end. In practice
+  // that is Unclassified on every stock-based card (Rs 0.00 of stock, by definition:
+  // these are materials with no material_type, and they hold none). On procurement it
+  // drops nothing: all six buckets carry PO spend, Unclassified most of all.
+  // Deliberately a zero test, not the has_* heuristic — see VALUE_KEY.
+  const cats = useMemo(
+    () => options.filter((o) => {
+      if (o.key === 'All') return false
+      const v = measured(o)
+      return !(typeof v === 'number' && v === 0)
+    }),
+    [options, measured],
+  )
   const rows = useMemo(
     () => [{ key: '', name: allLabel, noData: false, hint: undefined as string | undefined },
       ...cats.map((o) => {
@@ -562,10 +690,18 @@ function CategoryMenu({
         // internal consumption). Still selectable — the empty result is real data and
         // the reader is entitled to see it — but flagged up front so the click is
         // informed rather than a surprise.
-        const noData = o.coverage ? o.coverage[hasKey] === false : false
-        return { key: o.key, name: o.name, noData, hint: noData ? 'no data' : `${o.share_pct.toFixed(1)}%` }
+        const noData = hasKey && o.coverage ? o.coverage[hasKey] === false : false
+        // The share must be THIS domain's share. `o.share_pct` is the share of stock
+        // value, which is a different question on a procurement card and a wrong answer
+        // on Unclassified; while the procurement shares are still in flight there is no
+        // hint at all, rather than a placeholder that would read as a real number.
+        const share = domain === 'procurement' ? procShare?.[o.key]?.share_pct : o.share_pct
+        return {
+          key: o.key, name: o.name, noData,
+          hint: noData ? 'no data' : typeof share === 'number' ? `${share.toFixed(1)}%` : undefined,
+        }
       })],
-    [cats, allLabel, hasKey],
+    [cats, allLabel, hasKey, domain, procShare],
   )
 
   const selectedIdx = Math.max(0, rows.findIndex((r) => r.key === value))
@@ -757,11 +893,20 @@ export function CategoryEmptyNote({
   className?: string
 }) {
   const cov = option?.coverage
-  const missing = cov ? cov[HAS_KEY[domain]] === false : false
+  const hasKey = HAS_KEY[domain]
+  const missing = cov && hasKey ? cov[hasKey] === false : false
   const text = missing
     ? cov?.note ||
       `${category} has no ${domain === 'consumption' ? 'internal consumption' : domain} data — this is real, not a failed load.`
-    : `No ${category} rows in this view for the selected hospital.`
+    // "for the selected hospital" is the right hint on a stock card, where an empty
+    // bucket usually means this site does not carry it. It is the WRONG hint on a
+    // procurement card: `Unclassified` empties the material-group panels on Monthly SKU
+    // Purchase at every hospital, because those materials carry no material group at
+    // all. Nothing here can know which it is, so procurement states the fact and stops
+    // rather than guessing at a cause.
+    : domain === 'procurement'
+      ? `No ${category} rows in this view.`
+      : `No ${category} rows in this view for the selected hospital.`
   return (
     <div
       className={`flex items-start gap-2 rounded-xl px-3 py-2 text-[11.5px] leading-snug ${className}`}

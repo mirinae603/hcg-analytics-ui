@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { useRegion } from "@/context/RegionContext";
 import { useDrillBind } from "@/components/portfolio/useDrillBind";
+import { useCardScope } from "@/components/common/CardCategoryFilter";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import { inrAbbr, countAbbr, catName, useMount } from "@/components/portfolio/kit";
 import { ProcShell, TableCard, Panel, DetailSkeleton, INK, SUBTLE, EMER, TEAL, INDIGO } from "./parts";
@@ -38,9 +39,16 @@ function SpendTreemap({ cats, spend }: { cats: any[]; spend: number }) {
   const items = cats.filter((c: any) => c.value > 0).slice(0, 9).map((c: any) => ({ value: c.value, it: c }));
   const rects = squarify(items, 100, 100);
   // `category` here is the PO/pharmacological taxonomy (ANTINEOPLASTIC, CAPITALS…), NOT
-  // the global material-type filter — the two are different vocabularies on purpose.
+  // the material-type buckets — the two are different vocabularies on purpose.
   // kpi_purchase_value carries no material column, so the answerable next question about
   // a spend block is who you bought it from.
+  //
+  // AND THAT IS WHY THIS CARD HAS NO CATEGORY CHIP, even though the endpoint behind it
+  // would honour one. A control listing "Onco Drugs / Consumables / Lab" sitting on top
+  // of blocks reading "ANTINEOPLASTIC / CAPITALS / Uncategorized" invites exactly one
+  // reading — that the blocks ARE those buckets — and it would be wrong. The same
+  // applies to the Spend-composition donut below, whose segments are these blocks. The
+  // cut is available on this page where its dimension is unambiguous: vendors, plants.
   const drill = useDrillBind({
     kpi: "purchase-value", dim: "category", by: "vendor", measure: "purchase_value",
     label: "vendors", dimLabel: "Spend category", format: inrAbbr,
@@ -90,12 +98,19 @@ function SpendTreemap({ cats, spend }: { cats: any[]; spend: number }) {
 }
 
 // ── Ranked gradient bars (vendors / plants) ──
-function RankBars({ title, sub, rows, accent, icon: Icon, delay }: any) {
+function RankBars({ title, sub, rows, accent, icon: Icon, delay, cat }: any) {
   const on = useMount(120); const max = Math.max(...rows.map((r: any) => r.value), 1);
   return (
     <Panel delay={delay} className="flex flex-col flex-1">
-      <h3 className="text-[15px] font-semibold" style={{ color: INK }}>{title}</h3>
-      <p className="text-[12px] mt-0.5 mb-4" style={{ color: SUBTLE }}>{sub}</p>
+      <div className="flex items-start justify-between gap-2">
+        <div>
+          <h3 className="text-[15px] font-semibold" style={{ color: INK }}>{title}</h3>
+          <p className="text-[12px] mt-0.5" style={{ color: SUBTLE }}>{sub}</p>
+        </div>
+        {cat?.chip}
+      </div>
+      {cat?.note(!rows.length) && <div className="mt-3">{cat.note(true)}</div>}
+      <div className="mb-4" />
       <div className="space-y-3 flex-1 flex flex-col justify-between">
         {rows.map((r: any, i: number) => { const w = Math.max((r.value / max) * 100, 4); return (
           <div key={i}>
@@ -129,13 +144,20 @@ export default function PurchaseValueDetail() {
   const { selectedRegion } = useRegion();
   const region = selectedRegion?.name ?? "All Plants";
   const [data, setData] = useState<any>(null);
-  useEffect(() => { setData(null); fetch(`${DASHBOARD_API_BASE_URL}/kpi/purchase-value/insights?Plant=${encodeURIComponent(region)}`).then((r) => r.json()).then(setData).catch(() => setData(null)); }, [region]);
+  const url = `/kpi/purchase-value/insights?Plant=${encodeURIComponent(region)}`;
+  useEffect(() => { setData(null); fetch(`${DASHBOARD_API_BASE_URL}${url}`).then((r) => r.json()).then(setData).catch(() => setData(null)); }, [region]); // eslint-disable-line react-hooks/exhaustive-deps
+  // kpi_purchase_value was cut past material grain, so the backend rebuilds these from
+  // fact_po — every PO line carries a material, which makes the cut exact rather than
+  // apportioned. Vendors and plants are the two dimensions where that is unambiguous:
+  // "who did we buy Rs 236.73 Cr of onco from" is one supplier, 94.9% of it.
+  const vendCat = useCardScope(url, data, { accent: INDIGO, domain: "procurement", label: "Top vendors" });
+  const plantCat = useCardScope(url, data, { accent: TEAL, domain: "procurement", label: "Spend by plant" });
   if (!data) return <ProcShell title="Purchase value" subtitle="what you spend, on what, and with whom" region={region}><DetailSkeleton /></ProcShell>;
   const t = data?.totals || {};
   const spend = Number(t.spend ?? 0), lines = Number(t.lines ?? 0), avgPo = Number(t.avg_po ?? 0), vendors = Number(t.vendors ?? 0);
   const allCats = data?.categories || [];
-  const vendorRows = (data?.vendors || []).slice(0, 6).map((v: any) => ({ name: v.name, value: v.value, sub: `${v.share.toFixed(1)}% · ${countAbbr(v.lines)} ln` }));
-  const plantRows = (data?.plants || []).slice(0, 6).map((p: any) => ({ name: p.plant, value: p.value, sub: `${p.vendors} vnd · ${countAbbr(p.lines)} ln` }));
+  const vendorRows = (vendCat.data?.vendors || []).slice(0, 6).map((v: any) => ({ name: v.name, value: v.value, sub: `${v.share.toFixed(1)}% · ${countAbbr(v.lines)} ln` }));
+  const plantRows = (plantCat.data?.plants || []).slice(0, 6).map((p: any) => ({ name: p.plant, value: p.value, sub: `${p.vendors} vnd · ${countAbbr(p.lines)} ln` }));
 
   // composition donut
   const palette = ["#0e9f6e", "#0d9488", "#34d399", "#5eead4", "#99f6e4"];
@@ -164,8 +186,8 @@ export default function PurchaseValueDetail() {
               score={{ text: topRealShare >= 30 ? "Concentrated" : "Broad", value: Math.round(topRealShare), color: topRealShare >= 30 ? "#e0992f" : EMER }} />
           </div>
         </div>
-        <div className="flex flex-col min-w-0"><RankBars title="Top vendors" sub="largest suppliers by spend" rows={vendorRows} accent={INDIGO} icon={TbBuildingFactory2} delay={200} /></div>
-        <div className="flex flex-col min-w-0"><RankBars title="Spend by plant" sub="where purchasing happens" rows={plantRows} accent={TEAL} icon={TbMapPin} delay={240} /></div>
+        <div className="flex flex-col min-w-0"><RankBars title="Top vendors" sub="largest suppliers by spend" rows={vendorRows} accent={INDIGO} icon={TbBuildingFactory2} delay={200} cat={vendCat} /></div>
+        <div className="flex flex-col min-w-0"><RankBars title="Spend by plant" sub="where purchasing happens" rows={plantRows} accent={TEAL} icon={TbMapPin} delay={240} cat={plantCat} /></div>
       </div>
 
       <TableCard title="PO-line purchase detail" sub="paginated · sortable · filterable · export CSV">

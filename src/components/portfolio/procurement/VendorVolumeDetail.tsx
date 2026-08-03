@@ -8,6 +8,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { useRegion } from "@/context/RegionContext";
 import { useDrillBind } from "@/components/portfolio/useDrillBind";
+import { useCardScope } from "@/components/common/CardCategoryFilter";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import { inrAbbr, countAbbr, useMount, CountUp, smoothPath } from "@/components/portfolio/kit";
 import { TbChartArcs3, TbBuildingFactory2 } from "react-icons/tb";
@@ -104,9 +105,21 @@ function ConcentrationDonut({ t }: { t: any }) {
 }
 
 // ---------------- Pareto: per-vendor bars + cumulative line + 80% threshold ----------------
-function ParetoChart({ vendors, t }: { vendors: any[]; t: any }) {
+function ParetoChart({ vendors, t, cat }: { vendors: any[]; t: any; cat: any }) {
   const on = useMount(180); const [hov, setHov] = useState<number | null>(null);
-  if (!vendors.length) return null;
+  // Empty AND unfiltered is a dead card. Empty WITH a filter has to keep its header,
+  // or the chip that emptied it goes with it and All Categories becomes unreachable.
+  if (!vendors.length && !cat.active) return null;
+  if (!vendors.length) return (
+    <Card delay={140} className="bg-white p-6 flex flex-col flex-1">
+      <div className="flex items-start justify-between flex-wrap gap-2">
+        <div><h3 className="text-[16px] font-semibold" style={{ color: INK }}>Spend concentration · Pareto</h3>
+          <p className="text-[12px] mt-0.5" style={{ color: SUB }}>each vendor&apos;s individual share (bars) and the running cumulative total (line)</p></div>
+        {cat.chip}
+      </div>
+      <div className="mt-3">{cat.note(true)}</div>
+    </Card>
+  );
   const n = Math.max(Number(t?.vendors ?? vendors.length), vendors.length);
   const n80 = Number(t?.n80 ?? 0);
   const N = vendors.length;
@@ -127,10 +140,13 @@ function ParetoChart({ vendors, t }: { vendors: any[]; t: any }) {
       <div className="flex items-start justify-between flex-wrap gap-2">
         <div><h3 className="text-[16px] font-semibold" style={{ color: INK }}>Spend concentration · Pareto</h3>
           <p className="text-[12px] mt-0.5" style={{ color: SUB }}>each vendor's individual share (bars) and the running cumulative total (line)</p></div>
-        <div className="flex items-center gap-3 text-[11px] font-medium" style={{ color: "#6b7488" }}>
-          <span className="inline-flex items-center gap-1.5"><span className="w-3 h-2.5 rounded-[3px]" style={{ background: INDIGO }} />Vendor share</span>
-          <span className="inline-flex items-center gap-1.5"><span className="w-3 h-[3px] rounded-full" style={{ background: DEEP }} />Cumulative</span>
-          <span className="inline-flex items-center gap-1.5"><span className="w-3 h-0 border-t-2 border-dashed" style={{ borderColor: AMBER }} />80% line</span>
+        <div className="flex items-center gap-3">
+          {cat.chip}
+          <div className="flex items-center gap-3 text-[11px] font-medium" style={{ color: "#6b7488" }}>
+            <span className="inline-flex items-center gap-1.5"><span className="w-3 h-2.5 rounded-[3px]" style={{ background: INDIGO }} />Vendor share</span>
+            <span className="inline-flex items-center gap-1.5"><span className="w-3 h-[3px] rounded-full" style={{ background: DEEP }} />Cumulative</span>
+            <span className="inline-flex items-center gap-1.5"><span className="w-3 h-0 border-t-2 border-dashed" style={{ borderColor: AMBER }} />80% line</span>
+          </div>
         </div>
       </div>
       <div className="relative mt-3 flex-1" style={{ minHeight: 250 }}>
@@ -212,7 +228,7 @@ function packBubbles(items: { r: number }[], cx: number, cy: number) {
   });
   return placed;
 }
-function BubbleGalaxy({ vendors }: { vendors: any[] }) {
+function BubbleGalaxy({ vendors, cat }: { vendors: any[]; cat: any }) {
   const on = useMount(220); const [hov, setHov] = useState<number | null>(null);
   const W = 560, H = 360, PAD = 18;
   const bubbles = useMemo(() => {
@@ -229,19 +245,23 @@ function BubbleGalaxy({ vendors }: { vendors: any[] }) {
     const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
     return sized.map((d, i) => ({ ...d, x: (pos[i].x - cx) * scale + W / 2, y: (pos[i].y - cy) * scale + H / 2, r: sized[i].r * scale }));
   }, [vendors]);
-  if (!bubbles.length) return null;
-  const top = bubbles.reduce((a, b, i) => (b.share > bubbles[a].share ? i : a), 0);
+  if (!bubbles.length && !cat.active) return null;
+  const top = bubbles.length ? bubbles.reduce((a, b, i) => (b.share > bubbles[a].share ? i : a), 0) : -1;
   return (
     <Card delay={200} className="bg-white p-6 flex flex-col flex-1" style={{ overflow: "hidden" }}>
       <div className="flex items-start justify-between flex-wrap gap-2">
         <div><h3 className="text-[16px] font-semibold" style={{ color: INK }}>Supplier galaxy</h3>
           <p className="text-[12px] mt-0.5" style={{ color: SUB }}>each vendor sized by share of total spend · top {bubbles.length} · hover for detail</p></div>
-        <div className="flex items-center gap-2.5 text-[10.5px] font-medium" style={{ color: "#6b7488" }}>
-          {[["≥8%", DEEP], ["≥4%", INDIGO], ["≥1.5%", PERI], ["<1.5%", SKY]].map(([l, c]) => (
-            <span key={l as string} className="inline-flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full" style={{ background: c as string }} />{l}</span>
-          ))}
+        <div className="flex items-center gap-2.5">
+          {cat.chip}
+          <div className="flex items-center gap-2.5 text-[10.5px] font-medium" style={{ color: "#6b7488" }}>
+            {[["≥8%", DEEP], ["≥4%", INDIGO], ["≥1.5%", PERI], ["<1.5%", SKY]].map(([l, c]) => (
+              <span key={l as string} className="inline-flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full" style={{ background: c as string }} />{l}</span>
+            ))}
+          </div>
         </div>
       </div>
+      {cat.note(!bubbles.length) && <div className="mt-3">{cat.note(true)}</div>}
       <div className="relative mt-2 flex-1 flex items-center justify-center" style={{ minHeight: 300 }}>
         <svg viewBox={`0 0 ${W} ${H}`} width="100%" height="100%" preserveAspectRatio="xMidYMid meet" style={{ display: "block", overflow: "visible" }} onMouseLeave={() => setHov(null)}>
           {bubbles.map((b, i) => { const c = tier(b.share); const active = hov === i; const dim = hov != null && !active; const isTop = i === top; return (
@@ -267,7 +287,7 @@ function BubbleGalaxy({ vendors }: { vendors: any[] }) {
 }
 
 // ---------------- Leaders ladder ----------------
-function Leaders({ vendors, t }: { vendors: any[]; t: any }) {
+function Leaders({ vendors, t, cat }: { vendors: any[]; t: any; cat: any }) {
   const on = useMount(260);
   const rows = (vendors || []).slice(0, 8);
   // kpi_vendor_volume is plant x vendor with no material column, which is why this used
@@ -286,8 +306,12 @@ function Leaders({ vendors, t }: { vendors: any[]; t: any }) {
       <div className="flex items-center justify-between">
         <div><h3 className="text-[16px] font-semibold" style={{ color: INK }}>Largest suppliers</h3>
           <p className="text-[12px] mt-0.5" style={{ color: SUB }}>by share of total spend</p></div>
-        <span className="text-[11px] font-medium px-2.5 py-1 rounded-full" style={{ background: `${INDIGO}14`, color: INDIGO }}>top-10 = {Number(t?.top10 ?? 0).toFixed(0)}%</span>
+        <div className="flex items-center gap-2">
+          {cat.chip}
+          <span className="text-[11px] font-medium px-2.5 py-1 rounded-full" style={{ background: `${INDIGO}14`, color: INDIGO }}>top-10 = {Number(t?.top10 ?? 0).toFixed(0)}%</span>
+        </div>
       </div>
+      {cat.note(!rows.length) && <div className="mt-3">{cat.note(true)}</div>}
       <div className="mt-3 flex-1 flex flex-col justify-between gap-1">
         {rows.map((r: any, i: number) => (
           <div key={i} className="py-1.5" {...drill.bind(r.name)}>
@@ -320,19 +344,26 @@ export default function VendorVolumeDetail() {
   const { selectedRegion } = useRegion();
   const region = selectedRegion?.name ?? "All Plants";
   const [data, setData] = useState<any>(null);
-  useEffect(() => { setData(null); fetch(`${DASHBOARD_API_BASE_URL}/kpi/vendor-volume-contribution/insights?Plant=${encodeURIComponent(region)}`).then((r) => r.json()).then(setData).catch(() => setData(null)); }, [region]);
+  const url = `/kpi/vendor-volume-contribution/insights?Plant=${encodeURIComponent(region)}`;
+  useEffect(() => { setData(null); fetch(`${DASHBOARD_API_BASE_URL}${url}`).then((r) => r.json()).then(setData).catch(() => setData(null)); }, [region]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Concentration is only really meaningful PER CATEGORY: unfiltered the top vendor is
+  // 45.8% of spend and the HHI is 2,140, but inside Onco Drugs one supplier is 94.9%
+  // and the HHI is 9,004. Shares, n80 and HHI are all recomputed against the filtered
+  // total — the vendor count is a nunique, so it is recounted rather than scaled.
+  const pareto = useCardScope(url, data, { accent: DEEP, domain: "procurement", label: "Spend concentration" });
+  const galaxy = useCardScope(url, data, { accent: INDIGO, domain: "procurement", label: "Supplier galaxy" });
+  const ladder = useCardScope(url, data, { accent: DEEP, domain: "procurement", label: "Largest suppliers" });
   if (!data) return <Shell region={region}><DetailSkeleton /></Shell>;
   const t = data?.totals || {};
-  const vendors = data?.vendors || [];
   return (
     <Shell region={region}>
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-stretch">
         <div className="xl:col-span-4 flex flex-col min-w-0"><ConcentrationDonut t={t} /></div>
-        <div className="xl:col-span-8 flex flex-col min-w-0"><ParetoChart vendors={vendors} t={t} /></div>
+        <div className="xl:col-span-8 flex flex-col min-w-0"><ParetoChart vendors={pareto.data?.vendors || []} t={pareto.data?.totals || {}} cat={pareto} /></div>
       </div>
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-stretch">
-        <div className="xl:col-span-7 flex flex-col min-w-0"><BubbleGalaxy vendors={vendors} /></div>
-        <div className="xl:col-span-5 flex flex-col min-w-0"><Leaders vendors={vendors} t={t} /></div>
+        <div className="xl:col-span-7 flex flex-col min-w-0"><BubbleGalaxy vendors={galaxy.data?.vendors || []} cat={galaxy} /></div>
+        <div className="xl:col-span-5 flex flex-col min-w-0"><Leaders vendors={ladder.data?.vendors || []} t={ladder.data?.totals || {}} cat={ladder} /></div>
       </div>
       <Card delay={320} className="bg-white overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-50">

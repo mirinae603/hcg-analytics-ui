@@ -136,9 +136,13 @@ export function GaugeCard({ tabs, animated = true, loading = false, headerSlot, 
 }
 
 // ── Concentration donut (clone of inventory aging donut) ──
-export function DonutCard({ label, headline, headSuffix, segments, centerLabel, insights, score, animated = true, loading = false }: {
+export function DonutCard({ label, headline, headSuffix, segments, centerLabel, insights, score, animated = true, loading = false, headerSlot, note }: {
   label: string; headline: number; headSuffix?: string; centerLabel: string; score: { text: string; value: number; color: string };
   segments: { label: string; value: number; color: string }[]; insights: { label: string; value: string; color: string }[]; animated?: boolean; loading?: boolean;
+  /** Card-level controls (the material-category chip), rendered beside the score pills. */
+  headerSlot?: React.ReactNode;
+  /** The honest one-liner shown when this card's own filter empties it. */
+  note?: React.ReactNode;
 }) {
   const total = useMemo(() => segments.reduce((s, x) => s + x.value, 0) || 1, [segments]);
   const [progress, setProgress] = useState(animated ? 0 : 1);
@@ -164,10 +168,12 @@ export function DonutCard({ label, headline, headSuffix, segments, centerLabel, 
             <div className="flex items-baseline space-x-2"><span className="text-lg sm:text-2xl font-semibold text-slate-500 tracking-tight tabular-nums">{disp >= 1e7 ? `₹${(disp / 1e7).toFixed(2)} Cr` : Math.round(disp).toLocaleString("en-IN")}</span>{headSuffix && <span className="text-xs text-slate-500 font-medium">{headSuffix}</span>}</div>
           </div>
           <div className="flex items-center space-x-2">
+            {headerSlot}
             <div className="px-2.5 py-1 rounded-md text-xs font-medium border" style={{ backgroundColor: hexA(score.color, 0.08), color: score.color, borderColor: `${score.color}20` }}>{score.text}</div>
             <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium text-white" style={{ backgroundColor: score.color }}>{score.value}</div>
           </div>
         </div>
+        {note}
       </div>
       <div className="relative px-4 sm:px-5 pb-4 flex-1 flex flex-col justify-center">
         <div className="flex flex-col lg:flex-row items-center lg:items-start">

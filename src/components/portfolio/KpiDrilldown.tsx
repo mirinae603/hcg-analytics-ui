@@ -5,7 +5,7 @@ import { Kpi } from "@/lib/kpiRegistry";
 import { fmt } from "@/lib/kpiFormat";
 import { useRegion } from "@/context/RegionContext";
 import { DRILL } from "@/lib/drilldown";
-import { useCardCategory, CATEGORY_CAPABLE_KPIS } from "@/components/common/CardCategoryFilter";
+import { useCardCategory, CATEGORY_CAPABLE_KPIS, PROCUREMENT_KPIS } from "@/components/common/CardCategoryFilter";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import ApexKpiChart from "./ApexKpiChart";
@@ -65,7 +65,13 @@ export default function KpiDrilldown({ kpi }: { kpi: Kpi }) {
   // /drill/matrix's own `respects_category`. On a KPI that cannot be split, `chip` is
   // simply never rendered and there is nothing to explain.
   const capable = CATEGORY_CAPABLE_KPIS.has(kpi.key);
-  const cat = useCardCategory({ accent: "#465fff" });
+  const cat = useCardCategory({
+    accent: "#465fff",
+    // A procurement KPI is measured in purchase orders, where Unclassified is the
+    // largest bucket — on the stock domain it would be hidden for holding no stock.
+    domain: PROCUREMENT_KPIS.has(kpi.key) ? "procurement" : "stock",
+    label: kpi.title,
+  });
 
   useEffect(() => {
     setLoading(true);

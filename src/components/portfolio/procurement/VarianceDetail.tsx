@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { useRegion } from "@/context/RegionContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import { inrAbbr, useMount, smoothPath, CountUp } from "@/components/portfolio/kit";
+import { useCardScope } from "@/components/common/CardCategoryFilter";
 import { ProcShell, TableCard, DetailSkeleton, INK, SUBTLE } from "./parts";
 import { TbActivity, TbArrowUpRight, TbArrowDownRight, TbWaveSine, TbTrendingUp, TbTrendingDown } from "react-icons/tb";
 
@@ -16,12 +17,15 @@ const EMER = "#0e9f6e", ROSE = "#e8604a", SLATE = "#5b6478";
 const pctSign = (n: number) => `${n >= 0 ? "+" : "−"}${Math.abs(n).toFixed(1)}%`;
 
 // ── Signature: two-tone deviation-from-average area ──
-function DeviationChart({ timeline, avg, latestPct, latestDelta }: { timeline: any[]; avg: number; latestPct: number; latestDelta: number }) {
+function DeviationChart({ timeline, avg, latestPct, latestDelta, cat }: { timeline: any[]; avg: number; latestPct: number; latestDelta: number; cat: any }) {
   const on = useMount(160); const [hov, setHov] = useState<number | null>(null);
-  const data = timeline || []; if (!data.length) return null;
+  const data = timeline || [];
+  // Empty + no filter is a genuinely dead card; empty WITH a filter has to keep its
+  // header, or the chip that emptied it disappears and All is unreachable.
+  if (!data.length && !cat.active) return null;
   const W = 900, H = 330, PADX = 34, PADT = 52, PADB = 42;
   const innerW = W - PADX * 2, innerH = H - PADT - PADB;
-  const vals = data.map((d) => d.value); const max = Math.max(...vals), min = Math.min(...vals);
+  const vals = data.map((d) => d.value); const max = Math.max(...vals, 0), min = Math.min(...vals, 0);
   const lo = Math.min(min, avg) * 0.92, hi = Math.max(max, avg) * 1.05, span = hi - lo || 1;
   const X = (i: number) => data.length <= 1 ? W / 2 : PADX + (i / (data.length - 1)) * innerW;
   const Y = (v: number) => PADT + innerH - ((v - lo) / span) * innerH;
@@ -37,11 +41,15 @@ function DeviationChart({ timeline, avg, latestPct, latestDelta }: { timeline: a
           <h3 className="text-[18px] font-bold tracking-tight" style={{ color: INK }}>Spend momentum</h3>
           <p className="text-[12.5px] mt-0.5" style={{ color: SUBTLE }}>month-over-month deviation from the 6-month average</p>
         </div>
-        <div className="flex items-center gap-4 text-[11.5px] font-medium" style={{ color: "#6b7488" }}>
-          <span className="inline-flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm" style={{ background: EMER }} />Above average</span>
-          <span className="inline-flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm" style={{ background: ROSE }} />Below average</span>
+        <div className="flex items-center gap-3">
+          {cat.chip}
+          <div className="flex items-center gap-4 text-[11.5px] font-medium" style={{ color: "#6b7488" }}>
+            <span className="inline-flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm" style={{ background: EMER }} />Above average</span>
+            <span className="inline-flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm" style={{ background: ROSE }} />Below average</span>
+          </div>
         </div>
       </div>
+      {cat.note(!data.length) && <div className="mt-3">{cat.note(true)}</div>}
       <div className="relative mt-2" style={{ height: H }}>
         <svg viewBox={`0 0 ${W} ${H}`} width="100%" height="100%" preserveAspectRatio="none" style={{ display: "block", overflow: "visible" }} onMouseLeave={() => setHov(null)}>
           <defs>
@@ -107,7 +115,7 @@ function Tile({ icon: Icon, label, value, sub, accent, delay }: any) {
 }
 
 // ── Month-over-month diverging bars (vertical) ──
-function VarianceBars({ timeline }: { timeline: any[] }) {
+function VarianceBars({ timeline, cat }: { timeline: any[]; cat: any }) {
   const on = useMount(220);
   const deltas = timeline.filter((t) => !t.first);
   const maxAbs = Math.max(...deltas.map((d) => Math.abs(d.pct)), 1);
@@ -116,11 +124,15 @@ function VarianceBars({ timeline }: { timeline: any[] }) {
       <div className="flex items-start justify-between flex-wrap gap-2 mb-2">
         <div><h3 className="text-[16px] font-semibold" style={{ color: INK }}>Month-over-month change</h3>
           <p className="text-[12px] mt-0.5" style={{ color: SUBTLE }}>how much spend rose or fell each month</p></div>
-        <div className="flex items-center gap-3 text-[11px] font-medium" style={{ color: "#6b7488" }}>
-          <span className="inline-flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full" style={{ background: EMER }} />Rise</span>
-          <span className="inline-flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full" style={{ background: ROSE }} />Drop</span>
+        <div className="flex items-center gap-3">
+          {cat.chip}
+          <div className="flex items-center gap-3 text-[11px] font-medium" style={{ color: "#6b7488" }}>
+            <span className="inline-flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full" style={{ background: EMER }} />Rise</span>
+            <span className="inline-flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full" style={{ background: ROSE }} />Drop</span>
+          </div>
         </div>
       </div>
+      {cat.note(!timeline.length) && <div className="mb-3">{cat.note(true)}</div>}
       <div className="flex items-stretch justify-around gap-3" style={{ height: 280 }}>
         {timeline.map((d, i) => {
           const up = d.pct >= 0; const col = up ? EMER : ROSE; const h = d.first ? 0 : (Math.abs(d.pct) / maxAbs) * 92;
@@ -156,15 +168,22 @@ export default function VarianceDetail() {
   const { selectedRegion } = useRegion();
   const region = selectedRegion?.name ?? "All Plants";
   const [data, setData] = useState<any>(null);
-  useEffect(() => { setData(null); fetch(`${DASHBOARD_API_BASE_URL}/kpi/procurement-variance/insights?Plant=${encodeURIComponent(region)}`).then((r) => r.json()).then(setData).catch(() => setData(null)); }, [region]);
+  const url = `/kpi/procurement-variance/insights?Plant=${encodeURIComponent(region)}`;
+  useEffect(() => { setData(null); fetch(`${DASHBOARD_API_BASE_URL}${url}`).then((r) => r.json()).then(setData).catch(() => setData(null)); }, [region]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Money per plant-month, so the MoM shift is recomputed INSIDE the bucket rather than
+  // scaled: onco spend fell 2.3% last month while the portfolio fell 4.9%.
+  const devCat = useCardScope(url, data, { accent: EMER, domain: "procurement", label: "Spend momentum" });
+  const barCat = useCardScope(url, data, { accent: ROSE, domain: "procurement", label: "Month-over-month change" });
   if (!data) return <ProcShell title="Procurement variance" subtitle="how monthly spend shifts over time" region={region} bg={PAGE}><DetailSkeleton /></ProcShell>;
   const t = data?.totals || {};
   const tl = data?.timeline || [];
   const avg = Number(t.avg_spend ?? 0);
+  const dt = devCat.data?.totals || {};
 
   return (
     <ProcShell title="Procurement variance" subtitle="how monthly spend shifts over time" region={region} bg={PAGE}>
-      <DeviationChart timeline={tl} avg={avg} latestPct={Number(t.latest_pct ?? 0)} latestDelta={Number(t.latest_delta ?? 0)} />
+      <DeviationChart timeline={devCat.data?.timeline || []} avg={Number(dt.avg_spend ?? 0)}
+        latestPct={Number(dt.latest_pct ?? 0)} latestDelta={Number(dt.latest_delta ?? 0)} cat={devCat} />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <Tile icon={TbWaveSine} label="Avg / month" value={inrAbbr(avg)} sub="6-month mean spend" accent={SLATE} delay={0} />
@@ -173,7 +192,7 @@ export default function VarianceDetail() {
         <Tile icon={TbActivity} label="Volatility" value={`${Number(t.volatility ?? 0).toFixed(1)}%`} sub="std. dev of MoM swings" accent="#e0992f" delay={240} />
       </div>
 
-      <VarianceBars timeline={tl} />
+      <VarianceBars timeline={barCat.data?.timeline || []} cat={barCat} />
 
       <TableCard title="Plant × month variance detail" sub="paginated · sortable · filterable · export CSV">
         <KpiTable kpiKey="procurement-variance" plant={region} columns={COLUMNS} />

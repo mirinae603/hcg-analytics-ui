@@ -9,6 +9,7 @@ import dynamic from "next/dynamic";
 import { useRegion } from "@/context/RegionContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import { countAbbr, useMount, CountUp, smoothPath } from "@/components/portfolio/kit";
+import { useCardScope } from "@/components/common/CardCategoryFilter";
 import { TbClockBolt, TbShoppingCart, TbTruckDelivery, TbBuildingHospital, TbBolt } from "react-icons/tb";
 import { DetailSkeleton } from "./parts";
 
@@ -99,7 +100,7 @@ function PaceHero({ t }: { t: any }) {
 }
 
 // ---------------- Order → receipt pace (PO → GR) ----------------
-function PipelineFlow({ t }: { t: any }) {
+function PipelineFlow({ t, cat, empty }: { t: any; cat: any; empty: boolean }) {
   const on = useMount(160);
   const avgPo = Number(t?.avg_po ?? 0), fast = Number(t?.fast_po ?? 0), slow = Number(t?.slow_po ?? 0);
   const Node = ({ code, name, icon: Icon, c }: any) => (
@@ -119,8 +120,12 @@ function PipelineFlow({ t }: { t: any }) {
       <div className="flex items-start justify-between flex-wrap gap-2">
         <div><h3 className="text-[16px] font-semibold" style={{ color: INK }}>Order-to-receipt pace</h3>
           <p className="text-[12px] mt-0.5" style={{ color: SUB }}>how long a purchase order takes to arrive as received goods</p></div>
-        <span className="text-[11px] font-semibold px-3 py-1.5 rounded-full" style={{ background: `${AMBER}18`, color: DEEP }}>PO → GR · reliable</span>
+        <div className="flex items-center gap-2">
+          {cat.chip}
+          <span className="text-[11px] font-semibold px-3 py-1.5 rounded-full" style={{ background: `${AMBER}18`, color: DEEP }}>PO → GR · reliable</span>
+        </div>
       </div>
+      {cat.note(empty) && <div className="mt-3">{cat.note(true)}</div>}
       {/* the flow */}
       <div className="flex-1 flex items-center">
         <div className="w-full flex items-center">
@@ -153,9 +158,22 @@ function PipelineFlow({ t }: { t: any }) {
 }
 
 // ---------------- Monthly cycle-time trend ----------------
-function TrendChart({ timeline }: { timeline: any[] }) {
+function TrendChart({ timeline, cat }: { timeline: any[]; cat: any }) {
   const on = useMount(200); const [hov, setHov] = useState<number | null>(null);
-  const data = timeline || []; if (!data.length) return null;
+  const data = timeline || [];
+  // Empty AND unfiltered is a dead card; empty WITH a filter must keep its header, or
+  // the chip that emptied it disappears and All Categories becomes unreachable.
+  if (!data.length && !cat.active) return null;
+  if (!data.length) return (
+    <Card delay={200} className="bg-white p-6 flex flex-col flex-1">
+      <div className="flex items-start justify-between flex-wrap gap-2">
+        <div><h3 className="text-[16px] font-semibold" style={{ color: INK }}>Cycle-time trend</h3>
+          <p className="text-[12px] mt-0.5" style={{ color: SUB }}>monthly PO → GR days · fastest &amp; slowest flagged</p></div>
+        {cat.chip}
+      </div>
+      <div className="mt-3">{cat.note(true)}</div>
+    </Card>
+  );
   const W = 620, H = 320, PADX = 36, PADT = 26, PADB = 40;
   const innerW = W - PADX * 2, innerH = H - PADT - PADB;
   const max = Math.max(...data.map((d) => d.po), 1) * 1.25;
@@ -173,9 +191,12 @@ function TrendChart({ timeline }: { timeline: any[] }) {
       <div className="flex items-start justify-between flex-wrap gap-2">
         <div><h3 className="text-[16px] font-semibold" style={{ color: INK }}>Cycle-time trend</h3>
           <p className="text-[12px] mt-0.5" style={{ color: SUB }}>monthly PO → GR days · fastest & slowest flagged</p></div>
-        <div className="flex items-center gap-3 text-[11px] font-medium" style={{ color: "#7a7060" }}>
-          <span className="inline-flex items-center gap-1.5"><span className="w-3 h-[3px] rounded-full" style={{ background: AMBER }} />PO→GR days</span>
-          <span className="inline-flex items-center gap-1.5"><span className="w-3 h-0 border-t-2 border-dashed" style={{ borderColor: SLATE }} />avg</span>
+        <div className="flex items-center gap-3">
+          {cat.chip}
+          <div className="flex items-center gap-3 text-[11px] font-medium" style={{ color: "#7a7060" }}>
+            <span className="inline-flex items-center gap-1.5"><span className="w-3 h-[3px] rounded-full" style={{ background: AMBER }} />PO→GR days</span>
+            <span className="inline-flex items-center gap-1.5"><span className="w-3 h-0 border-t-2 border-dashed" style={{ borderColor: SLATE }} />avg</span>
+          </div>
         </div>
       </div>
       <div className="relative mt-3 flex-1" style={{ minHeight: 250 }}>
@@ -227,7 +248,7 @@ function TrendChart({ timeline }: { timeline: any[] }) {
 }
 
 // ---------------- Hospital speed ladder ----------------
-function SpeedLadder({ plants, t }: { plants: any[]; t: any }) {
+function SpeedLadder({ plants, t, cat }: { plants: any[]; t: any; cat: any }) {
   const on = useMount(240);
   const rows = (plants || []).slice(0, 8);
   const avg = Number(t?.avg_po ?? 0);
@@ -237,8 +258,12 @@ function SpeedLadder({ plants, t }: { plants: any[]; t: any }) {
       <div className="flex items-center justify-between">
         <div><h3 className="text-[16px] font-semibold" style={{ color: INK }}>Hospital speed</h3>
           <p className="text-[12px] mt-0.5" style={{ color: SUB }}>PO → GR days · slowest first</p></div>
-        <span className="text-[11px] font-medium px-2.5 py-1 rounded-full" style={{ background: `${AMBER}16`, color: DEEP }}>avg {avg.toFixed(1)}d</span>
+        <div className="flex items-center gap-2">
+          {cat.chip}
+          <span className="text-[11px] font-medium px-2.5 py-1 rounded-full" style={{ background: `${AMBER}16`, color: DEEP }}>avg {avg.toFixed(1)}d</span>
+        </div>
       </div>
+      {cat.note(!rows.length) && <div className="mt-3">{cat.note(true)}</div>}
       <div className="mt-3 flex-1 flex flex-col justify-between gap-1">
         {rows.map((r: any, i: number) => { const col = lerp(GOLD, RUST, (r.po - min) / (max - min || 1)); const slow = r.po > avg; return (
           <div key={i} className="py-1.5">
@@ -273,20 +298,25 @@ export default function CycleTimeDetail() {
   const { selectedRegion } = useRegion();
   const region = selectedRegion?.name ?? "All Plants";
   const [data, setData] = useState<any>(null);
-  useEffect(() => { setData(null); fetch(`${DASHBOARD_API_BASE_URL}/kpi/procurement-cycle-time/insights?Plant=${encodeURIComponent(region)}`).then((r) => r.json()).then(setData).catch(() => setData(null)); }, [region]);
+  const url = `/kpi/procurement-cycle-time/insights?Plant=${encodeURIComponent(region)}`;
+  useEffect(() => { setData(null); fetch(`${DASHBOARD_API_BASE_URL}${url}`).then((r) => r.json()).then(setData).catch(() => setData(null)); }, [region]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Every GRN line carries a material, so the mean is rebuilt from TAT sums and counts
+  // rather than averaged over averages. It genuinely differs by bucket — onco arrives in
+  // 2.5 days, lab consumables take 12.5, against a 5.4-day portfolio average.
+  const pipe = useCardScope(url, data, { accent: DEEP, domain: "procurement", label: "Order-to-receipt pace" });
+  const trend = useCardScope(url, data, { accent: AMBER, domain: "procurement", label: "Cycle-time trend" });
+  const ladder = useCardScope(url, data, { accent: DEEP, domain: "procurement", label: "Hospital speed" });
   if (!data) return <Shell region={region}><DetailSkeleton /></Shell>;
   const t = data?.totals || {};
-  const tl = data?.timeline || [];
-  const plants = data?.plants || [];
   return (
     <Shell region={region}>
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-stretch">
         <div className="xl:col-span-4 flex flex-col min-w-0"><PaceHero t={t} /></div>
-        <div className="xl:col-span-8 flex flex-col min-w-0"><PipelineFlow t={t} /></div>
+        <div className="xl:col-span-8 flex flex-col min-w-0"><PipelineFlow t={pipe.data?.totals || {}} cat={pipe} empty={!(pipe.data?.timeline || []).length} /></div>
       </div>
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-stretch">
-        <div className="xl:col-span-7 flex flex-col min-w-0"><TrendChart timeline={tl} /></div>
-        <div className="xl:col-span-5 flex flex-col min-w-0"><SpeedLadder plants={plants} t={t} /></div>
+        <div className="xl:col-span-7 flex flex-col min-w-0"><TrendChart timeline={trend.data?.timeline || []} cat={trend} /></div>
+        <div className="xl:col-span-5 flex flex-col min-w-0"><SpeedLadder plants={ladder.data?.plants || []} t={ladder.data?.totals || {}} cat={ladder} /></div>
       </div>
       <Card delay={320} className="bg-white overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-50">

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRegion } from "@/context/RegionContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import { CARD_SH, inrAbbr, countAbbr, catName, useMount, smoothPath } from "@/components/portfolio/kit";
+import { useCardCategory, useCardScope } from "@/components/common/CardCategoryFilter";
 import { GaugeCard, DonutCard, BrandPanel, Tab } from "./ExecCards";
 import { TbCoin, TbReceipt, TbTrendingDown, TbBuildingFactory2, TbMapPin, TbClockHour4, TbTruckDelivery, TbProgressCheck, TbChevronRight, TbFlask, TbChartArrowsVertical } from "react-icons/tb";
 import { simulatedByPortfolio } from "@/lib/kpiRegistry";
@@ -45,13 +46,13 @@ const fmtCard = (kind: string, v: number, key?: string) =>
   : kind === "pct" ? (key && DELTA_KPI_KEYS.has(key) ? pctSign(v) : pctPlain(v))
   : countAbbr(v);
 
-function SpendFlow({ timeline }: { timeline: any[] }) {
+function SpendFlow({ timeline, cat, empty }: { timeline: any[]; cat: any; empty: boolean }) {
   const on = useMount(140); const [hov, setHov] = useState<number | null>(null);
-  const data = timeline || []; if (!data.length) return null;
+  const data = timeline || [];
   const W = 760, H = 248, PADX = 26, PADT = 50, PADB = 34;
   const innerW = W - PADX * 2, innerH = H - PADT - PADB;
-  const vals = data.map((d) => d.value); const max = Math.max(...vals), min = Math.min(...vals);
-  const avg = vals.reduce((s, v) => s + v, 0) / vals.length; const peakIdx = vals.indexOf(max);
+  const vals = data.map((d) => d.value); const max = Math.max(...vals, 0), min = Math.min(...vals, 0);
+  const avg = data.length ? vals.reduce((s, v) => s + v, 0) / vals.length : 0; const peakIdx = vals.indexOf(max);
   const lo = min * 0.85, hi = max * 1.04, span = hi - lo || 1;
   const X = (i: number) => PADX + (data.length === 1 ? innerW / 2 : (i / (data.length - 1)) * innerW);
   const Y = (v: number) => PADT + innerH - ((v - lo) / span) * innerH;
@@ -64,9 +65,13 @@ function SpendFlow({ timeline }: { timeline: any[] }) {
       <div className="flex items-start justify-between flex-wrap gap-2">
         <div><h3 className="text-[16px] font-semibold" style={{ color: INK }}>Spend flow</h3>
           <p className="text-[12px] mt-0.5" style={{ color: SUBTLE }}>monthly purchase value · 6-month window</p></div>
-        <div className="text-right"><div className="text-[20px] font-bold leading-none tabular-nums" style={{ color: EMER }}>{inrAbbr(avg)}</div>
-          <div className="text-[11px] mt-1" style={{ color: SUBTLE }}>avg / month</div></div>
+        <div className="flex items-center gap-3">
+          {cat.chip}
+          <div className="text-right"><div className="text-[20px] font-bold leading-none tabular-nums" style={{ color: EMER }}>{inrAbbr(avg)}</div>
+            <div className="text-[11px] mt-1" style={{ color: SUBTLE }}>avg / month</div></div>
+        </div>
       </div>
+      {cat.note(empty) && <div className="mt-3">{cat.note(true)}</div>}
       <div className="relative mt-3">
         <svg viewBox={`0 0 ${W} ${H}`} width="100%" preserveAspectRatio="none" style={{ display: "block", overflow: "visible" }} onMouseLeave={() => setHov(null)}>
           <defs><linearGradient id="ovSpend" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={EMER} stopOpacity="0.26" /><stop offset="100%" stopColor={EMER} stopOpacity="0" /></linearGradient></defs>
@@ -150,12 +155,16 @@ function CategoriesCard({ categories }: { categories: any[] }) {
   );
 }
 
-function VendorsCard({ vendors, top5 }: { vendors: any[]; top5: number }) {
+function VendorsCard({ vendors, top5, cat }: { vendors: any[]; top5: number; cat: any }) {
   return (
     <div className="rounded-[26px] bg-white p-6 flex flex-col flex-1" style={{ boxShadow: CARD_SH }}>
-      <div className="flex items-center justify-between"><h3 className="text-[15px] font-semibold" style={{ color: INK }}>Vendor concentration</h3>
-        <span className="text-[11px] font-medium px-2.5 py-1 rounded-full" style={{ background: `${INDIGO}14`, color: INDIGO }}>top-5 · {Math.round(top5)}%</span></div>
+      <div className="flex items-center justify-between gap-2"><h3 className="text-[15px] font-semibold" style={{ color: INK }}>Vendor concentration</h3>
+        <div className="flex items-center gap-2">
+          {cat.chip}
+          <span className="text-[11px] font-medium px-2.5 py-1 rounded-full" style={{ background: `${INDIGO}14`, color: INDIGO }}>top-5 · {Math.round(top5)}%</span>
+        </div></div>
       <p className="text-[12px] mt-0.5 mb-3" style={{ color: SUBTLE }}>largest suppliers by spend share</p>
+      {cat.note(!vendors.length) && <div className="mb-3">{cat.note(true)}</div>}
       <div className="divide-y divide-gray-50 flex-1 flex flex-col justify-between">
         {vendors.slice(0, 7).map((v, i) => (
           <div key={i} className="flex items-center justify-between py-2.5">
@@ -207,10 +216,25 @@ function OpenPOCard({ openPo }: { openPo: any }) {
 function SavingsCard({ region }: { region: string }) {
   const on = useMount(160);
   const [d, setD] = useState<any>(null);
-  useEffect(() => { setD(null); fetch(`${DASHBOARD_API_BASE_URL}/portfolio/procurement/savings?Plant=${encodeURIComponent(region)}`).then((r) => r.json()).then((x) => setD(x || null)).catch(() => setD(null)); }, [region]);
+  // Every step of this computation is per material — an item's own median price, its
+  // >=4-purchase gate and its headroom are identical whether or not its bucket is
+  // selected — so the flagged items simply partition across the six buckets.
+  const cat = useCardCategory({ accent: INDIGO, domain: "procurement", label: "Price consolidation opportunity" });
+  useEffect(() => {
+    setD(null);
+    const ac = new AbortController();
+    const p = new URLSearchParams({ Plant: region, ...cat.q });
+    fetch(`${DASHBOARD_API_BASE_URL}/portfolio/procurement/savings?${p}`, { signal: ac.signal })
+      .then((r) => r.json()).then((x) => setD(x || null))
+      .catch((e) => { if (e?.name !== "AbortError") setD(null); });
+    return () => ac.abort();
+  }, [region, cat.category]); // eslint-disable-line react-hooks/exhaustive-deps
   const items: any[] = d?.items || [];
   const t = d?.totals || {};
-  if (!items.length) return null;
+  // The card can only vanish entirely when NOTHING is selected — once a filter is on it
+  // has to stay on screen, or the control that produced the empty result disappears
+  // with it and there is no way back to All.
+  if (!items.length && !cat.active) return null;
   const maxOver = Math.max(...items.map((i) => i.over), 1);
   return (
     <div className="rounded-[26px] bg-white p-6" style={{ boxShadow: CARD_SH }}>
@@ -223,11 +247,15 @@ function SavingsCard({ region }: { region: string }) {
           </div>
           <p className="text-[12px] mt-0.5" style={{ color: SUBTLE }}>same item priced above its own median across the 6-month window</p>
         </div>
-        <div className="text-right">
-          <div className="text-[20px] font-bold leading-none tabular-nums" style={{ color: INDIGO }}>{inrAbbr(Number(t.opportunity ?? 0))}</div>
-          <div className="text-[11px] mt-1" style={{ color: SUBTLE }}>headroom · {Number(t.items_flagged ?? 0).toLocaleString("en-IN")} items</div>
+        <div className="flex items-center gap-3">
+          {cat.chip}
+          <div className="text-right">
+            <div className="text-[20px] font-bold leading-none tabular-nums" style={{ color: INDIGO }}>{inrAbbr(Number(t.opportunity ?? 0))}</div>
+            <div className="text-[11px] mt-1" style={{ color: SUBTLE }}>headroom · {Number(t.items_flagged ?? 0).toLocaleString("en-IN")} items</div>
+          </div>
         </div>
       </div>
+      {cat.note(!items.length) && <div className="mt-4">{cat.note(true)}</div>}
       <div className="mt-5 space-y-2.5">
         {items.slice(0, 8).map((it, i) => { const w = Math.max((it.over / maxOver) * 100, 4); return (
           <div key={i} className="flex items-center gap-3">
@@ -255,42 +283,72 @@ export default function ProcurementOverview() {
   // no real data yet, so the executive cards must show a neutral skeleton, never a
   // confident-looking 0/0%/"Watch fill" as if it were a genuine result (the original bug).
   const [loading, setLoading] = useState(true);
+  const overviewUrl = `/portfolio/procurement/overview?Plant=${encodeURIComponent(region)}`;
   useEffect(() => {
     setLoading(true);
-    fetch(`${DASHBOARD_API_BASE_URL}/portfolio/procurement/overview?Plant=${encodeURIComponent(region)}`)
+    fetch(`${DASHBOARD_API_BASE_URL}${overviewUrl}`)
       .then((r) => r.json()).then((d) => { setData(d || null); setLoading(false); })
       .catch(() => { setData(null); setLoading(false); });
-  }, [region]);
+  }, [region]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // FOUR independent card filters over the ONE payload the page already fetched. Each
+  // card keeps its own narrowed copy, so cutting the gauge to Onco Drugs leaves the
+  // donut, the spend flow and the vendor ladder showing the whole Rs 649.91 Cr — which
+  // is what makes the filtered number readable as a share of it. At All Categories
+  // every one of them hands back `data` by reference: no request, no re-render.
+  //
+  // `domain: "procurement"` is load-bearing. On the stock domain Unclassified is hidden
+  // for holding Rs 0.00 of stock; here it is Rs 272.35 Cr — 41.9%, the largest bucket
+  // on the page.
+  const gauge = useCardScope(overviewUrl, data, { accent: EMER, domain: "procurement", label: "Procurement totals" });
+  const donut = useCardScope(overviewUrl, data, { accent: INDIGO, domain: "procurement", label: "Vendor concentration" });
+  const flow = useCardScope(overviewUrl, data, { accent: EMER, domain: "procurement", label: "Spend flow" });
+  const vend = useCardScope(overviewUrl, data, { accent: INDIGO, domain: "procurement", label: "Largest suppliers" });
   // Combined flag passed to the cards below: true while the request is in flight, AND
   // true if it resolved with nothing usable (failed / empty) -- only false once real
   // totals are in hand. Never let the "fetch failed" case fall through to the old
   // confident-zero render.
   const showSkeleton = loading || !data;
 
-  const t = data?.totals || {};
-  const cards = data?.cards || {};
-  const timeline = data?.timeline || [];
-  const vlist = data?.vendors || [];
-  const spend = Number(t.spend ?? 0), poLines = Number(t.po_lines ?? 0), vendors = Number(t.vendors ?? 0);
-  const top5 = Number(t.top5_share ?? 0), completion = Number(t.completion ?? 0);
-  const peak = Math.max(...timeline.map((x: any) => x.value), 1);
-  const avgM = timeline.length ? spend / timeline.length : 0;
-  const mom = Number(cards["procurement-variance"]?.value ?? 0);
-  const top1 = Number(vlist[0]?.share ?? 0);
+  // Derived from whichever copy of the payload a card is holding — `data` for the page
+  // chrome, `<card>.data` for a card that has a category on. Identical arithmetic either
+  // way, so an untouched card computes exactly what it computed before.
+  const derive = (d: any) => {
+    const t = d?.totals || {};
+    const timeline = d?.timeline || [];
+    const vlist = d?.vendors || [];
+    const spend = Number(t.spend ?? 0);
+    return {
+      t, timeline, vlist, spend,
+      poLines: Number(t.po_lines ?? 0), vendors: Number(t.vendors ?? 0),
+      top5: Number(t.top5_share ?? 0), completion: Number(t.completion ?? 0),
+      peak: Math.max(...timeline.map((x: any) => x.value), 1),
+      avgM: timeline.length ? spend / timeline.length : 0,
+      mom: Number((d?.cards || {})["procurement-variance"]?.value ?? 0),
+      top1: Number(vlist[0]?.share ?? 0),
+      top1v: Number(vlist[0]?.value ?? 0),
+    };
+  };
+  const page = derive(data);
+  const t = page.t;
 
+  const g = derive(gauge.data);
   const tabs: Tab[] = [
-    { key: "spend", tab: "Spend", label: "Total procurement spend", value: spend, fmt: inrAbbr, gauge: peak ? avgM / peak : 0, gaugeLabel: "avg of peak month", color: EMER, status: { text: mom >= 0 ? "Spending up" : "Spending down", color: mom >= 0 ? EMER : ROSE }, stats: [{ value: pctSign(mom), label: "MoM", color: mom >= 0 ? EMER : ROSE }, { value: inrAbbr(peak), label: "peak mo", color: "#9aa1b3" }, { value: inrAbbr(avgM), label: "avg mo", color: "#9aa1b3" }] },
-    { key: "orders", tab: "Orders", label: "Purchase-order lines", value: poLines, fmt: countAbbr, gauge: completion / 100, gaugeLabel: "order completion", color: TEAL, status: { text: completion >= 90 ? "On track" : "Watch fill", color: TEAL }, stats: [{ value: countAbbr(poLines), label: "PO lines", color: "#9aa1b3" }, { value: inrAbbr(spend / Math.max(poLines, 1)), label: "avg PO", color: "#9aa1b3" }, { value: countAbbr(vendors), label: "vendors", color: "#9aa1b3" }] },
-    { key: "vendors", tab: "Vendors", label: "Active vendors", value: vendors, fmt: countAbbr, gauge: top5 / 100, gaugeLabel: "top-5 share", color: INDIGO, status: { text: top5 >= 50 ? "Concentrated" : "Diversified", color: INDIGO }, stats: [{ value: `${top1.toFixed(0)}%`, label: "top vendor", color: INDIGO }, { value: `${top5.toFixed(0)}%`, label: "top-5", color: "#9aa1b3" }, { value: countAbbr(vendors), label: "vendors", color: "#9aa1b3" }] },
+    { key: "spend", tab: "Spend", label: "Total procurement spend", value: g.spend, fmt: inrAbbr, gauge: g.peak ? g.avgM / g.peak : 0, gaugeLabel: "avg of peak month", color: EMER, status: { text: g.mom >= 0 ? "Spending up" : "Spending down", color: g.mom >= 0 ? EMER : ROSE }, stats: [{ value: pctSign(g.mom), label: "MoM", color: g.mom >= 0 ? EMER : ROSE }, { value: inrAbbr(g.peak), label: "peak mo", color: "#9aa1b3" }, { value: inrAbbr(g.avgM), label: "avg mo", color: "#9aa1b3" }] },
+    { key: "orders", tab: "Orders", label: "Purchase-order lines", value: g.poLines, fmt: countAbbr, gauge: g.completion / 100, gaugeLabel: "order completion", color: TEAL, status: { text: g.completion >= 90 ? "On track" : "Watch fill", color: TEAL }, stats: [{ value: countAbbr(g.poLines), label: "PO lines", color: "#9aa1b3" }, { value: inrAbbr(g.spend / Math.max(g.poLines, 1)), label: "avg PO", color: "#9aa1b3" }, { value: countAbbr(g.vendors), label: "vendors", color: "#9aa1b3" }] },
+    { key: "vendors", tab: "Vendors", label: "Active vendors", value: g.vendors, fmt: countAbbr, gauge: g.top5 / 100, gaugeLabel: "top-5 share", color: INDIGO, status: { text: g.top5 >= 50 ? "Concentrated" : "Diversified", color: INDIGO }, stats: [{ value: `${g.top1.toFixed(0)}%`, label: "top vendor", color: INDIGO }, { value: `${g.top5.toFixed(0)}%`, label: "top-5", color: "#9aa1b3" }, { value: countAbbr(g.vendors), label: "vendors", color: "#9aa1b3" }] },
   ];
 
-  const top1v = Number(vlist[0]?.value ?? 0);
-  const top5v = spend * top5 / 100;
+  const dn = derive(donut.data);
+  const top5v = dn.spend * dn.top5 / 100;
   const segments = [
-    { label: "Top vendor", value: top1v, color: INDIGO },
-    { label: "Vendors 2–5", value: Math.max(0, top5v - top1v), color: "#818cf8" },
-    { label: "All others", value: Math.max(0, spend - top5v), color: "#cbd5e1" },
+    { label: "Top vendor", value: dn.top1v, color: INDIGO },
+    { label: "Vendors 2–5", value: Math.max(0, top5v - dn.top1v), color: "#818cf8" },
+    { label: "All others", value: Math.max(0, dn.spend - top5v), color: "#cbd5e1" },
   ];
+
+  const fl = derive(flow.data);
+  const vd = derive(vend.data);
 
   return (
     <div className="-m-4 md:-m-6 p-4 md:p-6 min-w-0" style={{ background: PAGE, minHeight: "calc(100vh - 64px)" }}>
@@ -311,20 +369,22 @@ export default function ProcurementOverview() {
       {/* Executive cards row */}
       <div className="flex flex-wrap lg:flex-nowrap gap-5 items-stretch mb-5">
         <div className="w-full lg:w-1/3 min-h-[220px]"><BrandPanel /></div>
-        <div className="w-full lg:w-1/3"><GaugeCard tabs={tabs} loading={showSkeleton} /></div>
-        <div className="w-full lg:w-1/3"><DonutCard label="Vendor concentration" headline={spend} headSuffix="total spend" centerLabel="Vendors"
-          segments={segments} insights={[{ label: "Top-1", value: `${top1.toFixed(0)}%`, color: INDIGO }, { label: "Top-5", value: `${top5.toFixed(0)}%`, color: "#6b7280" }]}
-          score={{ text: top5 >= 50 ? "Concentrated" : "Diversified", value: Math.round(top5), color: top5 >= 50 ? AMBER : EMER }} loading={showSkeleton} /></div>
+        <div className="w-full lg:w-1/3"><GaugeCard tabs={tabs} loading={showSkeleton || gauge.loading}
+          headerSlot={gauge.chip} note={gauge.note(!g.spend)} /></div>
+        <div className="w-full lg:w-1/3"><DonutCard label="Vendor concentration" headline={dn.spend} headSuffix="total spend" centerLabel="Vendors"
+          segments={segments} insights={[{ label: "Top-1", value: `${dn.top1.toFixed(0)}%`, color: INDIGO }, { label: "Top-5", value: `${dn.top5.toFixed(0)}%`, color: "#6b7280" }]}
+          score={{ text: dn.top5 >= 50 ? "Concentrated" : "Diversified", value: Math.round(dn.top5), color: dn.top5 >= 50 ? AMBER : EMER }}
+          loading={showSkeleton || donut.loading} headerSlot={donut.chip} note={donut.note(!dn.spend)} /></div>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-stretch">
         <div className="xl:col-span-8 flex flex-col gap-5 min-w-0">
-          <SpendFlow timeline={timeline} />
-          <KpiGrid cards={cards} />
+          <SpendFlow timeline={fl.timeline} cat={flow} empty={!fl.timeline.length} />
+          <KpiGrid cards={data?.cards || {}} />
         </div>
         <div className="xl:col-span-4 flex flex-col gap-5 min-w-0">
           <CategoriesCard categories={data?.categories || []} />
-          <VendorsCard vendors={vlist} top5={top5} />
+          <VendorsCard vendors={vd.vlist} top5={vd.top5} cat={vend} />
         </div>
       </div>
 

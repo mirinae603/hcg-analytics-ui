@@ -8,6 +8,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { useRegion } from "@/context/RegionContext";
 import { useDrillBind } from "@/components/portfolio/useDrillBind";
+import { useCardScope } from "@/components/common/CardCategoryFilter";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import { countAbbr, useMount, CountUp } from "@/components/portfolio/kit";
 import { TbProgressCheck, TbTargetArrow, TbAlertTriangle } from "react-icons/tb";
@@ -60,6 +61,12 @@ function LiquidHero({ t }: { t: any }) {
   const overall = Number(t?.overall ?? 0), ordered = Number(t?.ordered_qty ?? 0), open = Number(t?.open_qty ?? 0);
   const delivered = Math.max(ordered - open, 0);
   const S = 160, r = S / 2 - 5, baseY = S * (1 - Math.max(0, Math.min(100, overall)) / 100);
+  // The raw ratio can exceed 100% when POs over-receive — 2,557 fact_po lines carry a
+  // NEGATIVE open_qty (almost all Service POs), which pushes the Unclassified bucket to
+  // 168.65%. A [0,100] clamp has always existed, so without this the card would print a
+  // confident "100%" and call it full fulfilment. The backend flags it; render the flag.
+  const capped = t?.capped === true;
+  const rawPct = Number(t?.overall_raw ?? 0);
   return (
     <Card delay={0} className="relative overflow-hidden p-6 flex flex-col flex-1" style={{ background: "linear-gradient(160deg,#77cca4 0%,#49b184 46%,#31976b 100%)", minHeight: 360 }}>
       <div className="absolute inset-0" style={{ backgroundImage: "radial-gradient(rgba(255,255,255,0.09) 1px, transparent 1px)", backgroundSize: "22px 22px" }} />
@@ -94,6 +101,14 @@ function LiquidHero({ t }: { t: any }) {
           <span className="inline-flex items-center gap-1.5"><span className="w-2 h-2 rounded-full" style={{ background: "rgba(255,180,170,0.95)" }} />Open · <b className="tabular-nums">{countAbbr(open)}</b></span>
         </div>
       </div>
+      {capped && (
+        <div className="relative mt-3 rounded-xl px-3 py-2.5 text-[11px] leading-relaxed"
+          style={{ background: "rgba(120,40,30,0.28)", border: "1px solid rgba(255,190,180,0.45)", color: "#fff" }}>
+          <b>Shown capped at 100%.</b> The raw ratio here is {rawPct.toFixed(1)}% — more was
+          received than ordered, from purchase-order lines recording a negative open
+          quantity (mostly Service POs). Read this as &ldquo;fully received&rdquo;, not as a fill rate.
+        </div>
+      )}
       <div className="relative mt-4 grid grid-cols-2 gap-2.5">
         {[{ l: "Units ordered", v: countAbbr(ordered) }, { l: "At 100% fill", v: `${Number(t?.perfect ?? 0)} sites` }].map((p, i) => (
           <div key={i} className="rounded-xl px-3 py-2.5" style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.16)" }}>
@@ -107,7 +122,7 @@ function LiquidHero({ t }: { t: any }) {
 }
 
 // ---------------- Fulfillment priority scatter ----------------
-function PriorityScatter({ plants }: { plants: any[] }) {
+function PriorityScatter({ plants, cat }: { plants: any[]; cat: any }) {
   const on = useMount(180); const [hov, setHov] = useState<number | null>(null);
   const data = (plants || []).filter((p) => p.ordered > 0);
   const W = 780, H = 344, PADL = 44, PADR = 20, PADT = 22, PADB = 42;
@@ -120,7 +135,19 @@ function PriorityScatter({ plants }: { plants: any[] }) {
     const medOrdered = [...data].map((d) => d.ordered).sort((a, b) => a - b)[Math.floor(data.length / 2)] || 1;
     return { l0, span, maxOpen, medOrdered };
   }, [plants]);
-  if (!geo) return null;
+  if (!geo) return (
+    <Card delay={140} className="bg-white p-6 flex flex-col flex-1">
+      <div className="flex items-start justify-between flex-wrap gap-2">
+        <div><h3 className="text-[16px] font-semibold flex items-center gap-2" style={{ color: INK }}><TbTargetArrow size={16} style={{ color: GREEN }} />Fulfillment priority</h3>
+          <p className="text-[12px] mt-0.5" style={{ color: SUB }}>fill % vs order volume · bubble = open units</p></div>
+        {cat.chip}
+      </div>
+      {/* Empty AND unfiltered would be a dead card, but this page always has plants, so
+          the only way here is a filter that found nothing — and then the chip has to
+          stay on screen or All Categories becomes unreachable. */}
+      <div className="mt-3">{cat.note(true)}</div>
+    </Card>
+  );
   const xP = (o: number) => PADL + ((Math.log10(Math.max(o, 1)) - geo.l0) / geo.span) * innerW;
   const yP = (c: number) => PADT + innerH - (Math.max(0, Math.min(100, c)) / 100) * innerH;
   const rP = (o: number) => 4 + Math.sqrt(o / geo.maxOpen) * 15;
@@ -132,14 +159,16 @@ function PriorityScatter({ plants }: { plants: any[] }) {
   // kpi_fill_rate is one row per plant, so the drill re-routes to fact_po for material.
   const drill = useDrillBind({
     kpi: "fill-rate", dim: "plant", by: "material", measure: "ordered_qty",
-    label: "items", dimLabel: "Hospital · units ordered", format: countAbbr,
+    label: "items", dimLabel: "Hospital · units ordered", format: countAbbr, category: cat.drill,
   });
   return (
     <Card delay={140} className="bg-white p-6 flex flex-col flex-1">
       <div className="flex items-start justify-between flex-wrap gap-2">
         <div><h3 className="text-[16px] font-semibold flex items-center gap-2" style={{ color: INK }}><TbTargetArrow size={16} style={{ color: GREEN }} />Fulfillment priority</h3>
           <p className="text-[12px] mt-0.5" style={{ color: SUB }}>fill % vs order volume · bubble = open units · below the line & to the right = fix first</p></div>
+        {cat.chip}
       </div>
+      {cat.note(!data.length) && <div className="mt-3">{cat.note(true)}</div>}
       <div className="relative mt-2 flex-1" style={{ minHeight: 280 }}>
         <svg viewBox={`0 0 ${W} ${H}`} width="100%" height="100%" preserveAspectRatio="none" style={{ display: "block", overflow: "visible" }} onMouseLeave={() => setHov(null)}>
           {/* urgent zone: high volume + low fill (bottom-right) */}
@@ -181,9 +210,10 @@ function PriorityScatter({ plants }: { plants: any[] }) {
 }
 
 // ---------------- Fill-rate distribution ----------------
-function DistBars({ dist }: { dist: any[] }) {
+function DistBars({ dist, cat }: { dist: any[]; cat: any }) {
   const on = useMount(200); const [hov, setHov] = useState<number | null>(null);
-  const data = dist || []; if (!data.length) return null;
+  const data = dist || [];
+  if (!data.length && !cat.active) return null;
   const total = data.reduce((s, d) => s + d.plants, 0) || 1;
   const max = Math.max(...data.map((d) => d.plants), 1);
   return (
@@ -191,7 +221,9 @@ function DistBars({ dist }: { dist: any[] }) {
       <div className="flex items-start justify-between flex-wrap gap-2">
         <div><h3 className="text-[16px] font-semibold" style={{ color: INK }}>Completion distribution</h3>
           <p className="text-[12px] mt-0.5" style={{ color: SUB }}>how the {total} hospitals spread across fill-rate bands</p></div>
+        {cat.chip}
       </div>
+      {cat.note(!data.length) && <div className="mt-3">{cat.note(true)}</div>}
       <div className="mt-4 flex-1 flex items-end justify-around gap-3" style={{ minHeight: 210 }}>
         {data.map((d, i) => { const h = (d.plants / max) * 100; const col = BAND[i] || GREEN; const active = hov === i; return (
           <div key={i} onMouseEnter={() => setHov(i)} onMouseLeave={() => setHov(null)} className="flex-1 flex flex-col items-center justify-end h-full">
@@ -207,7 +239,7 @@ function DistBars({ dist }: { dist: any[] }) {
 }
 
 // ---------------- Lowest fill ladder ----------------
-function LowestLadder({ worst }: { worst: any[] }) {
+function LowestLadder({ worst, cat }: { worst: any[]; cat: any }) {
   const on = useMount(240);
   const rows = (worst || []).slice(0, 8);
   return (
@@ -215,8 +247,12 @@ function LowestLadder({ worst }: { worst: any[] }) {
       <div className="flex items-center justify-between">
         <div><h3 className="text-[16px] font-semibold" style={{ color: INK }}>Lowest fill rates</h3>
           <p className="text-[12px] mt-0.5" style={{ color: SUB }}>hospitals with the most incomplete orders</p></div>
-        <span className="text-[11px] font-medium px-2.5 py-1 rounded-full" style={{ background: `${CORAL}18`, color: "#d9433a" }}>watchlist</span>
+        <div className="flex items-center gap-2">
+          {cat.chip}
+          <span className="text-[11px] font-medium px-2.5 py-1 rounded-full" style={{ background: `${CORAL}18`, color: "#d9433a" }}>watchlist</span>
+        </div>
       </div>
+      {cat.note(!rows.length) && <div className="mt-3">{cat.note(true)}</div>}
       <div className="mt-3 flex-1 flex flex-col justify-between gap-1">
         {rows.map((r: any, i: number) => { const col = fillCol(r.comp); return (
           <div key={i} className="py-1.5">
@@ -259,18 +295,27 @@ export default function FillRateDetail() {
   const { selectedRegion } = useRegion();
   const region = selectedRegion?.name ?? "All Plants";
   const [data, setData] = useState<any>(null);
-  useEffect(() => { setData(null); fetch(`${DASHBOARD_API_BASE_URL}/kpi/fill-rate/insights?Plant=${encodeURIComponent(region)}`).then((r) => r.json()).then(setData).catch(() => setData(null)); }, [region]);
+  const url = `/kpi/fill-rate/insights?Plant=${encodeURIComponent(region)}`;
+  useEffect(() => { setData(null); fetch(`${DASHBOARD_API_BASE_URL}${url}`).then((r) => r.json()).then(setData).catch(() => setData(null)); }, [region]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Both legs of the ratio — ordered units and open units — are line sums over fact_po,
+  // so the cut is exact rather than apportioned. The clamp the page already discloses
+  // below does more work under a filter: 2,557 Service-PO lines carry a negative open
+  // quantity and every one of them is Unclassified, so that bucket alone reads a raw
+  // 168.7% and is clamped to 100%.
+  const scatter = useCardScope(url, data, { accent: GREEN, domain: "procurement", label: "Fulfillment priority" });
+  const dist = useCardScope(url, data, { accent: DEEP, domain: "procurement", label: "Completion distribution" });
+  const worst = useCardScope(url, data, { accent: CORAL, domain: "procurement", label: "Lowest fill rates" });
   if (!data) return <Shell region={region}><DetailSkeleton /></Shell>;
   const t = data?.totals || {};
   return (
     <Shell region={region}>
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-stretch">
         <div className="xl:col-span-4 flex flex-col min-w-0"><LiquidHero t={t} /></div>
-        <div className="xl:col-span-8 flex flex-col min-w-0"><PriorityScatter plants={data?.plants || []} /></div>
+        <div className="xl:col-span-8 flex flex-col min-w-0"><PriorityScatter plants={scatter.data?.plants || []} cat={scatter} /></div>
       </div>
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-stretch">
-        <div className="xl:col-span-7 flex flex-col min-w-0"><DistBars dist={data?.dist || []} /></div>
-        <div className="xl:col-span-5 flex flex-col min-w-0"><LowestLadder worst={data?.worst || []} /></div>
+        <div className="xl:col-span-7 flex flex-col min-w-0"><DistBars dist={dist.data?.dist || []} cat={dist} /></div>
+        <div className="xl:col-span-5 flex flex-col min-w-0"><LowestLadder worst={worst.data?.worst || []} cat={worst} /></div>
       </div>
       <ProxyNote />
       <Card delay={320} className="bg-white overflow-hidden">

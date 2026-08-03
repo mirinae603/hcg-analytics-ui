@@ -7,6 +7,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { useRegion } from "@/context/RegionContext";
 import { useDrillBind } from "@/components/portfolio/useDrillBind";
+import { useCardScope } from "@/components/common/CardCategoryFilter";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import { inrAbbr, countAbbr, useMount, CountUp } from "@/components/portfolio/kit";
 import { TbMapPin, TbBuildingHospital, TbChartDots } from "react-icons/tb";
@@ -118,7 +119,7 @@ function hexPath(cx: number, cy: number, s: number) {
   for (let k = 0; k < 6; k++) { const a = (Math.PI / 180) * (60 * k); const x = cx + s * Math.cos(a), y = cy + s * Math.sin(a); d += (k ? "L" : "M") + x.toFixed(1) + " " + y.toFixed(1); }
   return d + "Z";
 }
-function HexCartogram({ plants }: { plants: any[] }) {
+function HexCartogram({ plants, cat }: { plants: any[]; cat: any }) {
   const on = useMount(160); const [hov, setHov] = useState<number | null>(null);
   const W = 620, H = 372, PAD = 20, COLS = 4;
   const cells = useMemo(() => {
@@ -139,20 +140,26 @@ function HexCartogram({ plants }: { plants: any[] }) {
   // "what did this hospital actually buy" is answerable.
   const drill = useDrillBind({
     kpi: "purchase-by-location", dim: "plant", by: "material", measure: "purchase_value",
-    label: "items", dimLabel: "Hospital · spend", format: inrAbbr,
+    label: "items", dimLabel: "Hospital · spend", format: inrAbbr, category: cat.drill,
   });
-  if (!cells.length) return null;
+  // Empty AND unfiltered is a dead card; empty WITH a filter must keep its header, or
+  // the chip that emptied it disappears and All Categories becomes unreachable.
+  if (!cells.length && !cat.active) return null;
   return (
     <Card delay={140} className="bg-white p-6 flex flex-col flex-1">
       <div className="flex items-start justify-between flex-wrap gap-2">
         <div><h3 className="text-[16px] font-semibold" style={{ color: INK }}>Spend footprint</h3>
           <p className="text-[12px] mt-0.5" style={{ color: SUB }}>each hospital tiled & shaded by its share of network spend · top {cells.length}</p></div>
-        <div className="flex items-center gap-2" style={{ color: "#6b7d84" }}>
-          <span className="text-[10.5px] font-medium">low</span>
-          <span className="rounded-full" style={{ width: 76, height: 8, background: "linear-gradient(90deg,#d6ecf1,#0e7490)" }} />
-          <span className="text-[10.5px] font-medium">high</span>
+        <div className="flex items-center gap-2.5">
+          {cat.chip}
+          <div className="flex items-center gap-2" style={{ color: "#6b7d84" }}>
+            <span className="text-[10.5px] font-medium">low</span>
+            <span className="rounded-full" style={{ width: 76, height: 8, background: "linear-gradient(90deg,#d6ecf1,#0e7490)" }} />
+            <span className="text-[10.5px] font-medium">high</span>
+          </div>
         </div>
       </div>
+      {cat.note(!cells.length) && <div className="mt-3">{cat.note(true)}</div>}
       <div className="relative mt-2 flex-1 flex items-center justify-center" style={{ minHeight: 300 }}>
         <svg viewBox={`0 0 ${W} ${H}`} width="100%" height="100%" preserveAspectRatio="xMidYMid meet" style={{ display: "block", overflow: "visible" }} onMouseLeave={() => setHov(null)}>
           {cells.map((c) => { const t = c.d.share / c.maxShare; const fill = spendColor(t); const active = hov === c.i; const dim = hov != null && !active; const light = t < 0.42; return (
@@ -178,10 +185,20 @@ function HexCartogram({ plants }: { plants: any[] }) {
 }
 
 // ---------------- Sourcing-profile scatter ----------------
-function SourcingScatter({ plants }: { plants: any[] }) {
+function SourcingScatter({ plants, cat }: { plants: any[]; cat: any }) {
   const on = useMount(200); const [hov, setHov] = useState<number | null>(null);
   const data = (plants || []).slice(0, 12);
-  if (!data.length) return null;
+  if (!data.length && !cat.active) return null;
+  if (!data.length) return (
+    <Card delay={200} className="bg-white p-6 flex flex-col flex-1">
+      <div className="flex items-start justify-between flex-wrap gap-2">
+        <div><h3 className="text-[16px] font-semibold flex items-center gap-2" style={{ color: INK }}><TbChartDots size={16} style={{ color: TEAL }} />Sourcing profile</h3>
+          <p className="text-[12px] mt-0.5" style={{ color: SUB }}>spend vs supplier diversity per hospital · bubble = PO lines</p></div>
+        {cat.chip}
+      </div>
+      <div className="mt-3">{cat.note(true)}</div>
+    </Card>
+  );
   const W = 560, H = 380, PADL = 44, PADR = 18, PADT = 22, PADB = 40;
   const innerW = W - PADL - PADR, innerH = H - PADT - PADB;
   const maxV = Math.max(...data.map((d) => d.vendors), 1) * 1.12;
@@ -197,6 +214,7 @@ function SourcingScatter({ plants }: { plants: any[] }) {
       <div className="flex items-start justify-between flex-wrap gap-2">
         <div><h3 className="text-[16px] font-semibold flex items-center gap-2" style={{ color: INK }}><TbChartDots size={16} style={{ color: TEAL }} />Sourcing profile</h3>
           <p className="text-[12px] mt-0.5" style={{ color: SUB }}>spend vs supplier diversity per hospital · bubble = PO lines</p></div>
+        {cat.chip}
       </div>
       <div className="relative mt-2 flex-1" style={{ minHeight: 320 }}>
         <svg viewBox={`0 0 ${W} ${H}`} width="100%" height="100%" preserveAspectRatio="none" style={{ display: "block", overflow: "visible" }} onMouseLeave={() => setHov(null)}>
@@ -237,7 +255,7 @@ function SourcingScatter({ plants }: { plants: any[] }) {
 }
 
 // ---------------- Ranked locations ladder ----------------
-function LocationLadder({ plants, t }: { plants: any[]; t: any }) {
+function LocationLadder({ plants, t, cat }: { plants: any[]; t: any; cat: any }) {
   const on = useMount(240);
   const rows = (plants || []).slice(0, 8);
   const max = Math.max(...rows.map((r: any) => r.value), 1);
@@ -246,8 +264,12 @@ function LocationLadder({ plants, t }: { plants: any[]; t: any }) {
       <div className="flex items-center justify-between">
         <div><h3 className="text-[16px] font-semibold" style={{ color: INK }}>Top locations</h3>
           <p className="text-[12px] mt-0.5" style={{ color: SUB }}>by procurement spend</p></div>
-        <span className="text-[11px] font-medium px-2.5 py-1 rounded-full" style={{ background: `${TEAL}16`, color: DEEP }}>{Number(t?.plants ?? rows.length)} total</span>
+        <div className="flex items-center gap-2">
+          {cat.chip}
+          <span className="text-[11px] font-medium px-2.5 py-1 rounded-full" style={{ background: `${TEAL}16`, color: DEEP }}>{Number(t?.plants ?? rows.length)} total</span>
+        </div>
       </div>
+      {cat.note(!rows.length) && <div className="mt-3">{cat.note(true)}</div>}
       <div className="mt-3 flex-1 flex flex-col justify-between gap-1">
         {rows.map((r: any, i: number) => (
           <div key={i} className="py-1.5">
@@ -282,7 +304,14 @@ export default function PurchaseByLocationDetail() {
   const { selectedRegion } = useRegion();
   const region = selectedRegion?.name ?? "All Plants";
   const [data, setData] = useState<any>(null);
-  useEffect(() => { setData(null); fetch(`${DASHBOARD_API_BASE_URL}/kpi/purchase-by-location/insights?Plant=${encodeURIComponent(region)}`).then((r) => r.json()).then(setData).catch(() => setData(null)); }, [region]);
+  const url = `/kpi/purchase-by-location/insights?Plant=${encodeURIComponent(region)}`;
+  useEffect(() => { setData(null); fetch(`${DASHBOARD_API_BASE_URL}${url}`).then((r) => r.json()).then(setData).catch(() => setData(null)); }, [region]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Spend per hospital, rebuilt from fact_po. The hospital COUNT is a nunique, so it is
+  // recounted inside the bucket rather than scaled: 51 sites buy something, only 31 of
+  // them buy onco drugs.
+  const hex = useCardScope(url, data, { accent: DEEP, domain: "procurement", label: "Spend footprint" });
+  const scatter = useCardScope(url, data, { accent: TEAL, domain: "procurement", label: "Sourcing profile" });
+  const ladder = useCardScope(url, data, { accent: DEEP, domain: "procurement", label: "Top locations" });
   if (!data) return <Shell region={region}><DetailSkeleton /></Shell>;
   const t = data?.totals || {};
   const plants = data?.plants || [];
@@ -290,11 +319,11 @@ export default function PurchaseByLocationDetail() {
     <Shell region={region}>
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-stretch">
         <div className="xl:col-span-4 flex flex-col min-w-0"><NetworkHero t={t} plants={plants} /></div>
-        <div className="xl:col-span-8 flex flex-col min-w-0"><HexCartogram plants={plants} /></div>
+        <div className="xl:col-span-8 flex flex-col min-w-0"><HexCartogram plants={hex.data?.plants || []} cat={hex} /></div>
       </div>
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-stretch">
-        <div className="xl:col-span-7 flex flex-col min-w-0"><SourcingScatter plants={plants} /></div>
-        <div className="xl:col-span-5 flex flex-col min-w-0"><LocationLadder plants={plants} t={t} /></div>
+        <div className="xl:col-span-7 flex flex-col min-w-0"><SourcingScatter plants={scatter.data?.plants || []} cat={scatter} /></div>
+        <div className="xl:col-span-5 flex flex-col min-w-0"><LocationLadder plants={ladder.data?.plants || []} t={ladder.data?.totals || {}} cat={ladder} /></div>
       </div>
       <Card delay={320} className="bg-white overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-50">

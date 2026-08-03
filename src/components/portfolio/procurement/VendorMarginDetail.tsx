@@ -18,6 +18,7 @@ import dynamic from "next/dynamic";
 import { useRegion } from "@/context/RegionContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import { inrAbbr, countAbbr, useMount } from "@/components/portfolio/kit";
+import { useCardCategory } from "@/components/common/CardCategoryFilter";
 import { ProcShell, ProcHero, TableCard, Panel, DetailSkeleton, INK, SUBTLE, INDIGO, TEAL, AMBER } from "./parts";
 import { TbBuildingFactory2, TbPercentage, TbAlertTriangle } from "react-icons/tb";
 
@@ -45,12 +46,19 @@ const BANDS = [
 type Agg = { mrpValue: number; costValue: number; n: number; thin: number; buckets: { label: string; n: number }[] };
 
 // ── Top vendors by volume — margin % ranked bars (mirrors PurchaseValueDetail's RankBars) ──
-function RankBars({ title, sub, rows, accent, icon: Icon, delay }: any) {
+function RankBars({ title, sub, rows, accent, icon: Icon, delay, cat }: any) {
   const on = useMount(120); const max = Math.max(...rows.map((r: any) => r.value), 1);
   return (
     <Panel delay={delay} className="flex flex-col flex-1">
-      <h3 className="text-[15px] font-semibold" style={{ color: INK }}>{title}</h3>
-      <p className="text-[12px] mt-0.5 mb-4" style={{ color: SUBTLE }}>{sub}</p>
+      <div className="flex items-start justify-between gap-2">
+        <div>
+          <h3 className="text-[15px] font-semibold" style={{ color: INK }}>{title}</h3>
+          <p className="text-[12px] mt-0.5" style={{ color: SUBTLE }}>{sub}</p>
+        </div>
+        {cat?.chip}
+      </div>
+      {cat?.note(!rows.length) && <div className="mt-3">{cat.note(true)}</div>}
+      <div className="mb-4" />
       <div className="space-y-3 flex-1 flex flex-col justify-between">
         {rows.map((r: any, i: number) => { const w = Math.max((r.value / max) * 100, 4); return (
           <div key={i}>
@@ -77,12 +85,19 @@ function RankBars({ title, sub, rows, accent, icon: Icon, delay }: any) {
 }
 
 // ── Margin distribution histogram (0-100% in 20pt bands), full 7.9k-row book ──
-function MarginHistogram({ buckets }: { buckets: { label: string; n: number }[] }) {
+function MarginHistogram({ buckets, cat, loading }: { buckets: { label: string; n: number }[]; cat: any; loading: boolean }) {
   const on = useMount(180); const max = Math.max(...buckets.map((b) => b.n), 1);
   return (
     <Panel delay={220} className="flex flex-col flex-1">
-      <h3 className="text-[15px] font-semibold" style={{ color: INK }}>Margin % distribution</h3>
-      <p className="text-[12px] mt-0.5 mb-4" style={{ color: SUBTLE }}>all vendor-months, by margin band · outlier-clean rows only</p>
+      <div className="flex items-start justify-between gap-2">
+        <div>
+          <h3 className="text-[15px] font-semibold" style={{ color: INK }}>Margin % distribution</h3>
+          <p className="text-[12px] mt-0.5" style={{ color: SUBTLE }}>all vendor-months, by margin band · outlier-clean rows only</p>
+        </div>
+        {cat.chip}
+      </div>
+      {cat.note(!loading && !buckets.some((b) => b.n)) && <div className="mt-3">{cat.note(true)}</div>}
+      <div className="mb-4" />
       <div className="flex-1 flex items-end gap-3" style={{ minHeight: 190 }}>
         {buckets.map((b, i) => { const h = (b.n / max) * 100; return (
           <div key={b.label} className="flex-1 flex flex-col items-center justify-end h-full">
@@ -108,6 +123,28 @@ export default function VendorMarginDetail() {
   const region = selectedRegion?.name ?? "All Plants";
   const [chart, setChart] = useState<ChartRow[] | null>(null);
   const [agg, setAgg] = useState<Agg | null>(null);
+  // fact_grn keeps its material column, so both of these take the cut NATIVELY. Each
+  // card owns its own copy: filtering the histogram leaves the hero's 39.8% overall
+  // margin on screen as the thing the bucket is being compared against.
+  const rankCat = useCardCategory({ accent: INDIGO, domain: "procurement", label: "Largest vendors by volume" });
+  const histCat = useCardCategory({ accent: INDIGO, domain: "procurement", label: "Margin % distribution" });
+  const [rankChart, setRankChart] = useState<ChartRow[] | null>(null);
+  const [histAgg, setHistAgg] = useState<Agg | null>(null);
+
+  const aggregate = (d: { data: TableRow[]; total: number }): Agg => {
+    const rows = d?.data || [];
+    let mrpValue = 0, costValue = 0, thin = 0;
+    const buckets = BANDS.map((b) => ({ label: b.label, n: 0 }));
+    rows.forEach((r) => {
+      if (!r.isStable) thin += 1;
+      if (r.margin == null) return;
+      mrpValue += (r.grnVolume || 0) * (r.sellingPrice || 0);
+      costValue += (r.grnVolume || 0) * (r.averageUnitCost || 0);
+      const idx = BANDS.findIndex((b) => r.margin! >= b.lo && r.margin! < b.hi);
+      if (idx >= 0) buckets[idx].n += 1;
+    });
+    return { mrpValue, costValue, n: d?.total ?? rows.length, thin, buckets };
+  };
 
   useEffect(() => {
     setChart(null); setAgg(null);
@@ -121,22 +158,33 @@ export default function VendorMarginDetail() {
     // portfolio-wide computation, not just an average of the largest 200 vendor-months.
     fetch(`${DASHBOARD_API_BASE_URL}/kpi/vendor-volume-vs-margin-table?Plant=${encodeURIComponent(region)}&page=0&page_size=20000`)
       .then((r) => r.json())
-      .then((d: { data: TableRow[]; total: number }) => {
-        const rows = d?.data || [];
-        let mrpValue = 0, costValue = 0, thin = 0;
-        const buckets = BANDS.map((b) => ({ label: b.label, n: 0 }));
-        rows.forEach((r) => {
-          if (!r.isStable) thin += 1;
-          if (r.margin == null) return;
-          mrpValue += (r.grnVolume || 0) * (r.sellingPrice || 0);
-          costValue += (r.grnVolume || 0) * (r.averageUnitCost || 0);
-          const idx = BANDS.findIndex((b) => r.margin! >= b.lo && r.margin! < b.hi);
-          if (idx >= 0) buckets[idx].n += 1;
-        });
-        setAgg({ mrpValue, costValue, n: d?.total ?? rows.length, thin, buckets });
-      })
+      .then((d: { data: TableRow[]; total: number }) => setAgg(aggregate(d)))
       .catch(() => setAgg({ mrpValue: 0, costValue: 0, n: 0, thin: 0, buckets: BANDS.map((b) => ({ label: b.label, n: 0 })) }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [region]);
+
+  // Each card's own narrowed copy, fetched ONLY while its own filter is on.
+  useEffect(() => {
+    if (!rankCat.category) { setRankChart(null); return; }
+    const ac = new AbortController();
+    const p = new URLSearchParams({ Plant: region, ...rankCat.q });
+    fetch(`${DASHBOARD_API_BASE_URL}/kpi/vendor-volume-vs-margin?${p.toString()}`, { signal: ac.signal })
+      .then((r) => r.json()).then((d: ChartRow[]) => setRankChart(Array.isArray(d) ? d : []))
+      .catch((e) => { if (e?.name !== "AbortError") setRankChart([]); });
+    return () => ac.abort();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [region, rankCat.category]);
+
+  useEffect(() => {
+    if (!histCat.category) { setHistAgg(null); return; }
+    const ac = new AbortController();
+    const p = new URLSearchParams({ Plant: region, page: "0", page_size: "20000", ...histCat.q });
+    fetch(`${DASHBOARD_API_BASE_URL}/kpi/vendor-volume-vs-margin-table?${p.toString()}`, { signal: ac.signal })
+      .then((r) => r.json()).then((d: { data: TableRow[]; total: number }) => setHistAgg(aggregate(d)))
+      .catch((e) => { if (e?.name !== "AbortError") setHistAgg({ mrpValue: 0, costValue: 0, n: 0, thin: 0, buckets: BANDS.map((b) => ({ label: b.label, n: 0 })) }); });
+    return () => ac.abort();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [region, histCat.category]);
 
   if (!chart || !agg) {
     return (
@@ -157,7 +205,10 @@ export default function VendorMarginDetail() {
     color: r.Stable ? "#7fe9c4" : AMBER,
   }));
 
-  const rankRows = top.slice(0, 8).map((r) => ({
+  const rankTop = rankCat.category && rankChart
+    ? [...rankChart].sort((a, b) => (b["GRN Volume"] || 0) - (a["GRN Volume"] || 0))
+    : top;
+  const rankRows = rankTop.slice(0, 8).map((r) => ({
     name: `${vName(r["Vendor Name"], 22)} · ${String(r.Month).slice(0, 3)} ${r.Year}`,
     value: r["Margin (%)"] ?? 0,
     sub: `${countAbbr(r["GRN Volume"])} units`,
@@ -183,8 +234,8 @@ export default function VendorMarginDetail() {
       />
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 items-stretch">
-        <div className="flex flex-col min-w-0"><RankBars title="Largest vendors by volume" sub="top vendor-months by GRN volume, this window" rows={rankRows} accent={INDIGO} icon={TbBuildingFactory2} delay={160} /></div>
-        <div className="flex flex-col min-w-0"><MarginHistogram buckets={agg.buckets} /></div>
+        <div className="flex flex-col min-w-0"><RankBars title="Largest vendors by volume" sub="top vendor-months by GRN volume, this window" rows={rankRows} accent={INDIGO} icon={TbBuildingFactory2} delay={160} cat={rankCat} /></div>
+        <div className="flex flex-col min-w-0"><MarginHistogram buckets={(histCat.category && histAgg ? histAgg : agg).buckets} cat={histCat} loading={!!histCat.category && !histAgg} /></div>
       </div>
 
       <div className="rounded-2xl px-5 py-3.5 flex items-center gap-3" style={{ background: `${AMBER}10`, border: `1px solid ${AMBER}35` }}>
