@@ -5,7 +5,7 @@
 // (thin restrained micro-viz). Neutral canvas, near-black ink, ONE warm accent,
 // lots of whitespace. Real HCG forecast data underneath.
 import React, { useEffect, useState, useId } from "react";
-import { useRegion } from "@/context/RegionContext";
+import { useScope } from "@/context/CategoryContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import { countAbbr, useMount, CountUp } from "@/components/portfolio/kit";
 import { TbBox, TbSearch, TbArrowUpRight, TbArrowDownRight, TbChevronRight, TbChevronDown, TbCalendarEvent, TbFileText, TbDroplet, TbVaccine, TbClipboardList } from "react-icons/tb";
@@ -326,10 +326,9 @@ function ItemExplorer({ region }: { region: string }) {
 }
 
 export default function DemandForecastDetail() {
-  const { selectedRegion } = useRegion();
-  const region = selectedRegion?.name ?? "All Plants";
+  const { region, category, filtered, catParam, scopeKey } = useScope();
   const [data, setData] = useState<any>(null);
-  useEffect(() => { setData(null); fetch(`${DASHBOARD_API_BASE_URL}/forecast/demand-insights?Plant=${encodeURIComponent(region)}`).then((r) => r.json()).then(setData).catch(() => setData(null)); }, [region]);
+  useEffect(() => { setData(null); fetch(`${DASHBOARD_API_BASE_URL}/forecast/demand-insights?Plant=${encodeURIComponent(region)}${catParam}`).then((r) => r.json()).then(setData).catch(() => setData(null)); }, [region, catParam]);
   const t = data?.totals || {};
 
   if (!data) return (

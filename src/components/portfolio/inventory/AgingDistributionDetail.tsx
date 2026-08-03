@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { useRegion } from "@/context/RegionContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
+import NotScopedNote from "@/components/common/NotScopedNote";
 import { TbScale, TbHourglassLow, TbTargetArrow, TbStack2, TbChartGridDots } from "react-icons/tb";
 
 const KpiTable = dynamic(() => import("../KpiTable"), {
@@ -354,6 +355,7 @@ export default function AgingDistributionDetail() {
   return (
     <div className="-m-4 md:-m-6 p-4 md:p-6 space-y-5 min-w-0" style={{ background: MIST, minHeight: "calc(100vh - 64px)" }}>
       <PageBreadcrumb pageTitle="Aging Distribution" />
+      <NotScopedNote reason="This view is built on the pre-aggregated aging parquet, which has no material column to re-cut." />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 csv-cards">
         <div className="csv-card" style={{ animationDelay: "0ms" }}><BalanceCard fresh={totals.fresh} aging={totals.aging} risk={totals.risk} total={totals.total} /></div>

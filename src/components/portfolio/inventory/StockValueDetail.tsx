@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import { useRegion } from "@/context/RegionContext";
+import { useScope } from "@/context/CategoryContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import { TbReportMoney, TbTrophy, TbTargetArrow, TbBoxMultiple, TbChartAreaLine } from "react-icons/tb";
@@ -326,8 +326,7 @@ const periwinkleRamp = (n: number) => {
 };
 
 export default function StockValueDetail() {
-  const { selectedRegion } = useRegion();
-  const region = selectedRegion?.name ?? "All Plants";
+  const { region, category, filtered, catValue, catParam, scopeKey } = useScope();
   const [mode, setMode] = useState<GroupMode>(GROUP_MODES[0]);
   const [catData, setCatData] = useState<any[]>([]);
   const [barData, setBarData] = useState<any[]>([]);
@@ -346,21 +345,27 @@ export default function StockValueDetail() {
   }, []);
 
   useEffect(() => {
-    const cp = new URLSearchParams({ Plant: region, group_by: "material_group", measures: "stock_value_cost,stock_value_mrp,stock_qty", top: "500" });
+    const cp = new URLSearchParams({ Plant: region, group_by: "material_group", measures: "stock_value_cost,stock_value_mrp,stock_qty", top: "500", ...(catValue ? { Category: catValue } : {}) });
     fetch(`${DASHBOARD_API_BASE_URL}/kpi/current-stock-value?${cp}`).then((r) => r.json()).then((c) => setCatData(Array.isArray(c) ? c : [])).catch(() => {});
-    fetch(`${DASHBOARD_API_BASE_URL}/kpi/current-stock-value/summary?Plant=${encodeURIComponent(region)}`).then((r) => r.json()).then((s) => setSummary(s || {})).catch(() => {});
+    fetch(`${DASHBOARD_API_BASE_URL}/kpi/current-stock-value/summary?Plant=${encodeURIComponent(region)}${catParam}`).then((r) => r.json()).then((s) => setSummary(s || {})).catch(() => {});
     // Value-at-risk: stock value split by inventory age, plus near-expiry value (both reconcile to total cost).
-    const ap = new URLSearchParams({ Plant: region, group_by: "aging_bucket", measures: "stock_value,stock_qty,sku_count", top: "10" });
-    fetch(`${DASHBOARD_API_BASE_URL}/kpi/aging-distribution?${ap}`).then((r) => r.json()).then((d) => setAging(Array.isArray(d) ? d : [])).catch(() => setAging([]));
-    const ep = new URLSearchParams({ Plant: region, group_by: "expiry_bucket", measures: "total_cost,qty", top: "10" });
+    // /kpi/aging-distribution ships pre-aggregated and cannot be re-cut by category, so
+    // its /insights sibling is used instead — it recomputes from fact_inventory and is
+    // verified to reproduce the committed parquet exactly. Without this the aging panel
+    // would still read ₹60.5 Cr while the headline above it read ₹25.2 Cr.
+    fetch(`${DASHBOARD_API_BASE_URL}/kpi/aging-distribution/insights?Plant=${encodeURIComponent(region)}${catParam}`)
+      .then((r) => r.json())
+      .then((d) => setAging((d?.buckets || []).map((b: any) => ({ aging_bucket: b.bucket, stock_value: b.value, stock_qty: b.qty, sku_count: b.skus }))))
+      .catch(() => setAging([]));
+    const ep = new URLSearchParams({ Plant: region, group_by: "expiry_bucket", measures: "total_cost,qty", top: "10", ...(catValue ? { Category: catValue } : {}) });
     fetch(`${DASHBOARD_API_BASE_URL}/kpi/near-expiry?${ep}`).then((r) => r.json()).then((d) => setExpiry(Array.isArray(d) ? d : [])).catch(() => setExpiry([]));
-  }, [region]);
+  }, [scopeKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     setLoading(true);
-    const cp = new URLSearchParams({ Plant: region, group_by: mode.field, measures: "stock_value_cost,stock_value_mrp,stock_qty", top: "12" });
+    const cp = new URLSearchParams({ Plant: region, group_by: mode.field, measures: "stock_value_cost,stock_value_mrp,stock_qty", top: "12", ...(catValue ? { Category: catValue } : {}) });
     fetch(`${DASHBOARD_API_BASE_URL}/kpi/current-stock-value?${cp}`).then((r) => r.json()).then((d) => setBarData(Array.isArray(d) ? d : [])).catch(() => setBarData([])).finally(() => setLoading(false));
-  }, [region, mode]);
+  }, [scopeKey, mode]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const catName = (g: string) => String(g).replace(/^M\d+-/, "");
   const labelFor = (d: any) => { let v = String(d[mode.field] ?? "—"); if (mode.field === "plant") v = plantMap[v] || v; else if (mode.field === "material_group") v = catName(v); return v; };

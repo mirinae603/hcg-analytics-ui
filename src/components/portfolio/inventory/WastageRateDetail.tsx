@@ -9,7 +9,7 @@
 // including the 7 that are legitimately 0% (never a blank dash — a real, verified zero).
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRegion } from "@/context/RegionContext";
+import { useScope } from "@/context/CategoryContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import { TbTrash, TbScale, TbArrowUpRight } from "react-icons/tb";
@@ -113,15 +113,14 @@ function ByPlant({ rows }: { rows: PlantRow[] }) {
 }
 
 export default function WastageRateDetail() {
-  const { selectedRegion } = useRegion();
-  const region = selectedRegion?.name ?? "All Plants";
+  const { region, category, filtered, catParam, scopeKey } = useScope();
   const [data, setData] = useState<{ totals: Totals; by_plant: PlantRow[] } | null>(null);
 
   useEffect(() => {
     setData(null);
-    fetch(`${DASHBOARD_API_BASE_URL}/kpi/wastage-rate/insights?Plant=${encodeURIComponent(region)}`)
+    fetch(`${DASHBOARD_API_BASE_URL}/kpi/wastage-rate/insights?Plant=${encodeURIComponent(region)}${catParam}`)
       .then((r) => r.json()).then((d) => setData(d || null)).catch(() => setData(null));
-  }, [region]);
+  }, [region, catParam]);
 
   const t = data?.totals || null;
   const byPlant = data?.by_plant || [];

@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import { useRegion } from "@/context/RegionContext";
+import { useScope } from "@/context/CategoryContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import { TbCalendarStats, TbAlertTriangle, TbStack3, TbZzz, TbChartHistogram, TbReload, TbAnchor } from "react-icons/tb";
@@ -311,13 +311,12 @@ const COLUMNS = [
 ];
 
 export default function DaysOnHandDetail() {
-  const { selectedRegion } = useRegion();
-  const region = selectedRegion?.name ?? "All Plants";
+  const { region, category, filtered, catParam, scopeKey } = useScope();
   const [data, setData] = useState<any>(null);
 
   useEffect(() => {
-    fetch(`${DASHBOARD_API_BASE_URL}/kpi/days-on-hand/insights?Plant=${encodeURIComponent(region)}`).then((r) => r.json()).then((d) => setData(d || null)).catch(() => setData(null));
-  }, [region]);
+    fetch(`${DASHBOARD_API_BASE_URL}/kpi/days-on-hand/insights?Plant=${encodeURIComponent(region)}${catParam}`).then((r) => r.json()).then((d) => setData(d || null)).catch(() => setData(null));
+  }, [region, catParam]);
 
   const t = data?.totals || {};
   const bands = data?.bands || [];

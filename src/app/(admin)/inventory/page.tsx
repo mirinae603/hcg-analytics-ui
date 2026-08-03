@@ -5,7 +5,8 @@ import { KPIS, Kpi, simulatedByPortfolio } from "@/lib/kpiRegistry";
 import { getSimulated } from "@/lib/simulatedKpi";
 import { fmt } from "@/lib/kpiFormat";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
-import { useRegion } from "@/context/RegionContext";
+import { useScope } from "@/context/CategoryContext";
+import { catParamFor } from "@/lib/categoryScope";
 import AnalyticsDashboardLayout from "@/components/ecommerce/AnalyticsHomeScreenCards/analyticsHomeScreenCard";
 import InventoryGlassKpiCard from "@/components/portfolio/inventory/InventoryGlassKpiCard";
 
@@ -95,8 +96,7 @@ function computeInsights(kpi: Kpi, chartData: any[]): string[] {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function InventoryPage() {
-  const { selectedRegion } = useRegion();
-  const regionName = selectedRegion?.name ?? "Chennai";
+  const { region: regionName, catParam, scopeKey } = useScope();
 
   // Executive card data (summary node per KPI)
   const [summaryData, setSummaryData] = useState<Record<string, any>>({});
@@ -112,7 +112,7 @@ export default function InventoryPage() {
       try {
         // Fetch summary for all inventory KPIs
         const summaryRes = await fetch(
-          `${DASHBOARD_API_BASE_URL}/portfolio/inventory/summary?region=${regionName}`
+          `${DASHBOARD_API_BASE_URL}/portfolio/inventory/summary?region=${regionName}${catParam}`
         );
         if (summaryRes.ok) {
           const summaryJson = await summaryRes.json();
@@ -133,7 +133,7 @@ export default function InventoryPage() {
           // this tile gets a real "Largest: HC16 4.12%" insight instead of a placeholder.
           if (kpi.key === "wastage-rate") {
             const res = await fetch(
-              `${DASHBOARD_API_BASE_URL}/kpi/wastage-rate/insights?Plant=${encodeURIComponent(regionName)}`
+              `${DASHBOARD_API_BASE_URL}/kpi/wastage-rate/insights?Plant=${encodeURIComponent(regionName)}${catParam}`
             );
             if (!res.ok) return { key: kpi.key, data: [] };
             const json = await res.json();
@@ -143,8 +143,10 @@ export default function InventoryPage() {
           if (kpi.chart.groupBy) params.set("group_by", kpi.chart.groupBy);
           if (kpi.chart.measures) params.set("measures", kpi.chart.measures);
           if (kpi.chart.top) params.set("top", String(kpi.chart.top));
+          // catParamFor() is a no-op for KPIs the backend cannot split by category,
+          // which keeps the one endpoint that would return 0 rows out of harm's way.
           const res = await fetch(
-            `${DASHBOARD_API_BASE_URL}/kpi/${kpi.key}?${params.toString()}`
+            `${DASHBOARD_API_BASE_URL}/kpi/${kpi.key}?${params.toString()}${catParamFor(kpi.key, catParam)}`
           );
           if (!res.ok) return { key: kpi.key, data: [] };
           const json = await res.json();
@@ -165,7 +167,7 @@ export default function InventoryPage() {
 
     loadAll();
     return () => { cancelled = true; };
-  }, [regionName]);
+  }, [scopeKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="space-y-10 p-0">

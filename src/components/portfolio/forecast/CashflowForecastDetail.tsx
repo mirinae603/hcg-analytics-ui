@@ -4,7 +4,7 @@
 // COLUMNS + a cumulative cash-out line (combo), a budget DONUT, a spend leaderboard,
 // and a TEAL money accent. Values are forecast consumption cost = cash to restock.
 import React, { useEffect, useState } from "react";
-import { useRegion } from "@/context/RegionContext";
+import { useScope } from "@/context/CategoryContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import { useMount, CountUp } from "@/components/portfolio/kit";
 import { TbSearch, TbChevronRight, TbChevronDown, TbCurrencyRupee, TbReceipt2, TbBox, TbFlask, TbStethoscope, TbWallet, TbArrowUpRight, TbArrowDownRight } from "react-icons/tb";
@@ -307,10 +307,9 @@ function ItemExplorer({ region }: { region: string }) {
 }
 
 export default function CashflowForecastDetail() {
-  const { selectedRegion } = useRegion();
-  const region = selectedRegion?.name ?? "All Plants";
+  const { region, category, filtered, catParam, scopeKey } = useScope();
   const [data, setData] = useState<any>(null);
-  useEffect(() => { setData(null); fetch(`${DASHBOARD_API_BASE_URL}/forecast/cashflow-insights?Plant=${encodeURIComponent(region)}`).then((r) => r.json()).then(setData).catch(() => setData(null)); }, [region]);
+  useEffect(() => { setData(null); fetch(`${DASHBOARD_API_BASE_URL}/forecast/cashflow-insights?Plant=${encodeURIComponent(region)}${catParam}`).then((r) => r.json()).then(setData).catch(() => setData(null)); }, [region, catParam]);
   const t = data?.totals || {};
 
   if (!data) return (

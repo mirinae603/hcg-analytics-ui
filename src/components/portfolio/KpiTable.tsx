@@ -7,7 +7,7 @@ import { Col } from "@/lib/kpiRegistry";
 import { fmt } from "@/lib/kpiFormat";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 
-export default function KpiTable({ kpiKey, plant, columns, endpoint }: { kpiKey: string; plant?: string; columns: Col[]; endpoint?: string }) {
+export default function KpiTable({ kpiKey, plant, category, columns, endpoint }: { kpiKey: string; plant?: string; category?: string; columns: Col[]; endpoint?: string }) {
   // `endpoint` overrides the default `/kpi/{kpiKey}/table` URL — needed for KPIs whose
   // backend route doesn't follow the generic nested-table naming convention (e.g.
   // /kpi/vendor-volume-vs-margin-table is a flat route, not /kpi/vendor-volume-vs-margin/table).
@@ -26,6 +26,7 @@ export default function KpiTable({ kpiKey, plant, columns, endpoint }: { kpiKey:
       setIsLoading(true);
       const p = new URLSearchParams();
       if (plant) p.set("Plant", plant);
+      if (category) p.set("Category", category);
       p.set("page", String(pagination.pageIndex));
       p.set("page_size", String(pagination.pageSize));
       if (globalFilter) p.set("global_filter", globalFilter);
@@ -39,7 +40,7 @@ export default function KpiTable({ kpiKey, plant, columns, endpoint }: { kpiKey:
     };
     run();
     return () => ctrl.abort();
-  }, [base, plant, pagination.pageIndex, pagination.pageSize, sorting, globalFilter]);
+  }, [base, plant, category, pagination.pageIndex, pagination.pageSize, sorting, globalFilter]);
 
   const cols = useMemo<MRT_ColumnDef<any>[]>(
     () => columns.map((c) => ({
@@ -50,7 +51,7 @@ export default function KpiTable({ kpiKey, plant, columns, endpoint }: { kpiKey:
     })), [columns]);
 
   const exportCsv = async () => {
-    const p = new URLSearchParams(); if (plant) p.set("Plant", plant);
+    const p = new URLSearchParams(); if (plant) p.set("Plant", plant); if (category) p.set("Category", category);
     p.set("page", "0"); p.set("page_size", "5000"); if (globalFilter) p.set("global_filter", globalFilter);
     const res = await fetch(`${DASHBOARD_API_BASE_URL}${base}?${p.toString()}`);
     const d = await res.json();

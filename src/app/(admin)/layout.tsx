@@ -7,6 +7,7 @@ import React from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { AiChatProvider } from "@/context/AiChatContext";
 import AiFloater from "@/components/ai/AiFloater";
+import ScopeBanner from "@/components/common/ScopeBanner";
 
 export default function AdminLayout({
   children,
@@ -39,6 +40,8 @@ export default function AdminLayout({
         >
           {/* Header */}
           <AppHeader />
+          {/* Renders nothing unless a category filter is active. */}
+          <ScopeBanner />
           {/* Page Content */}
           <div className="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">{children}</div>
         </div>

@@ -3,17 +3,23 @@
 // neutral base as the other forecast pages, but its own language: a stock-health
 // spectrum (too little → too much), twin risk leaderboards, an aging-cash ladder
 // and a per-item status checker. Traffic-light semantics for at-a-glance triage.
-import React, { useEffect, useState } from "react";
-import { useRegion } from "@/context/RegionContext";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useScope } from "@/context/CategoryContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import { useMount, CountUp } from "@/components/portfolio/kit";
-import { TbShoppingCartPlus, TbAlertTriangle, TbHourglassHigh, TbSearch, TbChevronRight, TbPackageOff, TbClockExclamation, TbBox, TbX, TbDownload } from "react-icons/tb";
+import { TbShoppingCartPlus, TbAlertTriangle, TbHourglassHigh, TbSearch, TbChevronRight, TbPackageOff, TbClockExclamation, TbBox, TbX, TbDownload, TbListNumbers, TbArrowsSort, TbInfoCircle } from "react-icons/tb";
 
 const BG = "#e8eaee", CARD = "#ffffff", CREAM = "#f4f3ef", INK = "#1b1c22", INK2 = "#41444f", MUT = "#8a8f9d", FAINT = "#c4c8d2", LINE = "#ecedf1", BORDER = "#e7e8ee";
 const RED = "#d86a4f", AMBER = "#dda23f", GREEN = "#5f9d6f", SLATE = "#8b93a8", DARK = "#4b5060";
 const SC: Record<string, string> = { "Stock-out": RED, "Reorder now": AMBER, "Healthy": GREEN, "Overstocked": SLATE, "Dead stock": DARK };
 const SC_BG: Record<string, string> = { "Stock-out": "#f7e6e0", "Reorder now": "#f6ecd5", "Healthy": "#e3efe5", "Overstocked": "#e9ebef", "Dead stock": "#e2e4e9" };
 const ADVICE: Record<string, string> = { "Stock-out": "Out of stock — order immediately", "Reorder now": "Under 1 month cover — reorder this week", "Healthy": "Well covered — no action", "Overstocked": "More than enough — hold buying", "Dead stock": "Not moving — review or return" };
+
+// Priority bands 1→5 as an urgency ramp, in this page's muted editorial palette rather
+// than a generic traffic light. `status` (above) and `band` are ORTHOGONAL: status is the
+// mutually-exclusive display label, band is "where does this sit in the order queue".
+const BAND_C: Record<number, string> = { 1: "#d86a4f", 2: "#d1823f", 3: "#dda23f", 4: "#86a08d", 5: "#8b93a8" };
+const BAND_BG: Record<number, string> = { 1: "#f7e6e0", 2: "#f7ebdd", 3: "#f6ecd5", 4: "#e6eee8", 5: "#e9ebef" };
 const nm = (s: string, n = 26) => (s && s.length > n ? s.slice(0, n - 1) + "…" : s || "—");
 const num = (v: number) => Math.round(Number(v) || 0).toLocaleString("en-IN");
 const inr = (v: number) => { v = Number(v) || 0; const a = Math.abs(v), s = v < 0 ? "-" : ""; if (a >= 1e7) return `${s}₹${(a / 1e7).toFixed(a / 1e7 >= 100 ? 0 : 1)}Cr`; if (a >= 1e5) return `${s}₹${(a / 1e5).toFixed(a / 1e5 >= 100 ? 0 : 1)}L`; if (a >= 1e3) return `${s}₹${(a / 1e3).toFixed(0)}K`; return `${s}₹${Math.round(a)}`; };
@@ -26,7 +32,7 @@ const topBar = (x: number, y: number, w: number, h: number, r: number) => { r = 
 
 // Slide-over drill — the full item list behind any risk cut (the client's #1 ask:
 // "which items are at risk — I should get the list"). Searchable + CSV export.
-function RiskDrill({ drill, region, onClose }: { drill: any; region: string; onClose: () => void }) {
+function RiskDrill({ drill, region, catParam, onClose }: { drill: any; region: string; catParam: string; onClose: () => void }) {
   const [q, setQ] = useState("");
   const [d, setD] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -34,9 +40,9 @@ function RiskDrill({ drill, region, onClose }: { drill: any; region: string; onC
   useEffect(() => {
     if (!drill) return;
     setLoading(true); setQ(""); setD(null);
-    fetch(`${DASHBOARD_API_BASE_URL}/forecast/risk-items?${drill.query}&Plant=${encodeURIComponent(region)}&limit=500`)
+    fetch(`${DASHBOARD_API_BASE_URL}/forecast/risk-items?${drill.query}&Plant=${encodeURIComponent(region)}${catParam}&limit=500`)
       .then((r) => r.json()).then(setD).catch(() => setD({ items: [], count: 0, returned: 0 })).finally(() => setLoading(false));
-  }, [drill, region]);
+  }, [drill, region, catParam]);
   const items = (d?.items || []).filter((it: any) => !q || (it.desc || "").toLowerCase().includes(q.toLowerCase()) || String(it.material).includes(q));
   const exportCsv = () => {
     const rows = d?.items || []; if (!rows.length) return;
@@ -94,6 +100,224 @@ function RiskDrill({ drill, region, onClose }: { drill: any; region: string; onC
   );
 }
 
+// ─── PRIORITY BANDS ───────────────────────────────────────────────────────────
+// The queue's spine. A procurement officer reads top-to-bottom and stops when the
+// budget runs out, so the ordering has to carry the urgency by itself.
+//
+// The single most important thing this has to communicate: band 1 is 15,878 of the
+// 19,014 lines AND carries ₹0, because none of those lines has a unit cost on file.
+// Sorting this queue by rupees would therefore bury 84% of it at a fake zero — which
+// is exactly why "Priority" is the default sort and value is opt-in.
+function PriorityLadder({ bands, totals, active, onPick }: { bands: any[]; totals: any; active: number | null; onPick: (b: number | null) => void }) {
+  const on = useMount(160);
+  const rows = bands || [];
+  const max = Math.max(...rows.map((r) => r.lines), 1);
+  const totalLines = Number(totals?.reorder_lines ?? 0);
+  return (
+    <Card>
+      <div className="flex items-baseline justify-between flex-wrap gap-2 mb-1">
+        <h2 className="text-[18px] font-bold" style={{ color: INK }}>What to order, in order</h2>
+        <span className="text-[12.5px] font-medium" style={{ color: MUT }}>{num(totalLines)} item–locations need an order</span>
+      </div>
+      <p className="text-[12.5px] mb-5" style={{ color: MUT }}>
+        Every line the replenishment model flags, ranked by how soon it runs out — not by how much it costs. Work down from the top.
+      </p>
+
+      <div className="flex flex-col gap-2">
+        {rows.map((r, i) => {
+          const isOn = active === r.band;
+          const pct = (r.lines / max) * 100;
+          const unpriced = !r.priced_lines;
+          return (
+            <button
+              key={r.band}
+              onClick={() => onPick(isOn ? null : r.band)}
+              title={`${r.label} — ${r.desc}. Click to filter the list below.`}
+              className="group text-left rounded-xl px-3 py-2.5 transition-all"
+              style={{ background: isOn ? BAND_BG[r.band] : "transparent", border: `1px solid ${isOn ? BAND_C[r.band] + "55" : "transparent"}` }}
+            >
+              <div className="flex items-center gap-3">
+                <span className="w-6 h-6 rounded-lg flex items-center justify-center text-[11.5px] font-extrabold flex-shrink-0"
+                  style={{ background: BAND_C[r.band], color: "#fff" }}>{r.band}</span>
+                <div className="min-w-0" style={{ width: 168 }}>
+                  <div className="text-[13px] font-bold truncate" style={{ color: INK }}>{r.label}</div>
+                  <div className="text-[11px] truncate" style={{ color: MUT }} title={r.desc}>{r.desc}</div>
+                </div>
+                <div className="flex-1 h-3 rounded-full overflow-hidden min-w-[40px]" style={{ background: "#eef0f3" }}>
+                  <div className="h-full rounded-full" style={{ width: on ? `${pct}%` : "0%", background: BAND_C[r.band], transition: `width .9s cubic-bezier(.22,1,.36,1) ${i * 80}ms` }} />
+                </div>
+                <div className="text-right flex-shrink-0" style={{ width: 92 }}>
+                  <div className="text-[15px] font-extrabold tabular-nums leading-none" style={{ color: INK }}>{num(r.lines)}</div>
+                  <div className="text-[10.5px] tabular-nums" style={{ color: MUT }}>{num(r.skus)} items</div>
+                </div>
+                <div className="text-right flex-shrink-0 hidden sm:block" style={{ width: 96 }}>
+                  {unpriced ? (
+                    <span className="text-[11px] italic" style={{ color: FAINT }} title="No unit cost on file for any line in this band — the quantity is still exact.">no cost on file</span>
+                  ) : (
+                    <>
+                      <div className="text-[13px] font-bold tabular-nums leading-none" style={{ color: INK2 }}>{inr(r.value_priced)}</div>
+                      <div className="text-[10.5px] tabular-nums" style={{ color: MUT }}>{num(r.priced_lines)} priced</div>
+                    </>
+                  )}
+                </div>
+                <TbChevronRight size={14} className={`flex-shrink-0 transition-opacity ${isOn ? "opacity-100" : "opacity-0 group-hover:opacity-60"}`} style={{ color: BAND_C[r.band] }} />
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* The pricing gap, stated by the backend and repeated verbatim rather than rounded off. */}
+      {totals?.value_disclosure && (
+        <div className="mt-4 flex items-start gap-2 rounded-xl px-4 py-3 text-[11.5px] leading-relaxed" style={{ background: CREAM, color: MUT }}>
+          <TbInfoCircle size={15} className="flex-shrink-0 mt-[1px]" />
+          <span>{totals.value_disclosure}</span>
+        </div>
+      )}
+    </Card>
+  );
+}
+
+// ─── THE QUEUE ────────────────────────────────────────────────────────────────
+// The actual requisition file: all 19,014 lines, searchable, band-filterable, and
+// re-sortable — with the priority rank kept visible so re-sorting never loses the
+// original queue position.
+const SORTS = [
+  { key: "priority", label: "Priority" },
+  { key: "value", label: "Order value" },
+  { key: "qty", label: "Order qty" },
+  { key: "demand", label: "Monthly use" },
+] as const;
+
+function PriorityQueue({ region, catParam, band, onBand }: { region: string; catParam: string; band: number | null; onBand: (b: number | null) => void }) {
+  const [q, setQ] = useState("");
+  const [dq, setDq] = useState("");
+  const [sort, setSort] = useState<string>("priority");
+  const [limit, setLimit] = useState(50);
+  const [d, setD] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const first = useRef(true);
+
+  // Debounce the search so typing doesn't fire a request per keystroke.
+  useEffect(() => { const t = setTimeout(() => setDq(q), 300); return () => clearTimeout(t); }, [q]);
+  useEffect(() => { setLimit(50); }, [dq, sort, band, region, catParam]);
+
+  useEffect(() => {
+    const ctrl = new AbortController();
+    setLoading(true);
+    const p = new URLSearchParams({ Plant: region, sort, limit: String(limit) });
+    if (band) p.set("band", String(band));
+    if (dq) p.set("q", dq);
+    fetch(`${DASHBOARD_API_BASE_URL}/forecast/reorder-priority?${p.toString()}${catParam}`, { signal: ctrl.signal })
+      .then((r) => r.json()).then((j) => { setD(j); setLoading(false); first.current = false; })
+      .catch((e) => { if (e.name !== "AbortError") { setD(null); setLoading(false); } });
+    return () => ctrl.abort();
+  }, [region, catParam, band, dq, sort, limit]);
+
+  const items = d?.items || [];
+  const exportCsv = () => {
+    if (!items.length) return;
+    const cols = ["priority_rank", "priority_band", "priority_label", "material", "desc", "group", "category", "plant", "status", "stock", "cover", "demand_monthly", "reorder_qty", "unit_cost", "reorder_value"];
+    const csv = [cols.join(",")].concat(items.map((r: any) => cols.map((c) => JSON.stringify(r[c] ?? "")).join(","))).join("\n");
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+    a.download = `reorder-priority${band ? `-band${band}` : ""}.csv`;
+    a.click();
+  };
+
+  return (
+    <Card pad="p-0">
+      <div className="px-6 pt-6 pb-4" style={{ borderBottom: `1px solid ${LINE}` }}>
+        <div className="flex items-baseline justify-between flex-wrap gap-2 mb-3">
+          <h2 className="text-[17px] font-bold flex items-center gap-2" style={{ color: INK }}>
+            <TbListNumbers size={18} style={{ color: MUT }} />The order list
+          </h2>
+          <span className="text-[12.5px] tabular-nums" style={{ color: MUT }}>
+            {d ? <>{num(d.count)} lines{band ? ` in band ${band}` : ""}{dq ? " matching" : ""} · showing {num(items.length)}</> : "loading…"}
+          </span>
+        </div>
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex-1 min-w-[180px] flex items-center gap-2 rounded-xl px-3 py-2" style={{ border: `1px solid ${BORDER}`, background: CREAM }}>
+            <TbSearch size={15} style={{ color: MUT }} />
+            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search item or code…" className="flex-1 bg-transparent text-[13px] focus:outline-none" style={{ color: INK }} />
+            {q && <button onClick={() => setQ("")} aria-label="Clear search" style={{ color: MUT }}><TbX size={14} /></button>}
+          </div>
+          {/* Band chips mirror the ladder so either surface can drive the filter. */}
+          <div className="flex items-center gap-1">
+            <button onClick={() => onBand(null)} className="rounded-lg px-2.5 py-1.5 text-[12px] font-semibold transition-colors"
+              style={{ background: band === null ? INK : "transparent", color: band === null ? "#fff" : MUT, border: `1px solid ${band === null ? INK : BORDER}` }}>All</button>
+            {[1, 2, 3, 4, 5].map((b) => (
+              <button key={b} onClick={() => onBand(band === b ? null : b)} title={`Band ${b}`}
+                className="w-7 h-7 rounded-lg text-[12px] font-bold transition-colors"
+                style={{ background: band === b ? BAND_C[b] : "transparent", color: band === b ? "#fff" : BAND_C[b], border: `1px solid ${band === b ? BAND_C[b] : BORDER}` }}>{b}</button>
+            ))}
+          </div>
+          <div className="flex items-center gap-1.5 rounded-xl px-2.5 py-2" style={{ border: `1px solid ${BORDER}` }} title="Priority is the default because 84% of the queue carries no unit cost — a value sort would bury it.">
+            <TbArrowsSort size={14} style={{ color: MUT }} />
+            <select value={sort} onChange={(e) => setSort(e.target.value)} className="bg-transparent text-[12.5px] font-semibold focus:outline-none cursor-pointer" style={{ color: INK2 }}>
+              {SORTS.map((s) => <option key={s.key} value={s.key}>{s.label}</option>)}
+            </select>
+          </div>
+          <button onClick={exportCsv} title="Export the visible lines as CSV" className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-[12.5px] font-semibold transition-colors hover:bg-[#f2f3f6]" style={{ border: `1px solid ${BORDER}`, color: INK2 }}>
+            <TbDownload size={15} />Export
+          </button>
+        </div>
+      </div>
+
+      <div className="px-3 py-2 max-h-[560px] overflow-y-auto">
+        {loading && first.current ? (
+          <div className="py-16 flex items-center justify-center gap-2 text-[13px]" style={{ color: MUT }}>
+            <span className="w-4 h-4 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: `${INK} transparent ${INK} ${INK}` }} />Loading the order list…
+          </div>
+        ) : items.length ? (
+          <>
+            {items.map((r: any) => (
+              <div key={`${r.material}-${r.plant}-${r.priority_rank}`} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[#f7f8fa] transition-colors">
+                {/* Rank stays visible under every sort, so the queue position is never lost. */}
+                <span className="w-10 text-right text-[11px] font-bold tabular-nums flex-shrink-0" style={{ color: FAINT }}>{num(r.priority_rank)}</span>
+                <span className="w-1.5 h-9 rounded-full flex-shrink-0" style={{ background: BAND_C[r.priority_band] || FAINT }} />
+                <div className="min-w-0 flex-1">
+                  <div className="text-[12.5px] font-semibold truncate" style={{ color: INK }} title={r.desc}>{r.desc}</div>
+                  <div className="text-[11px] mt-0.5 truncate" style={{ color: MUT }}>
+                    {r.material} · {r.plant} · {r.group}
+                  </div>
+                </div>
+                <span className="hidden md:inline-flex items-center text-[10.5px] font-semibold px-2 py-0.5 rounded-md flex-shrink-0"
+                  style={{ background: BAND_BG[r.priority_band], color: BAND_C[r.priority_band] }}>{r.priority_label}</span>
+                <div className="text-right flex-shrink-0" style={{ width: 78 }}>
+                  <div className="text-[12.5px] font-bold tabular-nums" style={{ color: INK }}>{num(r.reorder_qty)}</div>
+                  <div className="text-[10.5px]" style={{ color: MUT }}>to order</div>
+                </div>
+                <div className="text-right flex-shrink-0" style={{ width: 76 }}>
+                  {r.priced ? (
+                    <>
+                      <div className="text-[12.5px] font-bold tabular-nums" style={{ color: INK }}>{inr(r.reorder_value)}</div>
+                      <div className="text-[10.5px] tabular-nums" style={{ color: MUT }}>{cover(r.cover)}</div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="text-[11.5px] italic" style={{ color: FAINT }} title="No unit cost in the source data — the quantity is still exact.">no price</div>
+                      <div className="text-[10.5px] tabular-nums" style={{ color: MUT }}>{cover(r.cover)}</div>
+                    </>
+                  )}
+                </div>
+              </div>
+            ))}
+            {d && d.count > items.length && (
+              <button onClick={() => setLimit((l) => l + 100)} disabled={loading}
+                className="w-full my-2 rounded-xl py-2.5 text-[12.5px] font-semibold transition-colors hover:bg-[#f2f3f6]" style={{ border: `1px solid ${BORDER}`, color: INK2 }}>
+                {loading ? "Loading…" : `Show 100 more · ${num(d.count - items.length)} remaining`}
+              </button>
+            )}
+          </>
+        ) : (
+          <div className="py-16 text-center text-[13px]" style={{ color: MUT }}>No lines match this filter.</div>
+        )}
+      </div>
+    </Card>
+  );
+}
+
 // Reorder pressure by department — a clean column chart (the hero chart).
 function ReorderByCategory({ rows }: { rows: any[] }) {
   const data = (rows || []).slice(0, 7);
@@ -144,7 +368,10 @@ function Spectrum({ spectrum, total, onDrill }: { spectrum: any[]; total: number
         <h2 className="text-[18px] font-bold" style={{ color: INK }}>Stock health across the catalogue</h2>
         <span className="text-[12.5px] font-medium cursor-help" style={{ color: MUT }} title="One row per item per hospital/plant — the same medicine can be short at one hospital and excess at another.">{num(total)} item–locations</span>
       </div>
-      <p className="text-[12.5px] mb-5" style={{ color: MUT }}>Every item placed on a spectrum from too little stock to too much — so you can see both risks at once.</p>
+      <p className="text-[12.5px] mb-5" style={{ color: MUT }}>
+        Every item placed on a spectrum from too little stock to too much — so you can see both risks at once.
+        This is a <b>separate view</b> from the order list above: each item gets exactly one status label here, so a line can read "Healthy" and still need an order.
+      </p>
       {/* segmented spectrum */}
       <div className="flex gap-1 h-14 mb-2">
         {segs.map((s, i) => (
@@ -351,12 +578,17 @@ function ItemChecker({ region }: { region: string }) {
 }
 
 export default function ReplenishmentRiskDetail() {
-  const { selectedRegion } = useRegion();
-  const region = selectedRegion?.name ?? "All Plants";
+  const { region, category, filtered, catParam, scopeKey } = useScope();
   const [data, setData] = useState<any>(null);
   const [drill, setDrill] = useState<any>(null);
-  useEffect(() => { setData(null); fetch(`${DASHBOARD_API_BASE_URL}/forecast/replenishment-insights?Plant=${encodeURIComponent(region)}`).then((r) => r.json()).then(setData).catch(() => setData(null)); }, [region]);
+  const [band, setBand] = useState<number | null>(null);
+  useEffect(() => {
+    setData(null);
+    fetch(`${DASHBOARD_API_BASE_URL}/forecast/replenishment-insights?Plant=${encodeURIComponent(region)}${catParam}`)
+      .then((r) => r.json()).then(setData).catch(() => setData(null));
+  }, [scopeKey]); // eslint-disable-line react-hooks/exhaustive-deps
   const t = data?.totals || {};
+  const reorder = data?.reorder || {};
 
   if (!data) return (
     <div className="-m-4 md:-m-6 p-5 md:p-8" style={{ minHeight: "calc(100vh - 64px)", background: BG }}>
@@ -386,24 +618,36 @@ export default function ReplenishmentRiskDetail() {
           <div>
             <div className="text-[11px] font-semibold uppercase tracking-[0.14em] mb-1.5" style={{ color: MUT }}>Forecasting</div>
             <h1 className="text-[29px] font-extrabold leading-none tracking-tight" style={{ color: INK }}>Reorder &amp; Stock Risk</h1>
-            <p className="text-[13px] mt-2" style={{ color: MUT }}>What to reorder now, and what's sitting too long · {region}</p>
+            <p className="text-[13px] mt-2" style={{ color: MUT }}>What to reorder now, and what's sitting too long · {region}{filtered ? ` · ${category.name}` : ""}</p>
           </div>
           <span title="6-month back-test accuracy measured at the aggregate/category level — reliable for planning totals, not a per-item guarantee." className="inline-flex items-center gap-2 text-[12.5px] font-semibold px-3.5 py-2 rounded-xl cursor-help" style={{ color: INK2, background: CARD, border: `1px solid ${BORDER}` }}><span className="w-2 h-2 rounded-full" style={{ background: GREEN }} />{Number(t.accuracy ?? 0).toFixed(0)}% forecast reliability</span>
         </div>
 
+        {/* The headline is now the WHOLE requisition (19,014 lines), not the 1,107-line
+            "Reorder now" slice. That slice was never the reorder list — it excluded every
+            line already at zero stock, i.e. the most urgent ones. It survives below as
+            bands 2–3 of the ladder, where it is true rather than misleading. */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-5">
-          <StatTile icon={TbShoppingCartPlus} color={AMBER} bg="#f6ecd5" label="Running low · order this week" value={<CountUp value={Number(t.reorder_now_skus ?? 0)} format={num} />} sub={`${inr(Number(t.reorder_now_value ?? 0))} to order · under 1 month cover`} title="Items with stock still on hand but under one month of cover at forecast usage. Excludes lines already at zero stock — those are counted under Stock-out risk." onClick={() => setDrill({ title: "Running low — under 1 month cover", query: "status=Reorder%20now" })} />
-          <StatTile icon={TbPackageOff} color={RED} bg="#f7e6e0" label="Stock-out risk" value={<CountUp value={Number(t.stockout_skus ?? 0)} format={num} />} sub="items with nothing on hand" onClick={() => setDrill({ title: "Stock-out — all items", query: "status=Stock-out" })} />
+          <StatTile icon={TbShoppingCartPlus} color={AMBER} bg="#f6ecd5"
+            label="To order · full requisition"
+            value={<CountUp value={Number(reorder.reorder_lines ?? 0)} format={num} />}
+            sub={`${num(Number(reorder.reorder_skus_all ?? 0))} distinct items across 5 priority bands`}
+            onClick={() => { setBand(null); document.getElementById("order-list")?.scrollIntoView({ behavior: "smooth", block: "start" }); }} />
+          <StatTile icon={TbPackageOff} color={RED} bg="#f7e6e0"
+            label="Order today · zero stock"
+            value={<CountUp value={Number(reorder.out_of_stock_lines ?? 0)} format={num} />}
+            sub={`band 1 · ${Math.round((Number(reorder.out_of_stock_lines ?? 0) / Math.max(Number(reorder.reorder_lines ?? 1), 1)) * 100)}% of the queue`}
+            onClick={() => { setBand(1); document.getElementById("order-list")?.scrollIntoView({ behavior: "smooth", block: "start" }); }} />
           <StatTile icon={TbHourglassHigh} color={SLATE} bg="#e9ebef" label="Cash in aging stock" value={inr(Number(t.aging_value ?? 0))} sub={`${num(Number(t.aging_skus ?? 0))} items over 6 months`} onClick={() => setDrill({ title: "Aging stock — all items", query: "kind=aging" })} />
         </div>
 
-        {/* The full requisition file is still one click away, but its overlap with the
-            stock-out tile above (and the fact that its ₹ prices only a fraction of it)
-            is now stated rather than left for the reader to trip over. */}
-        <button onClick={() => setDrill({ title: "Full suggested-order file — all lines", query: "kind=order_now" })}
-          className="w-full text-left mb-5 rounded-2xl px-5 py-3 text-[12px] transition-colors hover:bg-[#f2f3f6]" style={{ background: CARD, border: `1px solid ${BORDER}`, color: MUT }}>
-          The replenishment model suggests an order on <b style={{ color: INK2 }}>{num(Number(t.reorder_skus ?? 0))}</b> item–locations in total — but <b style={{ color: INK2 }}>{num(Number(t.stockout_skus ?? 0))}</b> of those are the stock-out lines counted above, and only <b style={{ color: INK2 }}>{num(Number(t.reorder_priced_skus ?? 0))}</b> carry a unit cost (the {inr(Number(t.reorder_value ?? 0))} figure prices those alone). See the full file →
-        </button>
+        <div className="mb-5">
+          <PriorityLadder bands={data?.priority || []} totals={reorder} active={band} onPick={(b) => { setBand(b); document.getElementById("order-list")?.scrollIntoView({ behavior: "smooth", block: "start" }); }} />
+        </div>
+
+        <div className="mb-5" id="order-list" style={{ scrollMarginTop: 88 }}>
+          <PriorityQueue region={region} catParam={catParam} band={band} onBand={setBand} />
+        </div>
 
         <div className="mb-5"><Spectrum spectrum={data?.spectrum || []} total={Number(t.total_skus ?? 0)} onDrill={setDrill} /></div>
 
@@ -420,11 +664,11 @@ export default function ReplenishmentRiskDetail() {
         </div>
 
         <div className="mt-5 rounded-2xl px-5 py-4 text-[12px] leading-relaxed" style={{ background: CARD, border: `1px solid ${BORDER}`, color: MUT }}>
-          <b style={{ color: INK2 }}>How to read this:</b> "cover" is how long current stock lasts at forecast usage. Items with under a month of cover are reorder priorities; items aged past 6 months are tying up cash and risk expiry. Numbers are per item-per-location, so the same medicine can appear as short at one hospital and excess at another.
+          <b style={{ color: INK2 }}>How to read this:</b> "cover" is how long current stock lasts at forecast usage. The order list is ranked by <b style={{ color: INK2 }}>priority band</b> — band 1 is already at zero stock, band 5 is a planned top-up — and within a band by monthly usage, not by rupees. That is deliberate: none of the {num(Number(reorder.out_of_stock_lines ?? 0))} band-1 lines carries a unit cost, so a value sort would push the most urgent work to the bottom at a false ₹0. The stock-health spectrum below is a different cut: it gives each item one exclusive label, which is why a line can show "Healthy" there and still appear in the order list. Numbers are per item-per-location, so the same medicine can appear as short at one hospital and excess at another.
         </div>
       </div>
 
-      <RiskDrill drill={drill} region={region} onClose={() => setDrill(null)} />
+      <RiskDrill drill={drill} region={region} catParam={catParam} onClose={() => setDrill(null)} />
     </div>
   );
 }

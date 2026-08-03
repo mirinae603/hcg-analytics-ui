@@ -1,9 +1,22 @@
 "use client";
 import dynamic from "next/dynamic";
+import { useMemo, useRef } from "react";
 import { ChartCfg } from "@/lib/kpiRegistry";
 import { inr, num, pct } from "@/lib/kpiFormat";
+import { useDrillDown } from "@/components/portfolio/DrillTooltip";
 
 const ReactApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
+
+/** What the parent passes when this chart's slices can be opened up. */
+export type DrillSpec = {
+  kpi: string;
+  dim: string;
+  by: string;
+  label: string;      // "items" / "hospitals"
+  dimLabel?: string;  // "Material group" — the eyebrow on the panel
+  plant?: string;
+  category?: string;
+};
 
 const FONT = "Outfit, 'Segoe UI', sans-serif";
 
@@ -53,15 +66,76 @@ const BAR_COLORS = [
   "#67E8F9", "#FED7AA", "#FBCFE8",
 ];
 
-export default function ApexKpiChart({ cfg, data }: { cfg: ChartCfg; data: any[] }) {
+export default function ApexKpiChart({ cfg, data, drill }: { cfg: ChartCfg; data: any[]; drill?: DrillSpec | null }) {
+  const fmt = yFormatter(cfg.valueKind);
+  const ptr = useRef({ x: 0, y: 0 });
+
+  // The slice labels the drill-down sends to the backend. These are the RAW values —
+  // the bar axis truncates long names to 20 chars for display, and sending a truncated
+  // label would silently match nothing.
+  const donutField = cfg.series[0]?.field;
+  const slices = useMemo(() => {
+    const rows = cfg.type === "donut" ? (data || []).filter((d) => Number(d[donutField]) > 0) : (data || []);
+    return rows.map((d) => String(d[cfg.x] ?? "—"));
+  }, [data, cfg.type, cfg.x, donutField]);
+
+  const spec = useMemo(
+    () =>
+      drill
+        ? {
+            kpi: drill.kpi, dim: drill.dim, by: drill.by, label: drill.label,
+            dimLabel: drill.dimLabel, plant: drill.plant, category: drill.category,
+            format: fmt,
+          }
+        : null,
+    // fmt is derived from cfg.valueKind only
+    [drill?.kpi, drill?.dim, drill?.by, drill?.label, drill?.dimLabel, drill?.plant, drill?.category, cfg.valueKind] // eslint-disable-line react-hooks/exhaustive-deps
+  );
+  const dd = useDrillDown(spec);
+
+  // Apex's own tooltip is switched OFF wherever a drill-down exists — the panel's first
+  // line already carries the label + value, so keeping both would stack two boxes.
+  const drillOn = !!drill;
+  const tooltipCfg = (base: any) => (drillOn ? { enabled: false } : base);
+  const drillEvents = drillOn
+    ? {
+        dataPointMouseEnter: (_e: any, _c: any, o: any) => {
+          const s = slices[o?.dataPointIndex];
+          if (s) dd.enter(s, ptr.current.x, ptr.current.y);
+        },
+        dataPointMouseLeave: () => dd.leave(),
+        dataPointSelection: (_e: any, _c: any, o: any) => {
+          const s = slices[o?.dataPointIndex];
+          if (s) dd.pin(s, ptr.current.x, ptr.current.y);
+        },
+      }
+    : {};
+
+  // Wraps the chart so we can track the pointer for panel placement and clear on exit.
+  const wrap = (node: React.ReactNode) => (
+    <div
+      className="relative"
+      // onPointerDown (not just onMouseMove) so a TAP owns the coordinates it pins at.
+      // Browsers emulate a mousemove before click on touch, so this worked by accident;
+      // without it, any device that doesn't emulate would pin the panel at (0,0).
+      onPointerDown={(e) => { ptr.current = { x: e.clientX, y: e.clientY }; }}
+      onMouseMove={(e) => {
+        ptr.current = { x: e.clientX, y: e.clientY };
+        dd.move(e.clientX, e.clientY);
+      }}
+      onMouseLeave={() => dd.leave()}
+    >
+      {node}
+      {dd.panel}
+    </div>
+  );
+
   if (!data?.length)
     return (
       <div className="py-16 text-center text-gray-400 text-sm">
         No data available for this selection.
       </div>
     );
-
-  const fmt = yFormatter(cfg.valueKind);
 
   // ─── DONUT ────────────────────────────────────────────────────────────────
   if (cfg.type === "donut") {
@@ -78,6 +152,7 @@ export default function ApexKpiChart({ cfg, data }: { cfg: ChartCfg; data: any[]
         foreColor: "#1f2937",
         background: "transparent",
         dropShadow: { enabled: true, top: 2, left: 0, blur: 6, color: "#000", opacity: 0.08 },
+        events: drillEvents,
       },
       labels,
       colors: DONUT_COLORS,
@@ -123,12 +198,12 @@ export default function ApexKpiChart({ cfg, data }: { cfg: ChartCfg; data: any[]
         style: { fontSize: "12px", fontWeight: 600, colors: ["#f9fafb"] },
         dropShadow: { enabled: false },
       },
-      tooltip: {
+      tooltip: tooltipCfg({
         style: { fontSize: "13px", fontFamily: FONT },
         y: { formatter: fmt },
-      },
+      }),
     };
-    return <ReactApexChart options={options} series={series} type="donut" height={380} />;
+    return wrap(<ReactApexChart options={options} series={series} type="donut" height={380} />);
   }
 
   // ─── BAR ──────────────────────────────────────────────────────────────────
@@ -157,6 +232,7 @@ export default function ApexKpiChart({ cfg, data }: { cfg: ChartCfg; data: any[]
           dynamicAnimation: { enabled: true, speed: 600 },
         },
         dropShadow: { enabled: true, top: 4, left: 0, blur: 6, opacity: 0.08 },
+        events: drillEvents,
       },
       colors: BAR_COLORS,
       plotOptions: {
@@ -214,13 +290,13 @@ export default function ApexKpiChart({ cfg, data }: { cfg: ChartCfg; data: any[]
         axisBorder: { show: false },
         axisTicks: { show: false },
       },
-      tooltip: {
+      tooltip: tooltipCfg({
         theme: "light",
         style: { fontSize: "13px", fontFamily: FONT },
         y: { formatter: fmt },
-      },
+      }),
     };
-    return <ReactApexChart options={options} series={series} type="bar" height={370} />;
+    return wrap(<ReactApexChart options={options} series={series} type="bar" height={370} />);
   }
 
   // ─── LINE / AREA ──────────────────────────────────────────────────────────

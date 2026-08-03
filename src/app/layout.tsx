@@ -3,6 +3,7 @@ import './globals.css';
 import { SidebarProvider } from '@/context/SidebarContext';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { RegionProvider } from '@/context/RegionContext'; // ✅ import your new RegionProvider
+import { CategoryProvider } from '@/context/CategoryContext';
 import GlobalLoader from '@/components/common/GlobalLoader';
 
 // Outfit is loaded via a runtime stylesheet link (not next/font's build-time fetch)
@@ -30,7 +31,10 @@ export default function RootLayout({
         <ThemeProvider>
           <SidebarProvider>
             <RegionProvider>
-              {children}
+              {/* Category scope is nested inside Region so useScope() can read both. */}
+              <CategoryProvider>
+                {children}
+              </CategoryProvider>
             </RegionProvider>
           </SidebarProvider>
         </ThemeProvider>

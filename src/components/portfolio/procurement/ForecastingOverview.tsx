@@ -4,7 +4,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { useRegion } from "@/context/RegionContext";
+import { useScope } from "@/context/CategoryContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import { inrAbbr, countAbbr, useMount, CountUp, smoothPath } from "@/components/portfolio/kit";
 import { TbTargetArrow, TbCoin, TbTrendingUp, TbReload, TbArrowUpRight as TbUp, TbArrowDownRight, TbArrowNarrowRight, TbFlask } from "react-icons/tb";
@@ -198,30 +198,48 @@ function AgingCard({ segs, total }: any) {
   );
 }
 
-function Reorder({ rows }: { rows: any[] }) {
+// Priority band colours — an urgency ramp, not this page's violet brand accent, because
+// the whole point of the list is that position 1 is more urgent than position 7.
+const BAND_C: Record<number, string> = { 1: "#e5545b", 2: "#e0803a", 3: "#f0a52a", 4: "#5f9d6f", 5: "#8b93a8" };
+const BAND_SOFT: Record<number, string> = { 1: "#fdecec", 2: "#fbeee2", 3: "#fdf3e0", 4: "#e8f2ea", 5: "#eef0f4" };
+
+// Reads off `priority_queue`, NOT the old `top_reorder`. `top_reorder` was sorted by
+// rupee value, so its number-one line was an item with 806 months of cover that merely
+// happened to be expensive — the opposite of a priority list. The queue is ordered by
+// how soon the line runs out, then by monthly usage.
+function Reorder({ rows, totals }: { rows: any[]; totals: any }) {
   const on = useMount(200); const data = (rows || []).slice(0, 7);
-  const max = Math.max(...data.map((r) => r.value), 1);
-  const totalVal = data.reduce((s, r) => s + r.value, 0);
+  // Bars encode monthly usage — the tiebreak the backend actually sorts on, and a figure
+  // that exists for every line. Rupees exist for only 16.5% of them.
+  const max = Math.max(...data.map((r) => Number(r.demand_monthly) || 0), 1);
   return (
     <Card className="flex flex-col flex-1" style={{ minHeight: 234 }}>
-      <div className="flex items-baseline justify-between mb-1">
+      <div className="flex items-baseline justify-between mb-1 flex-wrap gap-1">
         <div className="text-[12px] font-semibold uppercase tracking-[0.06em]" style={{ color: MUT2 }}>Priority reorder list</div>
-        <span className="text-[11.5px]" style={{ color: MUT2 }}>{inrAbbr(totalVal)} to restock these {data.length} items</span>
+        <span className="text-[11.5px]" style={{ color: MUT2 }} title={totals?.value_disclosure || ""}>
+          top 7 of {countAbbr(Number(totals?.reorder_lines ?? 0))} lines · most urgent first
+        </span>
       </div>
       <div className="flex-1 flex flex-col justify-between mt-2">
-        {data.map((r, i) => (
-          <div key={i} className="group flex items-center gap-3.5 rounded-xl px-2 py-1.5 -mx-2 transition-colors hover:bg-[#f7f6ff]">
-            <span className="w-6 h-6 rounded-lg flex items-center justify-center text-[11px] font-bold tabular-nums flex-shrink-0" style={{ background: i === 0 ? AC : ACSOFT, color: i === 0 ? "#fff" : AC }}>{i + 1}</span>
-            <div className="min-w-0" style={{ width: 190 }}>
-              <div className="text-[12.5px] font-semibold truncate" style={{ color: "#2b3050" }} title={r.desc}>{nm(r.desc, 26)}</div>
-              <div className="text-[10.5px] tabular-nums" style={{ color: MUT2 }}>order {countAbbr(r.qty)} units</div>
+        {data.map((r, i) => {
+          const c = BAND_C[r.priority_band] || AC;
+          return (
+            <div key={`${r.material}-${r.plant}-${i}`} className="group flex items-center gap-3.5 rounded-xl px-2 py-1.5 -mx-2 transition-colors hover:bg-[#f7f6ff]">
+              <span className="w-6 h-6 rounded-lg flex items-center justify-center text-[11px] font-bold tabular-nums flex-shrink-0"
+                title={r.priority_label} style={{ background: BAND_SOFT[r.priority_band] || ACSOFT, color: c }}>{r.priority_band}</span>
+              <div className="min-w-0" style={{ width: 190 }}>
+                <div className="text-[12.5px] font-semibold truncate" style={{ color: "#2b3050" }} title={r.desc}>{nm(r.desc, 26)}</div>
+                <div className="text-[10.5px] tabular-nums" style={{ color: MUT2 }}>order {countAbbr(r.reorder_qty)} · {r.plant}</div>
+              </div>
+              <div className="flex-1 h-2.5 rounded-full overflow-hidden" style={{ background: "#f1f2f8" }}>
+                <div className="h-full rounded-full" style={{ width: on ? `${((Number(r.demand_monthly) || 0) / max) * 100}%` : "0%", background: c, transition: `width 1s cubic-bezier(.22,1,.36,1) ${i * 55}ms` }} />
+              </div>
+              <span className="text-[13px] font-bold tabular-nums w-[70px] text-right flex-shrink-0" style={{ color: r.priced ? INK : MUT2 }}>
+                {r.priced ? inrAbbr(r.reorder_value) : <span className="text-[11px] italic" title="No unit cost in the source data — the quantity is still exact.">no price</span>}
+              </span>
             </div>
-            <div className="flex-1 h-2.5 rounded-full overflow-hidden" style={{ background: "#f1f2f8" }}>
-              <div className="h-full rounded-full" style={{ width: on ? `${(r.value / max) * 100}%` : "0%", background: `linear-gradient(90deg,${AC2},${AC})`, transition: `width 1s cubic-bezier(.22,1,.36,1) ${i * 55}ms`, boxShadow: `0 1px 6px -1px ${AC}66` }} />
-            </div>
-            <span className="text-[13px] font-bold tabular-nums w-[70px] text-right flex-shrink-0" style={{ color: INK }}>{inrAbbr(r.value)}</span>
-          </div>
-        ))}
+          );
+        })}
         {!data.length && <div className="py-8 text-center text-sm" style={{ color: MUT2 }}>No data.</div>}
       </div>
     </Card>
@@ -229,16 +247,15 @@ function Reorder({ rows }: { rows: any[] }) {
 }
 
 export default function ForecastingOverview() {
-  const { selectedRegion } = useRegion();
-  const region = selectedRegion?.name ?? "All Plants";
+  const { region, category, filtered, catParam, scopeKey } = useScope();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     setLoading(true);
-    fetch(`${DASHBOARD_API_BASE_URL}/portfolio/forecasting/overview?Plant=${encodeURIComponent(region)}`)
+    fetch(`${DASHBOARD_API_BASE_URL}/portfolio/forecasting/overview?Plant=${encodeURIComponent(region)}${catParam}`)
       .then((r) => r.json()).then((d) => { setData(d || null); setLoading(false); })
       .catch(() => { setData(null); setLoading(false); });
-  }, [region]);
+  }, [region, catParam]);
   // true while in flight OR resolved with nothing usable -- the metrics bar below renders
   // a neutral skeleton in that state instead of a confident-looking "0 items" / "₹0".
   const showSkeleton = loading || !data;
@@ -266,10 +283,19 @@ export default function ForecastingOverview() {
   };
 
   const stockOutCount = cnt("Out", radar);
+  const reorder = data?.reorder || {};
   const metrics = [
-    // Uses the narrow "under 1 month cover" band, matching the Reorder & Stock Risk
-    // page this links to. The wider 19k suggested-requisition count is disclosed there.
-    { label: "Running low · order now", value: countAbbr(Number(t.replen_now_skus ?? 0)), unit: "items", sub: `${inrAbbr(Number(t.replen_now_value ?? 0))} to order · under 1 month cover`, tone: AC },
+    // Leads with the FULL requisition (19,014 lines), matching the Reorder & Stock Risk
+    // page. This used to show the 1,107 "under 1 month cover" band, which excluded every
+    // line already at zero stock — i.e. it omitted the most urgent 15,878 lines from the
+    // headline a planner reads first.
+    {
+      label: "To order · full requisition",
+      value: countAbbr(Number(reorder.reorder_lines ?? 0)),
+      unit: "lines",
+      sub: `${countAbbr(Number(reorder.out_of_stock_lines ?? 0))} already at zero stock · ${inrAbbr(Number(reorder.reorder_value_priced ?? 0))} priced on ${Number(reorder.priced_share_pct ?? 0).toFixed(0)}% of lines`,
+      tone: AC,
+    },
     // Deliberately NOT labelled "Stock-out risk": that phrase is already the
     // Reorder & Stock Risk page's tile for a different figure (15,878 from the
     // replenishment table vs 17,043 here from the stock radar). Name the source.
@@ -324,7 +350,7 @@ export default function ForecastingOverview() {
       {/* ── STEP 1 · ACT: what to order now + overall stock health ── */}
       <SectionLabel n={1} title="Order these first" hint="highest-value items your stock won't cover" />
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-stretch">
-        <div className="xl:col-span-8 flex flex-col"><Reorder rows={data?.top_reorder || []} /></div>
+        <div className="xl:col-span-8 flex flex-col"><Reorder rows={data?.priority_queue || []} totals={data?.reorder || {}} /></div>
         <div className="xl:col-span-4 flex items-center justify-center rounded-[18px]" style={{ background: "#fff", border: "1px solid #ecedf4", boxShadow: SH, padding: "8px 0" }}><StockRadarCard region={region} metrics={radarMetrics} /></div>
       </div>
 

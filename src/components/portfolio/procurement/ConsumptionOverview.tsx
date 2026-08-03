@@ -4,7 +4,7 @@
 // then a consumption flow + KPI grid, with category & department side panels.
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRegion } from "@/context/RegionContext";
+import { useScope } from "@/context/CategoryContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import { inrAbbr, countAbbr, catName, useMount, smoothPath } from "@/components/portfolio/kit";
 import { GaugeCard, DonutCard, BrandPanel, type Tab } from "./ExecCards";
@@ -151,16 +151,15 @@ function DepartmentsCard({ departments }: { departments: any[] }) {
 }
 
 export default function ConsumptionOverview() {
-  const { selectedRegion } = useRegion();
-  const region = selectedRegion?.name ?? "All Plants";
+  const { region, category, filtered, catParam, scopeKey } = useScope();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     setLoading(true);
-    fetch(`${DASHBOARD_API_BASE_URL}/portfolio/consumption/overview?Plant=${encodeURIComponent(region)}`)
+    fetch(`${DASHBOARD_API_BASE_URL}/portfolio/consumption/overview?Plant=${encodeURIComponent(region)}${catParam}`)
       .then((r) => r.json()).then((d) => { setData(d || null); setLoading(false); })
       .catch(() => { setData(null); setLoading(false); });
-  }, [region]);
+  }, [region, catParam]);
   // true while in flight OR resolved with nothing usable -- never let a failed/slow
   // fetch fall through to the cards' old confident-zero render.
   const showSkeleton = loading || !data;

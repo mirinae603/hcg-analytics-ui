@@ -3,7 +3,9 @@ import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { Kpi } from "@/lib/kpiRegistry";
 import { fmt } from "@/lib/kpiFormat";
-import { useRegion } from "@/context/RegionContext";
+import { useScope } from "@/context/CategoryContext";
+import { catParamFor, isCategoryScoped, notScopedReason } from "@/lib/categoryScope";
+import { DRILL } from "@/lib/drilldown";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import ApexKpiChart from "./ApexKpiChart";
@@ -52,8 +54,12 @@ function CountUpValue({ value, kind, className, style }: { value: number; kind: 
 }
 
 export default function KpiDrilldown({ kpi }: { kpi: Kpi }) {
-  const { selectedRegion } = useRegion();
-  const region = selectedRegion?.name ?? "All Plants";
+  const { region, category, filtered, catParam, scopeKey } = useScope();
+  // Only sent where the backend genuinely splits this KPI by material category —
+  // see lib/categoryScope.ts for the verified allowlist and the one endpoint that
+  // would silently return zero rows.
+  const scoped = isCategoryScoped(kpi.key);
+  const cp$ = catParamFor(kpi.key, catParam);
   const [chart, setChart] = useState<any[]>([]);
   const [summary, setSummary] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(true);
@@ -66,13 +72,27 @@ export default function KpiDrilldown({ kpi }: { kpi: Kpi }) {
     if (kpi.chart?.measures) cp.set("measures", kpi.chart.measures);
     if (kpi.chart?.top) cp.set("top", String(kpi.chart.top));
     Promise.all([
-      kpi.chart ? fetch(`${base}?${cp.toString()}`).then((r) => r.json()) : Promise.resolve([]),
-      fetch(`${base}/summary?Plant=${encodeURIComponent(region)}`).then((r) => r.json()),
+      kpi.chart ? fetch(`${base}?${cp.toString()}${cp$}`).then((r) => r.json()) : Promise.resolve([]),
+      fetch(`${base}/summary?Plant=${encodeURIComponent(region)}${cp$}`).then((r) => r.json()),
     ])
       .then(([c, s]) => { setChart(Array.isArray(c) ? c : []); setSummary(s || {}); })
       .catch(() => { setChart([]); setSummary({}); })
       .finally(() => setLoading(false));
-  }, [kpi.key, region]);
+  }, [kpi.key, scopeKey]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // The chart's slices can be opened up only where the backend supports it.
+  const drillCfg = DRILL[kpi.key];
+  const drillSpec = drillCfg
+    ? {
+        kpi: kpi.key, dim: drillCfg.dim, by: drillCfg.by, label: drillCfg.label,
+        dimLabel: kpi.chart?.type === "donut" ? "Segment" : "Group",
+        plant: region,
+        category: scoped && filtered ? category.key : undefined,
+      }
+    : null;
+  // Touch devices have no hover, so the prompt has to name the gesture that works there.
+  const coarse = typeof window !== "undefined" && window.matchMedia?.("(pointer: coarse)").matches;
+  const dd_hint = `${coarse ? "Tap" : "Hover"} a ${kpi.chart?.type === "donut" ? "segment" : "bar"} for the top 10 ${drillCfg?.label ?? "items"}`;
 
   // Build summary stat cards from the registry summary config.
   const statCards = (kpi.summary || []).map((s) => {
@@ -100,6 +120,20 @@ export default function KpiDrilldown({ kpi }: { kpi: Kpi }) {
   return (
     <div className="space-y-5">
       <PageBreadcrumb pageTitle={kpi.title} />
+
+      {/* The mirror of the "you are filtered" banner: when a filter is ON but this KPI
+          cannot honour it, say so — otherwise a whole-portfolio number sitting under an
+          amber "Filtered to Onco Drugs" strip reads as an Onco-only number. */}
+      {filtered && !scoped && (
+        <div className="flex items-start gap-2 rounded-xl px-4 py-2.5 text-[12px]"
+          style={{ background: "#f8f9fb", border: "1px solid #e7e8ee", color: "#6b7280" }}>
+          <span className="mt-[3px] h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: "#9ca3af" }} />
+          <span>
+            <b style={{ color: "#41444f" }}>Not split by material category.</b>{" "}
+            {notScopedReason(kpi.key)} Figures below cover all categories.
+          </span>
+        </div>
+      )}
 
       {/* ── Summary stat cards ── */}
       {loading ? (
@@ -135,11 +169,25 @@ export default function KpiDrilldown({ kpi }: { kpi: Kpi }) {
             <div className="px-6 pt-5 pb-3 flex items-center justify-between border-b border-gray-50">
               <div>
                 <h3 className="text-sm font-semibold text-gray-800">{kpi.title}</h3>
-                <p className="text-xs text-gray-400 mt-0.5">Overview · {region}</p>
+                <p className="text-xs text-gray-400 mt-0.5">
+                  Overview · {region}{scoped && filtered ? ` · ${category.name}` : ""}
+                </p>
               </div>
-              <span className="text-xs font-medium px-2.5 py-1 rounded-lg" style={{ background: "rgba(70,95,255,0.08)", color: "#465fff" }}>
-                {kpi.chart.type === "donut" ? "Distribution" : kpi.chart.type === "bar" ? "Breakdown" : "Trend"}
-              </span>
+              <div className="flex items-center gap-2">
+                {/* A hidden affordance is no affordance — say the breakdown is there.
+                    Deliberately NOT hidden below sm: on a phone, tapping is the only way
+                    in and there is no hover to stumble on it by accident, so that is
+                    precisely where the prompt matters most. */}
+                {drillSpec && (
+                  <span className="text-[11px] font-medium px-2.5 py-1 rounded-lg"
+                    style={{ background: "rgba(70,95,255,0.06)", color: "#7183ff", border: "1px solid rgba(70,95,255,0.14)" }}>
+                    {dd_hint}
+                  </span>
+                )}
+                <span className="text-xs font-medium px-2.5 py-1 rounded-lg" style={{ background: "rgba(70,95,255,0.08)", color: "#465fff" }}>
+                  {kpi.chart.type === "donut" ? "Distribution" : kpi.chart.type === "bar" ? "Breakdown" : "Trend"}
+                </span>
+              </div>
             </div>
             <div className="p-4">
               {loading ? (
@@ -148,7 +196,7 @@ export default function KpiDrilldown({ kpi }: { kpi: Kpi }) {
                   <span className="text-sm text-gray-400">Loading chart…</span>
                 </div>
               ) : (
-                <ApexKpiChart cfg={kpi.chart} data={chart} />
+                <ApexKpiChart cfg={kpi.chart} data={chart} drill={drillSpec} />
               )}
             </div>
           </div>
@@ -200,7 +248,7 @@ export default function KpiDrilldown({ kpi }: { kpi: Kpi }) {
           <h3 className="text-sm font-semibold text-gray-800">Detail Records</h3>
           <p className="text-xs text-gray-400 mt-0.5">Paginated · sortable · filterable · export CSV</p>
         </div>
-        <KpiTable kpiKey={kpi.key} plant={region} columns={kpi.columns} />
+        <KpiTable kpiKey={kpi.key} plant={region} category={scoped && filtered ? category.key : undefined} columns={kpi.columns} />
       </div>
     </div>
   );
