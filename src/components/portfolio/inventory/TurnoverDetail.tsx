@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { useScope } from "@/context/CategoryContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
+import { useDrillBind } from "@/components/portfolio/useDrillBind";
 import { TbSnowflake, TbBolt, TbArrowDownRight, TbGauge } from "react-icons/tb";
 
 const KpiTable = dynamic(() => import("../KpiTable"), {
@@ -160,9 +161,22 @@ function StatCard({ tint, icon: Icon, label, value, format, sub, pct, barLabel, 
   );
 }
 
+// Both category lists on this page rank the SAME cut, so they share one drill spec.
+//
+// NOTE the measure. The bars encode turns-per-year, a RATIO, and ranking children by a
+// ratio under a parent ratio implies the parts sum to the whole, which is arithmetically
+// false. So the breakdown ranks by the rupees sitting in the category — the `inv` figure
+// already printed at the end of each row — and the panel says so.
+const VELOCITY_DRILL = {
+  kpi: "inventory-turnover-ratio", dim: "material_group", by: "material" as const,
+  measure: "closing_stock_value", label: "items",
+  dimLabel: "Category · stock held", format: inrAbbr,
+};
+
 // Main chart card — category velocity (ranked pill bars on a soft dotted field)
 function VelocityCard({ cats, itr, region }: any) {
   const on = useMount(120);
+  const drill = useDrillBind(VELOCITY_DRILL);
   const sorted = [...cats].sort((a, b) => b.itr - a.itr).slice(0, 10);
   const max = Math.max(...sorted.map((c) => c.itr), 1);
   return (
@@ -178,7 +192,7 @@ function VelocityCard({ cats, itr, region }: any) {
       </div>
       <div className="mt-5 flex-1 flex flex-col justify-between gap-2.5">
         {sorted.map((c, i) => { const col = speedColor(c.itr); const w = Math.max((c.itr / max) * 100, 4); return (
-          <div key={i} className="flex items-center gap-3">
+          <div key={i} className="flex items-center gap-3" {...drill.bind(c.raw)}>
             <span className="text-[12px] font-medium truncate flex-shrink-0" style={{ width: 132, color: "#525c72" }} title={catName(c.name)}>{catName(c.name)}</span>
             <div className="flex-1 flex items-center gap-2.5 min-w-0">
               <div className="h-6 rounded-full flex items-center justify-end pr-2.5 flex-shrink-0" style={{ width: on ? `${w}%` : "0%", background: `linear-gradient(90deg,${col}cc,${col})`, boxShadow: `0 5px 14px -8px ${col}`, transition: `width 1s cubic-bezier(0.22,1,0.36,1) ${i * 50}ms` }}>
@@ -189,6 +203,7 @@ function VelocityCard({ cats, itr, region }: any) {
             <span className="text-[11px] tabular-nums flex-shrink-0 w-16 text-right hidden sm:block" style={{ color: "#9aa1b3" }}>{inrAbbr(c.inv)}</span>
           </div>
         ); })}
+        {drill.panel}
       </div>
     </div>
   );
@@ -227,6 +242,7 @@ function SpeedMixList({ bands }: any) {
 // Sidebar — cash traps (meeting-list style)
 function CashTrapsList({ cats }: any) {
   const traps = cats.filter((c: any) => c.itr < 1).sort((a: any, b: any) => b.inv - a.inv).slice(0, 8);
+  const drill = useDrillBind(VELOCITY_DRILL);
   return (
     <div className="rounded-[26px] bg-white p-6 flex flex-col flex-1" style={{ boxShadow: CARD_SH }}>
       <div className="flex items-center justify-between">
@@ -236,7 +252,7 @@ function CashTrapsList({ cats }: any) {
       <p className="text-[12px] mt-0.5 mb-3" style={{ color: SUBTLE }}>capital frozen in slow stock</p>
       <div className="divide-y divide-gray-50 flex-1 flex flex-col justify-between">
         {traps.map((c: any, i: number) => (
-          <div key={i} className="flex items-center justify-between py-2.5">
+          <div key={i} className="flex items-center justify-between py-2.5" {...drill.bind(c.raw)}>
             <div className="flex items-center gap-3 min-w-0">
               <span className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: `${SLOW}14`, color: SLOW }}><TbArrowDownRight size={16} /></span>
               <div className="min-w-0">
@@ -248,6 +264,7 @@ function CashTrapsList({ cats }: any) {
           </div>
         ))}
         {!traps.length && <div className="py-8 text-center text-gray-400 text-sm">No data.</div>}
+        {drill.panel}
       </div>
     </div>
   );
@@ -268,7 +285,8 @@ export default function TurnoverDetail() {
   }, [region, catParam]);
 
   const t = data?.totals || {};
-  const cats: any[] = useMemo(() => (data?.categories || []).map((c: any) => ({ ...c, name: catName(c.name) })), [data]);
+  // `raw` is the untouched "M065-INJECTIONS" the drill-down sends; `name` is the stripped label.
+  const cats: any[] = useMemo(() => (data?.categories || []).map((c: any) => ({ ...c, raw: c.name, name: catName(c.name) })), [data]);
   const inv = Number(t.inventory ?? 0), cogs = Number(t.cogs_6mo ?? 0), itr = Number(t.portfolio_itr ?? 0);
   const dead = useMemo(() => (data?.bands || []).find((b: any) => b.key === "dead")?.value ?? 0, [data]);
   const moving = Math.max(0, inv - dead);
@@ -289,7 +307,8 @@ export default function TurnoverDetail() {
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-stretch">
         <div className="xl:col-span-8 flex flex-col gap-5 min-w-0">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-            <StatCard tint={TINT_BLUE} icon={TbGauge} label="Turnover" value={itr} format={(n: number) => `${n.toFixed(2)}×`} sub={`Slow · ≈ ${Math.round(Number(t.months_on_hand ?? 0))} months on hand`} pct={Math.min(itr / 4, 1) * 100} barLabel="of 4× healthy" delay={0} />
+            <StatCard tint={TINT_BLUE} icon={TbGauge} label="Turnover" value={itr} format={(n: number) => `${n.toFixed(2)}×`} sub={itr > 0 ? `Slow · ≈ ${Math.round(Number(t.months_on_hand ?? 0))} months on hand`
+                         : "No consumption in this scope — cover is undefined"} pct={Math.min(itr / 4, 1) * 100} barLabel="of 4× healthy" delay={0} />
             <StatCard tint={TINT_ROSE} icon={TbSnowflake} label="Capital frozen" value={frozen} format={inrAbbr} sub={`${frozenN} slow-moving categories`} pct={inv ? (frozen / inv) * 100 : 0} barLabel="of inventory value" delay={80} />
             <StatCard tint={TINT_MINT} icon={TbBolt} label="Actively moving" value={moving} format={inrAbbr} sub="the part that actually turns" pct={inv ? (moving / inv) * 100 : 0} barLabel="of inventory value" delay={160} />
           </div>

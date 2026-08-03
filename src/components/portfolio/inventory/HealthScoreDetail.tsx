@@ -2,6 +2,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { useScope } from "@/context/CategoryContext";
+import { useDrillBind } from "@/components/portfolio/useDrillBind";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import { TbActivityHeartbeat, TbShieldCheck, TbAlertTriangle, TbActivity, TbRadar2, TbReportMedical } from "react-icons/tb";
@@ -212,13 +213,17 @@ function HealthRadar({ tiers, region }: { tiers: any[]; region: string }) {
 
 // ── Tier scorecard — exact numbers per classification ──
 function TierScorecard({ tiers, totalSkus, totalValue, region }: { tiers: any[]; totalSkus: number; totalValue: number; region: string }) {
+  const drill = useDrillBind({
+    kpi: "inventory-health-score", dim: "health_tier", by: "material", measure: "closing_stock_value",
+    label: "items", dimLabel: "Health tier", format: inrAbbr,
+  });
   return (
     <div className="csv-card rounded-3xl bg-white p-5 md:p-6 flex flex-col" style={{ animationDelay: "440ms", boxShadow: PANEL_SHADOW }}>
       <h3 className="text-[15px] font-semibold text-gray-900 flex items-center gap-2"><TbReportMedical size={16} style={{ color: TEAL }} />Classification scorecard</h3>
       <p className="text-xs text-gray-400 mt-0.5 mb-4">tier breakdown with the vitals behind each · {region}</p>
       <div className="space-y-3 flex-1">
         {tiers.map((t, i) => { const meta = TIER_META[t.tier]; const pctV = totalValue ? t.value / totalValue : 0; const pctS = totalSkus ? t.count / totalSkus : 0; return (
-          <div key={i} className="rounded-2xl p-4" style={{ background: meta.soft }}>
+          <div key={i} className="rounded-2xl p-4" style={{ background: meta.soft }} {...drill.bind(t.tier)}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
                 <span className="w-10 h-10 rounded-xl flex items-center justify-center text-[15px] font-black" style={{ background: "#fff", color: meta.c }}>{gradeOf(t.avg_score)}</span>
@@ -243,6 +248,7 @@ function TierScorecard({ tiers, totalSkus, totalValue, region }: { tiers: any[];
           </div>
         ); })}
         {!tiers.length && <div className="py-12 text-center text-gray-400 text-sm">No data.</div>}
+        {drill.panel}
       </div>
     </div>
   );
@@ -251,6 +257,10 @@ function TierScorecard({ tiers, totalSkus, totalValue, region }: { tiers: any[];
 // ── Category report card — graded categories with tier mix ──
 function CategoryReportCard({ cats, region }: { cats: any[]; region: string }) {
   const on = useMount(160);
+  const drill = useDrillBind({
+    kpi: "inventory-health-score", dim: "material_group", by: "material", measure: "closing_stock_value",
+    label: "items", dimLabel: "Category", format: inrAbbr,
+  });
   return (
     <div className="csv-card rounded-3xl bg-white p-5 md:p-6" style={{ animationDelay: "520ms", boxShadow: PANEL_SHADOW }}>
       <h3 className="text-[15px] font-semibold text-gray-900 flex items-center gap-2"><TbReportMedical size={16} style={{ color: TEAL }} />Category report card</h3>
@@ -260,7 +270,7 @@ function CategoryReportCard({ cats, region }: { cats: any[]; region: string }) {
           const totalMix = c.mix.healthy + c.mix.watch + c.mix.atrisk || 1;
           const gc = gradeColor(c.avg_score);
           return (
-            <div key={i} className="flex items-center gap-3">
+            <div key={i} className="flex items-center gap-3" {...drill.bind(c.raw)}>
               <span className="w-8 h-8 rounded-lg flex items-center justify-center text-[13px] font-black flex-shrink-0" style={{ background: `${gc}1c`, color: gc }}>{gradeOf(c.avg_score)}</span>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between mb-1">
@@ -280,6 +290,7 @@ function CategoryReportCard({ cats, region }: { cats: any[]; region: string }) {
           );
         })}
         {!cats.length && <div className="py-12 text-center text-gray-400 text-sm">No data.</div>}
+        {drill.panel}
       </div>
       <div className="flex items-center gap-4 mt-4 pt-3 border-t border-gray-50">
         {[["Healthy", T_HEALTHY], ["Watch", T_WATCH], ["At Risk", T_RISK]].map(([l, c]) => (
@@ -308,7 +319,9 @@ export default function HealthScoreDetail() {
   const t = data?.totals || {};
   const tiers: any[] = data?.tiers || [];
   const catName = (g: string) => String(g).replace(/^M\d+-/, "");
-  const cats = useMemo(() => (data?.categories || []).map((c: any) => ({ ...c, name: catName(c.name) })), [data]);
+  // `raw` keeps the untouched "M065-INJECTIONS" the drill-down has to send; `name` is the
+  // prefix-stripped label the card shows. Losing the prefix would match zero rows.
+  const cats = useMemo(() => (data?.categories || []).map((c: any) => ({ ...c, raw: c.name, name: catName(c.name) })), [data]);
   const healthy = tiers.find((x) => x.tier === "Healthy") || { tier: "Healthy", count: 0, value: 0, avg_score: 0, avg_aging: 0, moving_pct: 0 };
   const atRisk = tiers.find((x) => x.tier === "At Risk") || { tier: "At Risk", count: 0, value: 0, avg_score: 0, avg_aging: 0, moving_pct: 0 };
 

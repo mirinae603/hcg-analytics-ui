@@ -124,9 +124,11 @@ export function GaugeCard({ tabs, animated = true, loading = false }: { tabs: Ta
 }
 
 // ── Concentration donut (clone of inventory aging donut) ──
-export function DonutCard({ label, headline, headSuffix, segments, centerLabel, insights, score, animated = true, loading = false }: {
+export function DonutCard({ label, headline, headSuffix, segments, centerLabel, insights, score, animated = true, loading = false, badge }: {
   label: string; headline: number; headSuffix?: string; centerLabel: string; score: { text: string; value: number; color: string };
   segments: { label: string; value: number; color: string }[]; insights: { label: string; value: string; color: string }[]; animated?: boolean; loading?: boolean;
+  /** Optional caveat chip beside the title — e.g. "this breakdown ignores the category filter". */
+  badge?: React.ReactNode;
 }) {
   const total = useMemo(() => segments.reduce((s, x) => s + x.value, 0) || 1, [segments]);
   const [progress, setProgress] = useState(animated ? 0 : 1);
@@ -148,7 +150,10 @@ export function DonutCard({ label, headline, headSuffix, segments, centerLabel, 
       <div className="relative p-4 sm:p-5 pb-2">
         <div className="flex items-start justify-between mb-2">
           <div>
-            <h3 className="text-xs sm:text-sm font-bold text-gray-400 mb-2" style={{ fontFamily: "'Poppins',sans-serif" }}>{label}</h3>
+            <div className="flex items-center gap-2 mb-2">
+              <h3 className="text-xs sm:text-sm font-bold text-gray-400" style={{ fontFamily: "'Poppins',sans-serif" }}>{label}</h3>
+              {badge}
+            </div>
             <div className="flex items-baseline space-x-2"><span className="text-lg sm:text-2xl font-semibold text-slate-500 tracking-tight tabular-nums">{disp >= 1e7 ? `₹${(disp / 1e7).toFixed(2)} Cr` : Math.round(disp).toLocaleString("en-IN")}</span>{headSuffix && <span className="text-xs text-slate-500 font-medium">{headSuffix}</span>}</div>
           </div>
           <div className="flex items-center space-x-2">

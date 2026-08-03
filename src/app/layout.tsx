@@ -5,6 +5,7 @@ import { ThemeProvider } from '@/context/ThemeContext';
 import { RegionProvider } from '@/context/RegionContext'; // ✅ import your new RegionProvider
 import { CategoryProvider } from '@/context/CategoryContext';
 import GlobalLoader from '@/components/common/GlobalLoader';
+import CategoryScopeFetch from '@/components/common/CategoryScopeFetch';
 
 // Outfit is loaded via a runtime stylesheet link (not next/font's build-time fetch)
 // so the production build never depends on reaching Google Fonts. Same font, same look.
@@ -27,7 +28,12 @@ export default function RootLayout({
         className="dark:bg-gray-900"
         style={{ fontFamily: "'Outfit', system-ui, -apple-system, 'Segoe UI', sans-serif" }}
       >
+        {/* Two window.fetch interceptors, deliberately side by side. GlobalLoader
+            observes dashboard requests (spinner + cold-start retry); CategoryScopeFetch
+            rewrites them to carry the active category. They chain in either evaluation
+            order — see the coexistence notes in src/lib/categoryFetch.ts. */}
         <GlobalLoader />
+        <CategoryScopeFetch />
         <ThemeProvider>
           <SidebarProvider>
             <RegionProvider>

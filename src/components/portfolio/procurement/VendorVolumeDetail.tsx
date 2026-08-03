@@ -7,6 +7,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { useRegion } from "@/context/RegionContext";
+import { useDrillBind } from "@/components/portfolio/useDrillBind";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import { inrAbbr, countAbbr, useMount, CountUp, smoothPath } from "@/components/portfolio/kit";
 import { TbChartArcs3, TbBuildingFactory2 } from "react-icons/tb";
@@ -269,6 +270,13 @@ function BubbleGalaxy({ vendors }: { vendors: any[] }) {
 function Leaders({ vendors, t }: { vendors: any[]; t: any }) {
   const on = useMount(260);
   const rows = (vendors || []).slice(0, 8);
+  // kpi_vendor_volume has no material column, so "top 10 items from this vendor" does not
+  // exist in the source. The question that DOES have an answer — and the one a buyer
+  // actually asks looking at an 11%-of-spend supplier — is which hospitals they serve.
+  const drill = useDrillBind({
+    kpi: "vendor-volume-contribution", dim: "vendor", by: "plant", measure: "vendor_value",
+    label: "hospitals", dimLabel: "Vendor · total spend", format: inrAbbr,
+  });
   const maxShare = Math.max(...rows.map((r: any) => r.share), 1);
   return (
     <Card delay={260} className="bg-white p-6 flex flex-col flex-1">
@@ -279,7 +287,7 @@ function Leaders({ vendors, t }: { vendors: any[]; t: any }) {
       </div>
       <div className="mt-3 flex-1 flex flex-col justify-between gap-1">
         {rows.map((r: any, i: number) => (
-          <div key={i} className="py-1.5">
+          <div key={i} className="py-1.5" {...drill.bind(r.name)}>
             <div className="flex items-center justify-between mb-1">
               <div className="flex items-center gap-2.5 min-w-0">
                 <span className="w-6 h-6 rounded-lg flex items-center justify-center text-[11px] font-bold flex-shrink-0 tabular-nums" style={{ background: `${tier(r.share)}18`, color: tier(r.share) }}>{i + 1}</span>
@@ -293,6 +301,7 @@ function Leaders({ vendors, t }: { vendors: any[]; t: any }) {
           </div>
         ))}
         {!rows.length && <div className="py-8 text-center text-gray-400 text-sm">No data.</div>}
+        {drill.panel}
       </div>
     </Card>
   );

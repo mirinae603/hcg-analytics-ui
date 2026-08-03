@@ -35,6 +35,15 @@ export const ALL_CATEGORIES: Category = { key: 'All', name: 'All Categories', sh
 /** True when the user has narrowed the view — drives every "you are filtered" affordance. */
 export const isFiltered = (c: Category) => !!c && c.key !== 'All'
 
+/**
+ * Where the selection is persisted. Exported because the fetch interceptor
+ * (src/lib/categoryFetch.ts) reads the active scope from here rather than from
+ * React: a patched `window.fetch` has no hooks, and localStorage is written
+ * synchronously by `setSelectedCategory` in the same tick as the state update,
+ * so it is never stale relative to the context. One constant, no drift.
+ */
+export const CATEGORY_STORAGE_KEY = 'selectedCategory'
+
 interface CategoryContextType {
   selectedCategory: Category
   setSelectedCategory: (c: Category) => void
@@ -52,7 +61,7 @@ export const CategoryProvider = ({ children }: { children: ReactNode }) => {
   // Restore the last-selected category so a refresh keeps context, exactly like plant.
   useEffect(() => {
     try {
-      const saved = localStorage.getItem('selectedCategory')
+      const saved = localStorage.getItem(CATEGORY_STORAGE_KEY)
       if (saved) {
         const parsed = JSON.parse(saved)
         if (parsed?.key) setCategory(parsed)
@@ -62,7 +71,7 @@ export const CategoryProvider = ({ children }: { children: ReactNode }) => {
 
   const setSelectedCategory = (c: Category) => {
     setCategory(c)
-    try { localStorage.setItem('selectedCategory', JSON.stringify(c)) } catch { /* noop */ }
+    try { localStorage.setItem(CATEGORY_STORAGE_KEY, JSON.stringify(c)) } catch { /* noop */ }
   }
 
   return (

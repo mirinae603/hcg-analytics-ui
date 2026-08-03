@@ -3,6 +3,8 @@ import dynamic from "next/dynamic";
 import { notFound } from "next/navigation";
 import { byKey } from "@/lib/kpiRegistry";
 import { isSimulated } from "@/lib/simulatedKpi";
+import { useScope } from "@/context/CategoryContext";
+import { isCategoryScoped, notScopedReason } from "@/lib/categoryScope";
 import KpiDrilldown from "@/components/portfolio/KpiDrilldown";
 
 // Simulated KPIs (scope items with no source data yet) render a full preview page.
@@ -75,11 +77,36 @@ const BESPOKE: Record<string, any> = {
   "consumption-by-department": dynamic(() => import("@/components/portfolio/procurement/ConsumptionByDeptDetail"), { ssr: false }),
 };
 
+// KpiDrilldown renders its own "Not split by material category" notice — but every
+// procurement KPI has a BESPOKE component, so for exactly the keys that CANNOT be
+// filtered that notice was dead code. The result: Rs 649.91 Cr of whole-portfolio spend
+// sitting under an amber "Filtered to Onco Drugs - every figure below covers this
+// category only" banner. The number was right; the banner made it a lie.
+// This is the one choke point every bespoke page passes through, so the retraction
+// belongs here rather than pasted into ten components that would drift apart.
+function BespokeShell({ kpiKey, children }: { kpiKey: string; children: React.ReactNode }) {
+  const { filtered } = useScope();
+  if (!filtered || isCategoryScoped(kpiKey)) return <>{children}</>;
+  return (
+    <div className="space-y-3">
+      <div className="flex items-start gap-2 rounded-xl px-4 py-2.5 text-[12px]"
+        style={{ background: "#f8f9fb", border: "1px solid #e7e8ee", color: "#6b7280" }}>
+        <span className="mt-[3px] h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: "#9ca3af" }} />
+        <span>
+          <b style={{ color: "#41444f" }}>Not split by material category.</b>{" "}
+          {notScopedReason(kpiKey)} Figures below cover all categories.
+        </span>
+      </div>
+      {children}
+    </div>
+  );
+}
+
 export default function KpiKeyClient({ kpiKey }: { kpiKey: string }) {
   if (isSimulated(kpiKey)) return <SimulatedKpiPage kpiKey={kpiKey} />;
   const kpi = byKey(kpiKey);
   if (!kpi) return notFound();
   const Bespoke = BESPOKE[kpiKey];
-  if (Bespoke) return <Bespoke />;
+  if (Bespoke) return <BespokeShell kpiKey={kpiKey}><Bespoke /></BespokeShell>;
   return <KpiDrilldown kpi={kpi} />;
 }

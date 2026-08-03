@@ -6,7 +6,8 @@ import { getSimulated } from "@/lib/simulatedKpi";
 import { fmt } from "@/lib/kpiFormat";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import { useScope } from "@/context/CategoryContext";
-import { catParamFor } from "@/lib/categoryScope";
+import { catParamFor, isCategoryScopedPath, notScopedReason } from "@/lib/categoryScope";
+import UnscopedBadge from "@/components/common/UnscopedBadge";
 import AnalyticsDashboardLayout from "@/components/ecommerce/AnalyticsHomeScreenCards/analyticsHomeScreenCard";
 import InventoryGlassKpiCard from "@/components/portfolio/inventory/InventoryGlassKpiCard";
 
@@ -27,6 +28,19 @@ const UnavailableKpi: React.FC<{ label: string; children: React.ReactNode }> = (
 
 // Inventory KPIs from registry
 const inventoryKpis: Kpi[] = KPIS.filter((k) => k.portfolio === "inventory");
+
+// The endpoint each tile actually calls (wastage-rate has no generic /kpi/{key} route).
+// Asking the scope resolver about that exact path — instead of about the KPI key — means
+// the badge below can never disagree with what the request really carried.
+const tileEndpoint = (key: string) => (key === "wastage-rate" ? "/kpi/wastage-rate/insights" : `/kpi/${key}`);
+
+// True for a tile whose figure is portfolio-wide even while a category filter is on.
+// Today that is only Aging Distribution: it ships pre-aggregated to plant × material
+// group × bucket, with no material dimension left to filter on. The scope banner says
+// "every figure below covers this category only", so a tile that quietly ignores the
+// filter has to say so — otherwise ₹30.99 Cr of *all* stock reads as ₹30.99 Cr of
+// Consumables. The number is right; only the label would have been wrong.
+const showsAllCategories = (key: string) => !isCategoryScopedPath(tileEndpoint(key));
 
 // All inventory KPIs (A1–A10 + Near-Expiry) are buildable from the HCG data
 // per the KPI workbook. A4 Turnover & A5 Valuation are proxies (noted on page).
@@ -96,7 +110,7 @@ function computeInsights(kpi: Kpi, chartData: any[]): string[] {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function InventoryPage() {
-  const { region: regionName, catParam, scopeKey } = useScope();
+  const { region: regionName, catParam, scopeKey, filtered } = useScope();
 
   // Executive card data (summary node per KPI)
   const [summaryData, setSummaryData] = useState<Record<string, any>>({});
@@ -214,6 +228,12 @@ export default function InventoryPage() {
                     <span className="absolute top-3 right-3 z-20 text-[10px] font-semibold px-2 py-1 rounded-full bg-gray-200 text-gray-500">
                       Data N/A
                     </span>
+                  )}
+                  {!isUnavailable && filtered && showsAllCategories(kpi.key) && (
+                    <UnscopedBadge
+                      className="absolute top-3 right-3 z-20"
+                      reason={notScopedReason(kpi.key) ?? "This metric has no material-level breakdown in the source data."}
+                    />
                   )}
                   <InventoryGlassKpiCard
                     kpi={kpi}

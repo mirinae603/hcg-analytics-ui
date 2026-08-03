@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { useScope } from "@/context/CategoryContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
+import { useDrillBind } from "@/components/portfolio/useDrillBind";
 import { TbAlertOctagon, TbGridDots } from "react-icons/tb";
 
 const KpiTable = dynamic(() => import("../KpiTable"), {
@@ -48,6 +49,12 @@ function CommandHero({ tiers, factors, totalValue, totalSkus }: { tiers: any[]; 
   const tot = tiers.reduce((s, t) => s + t.value, 0) || 1;
   const fmax = Math.max(...factors.map((f) => f.count), 1);
   const fcol = [HIGH, "#dca85e", "#d8825e"];
+  // The tier strip is the page's headline: "₹48 Cr is High risk". The next question is
+  // always "which SKUs", and `risk_level` is a real column, so it answers exactly.
+  const tierDrill = useDrillBind({
+    kpi: "inventory-risk", dim: "risk_level", by: "material", measure: "closing_stock_value",
+    label: "items", dimLabel: "Risk tier", format: inrAbbr,
+  });
   return (
     <div className="relative rounded-[28px] overflow-hidden" style={{ minHeight: 300, background: "linear-gradient(125deg,#211819 0%,#3a2320 45%,#592b25 100%)", boxShadow: "0 24px 60px -28px rgba(40,20,18,0.7)" }}>
       <div className="absolute inset-0" style={{ backgroundImage: "radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px)", backgroundSize: "24px 24px" }} />
@@ -61,13 +68,14 @@ function CommandHero({ tiers, factors, totalValue, totalSkus }: { tiers: any[]; 
           {/* tier strip */}
           <div className="mt-6">
             <div className="flex h-3 rounded-full overflow-hidden" style={{ boxShadow: "0 0 18px -4px rgba(214,95,84,0.6)" }}>
-              {tiers.map((t) => { const c = t.level === "High" ? HIGH : t.level === "Medium" ? MED : LOW; return <div key={t.level} title={`${t.level}: ${inrAbbr(t.value)}`} style={{ width: on ? `${(t.value / tot) * 100}%` : "0%", background: c, transition: "width 1s ease" }} />; })}
+              {tiers.map((t) => { const c = t.level === "High" ? HIGH : t.level === "Medium" ? MED : LOW; return <div key={t.level} title={`${t.level}: ${inrAbbr(t.value)}`} style={{ width: on ? `${(t.value / tot) * 100}%` : "0%", background: c, transition: "width 1s ease" }} {...tierDrill.bind(t.level)} />; })}
             </div>
             <div className="flex gap-4 mt-2.5">
               {tiers.map((t) => { const c = t.level === "High" ? HIGH : t.level === "Medium" ? MED : LOW; return (
-                <span key={t.level} className="inline-flex items-center gap-1.5 text-[11px]" style={{ color: "rgba(255,255,255,0.72)" }}><span className="w-2 h-2 rounded-sm" style={{ background: c }} />{t.level} {inrAbbr(t.value)}</span>
+                <span key={t.level} className="inline-flex items-center gap-1.5 text-[11px]" style={{ color: "rgba(255,255,255,0.72)" }} {...tierDrill.bind(t.level)}><span className="w-2 h-2 rounded-sm" style={{ background: c }} />{t.level} {inrAbbr(t.value)}</span>
               ); })}
             </div>
+            {tierDrill.panel}
           </div>
         </div>
         {/* glowing driver bars */}

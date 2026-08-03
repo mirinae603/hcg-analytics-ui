@@ -8,6 +8,9 @@ import { useScope } from "@/context/CategoryContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import { inrAbbr, countAbbr, catName, useMount, smoothPath } from "@/components/portfolio/kit";
 import { GaugeCard, DonutCard, BrandPanel, type Tab } from "./ExecCards";
+import UnscopedBadge from "@/components/common/UnscopedBadge";
+import { notScopedReason } from "@/lib/categoryScope";
+import { useDrillBind } from "@/components/portfolio/useDrillBind";
 import { TbActivityHeartbeat, TbPill, TbBuildingHospital, TbChevronRight, TbFlask, TbReportMedical, TbReportMoney } from "react-icons/tb";
 
 const PAGE = "#F6F0F2", INK = "#33262e", SUB = "#9a8b92";
@@ -103,6 +106,10 @@ function KpiGrid({ cards }: { cards: Record<string, any> }) {
 function CategoriesCard({ categories }: { categories: any[] }) {
   const on = useMount(220);
   const rows = (categories || []).slice(0, 7);
+  const drill = useDrillBind({
+    kpi: "unit-sold-per-sku", dim: "material_group", by: "material", measure: "consumption_cost",
+    label: "items", dimLabel: "Category · 6-month consumption", format: inrAbbr,
+  });
   const max = Math.max(...rows.map((r: any) => r.value), 1);
   return (
     <div className="rounded-3xl bg-white p-6 flex flex-col flex-1" style={{ boxShadow: CARD_SH }}>
@@ -110,7 +117,10 @@ function CategoriesCard({ categories }: { categories: any[] }) {
       <p className="text-[12px] mt-0.5 mb-3" style={{ color: SUB }}>material group · by cost</p>
       <div className="flex-1 flex flex-col justify-between gap-2.5">
         {rows.map((r: any, i: number) => { const uncat = r.uncat; const col = uncat ? GREY : ROSE; return (
-          <div key={i}>
+          // The "Uncategorized" row deliberately gets no drill-down: it is every line whose
+          // material_group is null, invented client-side, so there is no group value to send.
+          // bind(undefined) returns inert props rather than a panel that would come back empty.
+          <div key={i} {...drill.bind(uncat ? undefined : r.name)}>
             <div className="flex items-center justify-between mb-1">
               <span className="text-[12px] font-medium truncate pr-2" style={{ color: uncat ? "#a99aa1" : "#3c2f36" }} title={r.name}>{catName(r.name)}</span>
               <span className="text-[12px] font-bold tabular-nums flex-shrink-0" style={{ color: uncat ? "#a99aa1" : INK }}>{inrAbbr(r.value)}</span>
@@ -120,16 +130,23 @@ function CategoriesCard({ categories }: { categories: any[] }) {
             </div>
           </div>
         ); })}
+        {drill.panel}
       </div>
     </div>
   );
 }
 
-function DepartmentsCard({ departments }: { departments: any[] }) {
+function DepartmentsCard({ departments, unscoped }: { departments: any[]; unscoped?: boolean }) {
   const rows = (departments || []).slice(0, 6);
   return (
     <div className="rounded-3xl bg-white p-6 flex flex-col flex-1" style={{ boxShadow: CARD_SH }}>
-      <h3 className="text-[15px] font-semibold flex items-center gap-2" style={{ color: INK }}><TbBuildingHospital size={16} style={{ color: PLUM }} />Top departments</h3>
+      <div className="flex items-start justify-between gap-2">
+        <h3 className="text-[15px] font-semibold flex items-center gap-2" style={{ color: INK }}><TbBuildingHospital size={16} style={{ color: PLUM }} />Top departments</h3>
+        {/* Departmental consumption is recorded per cost centre and month with no item
+            column, so this list is identical under every category. Saying so beats
+            letting ₹3.34 Cr of all-category spend sit under an "Onco Drugs only" banner. */}
+        {unscoped && <UnscopedBadge reason={notScopedReason("consumption-by-department") ?? ""} />}
+      </div>
       <p className="text-[12px] mt-0.5 mb-1" style={{ color: SUB }}>by consumption cost · cost-center code</p>
       <div className="flex-1 flex flex-col justify-between divide-y divide-gray-50">
         {rows.map((r: any, i: number) => (
@@ -177,16 +194,27 @@ export default function ConsumptionOverview() {
   const tabs: Tab[] = [
     { key: "cost", tab: "Cost", label: "Internal consumption cost", value: cost, fmt: inrAbbr, gauge: peak ? avgM / peak : 0, gaugeLabel: "avg of peak month", color: ROSE, status: { text: mom >= 0 ? "Usage up" : "Usage down", color: mom >= 0 ? ROSE : "#5aa97e" }, stats: [{ value: pctSign(mom), label: "MoM", color: mom >= 0 ? ROSE : "#5aa97e" }, { value: inrAbbr(peak), label: "peak mo", color: "#a99aa1" }, { value: inrAbbr(avgM), label: "avg mo", color: "#a99aa1" }] },
     { key: "units", tab: "Units", label: "Units consumed", value: units, fmt: countAbbr, gauge: Math.min(nMat / 15000, 1), gaugeLabel: "SKU coverage", color: CORAL, status: { text: "Across SKUs", color: CORAL }, stats: [{ value: countAbbr(units), label: "units", color: "#a99aa1" }, { value: countAbbr(nMat), label: "SKUs", color: "#a99aa1" }, { value: `${nPlants}`, label: "plants", color: "#a99aa1" }] },
-    { key: "dept", tab: "Depts", label: "Consuming departments", value: nDept, fmt: countAbbr, gauge: deptTop5 / 100, gaugeLabel: "top-5 share", color: PLUM, status: { text: deptTop5 >= 50 ? "Concentrated" : "Distributed", color: PLUM }, stats: [{ value: `${deptTop5.toFixed(0)}%`, label: "top-5", color: PLUM }, { value: countAbbr(nDept), label: "depts", color: "#a99aa1" }, { value: inrAbbr(cost / Math.max(nDept, 1)), label: "avg/dept", color: "#a99aa1" }] },
+    { key: "dept", tab: "Depts", label: "Consuming departments", value: nDept, fmt: countAbbr, gauge: deptTop5 / 100, gaugeLabel: "top-5 share", color: PLUM, status: { text: deptTop5 >= 50 ? "Concentrated" : "Distributed", color: PLUM }, stats: [{ value: `${deptTop5.toFixed(0)}%`, label: "top-5", color: PLUM }, { value: countAbbr(nDept), label: "depts", color: "#a99aa1" },
+      // scoped cost ÷ unscoped dept count is a nonsense ratio under a filter (it read
+      // "₹2 avg/dept" under Onco Drugs). Only shown when both sides share a scope.
+      ...(filtered ? [] : [{ value: inrAbbr(cost / Math.max(nDept, 1)), label: "avg/dept", color: "#a99aa1" }])] },
   ];
 
-  const top1v = Number(departments[0]?.value ?? 0);
-  const top5v = cost * deptTop5 / 100;
+  // Concentration is built from SHARES, not rupees, and the difference only shows up
+  // under a category filter. `cost` is scoped; `departments[].value` is not (the
+  // departmental frame has no material column — see notScopedReason). Mixing them made
+  // the top department's ₹3.34 Cr dwarf an Onco Drugs total of ₹1.8 K, so the donut
+  // rendered "Top department 100.0% / All others 0.0%" while the caption underneath
+  // still said "Top-5 19%". Shares are internally consistent at any scope, and because
+  // DonutCard normalises by the segment sum, the unfiltered donut is pixel-identical to
+  // before: value/cost*100 has the same ratios as value.
+  const top1Share = Number(departments[0]?.share ?? 0);
   const segments = [
-    { label: "Top department", value: top1v, color: PLUM },
-    { label: "Depts 2–5", value: Math.max(0, top5v - top1v), color: "#c4a3d4" },
-    { label: "All others", value: Math.max(0, cost - top5v), color: "#e7dceb" },
+    { label: "Top department", value: top1Share, color: PLUM },
+    { label: "Depts 2–5", value: Math.max(0, deptTop5 - top1Share), color: "#c4a3d4" },
+    { label: "All others", value: Math.max(0, 100 - deptTop5), color: "#e7dceb" },
   ];
+  const deptUnscopedReason = notScopedReason("consumption-by-department") ?? "";
 
   return (
     <div className="-m-4 md:-m-6 p-4 md:p-6 min-w-0" style={{ background: PAGE, minHeight: "calc(100vh - 64px)" }}>
@@ -201,9 +229,17 @@ export default function ConsumptionOverview() {
       <div className="flex flex-wrap lg:flex-nowrap gap-5 items-stretch mb-5">
         <div className="w-full lg:w-1/3 min-h-[220px]"><BrandPanel title="Consumption KPI's" subtitle="Clinical usage" accent={ROSE} /></div>
         <div className="w-full lg:w-1/3"><GaugeCard tabs={tabs} loading={showSkeleton} /></div>
-        <div className="w-full lg:w-1/3"><DonutCard label="Department concentration" headline={cost} headSuffix="total cost" centerLabel="Depts"
+        {/* Everything INSIDE this card — segments, top-5 share, dept count — is
+            portfolio-wide (the departmental frame has no material column), and the badge
+            says so. The headline was the one scoped figure in it, so under Onco Drugs the
+            card read "₹1,795 total cost" above shares covering all ₹67.10 Cr, with an
+            "All categories" badge on top. Falling back to the department COUNT keeps the
+            whole card on one footing; unfiltered it is unchanged. */}
+        <div className="w-full lg:w-1/3"><DonutCard label="Department concentration"
+          headline={filtered ? nDept : cost} headSuffix={filtered ? "departments" : "total cost"} centerLabel="Depts"
           segments={segments} insights={[{ label: "Top-5", value: `${deptTop5.toFixed(0)}%`, color: PLUM }, { label: "Depts", value: countAbbr(nDept), color: "#6b7280" }]}
-          score={{ text: deptTop5 >= 50 ? "Concentrated" : "Spread", value: Math.round(deptTop5), color: deptTop5 >= 50 ? PLUM : "#5aa97e" }} loading={showSkeleton} /></div>
+          score={{ text: deptTop5 >= 50 ? "Concentrated" : "Spread", value: Math.round(deptTop5), color: deptTop5 >= 50 ? PLUM : "#5aa97e" }} loading={showSkeleton}
+          badge={filtered ? <UnscopedBadge reason={deptUnscopedReason} /> : undefined} /></div>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-stretch">
@@ -213,7 +249,7 @@ export default function ConsumptionOverview() {
         </div>
         <div className="xl:col-span-4 flex flex-col gap-5 min-w-0">
           <CategoriesCard categories={data?.categories || []} />
-          <DepartmentsCard departments={departments} />
+          <DepartmentsCard departments={departments} unscoped={filtered} />
         </div>
       </div>
 

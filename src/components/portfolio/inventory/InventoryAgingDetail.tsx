@@ -5,6 +5,7 @@ import { useRegion } from "@/context/RegionContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import NotScopedNote from "@/components/common/NotScopedNote";
+import { useDrillBind } from "@/components/portfolio/useDrillBind";
 import { TbGauge, TbHourglassHigh, TbFilter, TbSnowflake, TbLayoutGrid, TbChartDots } from "react-icons/tb";
 
 const KpiTable = dynamic(() => import("../KpiTable"), {
@@ -173,6 +174,15 @@ function AgeSpectrumCard({ avgAge, total, skus }: { avgAge: number; total: numbe
 function DecayFunnelCard({ buckets, total, agedOver180, agedPct }: { buckets: any[]; total: number; agedOver180: number; agedPct: number }) {
   const on = useMount(240);
   const max = Math.max(...buckets.map((b) => b.value), 1);
+  // "₹31 Cr sits in 0-30 days" -> "of WHAT?". The bars are drawn straight off
+  // /kpi/aging-distribution grouped by aging_bucket, and the drill reads the same
+  // parquet, so the panel's slice total is the bar's own number to the rupee.
+  // by=material_group, not material: this frame is pre-aggregated to plant x group x
+  // bucket and has no material column at all, so group IS the leaf here.
+  const drill = useDrillBind({
+    kpi: "aging-distribution", dim: "aging_bucket", by: "material_group", measure: "stock_value",
+    label: "categories", dimLabel: "Age band", format: inrAbbr,
+  });
   return (
     <Card>
       <Head icon={TbFilter} label="Value by age band" badge="decay" color="#cf9163" />
@@ -181,7 +191,7 @@ function DecayFunnelCard({ buckets, total, agedOver180, agedPct }: { buckets: an
           const w = Math.max(8, (b.value / max) * 100);
           const pct = total ? Math.round((b.value / total) * 100) : 0;
           return (
-            <div key={b.key} className="flex items-center gap-2" title={`${bandOf(b.key).label}: ${inrAbbr(b.value)} (${pct}%)`}>
+            <div key={b.key} className="flex items-center gap-2" title={`${bandOf(b.key).label}: ${inrAbbr(b.value)} (${pct}%)`} {...drill.bind(b.key)}>
               <span className="text-[10px] text-gray-400 w-12 flex-shrink-0 tabular-nums">{bandOf(b.key).short}</span>
               <div className="flex-1 flex justify-center min-w-0">
                 <div className="h-[19px] rounded-md flex items-center justify-center" style={{ width: on ? `${w}%` : "0%", background: bandOf(b.key).grad, transition: `width 0.9s cubic-bezier(0.22,1,0.36,1) ${i * 80}ms`, boxShadow: "inset 0 1px 1px rgba(255,255,255,0.4)" }}>
@@ -192,6 +202,7 @@ function DecayFunnelCard({ buckets, total, agedOver180, agedPct }: { buckets: an
             </div>
           );
         })}
+        {drill.panel}
       </div>
       <div className="mt-auto pt-3 border-t border-gray-50 flex items-center justify-between">
         <span className="text-[11px] text-gray-400">over 180 days</span>

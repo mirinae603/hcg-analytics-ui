@@ -36,6 +36,7 @@ function remember(k: string, v: DrillResult) {
 }
 
 type Anchor = { x: number; y: number }
+export type DrillFact = { label: string; value: string }
 type Spec = Omit<DrillQuery, 'slice'> & {
   /** Formats the measure — pass the chart's own formatter so the panel speaks its language. */
   format: (n: number) => string
@@ -43,6 +44,25 @@ type Spec = Omit<DrillQuery, 'slice'> & {
   label: string
   /** Optional: what the dimension is called, for the header eyebrow. */
   dimLabel?: string
+  /**
+   * Facts the chart's OWN tooltip used to show for this slice (MRP, quantity, markup…).
+   * The panel replaces that tooltip, so anything it displayed has to survive the move or
+   * the drill-down is a net loss of information. Returns [] when there is nothing extra.
+   */
+  details?: (slice: string) => DrillFact[]
+  /**
+   * Alternative source for the breakdown. `/drill/top-items` covers every chart drawn
+   * straight off a parquet column, but a few slices (the reorder priority bands) are
+   * computed inside their own endpoint and have no column to group by. Those pass a
+   * fetcher that adapts their endpoint to the same DrillResult shape, so the panel,
+   * the cache, the hover-intent and the pinning all stay identical.
+   */
+  fetcher?: (q: DrillQuery, signal?: AbortSignal) => Promise<DrillResult>
+  /**
+   * False where the host element's click already does something else, so the footer
+   * must not promise "click to pin" — a hint that lies is worse than no hint.
+   */
+  canPin?: boolean
 }
 
 export function useDrillDown(spec: Spec | null) {
@@ -79,7 +99,7 @@ export function useDrillDown(spec: Spec | null) {
     setLoading(true); setFailed(false); setData(null)
     const ac = new AbortController()
     abort.current = ac
-    fetchDrill(q, ac.signal)
+    ;(spec.fetcher ?? fetchDrill)(q, ac.signal)
       .then((r) => { remember(key, r); if (!ac.signal.aborted) { setData(r); setLoading(false) } })
       .catch((e) => {
         if (ac.signal.aborted || e?.name === 'AbortError') return
@@ -141,6 +161,8 @@ export function useDrillDown(spec: Spec | null) {
         format={spec.format}
         label={spec.label}
         dimLabel={spec.dimLabel}
+        facts={spec.details?.(slice) ?? []}
+        canPin={spec.canPin !== false}
         onClose={close}
       />
     ) : null
@@ -178,7 +200,7 @@ function Row({ it, max, format }: { it: any; max: number; format: (n: number) =>
 }
 
 function DrillPanel({
-  slice, anchor, pinned, loading, failed, data, format, label, dimLabel, onClose,
+  slice, anchor, pinned, loading, failed, data, format, label, dimLabel, facts = [], canPin = true, onClose,
 }: {
   slice: string
   anchor: Anchor
@@ -189,6 +211,8 @@ function DrillPanel({
   format: (n: number) => string
   label: string
   dimLabel?: string
+  facts?: DrillFact[]
+  canPin?: boolean
   onClose: () => void
 }) {
   const [mounted, setMounted] = useState(false)
@@ -211,7 +235,7 @@ function DrillPanel({
 
   // Flip near the viewport edges so the panel is never clipped or off-screen.
   const vw = window.innerWidth, vh = window.innerHeight
-  const estH = data ? Math.min(150 + data.items.length * 26, 460) : 190
+  const estH = (data ? Math.min(150 + data.items.length * 26, 460) : 190) + facts.length * 18
   const left = anchor.x + 18 + PANEL_W > vw - 12 ? Math.max(12, anchor.x - 18 - PANEL_W) : anchor.x + 18
   const top = Math.max(12, Math.min(anchor.y - 24, vh - estH - 12))
 
@@ -272,6 +296,18 @@ function DrillPanel({
         )}
       </div>
 
+      {/* ── the chart's own tooltip facts, carried over so nothing is lost ── */}
+      {facts.length > 0 && (
+        <div className="px-3.5 py-2" style={{ borderBottom: `1px solid ${LINE}` }}>
+          {facts.map((f) => (
+            <div key={f.label} className="flex items-baseline justify-between gap-3 py-[2px]">
+              <span className="text-[11px]" style={{ color: MUT }}>{f.label}</span>
+              <span className="text-[11.5px] font-semibold tabular-nums" style={{ color: INK2 }}>{f.value}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* ── body ── */}
       <div className="px-2 py-1.5">
         {loading && (
@@ -329,7 +365,7 @@ function DrillPanel({
             These {data.returned} cover <b className="tabular-nums" style={{ color: INK2 }}>{data.covered_pct.toFixed(1)}%</b> of this{' '}
             {dimLabel ? dimLabel.toLowerCase() : 'slice'}
           </span>
-          {!pinned && (
+          {!pinned && canPin && (
             <span className="ml-auto inline-flex shrink-0 items-center gap-0.5 font-semibold" style={{ color: ACCENT }}>
               click to pin <TbChevronRight size={11} />
             </span>

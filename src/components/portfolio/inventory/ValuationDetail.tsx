@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { useScope } from "@/context/CategoryContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
+import { useDrillBind } from "@/components/portfolio/useDrillBind";
 import { TbCoins, TbTag, TbArrowUpRight, TbStack2, TbLayersIntersect } from "react-icons/tb";
 
 const KpiTable = dynamic(() => import("../KpiTable"), {
@@ -156,9 +157,22 @@ function AgeProfileCard({ age, totals }: { age: any[]; totals: any }) {
   );
 }
 
+// Both category lists rank the same cut of stock value, so they share one spec.
+//
+// The measure is `stock_value_cost` off kpi_stock_value rather than anything on the
+// valuation frame: /kpi/inventory-valuation/insights reports the identical per-category
+// book cost (verified to the rupee, e.g. Injections ₹28,07,56,093.52 on both), and
+// kpi_stock_value is the only one of the two that carries a material column to rank by.
+const VALUATION_DRILL = {
+  kpi: "current-stock-value", dim: "material_group", by: "material" as const,
+  measure: "stock_value_cost", label: "items",
+  dimLabel: "Category · book cost", format: inrAbbr,
+};
+
 // ── Capital concentration — value by category as a cost+markup stacked bar (no track) ──
 function ConcentrationCard({ cats }: { cats: any[] }) {
   const on = useMount(120);
+  const drill = useDrillBind(VALUATION_DRILL);
   const sorted = [...cats].sort((a, b) => b.cost - a.cost).slice(0, 10);
   const max = Math.max(...sorted.map((c) => c.mrp), 1);
   return (
@@ -177,7 +191,7 @@ function ConcentrationCard({ cats }: { cats: any[] }) {
         {sorted.map((c, i) => {
           const costW = Math.max((c.cost / max) * 100, 3), mkW = Math.max(((c.mrp - c.cost) / max) * 100, 0);
           return (
-            <div key={i} className="flex items-center gap-3">
+            <div key={i} className="flex items-center gap-3" {...drill.bind(c.raw)}>
               <span className="text-[12px] font-medium truncate flex-shrink-0" style={{ width: 132, color: "#525c72" }} title={catName(c.name)}>{catName(c.name)}</span>
               <div className="flex-1 flex items-center min-w-0">
                 <div className="flex items-center h-6 rounded-full overflow-hidden flex-shrink-0" style={{ width: on ? `${costW + mkW}%` : "0%", transition: `width 1s cubic-bezier(0.22,1,0.36,1) ${i * 50}ms`, boxShadow: `0 5px 14px -8px ${VIOLET}` }}>
@@ -194,6 +208,7 @@ function ConcentrationCard({ cats }: { cats: any[] }) {
             </div>
           );
         })}
+        {drill.panel}
       </div>
     </div>
   );
@@ -238,6 +253,7 @@ function ValueStructureCard({ totals }: { totals: any }) {
 // ── Sidebar: Markup leaders — biggest retail-over-cost gaps ──
 function MarkupLeadersCard({ cats }: { cats: any[] }) {
   const leaders = [...cats].sort((a, b) => b.markup_pct - a.markup_pct).slice(0, 8);
+  const drill = useDrillBind(VALUATION_DRILL);
   return (
     <div className="rounded-[26px] bg-white p-6 flex flex-col flex-1" style={{ boxShadow: CARD_SH }}>
       <div className="flex items-center justify-between">
@@ -247,7 +263,7 @@ function MarkupLeadersCard({ cats }: { cats: any[] }) {
       <p className="text-[12px] mt-0.5 mb-3" style={{ color: SUBTLE }}>biggest unrealized value gaps</p>
       <div className="divide-y divide-gray-50 flex-1 flex flex-col justify-between">
         {leaders.map((c, i) => (
-          <div key={i} className="flex items-center justify-between py-2.5">
+          <div key={i} className="flex items-center justify-between py-2.5" {...drill.bind(c.raw)}>
             <div className="flex items-center gap-3 min-w-0">
               <span className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: `${AMBER}16`, color: AMBER }}><TbArrowUpRight size={16} /></span>
               <div className="min-w-0">
@@ -259,6 +275,7 @@ function MarkupLeadersCard({ cats }: { cats: any[] }) {
           </div>
         ))}
         {!leaders.length && <div className="py-8 text-center text-gray-400 text-sm">No data.</div>}
+        {drill.panel}
       </div>
     </div>
   );
@@ -279,7 +296,8 @@ export default function ValuationDetail() {
   }, [region, catParam]);
 
   const t = data?.totals || {};
-  const cats: any[] = useMemo(() => (data?.categories || []).map((c: any) => ({ ...c, name: catName(c.name) })), [data]);
+  // `raw` is the untouched "M065-INJECTIONS" the drill-down sends; `name` is the stripped label.
+  const cats: any[] = useMemo(() => (data?.categories || []).map((c: any) => ({ ...c, raw: c.name, name: catName(c.name) })), [data]);
   const cost = Number(t.cost ?? 0), mrp = Number(t.mrp ?? 0), markup = Number(t.markup ?? 0), markupPct = Number(t.markup_pct ?? 0);
 
   return (

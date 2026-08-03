@@ -106,6 +106,60 @@ export type DrillQuery = {
 export const drillCacheKey = (q: DrillQuery) =>
   [q.kpi, q.dim, q.by, q.slice, q.measure ?? '', q.plant ?? '', q.category ?? '', q.n ?? 10].join('|')
 
+const pct = (part: number, whole: number) => (whole ? Math.round((part / whole) * 10000) / 100 : 0)
+
+/**
+ * Reorder priority bands — the one drill that cannot go through /drill/top-items.
+ *
+ * `priority_band` is computed inside /forecast/reorder-priority (cover vs lead time),
+ * not stored on the replenishment parquet, so there is no column for the generic
+ * endpoint to group by. This adapts that endpoint's own band filter to the same
+ * DrillResult shape, which means the panel, the cache, the hover-intent and the
+ * pinning are literally the same code as every other chart.
+ *
+ * Ranked and totalled on `replenishment_quantity` — the exact figure the band bar
+ * shows. Ranking by rupees would have been wrong here: only ~16% of these lines carry
+ * a unit cost, so a value sort buries 84% of the queue at a fake Rs 0.
+ */
+export async function fetchReorderBandDrill(q: DrillQuery, signal?: AbortSignal): Promise<DrillResult> {
+  const p = new URLSearchParams({ band: q.slice, sort: 'qty', limit: String(q.n ?? 10) })
+  if (q.plant) p.set('Plant', q.plant)
+  if (q.category) p.set('Category', q.category)
+  const res = await fetch(`${DASHBOARD_API_BASE_URL}/forecast/reorder-priority?${p.toString()}`, { signal })
+  if (!res.ok) throw new Error(`drill ${res.status}`)
+  const j = await res.json()
+
+  const band = (j?.bands || []).find((b: any) => String(b.band) === String(q.slice))
+  const sliceTotal = Number(band?.qty ?? 0)
+  const grandTotal = Number(j?.totals?.reorder_qty ?? 0)
+
+  let cum = 0
+  const items: DrillItem[] = (j?.items || []).map((r: any, i: number) => {
+    const value = Number(r.reorder_qty ?? 0)
+    cum += value
+    return {
+      rank: i + 1,
+      key: `${r.material}·${r.plant}`,
+      // A reorder line is item × hospital, so the hospital is part of the identity —
+      // the same drug at two sites is two different orders to place.
+      name: `${r.desc || r.material}${r.plant ? ` · ${r.plant}` : ''}`,
+      value,
+      share_pct: pct(value, sliceTotal),
+      cum_share_pct: pct(cum, sliceTotal),
+    }
+  })
+
+  return {
+    kpi: 'reorder-priority', dim: 'priority_band', slice: q.slice, by: 'line',
+    measure: 'replenishment_quantity',
+    slice_total: sliceTotal, grand_total: grandTotal,
+    slice_share_pct: pct(sliceTotal, grandTotal),
+    count: Number(j?.count ?? items.length), returned: items.length,
+    covered_pct: pct(cum, sliceTotal),
+    items,
+  }
+}
+
 /** Fetch a top-N breakdown. Throws on 4xx/5xx so callers can show a quiet fallback. */
 export async function fetchDrill(q: DrillQuery, signal?: AbortSignal): Promise<DrillResult> {
   const p = new URLSearchParams({ kpi: q.kpi, dim: q.dim, by: q.by, slice: q.slice, n: String(q.n ?? 10) })

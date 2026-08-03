@@ -5,6 +5,8 @@
 // and a per-item status checker. Traffic-light semantics for at-a-glance triage.
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useScope } from "@/context/CategoryContext";
+import { useDrillBind } from "@/components/portfolio/useDrillBind";
+import { fetchReorderBandDrill } from "@/lib/drilldown";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import { useMount, CountUp } from "@/components/portfolio/kit";
 import { TbShoppingCartPlus, TbAlertTriangle, TbHourglassHigh, TbSearch, TbChevronRight, TbPackageOff, TbClockExclamation, TbBox, TbX, TbDownload, TbListNumbers, TbArrowsSort, TbInfoCircle } from "react-icons/tb";
@@ -111,6 +113,17 @@ function RiskDrill({ drill, region, catParam, onClose }: { drill: any; region: s
 function PriorityLadder({ bands, totals, active, onPick }: { bands: any[]; totals: any; active: number | null; onPick: (b: number | null) => void }) {
   const on = useMount(160);
   const rows = bands || [];
+  // "15,878 lines are out of stock" -> "which ones do I order first?". priority_band is
+  // computed inside /forecast/reorder-priority rather than stored, so this goes through
+  // that endpoint's own band filter (see fetchReorderBandDrill) instead of the generic
+  // /drill/top-items. The panel's "of N" is the endpoint's own line count for the band,
+  // i.e. the exact number printed on the row being hovered.
+  // pinOnClick is off: clicking a band already filters the requisition list below.
+  const drill = useDrillBind({
+    kpi: "reorder-priority", dim: "priority_band", by: "material",
+    label: "lines to order", dimLabel: "Priority band · quantity to order",
+    format: num, fetcher: fetchReorderBandDrill, pinOnClick: false,
+  });
   const max = Math.max(...rows.map((r) => r.lines), 1);
   const totalLines = Number(totals?.reorder_lines ?? 0);
   return (
@@ -135,6 +148,7 @@ function PriorityLadder({ bands, totals, active, onPick }: { bands: any[]; total
               title={`${r.label} — ${r.desc}. Click to filter the list below.`}
               className="group text-left rounded-xl px-3 py-2.5 transition-all"
               style={{ background: isOn ? BAND_BG[r.band] : "transparent", border: `1px solid ${isOn ? BAND_C[r.band] + "55" : "transparent"}` }}
+              {...drill.bind(r.band)}
             >
               <div className="flex items-center gap-3">
                 <span className="w-6 h-6 rounded-lg flex items-center justify-center text-[11.5px] font-extrabold flex-shrink-0"
@@ -165,6 +179,7 @@ function PriorityLadder({ bands, totals, active, onPick }: { bands: any[]; total
             </button>
           );
         })}
+        {drill.panel}
       </div>
 
       {/* The pricing gap, stated by the backend and repeated verbatim rather than rounded off. */}

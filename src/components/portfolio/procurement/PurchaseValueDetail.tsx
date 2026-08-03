@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { useRegion } from "@/context/RegionContext";
+import { useDrillBind } from "@/components/portfolio/useDrillBind";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import { inrAbbr, countAbbr, catName, useMount } from "@/components/portfolio/kit";
 import { ProcShell, TableCard, Panel, DetailSkeleton, INK, SUBTLE, EMER, TEAL, INDIGO } from "./parts";
@@ -36,6 +37,19 @@ function SpendTreemap({ cats, spend }: { cats: any[]; spend: number }) {
   const on = useMount(200); const [hov, setHov] = useState<number | null>(null);
   const items = cats.filter((c: any) => c.value > 0).slice(0, 9).map((c: any) => ({ value: c.value, it: c }));
   const rects = squarify(items, 100, 100);
+  // `category` here is the PO/pharmacological taxonomy (ANTINEOPLASTIC, CAPITALS…), NOT
+  // the global material-type filter — the two are different vocabularies on purpose.
+  // kpi_purchase_value carries no material column, so the answerable next question about
+  // a spend block is who you bought it from.
+  const drill = useDrillBind({
+    kpi: "purchase-value", dim: "category", by: "vendor", measure: "purchase_value",
+    label: "vendors", dimLabel: "Spend category", format: inrAbbr,
+    // The block's own tooltip is switched off below, so its PO-line count moves in here.
+    details: (s) => {
+      const c = cats.find((x: any) => String(x.name) === s);
+      return c ? [{ label: "PO lines", value: countAbbr(c.lines) }] : [];
+    },
+  });
   return (
     <Panel delay={220} className="flex flex-col flex-1">
       <div className="flex items-center justify-between mb-1">
@@ -49,7 +63,8 @@ function SpendTreemap({ cats, spend }: { cats: any[]; spend: number }) {
           const big = r.w > 14 && r.h > 22; const nameTier = r.w > 11 && r.h > 13; const valTier = r.w > 6 && r.h > 6; const active = hov === i;
           const share = spend ? (c.value / spend) * 100 : 0;
           return (
-            <div key={i} className="absolute" style={{ left: `${r.x}%`, top: `${r.y}%`, width: `${r.w}%`, height: `${r.h}%`, padding: 3 }} onMouseEnter={() => setHov(i)} onMouseLeave={() => setHov(null)}>
+            <div key={i} className="absolute" style={{ left: `${r.x}%`, top: `${r.y}%`, width: `${r.w}%`, height: `${r.h}%`, padding: 3 }}
+              {...drill.bind(c.name, { onMouseEnter: () => setHov(i), onMouseLeave: () => setHov(null) })}>
               <div className="w-full h-full rounded-[10px] overflow-hidden p-2.5 flex flex-col justify-between cursor-default min-h-0"
                 style={{ background: `linear-gradient(135deg,${col},${col}cc)`, boxShadow: active ? `0 12px 26px -8px ${col}99` : "none", transform: active ? "scale(0.975)" : "scale(1)", transition: `opacity 0.6s ease ${i * 35}ms, transform 0.25s ease, box-shadow 0.25s ease`, opacity: on ? 1 : 0, outline: active ? "2px solid rgba(255,255,255,0.5)" : "none", outlineOffset: -2 }}>
                 {(big || nameTier) && (
@@ -65,13 +80,10 @@ function SpendTreemap({ cats, spend }: { cats: any[]; spend: number }) {
             </div>
           );
         })}
-        {/* floating tooltip */}
-        {hov != null && rects[hov] && (() => { const c = rects[hov].it; const r = rects[hov]; const share = spend ? (c.value / spend) * 100 : 0;
-          return (<div className="absolute pointer-events-none z-10" style={{ left: `${r.x + r.w / 2}%`, top: `${r.y}%`, transform: "translate(-50%,-110%)" }}>
-            <div className="px-3 py-2 rounded-xl whitespace-nowrap" style={{ background: "#fff", boxShadow: "0 12px 28px -10px rgba(40,52,86,0.45)", border: "1px solid #eef0f6" }}>
-              <div className="text-[12px] font-semibold" style={{ color: INK }}>{catName(c.name)}</div>
-              <div className="text-[12px] font-bold tabular-nums mt-0.5" style={{ color: c.uncat ? "#9aa1b3" : EMER }}>{inrAbbr(c.value)} · {share.toFixed(1)}% · {countAbbr(c.lines)} lines</div>
-            </div></div>); })()}
+        {/* The block's old floating tooltip said name / value / share / lines. The drill
+            panel's header says the first three and its `details` carries the fourth, so
+            keeping both would stack two boxes on a single hover. */}
+        {drill.panel}
       </div>
     </Panel>
   );

@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { useRegion } from "@/context/RegionContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
+import { useDrillBind } from "@/components/portfolio/useDrillBind";
 import NotScopedNote from "@/components/common/NotScopedNote";
 import { TbScale, TbHourglassLow, TbTargetArrow, TbStack2, TbChartGridDots } from "react-icons/tb";
 
@@ -190,6 +191,16 @@ function ConcentrationCard({ nFor80, topShare, topName, totalRisk }: { nFor80: n
 function Marimekko({ cols, grand, region }: { cols: any[]; grand: number; region: string }) {
   const on = useMount(80);
   const [hov, setHov] = useState<{ ci: number; ti: number } | null>(null);
+  // Bound to the COLUMN, not to the fresh/aging/risk blocks inside it. A block is two
+  // age buckets at once (risk = 181-365 plus 365+) and the endpoint slices one dimension,
+  // so a per-block panel would print a total the block does not show. The column total
+  // it does print — ?28.08 Cr under M065 — is exactly what this returns.
+  // This frame has no material column, so the useful leaf is the hospital: a wide column
+  // means "we hold a lot of this", and the next question is where it is sitting.
+  const drill = useDrillBind({
+    kpi: "aging-distribution", dim: "material_group", by: "plant", measure: "stock_value",
+    label: "hospitals", dimLabel: "Category · total held", format: inrAbbr,
+  });
   const hd = hov ? { col: cols[hov.ci], tier: TIERS[hov.ti] } : null;
   return (
     <div className="csv-card rounded-3xl bg-white p-5 md:p-6" style={{ animationDelay: "380ms", boxShadow: PANEL_SHADOW }}>
@@ -212,7 +223,7 @@ function Marimekko({ cols, grand, region }: { cols: any[]; grand: number; region
             {cols.map((c, ci) => {
               const dim = hov && hov.ci !== ci;
               return (
-                <div key={ci} className="flex flex-col" style={{ width: `${c.wPct}%`, borderRight: ci < cols.length - 1 ? `2px solid ${MIST}` : "none", opacity: dim ? 0.45 : 1, transition: "opacity 0.2s ease" }}>
+                <div key={ci} className="flex flex-col" style={{ width: `${c.wPct}%`, borderRight: ci < cols.length - 1 ? `2px solid ${MIST}` : "none", opacity: dim ? 0.45 : 1, transition: "opacity 0.2s ease" }} {...drill.bind(c.raw)}>
                   {TIERS.map((t, ti) => {
                     const hp = c.total ? c[t.key] / c.total : 0;
                     const active = hov?.ci === ci && hov?.ti === ti;
@@ -236,6 +247,7 @@ function Marimekko({ cols, grand, region }: { cols: any[]; grand: number; region
               </div>
             ))}
           </div>
+          {drill.panel}
         </>
       ) : <div className="py-20 text-center text-gray-400 text-sm">No data.</div>}
     </div>
@@ -316,7 +328,8 @@ export default function AgingDistributionDetail() {
     const by: Record<string, any> = {};
     matrix.forEach((r) => {
       const g = String(r.material_group); const tier = TIER_OF[r.aging_bucket]; const v = Number(r.stock_value ?? 0);
-      by[g] = by[g] || { name: catName(g), fresh: 0, aging: 0, risk: 0, total: 0, skus: 0 };
+      // `raw` keeps the "M065-" prefix the drill-down has to send back to the API.
+      by[g] = by[g] || { raw: g, name: catName(g), fresh: 0, aging: 0, risk: 0, total: 0, skus: 0 };
       by[g].total += v; if (tier) by[g][tier] += v; by[g].skus += Number(r.sku_count ?? 0);
     });
     return Object.values(by).map((c: any) => ({ ...c, riskPct: c.total ? c.risk / c.total : 0 }));
@@ -331,6 +344,8 @@ export default function AgingDistributionDetail() {
     const cols = top.map((c) => ({ ...c, wPct: (c.total / grand) * 100 }));
     if (rest.length) {
       const o = rest.reduce((a, c) => ({ fresh: a.fresh + c.fresh, aging: a.aging + c.aging, risk: a.risk + c.risk, total: a.total + c.total }), { fresh: 0, aging: 0, risk: 0, total: 0 });
+      // No `raw`: "Other" is a client-side rollup of N categories, not a value the API
+      // knows, so bind() gets undefined and this column simply has no drill-down.
       cols.push({ name: `Other (${rest.length})`, ...o, riskPct: o.total ? o.risk / o.total : 0, wPct: (o.total / grand) * 100 });
     }
     return { cols, grand };

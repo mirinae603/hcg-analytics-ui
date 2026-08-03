@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { useScope } from "@/context/CategoryContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
+import { useDrillBind } from "@/components/portfolio/useDrillBind";
 import { TbLock, TbSnowflake, TbStack2 } from "react-icons/tb";
 
 const KpiTable = dynamic(() => import("../KpiTable"), {
@@ -39,6 +40,13 @@ const useMount = (delay = 0) => { const [on, setOn] = useState(false); useEffect
 // ── IMMERSIVE VAULT HERO — bronze gradient, blocked capital + glowing aging-depth bars ──
 function VaultHero({ value, skus, totalLines, reasons, aging }: { value: number; skus: number; totalLines: number; reasons: any[]; aging: any[] }) {
   const on = useMount(0);
+  // "₹46.9 Cr never consumed" is the number that starts the conversation; "which items"
+  // is the only sensible thing to ask next. `reason` is a real column on kpi_non_moving,
+  // so the two pills drill straight through.
+  const reasonDrill = useDrillBind({
+    kpi: "non-moving-inventory", dim: "reason", by: "material", measure: "closing_stock_value",
+    label: "items", dimLabel: "Why it is blocked", format: inrAbbr,
+  });
   // Computed, not hardcoded: the old literal 78% was only right for All Plants and
   // was off by up to 48 points on individual plants (HN04 is really 30%).
   const sharePct = totalLines > 0 ? Math.round((skus / totalLines) * 100) : null;
@@ -58,12 +66,13 @@ function VaultHero({ value, skus, totalLines, reasons, aging }: { value: number;
           <div className="mt-3 text-[54px] leading-none font-bold tabular-nums tracking-tight" style={{ color: "#fff", textShadow: "0 4px 24px rgba(0,0,0,0.3)" }}><CountUp value={value} format={inrAbbr} /></div>
           <div className="mt-3 text-[13px]" style={{ color: "rgba(255,255,255,0.6)" }}>dormant value · {skus.toLocaleString("en-IN")} SKUs{sharePct !== null && <> · {sharePct}% of {totalLines.toLocaleString("en-IN")} stock lines</>}</div>
           <div className="mt-6 flex flex-wrap gap-2.5">
-            <div className="inline-flex items-center gap-2 px-3.5 py-2 rounded-full" style={{ background: "rgba(125,138,143,0.18)", border: "1px solid rgba(125,138,143,0.32)" }}>
+            <div className="inline-flex items-center gap-2 px-3.5 py-2 rounded-full" style={{ background: "rgba(125,138,143,0.18)", border: "1px solid rgba(125,138,143,0.32)" }} {...reasonDrill.bind(noC.reason)}>
               <span className="w-2 h-2 rounded-full" style={{ background: "#aab6ba" }} /><span className="text-[12px]" style={{ color: "rgba(255,255,255,0.82)" }}>No consumption</span><span className="text-[13px] font-bold tabular-nums" style={{ color: "#c9d2d5" }}>{inrAbbr(noC.value)}</span>
             </div>
-            <div className="inline-flex items-center gap-2 px-3.5 py-2 rounded-full" style={{ background: "rgba(192,131,79,0.2)", border: "1px solid rgba(192,131,79,0.36)", boxShadow: "0 0 22px -7px rgba(192,131,79,0.6)" }}>
+            <div className="inline-flex items-center gap-2 px-3.5 py-2 rounded-full" style={{ background: "rgba(192,131,79,0.2)", border: "1px solid rgba(192,131,79,0.36)", boxShadow: "0 0 22px -7px rgba(192,131,79,0.6)" }} {...reasonDrill.bind(aged.reason)}>
               <span className="w-2 h-2 rounded-full" style={{ background: "#d9a36e" }} /><span className="text-[12px]" style={{ color: "rgba(255,255,255,0.82)" }}>Aged &gt;180d</span><span className="text-[13px] font-bold tabular-nums" style={{ color: "#e6bd92" }}>{inrAbbr(aged.value)}</span>
             </div>
+            {reasonDrill.panel}
           </div>
         </div>
         {/* glowing aging-depth bars */}
@@ -93,13 +102,17 @@ function VaultHero({ value, skus, totalLines, reasons, aging }: { value: number;
 function BlockedByCategory({ cats, region }: { cats: any[]; region: string }) {
   const on = useMount(120); const max = Math.max(...cats.map((c) => c.value), 1);
   const catName = (g: string) => String(g).replace(/^M\d+-/, "");
+  const drill = useDrillBind({
+    kpi: "non-moving-inventory", dim: "material_group", by: "material", measure: "closing_stock_value",
+    label: "items", dimLabel: "Category", format: inrAbbr,
+  });
   return (
     <div className="csv-card rounded-3xl bg-white p-5 md:p-6 flex flex-col" style={{ animationDelay: "200ms", boxShadow: PANEL_SHADOW }}>
       <h3 className="text-[15px] font-semibold text-gray-900 flex items-center gap-2"><TbStack2 size={16} style={{ color: RUST }} />Blocked capital by category</h3>
       <p className="text-xs text-gray-400 mt-0.5 mb-4">where the dormant value sits · {region}</p>
       <div className="space-y-2.5 flex-1">
         {cats.slice(0, 10).map((c, i) => (
-          <div key={i} className="flex items-center gap-3">
+          <div key={i} className="flex items-center gap-3" {...drill.bind(c.name)}>
             <span className="text-[12px] font-medium text-gray-700 truncate flex-shrink-0" style={{ width: 150 }} title={catName(c.name)}>{catName(c.name)}</span>
             <div className="flex-1 h-5 rounded-md overflow-hidden" style={{ background: "#ece9e3" }}>
               <div className="h-full rounded-md" style={{ width: on ? `${(c.value / max) * 100}%` : "0%", background: "linear-gradient(90deg,#caa170,#a85f3a)", transition: `width 0.9s cubic-bezier(0.22,1,0.36,1) ${i * 45}ms` }} />
@@ -109,6 +122,7 @@ function BlockedByCategory({ cats, region }: { cats: any[]; region: string }) {
           </div>
         ))}
         {!cats.length && <div className="py-12 text-center text-gray-400 text-sm">No data.</div>}
+        {drill.panel}
       </div>
     </div>
   );

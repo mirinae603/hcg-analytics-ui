@@ -170,7 +170,10 @@ const ITRCard: React.FC<ITRCardProps> = ({
   };
 
   const status = getITRStatus();
-  const daysInInventory = Math.round(30 / currentITR);
+  // A category with stock but no consumption (Onco Drugs — dispensed via IP/OP billing,
+  // not internal movements) has turnover 0.00, and 30/0 is Infinity, which rendered
+  // literally as "Infinity days cycle". No turnover means no meaningful cycle length.
+  const daysInInventory = currentITR > 0 ? Math.round(30 / currentITR) : null;
 
   // Generate moving inventory boxes
   const generateBoxes = () => {
@@ -439,10 +442,10 @@ const ITRCard: React.FC<ITRCardProps> = ({
                 className="text-lg font-medium"
                 style={{ color: status.color }}
               >
-                {daysInInventory}
+                {daysInInventory ?? "—"}
               </div>
               <div className="text-xs text-slate-500 font-medium">
-                days cycle
+                {daysInInventory === null ? "no turnover" : "days cycle"}
               </div>
             </div>
             

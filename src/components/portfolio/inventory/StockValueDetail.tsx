@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { useScope } from "@/context/CategoryContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
+import { useDrillBind } from "@/components/portfolio/useDrillBind";
 import { TbReportMoney, TbTrophy, TbTargetArrow, TbBoxMultiple, TbChartAreaLine } from "react-icons/tb";
 // Actual premium components from the /stockChange page — reused as-is, real data.
 import WarehouseInventoryCard from "@/components/ecommerce/cards_collection/stockvaluecard";
@@ -407,7 +408,7 @@ export default function StockValueDetail() {
     const maxMrp = Math.max(...sorted.map((d) => Number(d.stock_value_mrp ?? 0)), 1);
     return sorted.map((d) => {
       const cost = Number(d.stock_value_cost ?? 0), mrp = Number(d.stock_value_mrp ?? 0);
-      return { name: catName(d.material_group), cost, mrp, costPct: (cost / maxMrp) * 100, mrpPct: (mrp / maxMrp) * 100, markup: cost ? ((mrp - cost) / cost) * 100 : 0 };
+      return { raw: String(d.material_group ?? ""), name: catName(d.material_group), cost, mrp, costPct: (cost / maxMrp) * 100, mrpPct: (mrp / maxMrp) * 100, markup: cost ? ((mrp - cost) / cost) * 100 : 0 };
     });
   }, [catData]);
 
@@ -415,7 +416,40 @@ export default function StockValueDetail() {
   const barMax = Math.max(...barData.map((d) => Number(d.stock_value_cost ?? 0)), 1);
   const barRows = barData.map((d) => {
     const cost = Number(d.stock_value_cost ?? 0), mrp = Number(d.stock_value_mrp ?? 0), qty = Number(d.stock_qty ?? 0);
-    return { name: labelFor(d), cost, mrp, qty, w: (cost / barMax) * 100, share: insights.totalCost ? (cost / insights.totalCost) * 100 : 0, markup: cost ? ((mrp - cost) / cost) * 100 : 0 };
+    // `raw` is the unformatted group/plant code. The label above it strips the "M065-"
+    // prefix and maps HM01 -> a hospital name; sending either of those to the drill-down
+    // would match no rows and return a confidently empty list.
+    return { raw: String(d[mode.field] ?? ""), name: labelFor(d), cost, mrp, qty, w: (cost / barMax) * 100, share: insights.totalCost ? (cost / insights.totalCost) * 100 : 0, markup: cost ? ((mrp - cost) / cost) * 100 : 0 };
+  });
+
+  // ── Drill-down: "this bar is ₹28 Cr of Injections — WHAT is in it?" ──
+  // Off in Top-SKUs mode on purpose: there the bar already IS one item, so drilling
+  // from an item into items would just show the bar to itself.
+  const barDrillDim = mode.key === "category" ? "material_group" : mode.key === "plant" ? "plant" : null;
+  const byRaw = useMemo(() => Object.fromEntries(barRows.map((r) => [r.raw, r])), [barRows]);
+  const barDrill = useDrillBind(
+    barDrillDim
+      ? {
+          kpi: "current-stock-value", dim: barDrillDim, by: "material", measure: "stock_value_cost",
+          label: "items", dimLabel: mode.label, format: inrAbbr,
+          // The panel REPLACES this chart's hover card, so it has to carry what that card
+          // said — MRP, quantity and markup — or the drill-down is a net loss.
+          details: (s) => {
+            const r = byRaw[s];
+            return r ? [
+              { label: "MRP value", value: inrAbbr(r.mrp) },
+              { label: "Quantity", value: numAbbr(r.qty) },
+              { label: "Cost → MRP markup", value: `+${r.markup.toFixed(0)}%` },
+            ] : [];
+          },
+        }
+      : null
+  );
+
+  // Cost-vs-MRP panel: same underlying cut, so the same drill answers it.
+  const mrpDrill = useDrillBind({
+    kpi: "current-stock-value", dim: "material_group", by: "material", measure: "stock_value_cost",
+    label: "items", dimLabel: "Category", format: inrAbbr,
   });
 
   const costMrpRatio = insights.totalMrp ? insights.totalCost / insights.totalMrp : 0;
@@ -498,24 +532,30 @@ export default function StockValueDetail() {
             ) : barRows.length ? (
               <div className="csv-bars">
                 {barRows.map((r, i) => (
-                  <div key={mode.key + i} className="csv-bar-row group">
+                  <div key={mode.key + i} className="csv-bar-row group" {...barDrill.bind(r.raw)}>
                     <div className="csv-bar-label" title={r.name}>{r.name}</div>
                     <div className="csv-bar-track">
                       <div className="csv-bar-fill" style={{ width: animate ? `${Math.max(r.w, 1.6)}%` : "0%", transitionDelay: `${i * 45}ms` }} />
                     </div>
                     <div className="csv-bar-val">{inrAbbr(r.cost)}</div>
-                    <div className={`csv-bar-pop ${i < 2 ? "below" : "above"}`}>
-                      <div className="csv-tip">
-                        <div className="csv-tip-head"><span className="csv-tip-dot" /><span className="csv-tip-name">{r.name}</span></div>
-                        <div className="csv-tip-row"><span>Cost value</span><b style={{ color: "#3a352f" }}>{inrAbbr(r.cost)}</b></div>
-                        <div className="csv-tip-row"><span>MRP value</span><b style={{ color: "#5ea38f" }}>{inrAbbr(r.mrp)}</b></div>
-                        <div className="csv-tip-row"><span>Quantity</span><b style={{ color: "#0f172a" }}>{numAbbr(r.qty)}</b></div>
-                        <div className="csv-tip-row"><span>Cost → MRP markup</span><b style={{ color: "#d6806a" }}>+{r.markup.toFixed(0)}%</b></div>
-                        <div className="csv-tip-share"><div className="csv-tip-share-top"><span>Share of total value</span><b>{r.share.toFixed(1)}%</b></div><div className="csv-tip-bar"><div className="csv-tip-bar-fill" style={{ width: `${Math.min(r.share, 100)}%` }} /></div></div>
+                    {/* The CSS hover card is the drill panel's predecessor, not its neighbour:
+                        wherever the panel is live it carries these same facts in its header,
+                        so showing both would stack two boxes on one hover. */}
+                    {!barDrillDim && (
+                      <div className={`csv-bar-pop ${i < 2 ? "below" : "above"}`}>
+                        <div className="csv-tip">
+                          <div className="csv-tip-head"><span className="csv-tip-dot" /><span className="csv-tip-name">{r.name}</span></div>
+                          <div className="csv-tip-row"><span>Cost value</span><b style={{ color: "#3a352f" }}>{inrAbbr(r.cost)}</b></div>
+                          <div className="csv-tip-row"><span>MRP value</span><b style={{ color: "#5ea38f" }}>{inrAbbr(r.mrp)}</b></div>
+                          <div className="csv-tip-row"><span>Quantity</span><b style={{ color: "#0f172a" }}>{numAbbr(r.qty)}</b></div>
+                          <div className="csv-tip-row"><span>Cost → MRP markup</span><b style={{ color: "#d6806a" }}>+{r.markup.toFixed(0)}%</b></div>
+                          <div className="csv-tip-share"><div className="csv-tip-share-top"><span>Share of total value</span><b>{r.share.toFixed(1)}%</b></div><div className="csv-tip-bar"><div className="csv-tip-bar-fill" style={{ width: `${Math.min(r.share, 100)}%` }} /></div></div>
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </div>
                 ))}
+                {barDrill.panel}
               </div>
             ) : <div className="py-24 text-center text-gray-400 text-sm">No data.</div>}
           </div>
@@ -531,7 +571,7 @@ export default function StockValueDetail() {
           </div>
           <div className="space-y-3.5 flex-1">
             {costMrp.map((c, i) => (
-              <div key={i}>
+              <div key={i} {...mrpDrill.bind(c.raw)}>
                 <div className="flex items-center justify-between mb-1.5">
                   <span className="text-xs font-medium text-gray-700 truncate pr-2">{c.name}</span>
                   <span className="text-[11px] font-semibold tabular-nums flex-shrink-0" style={{ color: INK }}>+{c.markup.toFixed(0)}%</span>
@@ -547,6 +587,7 @@ export default function StockValueDetail() {
               </div>
             ))}
             {!costMrp.length && <div className="py-16 text-center text-gray-400 text-sm">No data.</div>}
+            {mrpDrill.panel}
           </div>
         </div>
       </div>

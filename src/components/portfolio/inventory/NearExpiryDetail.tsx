@@ -2,6 +2,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { useScope } from "@/context/CategoryContext";
+import { useDrillBind } from "@/components/portfolio/useDrillBind";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import { TbClockExclamation, TbStack2 } from "react-icons/tb";
@@ -100,13 +101,18 @@ function EmberHero({ totals, buckets, timeline }: { totals: any; buckets: any[];
 function ByCategory({ cats, region }: { cats: any[]; region: string }) {
   const on = useMount(120); const max = Math.max(...cats.map((c) => c.value), 1);
   const catName = (g: string) => String(g).replace(/^M\d+-/, "");
+  // Ranked by batch cost, exactly like the bar — so the panel's total is the bar's total.
+  const drill = useDrillBind({
+    kpi: "near-expiry", dim: "material_group", by: "material", measure: "total_cost",
+    label: "items", dimLabel: "Category", format: inrAbbr,
+  });
   return (
     <div className="csv-card rounded-3xl bg-white p-5 md:p-6 flex flex-col" style={{ animationDelay: "200ms", boxShadow: PANEL_SHADOW }}>
       <h3 className="text-[15px] font-semibold text-gray-900 flex items-center gap-2"><TbStack2 size={16} style={{ color: AMBER }} />Expiry exposure by category</h3>
       <p className="text-xs text-gray-400 mt-0.5 mb-4">cost value near expiry · {region}</p>
       <div className="space-y-2.5 flex-1">
         {cats.slice(0, 10).map((c, i) => (
-          <div key={i} className="flex items-center gap-3">
+          <div key={i} className="flex items-center gap-3" {...drill.bind(c.name)}>
             <span className="text-[12px] font-medium text-gray-700 truncate flex-shrink-0" style={{ width: 150 }} title={catName(c.name)}>{catName(c.name)}</span>
             <div className="flex-1 h-5 rounded-md overflow-hidden" style={{ background: "#f0e6da" }}>
               <div className="h-full rounded-md" style={{ width: on ? `${(c.value / max) * 100}%` : "0%", background: "linear-gradient(90deg,#e7c074,#d9663e)", transition: `width 0.9s cubic-bezier(0.22,1,0.36,1) ${i * 45}ms` }} />
@@ -116,6 +122,7 @@ function ByCategory({ cats, region }: { cats: any[]; region: string }) {
           </div>
         ))}
         {!cats.length && <div className="py-12 text-center text-gray-400 text-sm">No data.</div>}
+        {drill.panel}
       </div>
     </div>
   );
