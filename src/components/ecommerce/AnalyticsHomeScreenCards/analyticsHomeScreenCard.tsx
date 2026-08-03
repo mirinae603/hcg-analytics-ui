@@ -5,10 +5,9 @@ import { DASHBOARD_API_BASE_URL } from '@/utils/config';
 import StockLevelCard from './inventoryQuantityCard';
 import StockAgingCard from './agingCard';
 import DOHCard from './dohCard';
-import ReturnRateCard from './returnRate4Card';
+import NearExpiryCard from './nearExpiryCard';
 import ITRCard from './itr2Card';
 import { useRegion } from '@/context/RegionContext'
-import { useCardScope } from '@/components/common/CardCategoryFilter'
 // ---
 // API Response Types (unchanged, kept for clarity and TypeScript support)
 // ---
@@ -37,20 +36,9 @@ interface KpiStockLevelData {
   lastUpdated: string;
 }
 
-interface ReturnRateData {
-  currentReturnRate: number;
-  historicalData: {
-    thirtyDaysAgo: number;
-    sixtyDaysAgo: number;
-    ninetyDaysAgo: number;
-  };
-  trend: {
-    direction: 'up' | 'down' | 'stable';
-    percentage: number;
-    period: string;
-  };
-  targetReturnRate: number;
-  industryAverage: number;
+interface NearExpiryData {
+  value: number;
+  skuCount: number;
 }
 
 interface DaysOnHandData {
@@ -83,7 +71,7 @@ interface InventoryTurnoverData {
 interface DashboardData {
   stockAging: StockAgingData;
   kpiStockLevel: KpiStockLevelData;
-  returnRate: ReturnRateData;
+  nearExpiry: NearExpiryData;
   daysOnHand: DaysOnHandData;
   inventoryTurnover: InventoryTurnoverData;
 }
@@ -92,46 +80,30 @@ interface DashboardData {
 // Dashboard Component
 // ---
 
-// Greys out a KPI card that is in the PDF scope but not buildable from the current
-// dataset (no source data). Card stays visible (design intact) but is dimmed + tagged.
-const UnavailableKpi: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
-  <div className="relative select-none" title={`${label}: not available for the current dataset — requires additional data from HCG (see KPI workbook).`}>
-    <div className="opacity-40 grayscale pointer-events-none">{children}</div>
-    <div className="absolute top-3 right-3 z-10">
-      <span className="text-[10px] font-semibold px-2 py-1 rounded-full bg-gray-200 text-gray-500 shadow-sm">
-        Data N/A
-      </span>
-    </div>
-  </div>
-);
-
 const AnalyticsDashboardLayout: React.FC = () => {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { selectedRegion } = useRegion()
 
-  // ── the card-level category control ──────────────────────────────────────────
-  // All five cards on this row share ONE /api/dashboard/all payload, and FOUR of them
-  // can be cut by material category (the backend's own `categoryScope` node says so).
-  // Each gets its OWN `useCardScope`, so picking a category on one card narrows only
-  // that card and leaves the other three showing the whole portfolio — which is what
-  // makes the narrowed number directly comparable to the full one sitting beside it.
-  // At All Categories `.data` IS `dashboardData` by reference: no request, no
-  // re-render, byte-identical to before.
+  // NO category chips on this row, deliberately.
   //
-  // Return Rate deliberately gets NO chip: the backend lists `returnRate` under
-  // `categoryScope.unscoped` and it reads 0.0 for every category. It is already dimmed
-  // "Data N/A" — a control there would be inert, which is the exact bug this design
-  // exists to remove.
-  const dashUrl = `/api/dashboard/all?region=${encodeURIComponent(selectedRegion?.name ?? 'Chennai')}`
-  const stock = useCardScope(dashUrl, dashboardData, { accent: '#465fff', domain: 'stock', label: 'Stock level' })
-  const aging = useCardScope(dashUrl, dashboardData, { accent: '#0ea5e9', domain: 'stock', label: 'Inventory aging' })
-  // Days-on-hand and ITR are both consumption-derived (stock ÷ usage), so onco reads
-  // absurdly high / zero there for a real reason — domain:'consumption' makes the chip
-  // grey that bucket and the card explain itself instead of looking broken.
-  const doh = useCardScope(dashUrl, dashboardData, { accent: '#14b8a6', domain: 'consumption', label: 'Days on hand' })
-  const itr = useCardScope(dashUrl, dashboardData, { accent: '#6366f1', domain: 'consumption', label: 'Inventory turnover' })
+  // They were here, and they worked. They came off because this is the ORIENTATION
+  // screen: you land, read five headline numbers, and click into whichever one looks
+  // wrong. Slicing is what the detail page behind each card is for, and that is where
+  // every one of these still has its control. Leaving chips here bought a second way to
+  // do the same thing at the cost of five dropdowns competing with the numbers they sit
+  // on — and a filtered headline on a landing page is the single easiest number in the
+  // product to screenshot out of context and misread as the portfolio total.
+  //
+  // Same reasoning covers the 12-tile grid below (see inventory/page.tsx): those tiles
+  // are navigation, not analysis.
+
+  // The expiry card wants the 0-30d / expired split, which /api/dashboard/all does not
+  // carry — it exposes only nearExpiry.{value,skuCount}. Fetched separately rather than
+  // widening that payload, because every KPI on the dashboard reads it and it is the
+  // response the regression gate pins byte-for-byte.
+  const [expiry, setExpiry] = useState<{ expired_value?: number; urgent_value?: number } | null>(null);
 
   useEffect(() => {
   const regionName = selectedRegion?.name ?? "Chennai"
@@ -145,8 +117,8 @@ const AnalyticsDashboardLayout: React.FC = () => {
       const data = await response.json();
       setDashboardData(data);
     } catch (err) {
-      const message = err instanceof Error 
-        ? err.message 
+      const message = err instanceof Error
+        ? err.message
         : 'Failed to load dashboard data';
       setError(message);
       toast.error(message);
@@ -155,6 +127,12 @@ const AnalyticsDashboardLayout: React.FC = () => {
     }
   };
   fetchDashboardData();
+  // Secondary and non-blocking: the card renders its headline from the main payload,
+  // so if this never lands the split bar simply collapses to one band.
+  fetch(`${DASHBOARD_API_BASE_URL}/kpi/near-expiry/insights?Plant=${encodeURIComponent(regionName)}`)
+    .then((r) => (r.ok ? r.json() : null))
+    .then((j) => setExpiry(j?.totals ?? null))
+    .catch(() => setExpiry(null));
 }, [selectedRegion]);
 
 
@@ -266,42 +244,47 @@ const AnalyticsDashboardLayout: React.FC = () => {
         </div>
        
         <div className="w-full lg:w-[33.33%]">
-          <StockLevelCard {...(stock.data ?? dashboardData).kpiStockLevel} headerSlot={stock.chip} />
-          {stock.note(!Number((stock.data ?? dashboardData).kpiStockLevel?.stockValue))}
+          <StockLevelCard {...dashboardData.kpiStockLevel} />
         </div>
         <div className="w-full lg:w-[33.33%]">
           <StockAgingCard
             agingData={{
-              fresh: (aging.data ?? dashboardData).stockAging.fresh,
-              aging: (aging.data ?? dashboardData).stockAging.aging,
-              problem: (aging.data ?? dashboardData).stockAging.problem,
-              deadStock: (aging.data ?? dashboardData).stockAging.deadStock,
+              fresh: dashboardData.stockAging.fresh,
+              aging: dashboardData.stockAging.aging,
+              problem: dashboardData.stockAging.problem,
+              deadStock: dashboardData.stockAging.deadStock,
             }}
             label="Inventory Aging"
             animated={true}
-            headerSlot={aging.chip}
           />
-          {aging.note(
-            !Object.values((aging.data ?? dashboardData).stockAging || {}).some((v) => Number(v) > 0)
-          )}
         </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 -mt-3">
         <div>
-          <DOHCard {...(doh.data ?? dashboardData).daysOnHand} headerSlot={doh.chip} />
-          {doh.note(!Number((doh.data ?? dashboardData).daysOnHand?.daysOnHand))}
+          <DOHCard {...dashboardData.daysOnHand} />
         </div>
-        <UnavailableKpi label="Return Rate %">
-          <ReturnRateCard {...dashboardData.returnRate} />
-        </UnavailableKpi>
-        {/* NOT wrapped in UnavailableKpi: currentITR is a real, live-computed value
-            (backend now uses a portfolio-weighted sum/sum ratio, not a mean-of-ratios --
-            see dashboard_summary.py) -- unlike Return Rate, which really is a hardcoded
-            0.0 literal with no underlying data. Showing "Data N/A" over a genuine number
-            was itself the bug (client screenshot review, 2026-07-25). */}
+        {/* Expiry Risk replaces Return Rate % in this slot. Return Rate has no source
+            data at all — no return or credit-note rows exist — so it rendered a
+            hardcoded 0.0 behind a "Data N/A" veil, and that veil collapsed the card to
+            zero height, leaving a visible hole in the row. Expiry risk is the one
+            number on this screen with a deadline attached, and unlike the four beside
+            it, waiting has a guaranteed cost. */}
         <div>
-          <ITRCard {...(itr.data ?? dashboardData).inventoryTurnover} headerSlot={itr.chip} />
-          {itr.note(!Number((itr.data ?? dashboardData).inventoryTurnover?.currentITR))}
+          <NearExpiryCard
+            value={Number(dashboardData.nearExpiry?.value ?? 0)}
+            skuCount={Number(dashboardData.nearExpiry?.skuCount ?? 0)}
+            expiredValue={Number(expiry?.expired_value ?? 0)}
+            urgentValue={Number(expiry?.urgent_value ?? 0)}
+            totalStockValue={Number(dashboardData.kpiStockLevel?.stockValue ?? 0)}
+            location={selectedRegion?.name ?? 'All Plants'}
+          />
+        </div>
+        {/* currentITR is a real, live-computed value (portfolio-weighted sum/sum, not a
+            mean-of-ratios — see dashboard_summary.py), so it is never veiled. Showing
+            "Data N/A" over a genuine number was itself the bug (client screenshot
+            review, 2026-07-25). */}
+        <div>
+          <ITRCard {...dashboardData.inventoryTurnover} />
         </div>
       </div>
     </div>

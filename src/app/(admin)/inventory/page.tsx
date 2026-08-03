@@ -8,7 +8,7 @@ import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import { useRegion } from "@/context/RegionContext";
 import AnalyticsDashboardLayout from "@/components/ecommerce/AnalyticsHomeScreenCards/analyticsHomeScreenCard";
 import InventoryGlassKpiCard from "@/components/portfolio/inventory/InventoryGlassKpiCard";
-import InventoryGlassKpiTile, { fetchKpiChart } from "@/components/portfolio/inventory/InventoryGlassKpiTile";
+import { fetchKpiChart } from "@/components/portfolio/inventory/kpiChartFetch";
 
 // Greys out a KPI card with a "Data N/A" badge
 const UnavailableKpi: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
@@ -126,13 +126,10 @@ export default function InventoryPage() {
       // Fetch AGGREGATED chart series for each KPI (≈12 rows) — NOT the raw
       // 5000-row table. Uses the same group_by/measures/top params as the
       // drill-down so each card downloads <1 KB instead of ~1 MB.
-      // The URL is built by `fetchKpiChart`, shared with InventoryGlassKpiTile, so a
-      // tile's category-filtered request is byte-identical to this one bar the extra
-      // `&Category=` — a filtered tile cannot silently diverge in group_by/measures/top.
       const chartFetches = inventoryKpis.map(async (kpi) => {
         if (UNAVAILABLE_KEYS.has(kpi.key) || !kpi.chart) return { key: kpi.key, data: [] };
         try {
-          return { key: kpi.key, data: await fetchKpiChart(kpi, regionName, "") };
+          return { key: kpi.key, data: await fetchKpiChart(kpi, regionName) };
         } catch {
           return { key: kpi.key, data: [] };
         }
@@ -196,12 +193,15 @@ export default function InventoryPage() {
                       Data N/A
                     </span>
                   )}
-                  <InventoryGlassKpiTile
+                  {/* No category chip here: these tiles are navigation. Each one links
+                      to /kpi/{key}, and that detail page is where the material-category
+                      control lives — filtering here only competed with the click that
+                      takes you somewhere it works properly. */}
+                  <InventoryGlassKpiCard
                     kpi={kpi}
                     index={i}
-                    region={regionName}
-                    pageData={data}
-                    insightsOf={computeInsights}
+                    insights={computeInsights(kpi, data)}
+                    chartData={data}
                   />
                 </div>
               );
