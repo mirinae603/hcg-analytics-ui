@@ -4,7 +4,7 @@
 // COLUMNS + a cumulative cash-out line (combo), a budget DONUT, a spend leaderboard,
 // and a TEAL money accent. Values are forecast consumption cost = cash to restock.
 import React, { useEffect, useState } from "react";
-import { useRegion } from "@/context/RegionContext";
+import { useRegion, displayRegion } from "@/context/RegionContext";
 import { useCardCategory, useCardScopedData } from "@/components/common/CardCategoryFilter";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import { useMount, CountUp } from "@/components/portfolio/kit";
@@ -356,7 +356,7 @@ export default function CashflowForecastDetail() {
           <div>
             <div className="text-[11px] font-semibold uppercase tracking-[0.14em] mb-1.5" style={{ color: MUT }}>Forecasting</div>
             <h1 className="text-[29px] font-extrabold leading-none tracking-tight" style={{ color: INK }}>Procurement Budget Forecast</h1>
-            <p className="text-[13px] mt-2" style={{ color: MUT }}>Plan the cash needed to keep shelves stocked · {region}</p>
+            <p className="text-[13px] mt-2" style={{ color: MUT }}>Plan the cash needed to keep shelves stocked · {displayRegion(region)}</p>
           </div>
           <span title="6-month back-test accuracy measured at the aggregate/category level — reliable for planning totals, not a per-item guarantee." className="inline-flex items-center gap-2 text-[12.5px] font-semibold px-3.5 py-2 rounded-xl cursor-help" style={{ color: INK2, background: CARD, border: `1px solid ${BORDER}` }}><span className="w-2 h-2 rounded-full" style={{ background: TEAL }} />{Number(t.accuracy ?? 0).toFixed(0)}% reliable for planning</span>
         </div>

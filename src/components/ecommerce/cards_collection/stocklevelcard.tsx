@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { displayRegion } from '@/context/RegionContext';
 import { useRegion } from '@/context/RegionContext'
 
 interface StockLevelCardProps {
@@ -342,7 +343,7 @@ const effectivePreviousStock = displayData.previousStock;
                 <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
                 </svg>
-                <span className="truncate">{location}</span>
+                <span className="truncate">{displayRegion(location)}</span>
               </div>
             )}
           </div>

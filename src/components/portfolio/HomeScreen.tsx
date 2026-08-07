@@ -3,13 +3,30 @@
 // (tinted fill, bold drop-shadow title, spinning corner rings, underline, dot
 // separator, uppercase label, progress bars), one colour shade per domain.
 // Editorial neutral canvas matching the forecast pages. No purple.
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { TbArrowRight } from "react-icons/tb";
 import { REAL } from "@/lib/realAnchors";
+import { inr } from "@/lib/kpiFormat";
+import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 
-const BG = "#ffffff", INK = "#1b1c22", INK2 = "#41444f", MUT = "#8a8f9d", BORDER = "#e7e8ee";
-const inrCr = (v: number) => `₹${(v / 1e7).toFixed(1)}Cr`;
+const BG = "#ffffff", INK = "#1b1c22", INK2 = "#41444f", MUT = "#8a8f9d";
+
+// The real hospital count. The header used to print `REAL.plants?.length ?? 10` — but
+// REAL.plants is a TOP-TEN-BY-REVENUE list, not the estate. It said "10 hospitals"
+// while the plant selector in the header above it listed 52. Same endpoint as that
+// selector now, so the two can't contradict each other again.
+function useHospitalCount() {
+  const [n, setN] = useState<number | null>(null);
+  useEffect(() => {
+    let dead = false;
+    fetch(`${DASHBOARD_API_BASE_URL}/meta/plants`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (!dead && d?.plants) setN(d.plants.filter((p: { code?: string }) => p.code !== "ALL").length); })
+      .catch(() => {});
+    return () => { dead = true; };
+  }, []);
+  return n;
+}
 
 // exact "Analytics KPI's" card, tinted to `accent`
 function KpiBlock({ title, subtitle, href, accent, delay = 0 }: { title: string; subtitle: string; href: string; accent: string; delay?: number }) {
@@ -62,11 +79,10 @@ const ANALYTICS = [
   { title: "Procurement", subtitle: "Purchasing · Vendors", href: "/procurement", accent: "#d9932b" },
 ];
 const FC_ACCENT = "#e2674c";
-const FC_LINKS = [
-  { name: "Expected demand", href: "/salesQuantityForecast" },
-  { name: "Procurement budget", href: "/cashFlowForecast" },
-  { name: "Reorder & stock risk", href: "/stockReplenishmentForecast" },
-];
+// The three forecast sub-pages this used to link out to (Expected demand, Procurement
+// budget, Reorder & stock risk) are not orphaned by removing that card — every one of
+// them is a first-class sidebar item, and is the very first thing /forecasting itself
+// shows.
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
@@ -78,6 +94,7 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 }
 
 export default function HomeScreen() {
+  const hospitals = useHospitalCount();
   return (
     <div className="-m-4 md:-m-6 p-6 md:p-10" style={{ minHeight: "calc(100vh - 64px)", background: BG }}>
       <style jsx global>{`
@@ -93,9 +110,11 @@ export default function HomeScreen() {
           <h1 className="text-[30px] md:text-[34px] font-extrabold leading-none tracking-tight" style={{ color: INK }}>Analytics Home</h1>
           <p className="text-[13.5px] mt-2.5" style={{ color: MUT }}>Pick a domain to open its KPI overview.</p>
           <p className="text-[12.5px] mt-3 tabular-nums" style={{ color: "#a2a7b5" }}>
-            <span style={{ color: INK2, fontWeight: 600 }}>{REAL.plants?.length ?? 10}</span> hospitals
+            <span style={{ color: INK2, fontWeight: 600 }}>{hospitals ?? "—"}</span> hospitals
             &nbsp;·&nbsp; <span style={{ color: INK2, fontWeight: 600 }}>{REAL.skusTotal.toLocaleString("en-IN")}</span> SKUs
-            &nbsp;·&nbsp; <span style={{ color: INK2, fontWeight: 600 }}>{inrCr(REAL.totalInventoryCost)}</span> stock value
+            {/* was a private one-liner printing "₹60.5Cr" while /inventory printed
+                "₹60.47 Cr" from the very same constant */}
+            &nbsp;·&nbsp; <span style={{ color: INK2, fontWeight: 600 }}>{inr(REAL.totalInventoryCost)}</span> stock value
             &nbsp;·&nbsp; <span style={{ color: INK2, fontWeight: 600 }}>6 months</span> of live data
           </p>
         </header>
@@ -106,16 +125,14 @@ export default function HomeScreen() {
         </div>
 
         <SectionLabel>Forecasting</SectionLabel>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
-          <KpiBlock title="Forecasting" subtitle="Demand · Budget · Risk" href="/forecasting" accent={FC_ACCENT} delay={420} />
-          <div className="hm-tile md:col-span-2 rounded-[28px] p-8 flex flex-col justify-center" style={{ animationDelay: "500ms", background: "#ffffff", border: `1px solid ${BORDER}`, boxShadow: "0 14px 38px -28px rgba(30,40,70,.14)" }}>
-            <h3 className="text-[19px] font-bold" style={{ color: INK }}>Look 3 months ahead</h3>
-            <p className="text-[13.5px] mt-2 leading-relaxed max-w-xl" style={{ color: MUT }}>Plan around expected demand, the cash you'll need to restock, and which items are about to run short or sit too long — all from your last 6 months of real usage.</p>
-            <div className="flex flex-wrap gap-2.5 mt-5">
-              {FC_LINKS.map((l) => (
-                <Link key={l.href} href={l.href} className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-[12.5px] font-semibold transition-all hover:gap-2.5" style={{ background: `${FC_ACCENT}14`, color: FC_ACCENT, border: `1px solid ${FC_ACCENT}33` }}>{l.name} <TbArrowRight size={13} /></Link>
-              ))}
-            </div>
+        {/* Was a lopsided 1-vs-2 row: the Forecasting tile beside a much wider card
+            explaining what forecasting is, restating the sidebar's own three links in
+            paragraph form. Same 3-column grid as the Analytics row above so it keeps
+            the page's established rhythm — just placed in the centre column instead
+            of stretched into an asymmetric split. */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="md:col-start-2">
+            <KpiBlock title="Forecasting" subtitle="Demand · Budget · Risk" href="/forecasting" accent={FC_ACCENT} delay={420} />
           </div>
         </div>
 

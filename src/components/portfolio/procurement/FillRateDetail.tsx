@@ -6,7 +6,7 @@
 //   • Fill-rate distribution — how the hospital network spreads across completion bands.
 import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import { useRegion } from "@/context/RegionContext";
+import { useRegion, displayRegion } from "@/context/RegionContext";
 import { useDrillBind } from "@/components/portfolio/useDrillBind";
 import { useCardScope } from "@/components/common/CardCategoryFilter";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
@@ -37,7 +37,7 @@ function Shell({ region, children }: any) {
       <div className="flex items-end justify-between flex-wrap gap-2">
         <div>
           <h1 className="text-[24px] font-bold leading-tight" style={{ color: INK }}>Fill rate</h1>
-          <p className="text-[13px] mt-1" style={{ color: SUB }}>how completely purchase orders are received — delivered vs still open · {region}</p>
+          <p className="text-[13px] mt-1" style={{ color: SUB }}>how completely purchase orders are received — delivered vs still open · {displayRegion(region)}</p>
         </div>
         <span className="text-[12px] font-medium px-3.5 py-2 rounded-full bg-white" style={{ color: "#557066", boxShadow: "0 4px 14px -8px rgba(18,70,50,0.22)" }}>6-month window</span>
       </div>
@@ -320,7 +320,7 @@ export default function FillRateDetail() {
       <ProxyNote />
       <Card delay={320} className="bg-white overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-50">
-          <h3 className="text-[15px] font-semibold" style={{ color: INK }}>Plant fill-rate detail</h3>
+          <h3 className="text-[15px] font-semibold" style={{ color: INK }}>Hospital fill-rate detail</h3>
           <p className="text-xs text-gray-400 mt-0.5">paginated · sortable · filterable · export CSV</p>
         </div>
         <KpiTable kpiKey="fill-rate" plant={region} columns={COLUMNS} />

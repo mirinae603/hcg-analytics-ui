@@ -6,7 +6,7 @@
 //   • Packed-bubble supplier galaxy — vendors sized by spend, greedily packed.
 import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import { useRegion } from "@/context/RegionContext";
+import { useRegion, displayRegion } from "@/context/RegionContext";
 import { useDrillBind } from "@/components/portfolio/useDrillBind";
 import { useCardScope } from "@/components/common/CardCategoryFilter";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
@@ -32,7 +32,7 @@ function Shell({ region, children }: any) {
       <div className="flex items-end justify-between flex-wrap gap-2">
         <div>
           <h1 className="text-[24px] font-bold leading-tight" style={{ color: INK }}>Vendor volume contribution</h1>
-          <p className="text-[13px] mt-1" style={{ color: SUB }}>who the spend flows to & how concentrated the supplier base is · {region}</p>
+          <p className="text-[13px] mt-1" style={{ color: SUB }}>who the spend flows to & how concentrated the supplier base is · {displayRegion(region)}</p>
         </div>
         <span className="text-[12px] font-medium px-3.5 py-2 rounded-full bg-white" style={{ color: "#5b6478", boxShadow: "0 4px 14px -8px rgba(40,52,86,0.2)" }}>6-month window</span>
       </div>

@@ -1,9 +1,8 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Link from "next/link";
 import { FaChartLine, FaUsers, FaCoins, FaBoxOpen, FaShoppingCart, FaBalanceScale } from "react-icons/fa";
 import styled from 'styled-components';
-import LoaderOverlay from "@/components/LoaderOverlay";
 
 const descriptions = [
   "Replenishment & Aging Insights",
@@ -267,18 +266,16 @@ const StyledWrapper = styled.div`
 `;
 
 
+// This page renders a static set of cards — there is nothing async to wait for. It used to
+// open with a hardcoded 700ms `loading` state that blurred the whole page and swallowed
+// clicks (`pointer-events-none blur-sm`) purely to justify showing a spinner. That is a
+// loader for work that was never happening, so it is gone: the content is ready, so it is
+// shown. Anything genuinely async on this page should mount <LoaderOverlay /> while it is
+// in flight, which reports into the app-wide indicator without blurring or blocking.
 export default function ForecastDashboardPage() {
-  const [loading, setLoading] = useState(true);
-  
-  useEffect(() => {
-    const timeout = setTimeout(() => setLoading(false), 700);
-    return () => clearTimeout(timeout);
-  }, []);
-
   return (
     <>
-      {loading && <LoaderOverlay />}
-      <div className={loading ? "pointer-events-none blur-sm" : ""}>
+      <div>
         <div className="p-6 sm:p-10 space-y-8" style={{background: 'transparent'}}>
           
           <div>

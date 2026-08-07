@@ -1,50 +1,27 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRegion } from "@/context/RegionContext";
+import { useRegion, displayRegion } from "@/context/RegionContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import { CARD_SH, inrAbbr, countAbbr, catName, useMount, smoothPath } from "@/components/portfolio/kit";
 import { useCardCategory, useCardScope } from "@/components/common/CardCategoryFilter";
 import { GaugeCard, DonutCard, BrandPanel, Tab } from "./ExecCards";
-import { TbCoin, TbReceipt, TbTrendingDown, TbBuildingFactory2, TbMapPin, TbClockHour4, TbTruckDelivery, TbProgressCheck, TbChevronRight, TbFlask, TbChartArrowsVertical } from "react-icons/tb";
-import { simulatedByPortfolio } from "@/lib/kpiRegistry";
-import { getSimulated } from "@/lib/simulatedKpi";
-import { simVisual } from "@/lib/simKpiVisual";
-import { fmt as fmtSim } from "@/lib/kpiFormat";
+import { TbTrendingDown, TbBuildingFactory2, TbTruckDelivery } from "react-icons/tb";
+import { KPIS, Kpi } from "@/lib/kpiRegistry";
+import InventoryGlassKpiCard from "@/components/portfolio/inventory/InventoryGlassKpiCard";
+import { fetchKpiChart, computeInsights, buildSimTiles } from "@/components/portfolio/inventory/kpiChartFetch";
 
-const SIM_PROCUREMENT = simulatedByPortfolio("procurement").map((meta) => {
-  const b = getSimulated(meta.key)!;
-  return { meta, ...simVisual(meta.key), val: fmtSim(b.headline.value, b.headline.kind), label: b.headline.label };
-});
+// Procurement KPIs from registry — same pattern as /inventory's grid.
+const procurementKpis: Kpi[] = KPIS.filter((k) => k.portfolio === "procurement");
+// Simulated procurement KPIs, adapted to the same glass-card shape so they render
+// inline in the grid (washed-out + a "Simulated" tag) — no separate section.
+const simProcurement = buildSimTiles("procurement");
 
 const PAGE = "#ECF3F1";
 const INK = "#1f2333";
 const SUBTLE = "#8a91a0";
 const EMER = "#0e9f6e", TEAL = "#0d9488", INDIGO = "#4f46e5", SKY = "#0ea5e9", AMBER = "#e0992f", ROSE = "#e8604a";
 const pctSign = (n: number) => `${n >= 0 ? "+" : "−"}${Math.abs(n).toFixed(1)}%`;
-const pctPlain = (n: number) => `${n.toFixed(1)}%`;
-const dayFmt = (n: number) => `${n.toFixed(1)} d`;
-// Only "procurement-variance" is a genuine period-over-period delta -- vendor-volume-
-// contribution and fill-rate are static levels/shares, not changes, so a "+" in front of
-// them (e.g. "+55.4%" concentration, "+91.7%" order completion) falsely implies they rose.
-const DELTA_KPI_KEYS = new Set(["procurement-variance"]);
-
-const KPI_META: Record<string, { title: string; Icon: any; ring: string; tint: string }> = {
-  "purchase-value": { title: "Purchase Value", Icon: TbCoin, ring: EMER, tint: "#e7f6ef" },
-  "monthly-purchase-value": { title: "Monthly SKU Purchase", Icon: TbReceipt, ring: TEAL, tint: "#e6f5f3" },
-  "procurement-variance": { title: "Procurement Variance", Icon: TbTrendingDown, ring: AMBER, tint: "#fcf2e1" },
-  "vendor-volume-contribution": { title: "Vendor Volume", Icon: TbBuildingFactory2, ring: INDIGO, tint: "#eef0fb" },
-  "purchase-by-location": { title: "Purchase by Location", Icon: TbMapPin, ring: TEAL, tint: "#e6f5f3" },
-  "procurement-cycle-time": { title: "Cycle Time", Icon: TbClockHour4, ring: SKY, tint: "#e6f4fb" },
-  "vendor-lead-time": { title: "Vendor Lead Time", Icon: TbTruckDelivery, ring: AMBER, tint: "#fcf2e1" },
-  "fill-rate": { title: "Fill Rate", Icon: TbProgressCheck, ring: EMER, tint: "#e7f6ef" },
-  "vendor-volume-vs-margin": { title: "Vendor Volume vs Margin", Icon: TbChartArrowsVertical, ring: INDIGO, tint: "#eef0fb" },
-};
-const KPI_ORDER = ["purchase-value", "monthly-purchase-value", "procurement-variance", "vendor-volume-contribution", "purchase-by-location", "procurement-cycle-time", "vendor-lead-time", "fill-rate", "vendor-volume-vs-margin"];
-const fmtCard = (kind: string, v: number, key?: string) =>
-  kind === "inr" ? inrAbbr(v) : kind === "days" ? dayFmt(v)
-  : kind === "pct" ? (key && DELTA_KPI_KEYS.has(key) ? pctSign(v) : pctPlain(v))
-  : countAbbr(v);
 
 function SpendFlow({ timeline, cat, empty }: { timeline: any[]; cat: any; empty: boolean }) {
   const on = useMount(140); const [hov, setHov] = useState<number | null>(null);
@@ -99,43 +76,6 @@ function SpendFlow({ timeline, cat, empty }: { timeline: any[]; cat: any; empty:
   );
 }
 
-function KpiGrid({ cards }: { cards: Record<string, any> }) {
-  return (
-    <div className="rounded-[26px] bg-white p-6 flex flex-col flex-1" style={{ boxShadow: CARD_SH }}>
-      <h3 className="text-[16px] font-semibold" style={{ color: INK }}>Explore metrics</h3>
-      <p className="text-[12px] mt-0.5 mb-4" style={{ color: SUBTLE }}>9 procurement KPIs · click to drill in</p>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 flex-1">
-        {KPI_ORDER.map((key) => {
-          const m = KPI_META[key]; const c = cards[key] || { value: 0, kind: "num", sub: "" }; const Icon = m.Icon;
-          return (
-            <Link key={key} href={`/kpi/${key}`} className="group flex items-center gap-3 rounded-2xl p-3.5 transition-all duration-200" style={{ border: "1px solid #eef1f0", background: "#fff" }}
-              onMouseOver={(e) => { (e.currentTarget as HTMLElement).style.borderColor = m.ring; (e.currentTarget as HTMLElement).style.background = "#fbfdfc"; }}
-              onMouseOut={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "#eef1f0"; (e.currentTarget as HTMLElement).style.background = "#fff"; }}>
-              <span className="flex items-center justify-center rounded-xl flex-shrink-0" style={{ width: 38, height: 38, background: m.tint, color: m.ring }}><Icon size={19} /></span>
-              <div className="min-w-0 flex-1">
-                <div className="text-[12.5px] font-semibold truncate" style={{ color: INK }}>{m.title}</div>
-                <div className="flex items-baseline gap-1.5"><span className="text-[16px] font-bold tabular-nums leading-tight" style={{ color: m.ring }}>{fmtCard(c.kind, c.value, key)}</span><span className="text-[10.5px] truncate" style={{ color: SUBTLE }}>{c.sub}</span></div>
-              </div>
-              <TbChevronRight size={16} className="flex-shrink-0 transition-transform duration-200 group-hover:translate-x-0.5" style={{ color: "#c4c7d2" }} />
-            </Link>
-          );
-        })}
-        {SIM_PROCUREMENT.map(({ meta, Icon, accent, val, label }) => (
-          <Link key={meta.key} href={`/kpi/${meta.key}`} className="group flex items-center gap-3 rounded-2xl p-3.5 transition-all duration-200" style={{ border: "1px solid #eef1f0", background: "#fff", opacity: 0.58, filter: "saturate(0.72)" }}
-            onMouseOver={(e) => { const t = e.currentTarget as HTMLElement; t.style.opacity = "1"; t.style.filter = "none"; t.style.borderColor = accent; t.style.background = "#fbfdfc"; }}
-            onMouseOut={(e) => { const t = e.currentTarget as HTMLElement; t.style.opacity = "0.58"; t.style.filter = "saturate(0.72)"; t.style.borderColor = "#eef1f0"; t.style.background = "#fff"; }}>
-            <span className="flex items-center justify-center rounded-xl flex-shrink-0" style={{ width: 38, height: 38, background: accent + "1c", color: accent }}><Icon size={19} /></span>
-            <div className="min-w-0 flex-1">
-              <div className="text-[12.5px] font-semibold truncate" style={{ color: INK }}>{meta.title}</div>
-              <div className="flex items-baseline gap-1.5"><span className="text-[16px] font-bold tabular-nums leading-tight" style={{ color: accent }}>{val}</span><span className="text-[10.5px] truncate" style={{ color: SUBTLE }}>{label}</span></div>
-            </div>
-            <span className="flex items-center gap-0.5 px-1.5 py-[3px] rounded-full flex-shrink-0" style={{ background: "#fff7ed", border: "1px solid #fadcae" }}><TbFlask size={9} style={{ color: "#c07d1a" }} /><span className="text-[8.5px] font-bold uppercase tracking-[0.04em]" style={{ color: "#a56a15" }}>Sim</span></span>
-          </Link>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 function CategoriesCard({ categories }: { categories: any[] }) {
   const on = useMount(120); const max = Math.max(...categories.map((c) => c.value), 1);
@@ -291,6 +231,29 @@ export default function ProcurementOverview() {
       .catch(() => { setData(null); setLoading(false); });
   }, [region]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Chart data per KPI key, for the glass grid — identical fetch/shape to /inventory's
+  // grid (aggregated ~12-row series per tile, not the raw table).
+  const [chartDataMap, setChartDataMap] = useState<Record<string, any[]>>({});
+  useEffect(() => {
+    let cancelled = false;
+    Promise.all(
+      procurementKpis.map(async (kpi) => {
+        if (!kpi.chart) return { key: kpi.key, data: [] };
+        try {
+          return { key: kpi.key, data: await fetchKpiChart(kpi, region) };
+        } catch {
+          return { key: kpi.key, data: [] };
+        }
+      })
+    ).then((results) => {
+      if (cancelled) return;
+      const map: Record<string, any[]> = {};
+      results.forEach(({ key, data }) => { map[key] = data; });
+      setChartDataMap(map);
+    });
+    return () => { cancelled = true; };
+  }, [region]);
+
   // FOUR independent card filters over the ONE payload the page already fetched. Each
   // card keeps its own narrowed copy, so cutting the gauge to Onco Drugs leaves the
   // donut, the spend flow and the vendor ladder showing the whole Rs 649.91 Cr — which
@@ -355,7 +318,7 @@ export default function ProcurementOverview() {
       <div className="flex items-end justify-between flex-wrap gap-2 mb-5">
         <div>
           <h1 className="text-[24px] font-bold leading-tight" style={{ color: INK }}>Procurement</h1>
-          <p className="text-[13px] mt-1" style={{ color: SUBTLE }}>spend, vendors & supply performance · {region}</p>
+          <p className="text-[13px] mt-1" style={{ color: SUBTLE }}>spend, vendors & supply performance · {displayRegion(region)}</p>
         </div>
         <div className="flex items-center gap-2.5 flex-wrap">
           <span className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full cursor-help" style={{ color: "#0e7a54", background: "#eaf5ef", border: "1px solid #cbe8d9" }} title="Unit MRP − purchase cost on GRN lines where MRP is recorded (proxy margin — not billed sales margin).">
@@ -377,14 +340,71 @@ export default function ProcurementOverview() {
           loading={showSkeleton || donut.loading} headerSlot={donut.chip} note={donut.note(!dn.spend)} /></div>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-stretch">
-        <div className="xl:col-span-8 flex flex-col gap-5 min-w-0">
-          <SpendFlow timeline={fl.timeline} cat={flow} empty={!fl.timeline.length} />
-          <KpiGrid cards={data?.cards || {}} />
-        </div>
-        <div className="xl:col-span-4 flex flex-col gap-5 min-w-0">
-          <CategoriesCard categories={data?.categories || []} />
-          <VendorsCard vendors={vd.vlist} top5={vd.top5} cat={vend} />
+      {/* Full width: was squeezed to 8/12 next to the two list cards, which left this
+          card's own column short of the stacked pair beside it once the KPI grid moved
+          out below — a wide monthly trend reads better full-width anyway. */}
+      <div className="mb-5"><SpendFlow timeline={fl.timeline} cat={flow} empty={!fl.timeline.length} /></div>
+
+      {/* Two list cards, side by side — similar row counts (7 each), so they land at
+          a near-identical natural height without any stretch hack. */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
+        <CategoriesCard categories={data?.categories || []} />
+        <VendorsCard vendors={vd.vlist} top5={vd.top5} cat={vend} />
+      </div>
+
+      {/* ── GLASSMORPHIC KPI grid — pixel-identical to /inventory's grid ── */}
+      <div className="mt-5">
+        <div
+          className="rounded-2xl overflow-hidden"
+          style={{ border: "1px solid rgba(186,230,253,0.6)", background: "rgba(255,255,255,0.4)" }}
+        >
+          <div
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 divide-x divide-y"
+            style={{ borderColor: "transparent" }}
+          >
+            {procurementKpis.map((kpi, i) => {
+              const chartData = chartDataMap[kpi.key] ?? [];
+              return (
+                <div
+                  key={kpi.key}
+                  className="relative flex justify-center items-center p-6 transition duration-300"
+                  style={{ background: "rgba(255,255,255,0.9)" }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background =
+                      "linear-gradient(135deg, rgba(248,252,255,0.6) 0%, rgba(241,249,255,0.8) 100%)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = "rgba(255,255,255,0.9)";
+                  }}
+                >
+                  <InventoryGlassKpiCard
+                    kpi={kpi}
+                    index={i}
+                    insights={computeInsights(kpi, chartData)}
+                    chartData={chartData}
+                  />
+                </div>
+              );
+            })}
+            {simProcurement.map((s, j) => {
+              const idx = procurementKpis.length + j;
+              return (
+                <div
+                  key={s.kpi.key}
+                  className="relative flex justify-center items-center p-6 transition duration-300"
+                  style={{ background: "rgba(255,255,255,0.9)", opacity: 0.6, filter: "saturate(0.72)" }}
+                  title="Simulated preview — activates the moment HCG shares the source"
+                  onMouseEnter={(e) => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.filter = "none"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.opacity = "0.6"; e.currentTarget.style.filter = "saturate(0.72)"; }}
+                >
+                  <span className="absolute top-3 right-3 z-20 text-[10px] font-bold uppercase tracking-[0.05em] px-2 py-1 rounded-full" style={{ background: "#fff7ed", color: "#a56a15", border: "1px solid #fadcae" }}>
+                    Simulated
+                  </span>
+                  <InventoryGlassKpiCard kpi={s.kpi} index={idx} insights={s.insights} chartData={s.chartData} />
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
 

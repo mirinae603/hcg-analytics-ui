@@ -1,14 +1,12 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
-import { KPIS, Kpi, simulatedByPortfolio } from "@/lib/kpiRegistry";
-import { getSimulated } from "@/lib/simulatedKpi";
-import { fmt } from "@/lib/kpiFormat";
+import { KPIS, Kpi } from "@/lib/kpiRegistry";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import { useRegion } from "@/context/RegionContext";
 import AnalyticsDashboardLayout from "@/components/ecommerce/AnalyticsHomeScreenCards/analyticsHomeScreenCard";
 import InventoryGlassKpiCard from "@/components/portfolio/inventory/InventoryGlassKpiCard";
-import { fetchKpiChart } from "@/components/portfolio/inventory/kpiChartFetch";
+import { fetchKpiChart, computeInsights, buildSimTiles } from "@/components/portfolio/inventory/kpiChartFetch";
 
 // Greys out a KPI card with a "Data N/A" badge
 const UnavailableKpi: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
@@ -34,66 +32,7 @@ const UNAVAILABLE_KEYS = new Set<string>();
 
 // Simulated inventory KPIs, adapted to the same glass-card shape so they render
 // inline in the grid (washed-out + a "Simulated" tag) — no separate section.
-const simInventory = simulatedByPortfolio("inventory").map((meta) => {
-  const b = getSimulated(meta.key)!;
-  const kpi = {
-    key: meta.key, title: meta.title, short: meta.short, portfolio: "inventory", icon: meta.icon,
-    chart: { type: b.chartCfg.type, x: b.chartCfg.x, series: b.chartCfg.series },
-    card: { field: "", agg: "sum", kind: b.headline.kind, label: b.headline.label },
-    columns: [],
-  } as unknown as Kpi;
-  const insights = [
-    `${b.headline.label}: ${fmt(b.headline.value, b.headline.kind)}`,
-    b.summary[0] ? `${b.summary[0].label}: ${fmt(b.summary[0].value, b.summary[0].kind)}` : meta.why,
-    "Simulated · activates on your data",
-  ];
-  return { kpi, chartData: b.chartData, insights };
-});
-
-// ─── insight generator ────────────────────────────────────────────────────────
-function computeInsights(kpi: Kpi, chartData: any[]): string[] {
-  if (!chartData || chartData.length === 0) {
-    return [
-      `${kpi.short} — live data`,
-      kpi.card.label,
-      `${kpi.portfolio.charAt(0).toUpperCase() + kpi.portfolio.slice(1)} Portfolio KPI`,
-    ];
-  }
-
-  const xField = kpi.chart?.x ?? "";
-  const seriesField = kpi.chart?.series?.[0]?.field ?? "";
-  const valueKind = kpi.chart?.valueKind ?? kpi.card.kind;
-
-  // Find top row by series value
-  const sorted = [...chartData].sort(
-    (a, b) => Number(b[seriesField] ?? 0) - Number(a[seriesField] ?? 0)
-  );
-  const topRow = sorted[0];
-  const topLabel = topRow ? String(topRow[xField] ?? "").slice(0, 20) : "—";
-  const topVal = topRow ? Number(topRow[seriesField] ?? 0) : 0;
-  const formattedTop = fmt(topVal, valueKind);
-
-  // Average
-  const avg = chartData.reduce((s, r) => s + Number(r[seriesField] ?? 0), 0) / chartData.length;
-
-  // Insight 1 — top / peak
-  const insight1 =
-    kpi.chart?.type === "donut"
-      ? `Largest: ${topLabel} ${formattedTop}`
-      : `Peak: ${topLabel} (${formattedTop})`;
-
-  // Insight 2 — count / avg
-  const insight2 =
-    kpi.chart?.type === "donut"
-      ? `${chartData.length} segments tracked`
-      : `Avg: ${fmt(avg, valueKind)} across ${chartData.length} entries`;
-
-  // Insight 3 — portfolio label
-  const insight3 = `${kpi.portfolio.charAt(0).toUpperCase() + kpi.portfolio.slice(1)} Portfolio KPI`;
-
-  return [insight1, insight2, insight3];
-}
-// ─────────────────────────────────────────────────────────────────────────────
+const simInventory = buildSimTiles("inventory");
 
 export default function InventoryPage() {
   const { selectedRegion } = useRegion();

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { displayRegion } from '@/context/RegionContext';
 
 /**
  * Expiry Risk — the exec-row card that replaced Return Rate %.
@@ -87,7 +88,13 @@ const NearExpiryCard: React.FC<NearExpiryCardProps> = ({
   // lakhs sit expired, and can't read "critical" over stock that is months away.
   const sharePct = totalStockValue > 0 ? (value / totalStockValue) * 100 : 0;
   const status = expiredValue > 0
-    ? { text: 'Write-off pending', color: '#E11D48', bg: 'rgba(244,63,94,0.10)', ring: 'rgba(244,63,94,0.22)' }
+    // First pass muted this all the way to a dusty rose (#C2586B) — same hue family as
+    // the warm peach card background, which was the actual mistake: with almost no
+    // lightness/chroma gap from the gradient behind it, the headline number and badge
+    // stopped popping and the whole card read as flat, muddy pink rather than "soft".
+    // This wine-red keeps the card calm (nowhere near the original rose-600 #E11D48)
+    // while staying dark/saturated enough to have real contrast against #FFF9F5.
+    ? { text: 'Write-off pending', color: '#C93B4E', bg: 'rgba(201,59,78,0.10)', ring: 'rgba(201,59,78,0.22)' }
     : urgentValue > 0
       ? { text: 'Act this month', color: '#F59E0B', bg: 'rgba(245,158,11,0.10)', ring: 'rgba(245,158,11,0.22)' }
       : { text: 'Nothing urgent', color: '#10B981', bg: 'rgba(16,185,129,0.10)', ring: 'rgba(16,185,129,0.22)' };
@@ -102,9 +109,13 @@ const NearExpiryCard: React.FC<NearExpiryCardProps> = ({
         className={`relative w-full rounded-3xl overflow-hidden transition-all duration-700 backdrop-blur-xl border ${className}`}
         style={{
           background: 'linear-gradient(150deg, #FFF9F5 0%, #FFF1EC 55%, #FFE9E4 100%)',
-          borderColor: 'rgba(244,63,94,0.14)',
+          borderColor: 'rgba(201,59,78,0.14)',
           boxShadow: '0 10px 34px -18px rgba(120,40,30,0.28)',
-          minHeight: 244,
+          // Was a hardcoded `minHeight: 244` — a guess at matching its siblings that
+          // instead forced this card a few px taller than their actual rendered height,
+          // which is what read as "slightly longer" sitting between them. The parent
+          // grid now stretches all three cards to the same height structurally (see
+          // analyticsHomeScreenCard.tsx), so a fixed floor here would only fight that.
         }}
       >
         <div className="absolute rounded-full blur-3xl pointer-events-none"
@@ -122,7 +133,7 @@ const NearExpiryCard: React.FC<NearExpiryCardProps> = ({
                 <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
                 </svg>
-                <span className="truncate">{location}</span>
+                <span className="truncate">{displayRegion(location)}</span>
               </div>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
@@ -151,14 +162,14 @@ const NearExpiryCard: React.FC<NearExpiryCardProps> = ({
 
           {/* the window, split by how much time is left */}
           <div className="mt-4 h-2.5 rounded-full overflow-hidden flex" style={{ background: 'rgba(120,40,30,0.08)' }}>
-            <div style={{ width: on ? `${pct(expiredValue)}%` : '0%', background: '#E11D48', transition: 'width 1s cubic-bezier(0.22,1,0.36,1)' }} />
+            <div style={{ width: on ? `${pct(expiredValue)}%` : '0%', background: '#C93B4E', transition: 'width 1s cubic-bezier(0.22,1,0.36,1)' }} />
             <div style={{ width: on ? `${pct(urgentValue)}%` : '0%', background: '#F59E0B', transition: 'width 1s cubic-bezier(0.22,1,0.36,1) 90ms' }} />
             <div style={{ width: on ? `${pct(laterValue)}%` : '0%', background: '#FCA5A5', transition: 'width 1s cubic-bezier(0.22,1,0.36,1) 180ms' }} />
           </div>
 
           <div className="mt-3 grid grid-cols-3 gap-2">
             {[
-              { l: 'Already expired', v: expiredValue, c: '#E11D48', note: 'unrecoverable' },
+              { l: 'Already expired', v: expiredValue, c: '#C93B4E', note: 'unrecoverable' },
               { l: 'Within 30 days', v: urgentValue, c: '#F59E0B', note: 'still dispensable' },
               { l: '31–180 days', v: laterValue, c: '#d98a7d', note: 'plan ahead' },
             ].map((s) => (

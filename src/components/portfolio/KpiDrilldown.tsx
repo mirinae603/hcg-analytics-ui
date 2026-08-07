@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { Kpi } from "@/lib/kpiRegistry";
 import { fmt } from "@/lib/kpiFormat";
-import { useRegion } from "@/context/RegionContext";
+import { useRegion, displayRegion } from "@/context/RegionContext";
 import { DRILL } from "@/lib/drilldown";
 import { useCardCategory, CATEGORY_CAPABLE_KPIS, PROCUREMENT_KPIS } from "@/components/common/CardCategoryFilter";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
@@ -166,7 +166,7 @@ export default function KpiDrilldown({ kpi }: { kpi: Kpi }) {
             <div className="px-6 pt-5 pb-3 flex items-center justify-between border-b border-gray-50">
               <div>
                 <h3 className="text-sm font-semibold text-gray-800">{kpi.title}</h3>
-                <p className="text-xs text-gray-400 mt-0.5">Overview · {region}</p>
+                <p className="text-xs text-gray-400 mt-0.5">Overview · {displayRegion(region)}</p>
               </div>
               <div className="flex items-center gap-2">
                 {capable && cat.chip}
@@ -227,7 +227,7 @@ export default function KpiDrilldown({ kpi }: { kpi: Kpi }) {
               </div>
               <div className="mt-5 flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full" style={{ background: "#22c55e" }} />
-                <span className="text-xs font-semibold text-gray-500">Live data · {region}</span>
+                <span className="text-xs font-semibold text-gray-500">Live data · {displayRegion(region)}</span>
               </div>
               {kpi.note && (
                 <span className="mt-3 text-[11px] font-medium px-3 py-1.5 rounded-full"

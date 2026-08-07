@@ -1,10 +1,10 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import { useRegion } from "@/context/RegionContext";
+import { useRegion, displayRegion } from "@/context/RegionContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
-import { useCardCategory, useCardScopedData } from "@/components/common/CardCategoryFilter";
+import { useCardCategory } from "@/components/common/CardCategoryFilter";
 import { useDrillBind } from "@/components/portfolio/useDrillBind";
 import { TbCalendarStats, TbAlertTriangle, TbStack3, TbZzz, TbChartHistogram, TbReload, TbAnchor } from "react-icons/tb";
 
@@ -237,7 +237,7 @@ function CoverageHistogram({ bands, region, cat, loading }: { bands: any[]; regi
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
           <h3 className="text-[15px] font-semibold text-gray-900 flex items-center gap-2"><TbChartHistogram size={16} style={{ color: INDIGO }} />Coverage distribution</h3>
-          <p className="text-xs text-gray-400 mt-0.5">moving SKUs by days of cover · {region}</p>
+          <p className="text-xs text-gray-400 mt-0.5">moving SKUs by days of cover · {displayRegion(region)}</p>
         </div>
         <div className="flex items-center gap-2.5">
         {cat.chip}
@@ -249,9 +249,16 @@ function CoverageHistogram({ bands, region, cat, loading }: { bands: any[]; regi
         </div>
         </div>
       </div>
-      {cat.note(!loading && data.every((d: any) => !d.count && !d.value)) && (
-        <div className="mt-3">{cat.note(true)}</div>
-      )}
+      {(() => {
+        const trulyEmpty = !loading && data.every((d: any) => !d.count && !d.value);
+        // cat.note()'s "domain missing" flag is a static fact about Category coverage
+        // under the internal-only-only ETL parquet (e.g. Onco genuinely has near-zero
+        // internal consumption) — no longer accurate now that every total here is
+        // permanently billed+internal, so it is only trusted when the chart is
+        // ACTUALLY empty, never as a standalone claim.
+        const noteEl = trulyEmpty ? cat.note(true) : null;
+        return noteEl && <div className="mt-3">{noteEl}</div>;
+      })()}
       <div className="mt-5 flex items-end gap-3 sm:gap-5" style={{ height: 230 }} onMouseLeave={() => setHov(null)}>
         {data.map((d, i) => {
           const v = metric === "count" ? d.count : d.value;
@@ -291,7 +298,7 @@ function ReorderPriority({ rows, region }: { rows: any[]; region: string }) {
   return (
     <div className="csv-card rounded-3xl bg-white p-5 md:p-6 flex flex-col" style={{ animationDelay: "460ms", boxShadow: PANEL_SHADOW }}>
       <h3 className="text-[15px] font-semibold text-gray-900 flex items-center gap-2"><TbReload size={16} style={{ color: "#cf7e6f" }} />Reorder priority</h3>
-      <p className="text-xs text-gray-400 mt-0.5 mb-3">fastest to run out · cover vs daily use · {region}</p>
+      <p className="text-xs text-gray-400 mt-0.5 mb-3">fastest to run out · cover vs daily use · {displayRegion(region)}</p>
       <div className="space-y-1.5 flex-1">
         {rows.slice(0, 10).map((r, i) => {
           const urg = Math.max(4, Math.min(100, (r.doh / 30) * 100));
@@ -321,7 +328,7 @@ function OverstockSinks({ rows, region }: { rows: any[]; region: string }) {
   return (
     <div className="csv-card rounded-3xl bg-white p-5 md:p-6 flex flex-col" style={{ animationDelay: "540ms", boxShadow: PANEL_SHADOW }}>
       <h3 className="text-[15px] font-semibold text-gray-900 flex items-center gap-2"><TbAnchor size={16} style={{ color: "#6f76b3" }} />Overstock sinks</h3>
-      <p className="text-xs text-gray-400 mt-0.5 mb-3">most capital with 1+ year cover · {region}</p>
+      <p className="text-xs text-gray-400 mt-0.5 mb-3">most capital with 1+ year cover · {displayRegion(region)}</p>
       <div className="space-y-2.5 flex-1">
         {rows.slice(0, 7).map((r, i) => (
           <div key={i}>
@@ -353,18 +360,30 @@ export default function DaysOnHandDetail() {
   const { selectedRegion } = useRegion();
   const region = selectedRegion?.name ?? "All Plants";
   const [data, setData] = useState<any>(null);
-
+  // Always billed+internal ("both") — the backend permanently folds patient billing
+  // into every total now, so this is a single plain fetch: no Scope param, no
+  // baseline/delta bookkeeping. See legacy_kpi.py's doh_insights comment.
   useEffect(() => {
-    fetch(`${DASHBOARD_API_BASE_URL}/kpi/days-on-hand/insights?Plant=${encodeURIComponent(region)}`).then((r) => r.json()).then((d) => setData(d || null)).catch(() => setData(null));
+    const ac = new AbortController();
+    fetch(`${DASHBOARD_API_BASE_URL}/kpi/days-on-hand/insights?Plant=${encodeURIComponent(region)}`, { signal: ac.signal })
+      .then((r) => r.json()).then((d) => setData(d || null)).catch((e) => { if (e?.name !== "AbortError") setData(null); });
+    return () => ac.abort();
   }, [region]);
 
-  // Days-on-hand is CONSUMPTION-derived (cover = stock / daily consumption), so onco
-  // legitimately reads near-zero here — HCG dispenses it through IP/OP billing, not
-  // through internal consumption movements. The chip's own note says so rather than
-  // leaving an empty histogram looking like a broken filter.
   const cat = useCardCategory({ accent: INDIGO, domain: "consumption" });
-  const scoped = useCardScopedData(data, cat.category, (c, signal) =>
-    fetch(`${DASHBOARD_API_BASE_URL}/kpi/days-on-hand/insights?Plant=${encodeURIComponent(region)}&Category=${encodeURIComponent(c)}`, { signal }).then((r) => r.json()));
+  const [catData, setCatData] = useState<any>(null);
+  const [catLoading, setCatLoading] = useState(false);
+  useEffect(() => {
+    if (!cat.category) { setCatData(null); setCatLoading(false); return; }
+    const ac = new AbortController();
+    setCatLoading(true);
+    fetch(`${DASHBOARD_API_BASE_URL}/kpi/days-on-hand/insights?Plant=${encodeURIComponent(region)}&Category=${encodeURIComponent(cat.category)}`, { signal: ac.signal })
+      .then((r) => r.json()).then((d) => { setCatData(d || null); setCatLoading(false); })
+      .catch((e) => { if (e?.name !== "AbortError") setCatLoading(false); });
+    return () => ac.abort();
+  }, [region, cat.category]);
+  const scopedBands = (cat.category && catData ? catData : data)?.bands || [];
+  const scopedLoading = cat.category ? catLoading : false;
 
   const t = data?.totals || {};
   const bands = data?.bands || [];
@@ -374,6 +393,10 @@ export default function DaysOnHandDetail() {
   return (
     <div className="-m-4 md:-m-6 p-4 md:p-6 space-y-5 min-w-0" style={{ background: MIST, minHeight: "calc(100vh - 64px)" }}>
       <PageBreadcrumb pageTitle="Days of Inventory on Hand" />
+
+      <p className="text-[11.5px] px-0.5" style={{ color: SUBTLE }}>
+        "Consumption" includes both internal goods-issue and patient billing (IP+OP) — filter by category above, not by billing type.
+      </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 csv-cards">
         <div className="csv-card" style={{ animationDelay: "0ms" }}><CoverHeroCard median={Number(t.median_doh ?? 0)} movingSkus={Number(t.moving_skus ?? 0)} /></div>
@@ -388,7 +411,7 @@ export default function DaysOnHandDetail() {
         .csv-cards > .csv-card > * { height: 100%; }
       `}</style>
 
-      <CoverageHistogram bands={scoped.data?.bands || []} region={region} cat={cat} loading={scoped.loading} />
+      <CoverageHistogram bands={scopedBands} region={region} cat={cat} loading={scopedLoading} />
 
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-4">
         <div className="xl:col-span-7"><ReorderPriority rows={data?.reorder || []} region={region} /></div>

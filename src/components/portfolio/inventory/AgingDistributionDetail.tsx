@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import { useRegion } from "@/context/RegionContext";
+import { useRegion, displayRegion } from "@/context/RegionContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import { useDrillBind } from "@/components/portfolio/useDrillBind";
@@ -207,7 +207,7 @@ function Marimekko({ cols, grand, region, cat }: { cols: any[]; grand: number; r
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
           <h3 className="text-[15px] font-semibold text-gray-900 flex items-center gap-2"><TbChartGridDots size={16} style={{ color: PLUM }} />Fresh-vs-risk distribution</h3>
-          <p className="text-xs text-gray-400 mt-0.5">column width = category value · height = age mix · {region}</p>
+          <p className="text-xs text-gray-400 mt-0.5">column width = category value · height = age mix · {displayRegion(region)}</p>
         </div>
         <div className="flex items-center gap-3 text-[11px] font-medium text-gray-500">
           {cat.chip}
@@ -269,7 +269,7 @@ function StagnantLeaderboard({ rows, region, cat }: { rows: any[]; region: strin
       <div className="flex items-start justify-between gap-2">
         <div>
           <h3 className="text-[15px] font-semibold text-gray-900 flex items-center gap-2"><TbHourglassLow size={16} style={{ color: RISK.bar }} />Stagnant capital by category</h3>
-          <p className="text-xs text-gray-400 mt-0.5">value stuck past 180 days · with fresh-to-risk mix · {region}</p>
+          <p className="text-xs text-gray-400 mt-0.5">value stuck past 180 days · with fresh-to-risk mix · {displayRegion(region)}</p>
         </div>
         {cat.chip}
       </div>

@@ -5,7 +5,7 @@
 //   • Sourcing-profile scatter — spend vs supplier diversity, split into quadrants.
 import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import { useRegion } from "@/context/RegionContext";
+import { useRegion, displayRegion } from "@/context/RegionContext";
 import { useDrillBind } from "@/components/portfolio/useDrillBind";
 import { useCardScope } from "@/components/common/CardCategoryFilter";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
@@ -38,7 +38,7 @@ function Shell({ region, children }: any) {
       <div className="flex items-end justify-between flex-wrap gap-2">
         <div>
           <h1 className="text-[24px] font-bold leading-tight" style={{ color: INK }}>Purchase by location</h1>
-          <p className="text-[13px] mt-1" style={{ color: SUB }}>how procurement spend spreads across the hospital network · {region}</p>
+          <p className="text-[13px] mt-1" style={{ color: SUB }}>how procurement spend spreads across the hospital network · {displayRegion(region)}</p>
         </div>
         <span className="text-[12px] font-medium px-3.5 py-2 rounded-full bg-white" style={{ color: "#4d6873", boxShadow: "0 4px 14px -8px rgba(18,64,78,0.22)" }}>6-month window</span>
       </div>

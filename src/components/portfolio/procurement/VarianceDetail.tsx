@@ -194,7 +194,7 @@ export default function VarianceDetail() {
 
       <VarianceBars timeline={barCat.data?.timeline || []} cat={barCat} />
 
-      <TableCard title="Plant × month variance detail" sub="paginated · sortable · filterable · export CSV">
+      <TableCard title="Hospital × month variance detail" sub="paginated · sortable · filterable · export CSV">
         <KpiTable kpiKey="procurement-variance" plant={region} columns={COLUMNS} />
       </TableCard>
     </ProcShell>

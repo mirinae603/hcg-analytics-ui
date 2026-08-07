@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { displayRegion } from '@/context/RegionContext';
 
 export interface StockLevelCardProps {
   currentStock: number;
@@ -704,7 +705,7 @@ const formatCurrency = (amount: number): string => {
                 <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
                 </svg>
-                <span className="truncate max-w-20">{location}</span>
+                <span className="truncate max-w-20">{displayRegion(location)}</span>
               </div>
             )}
           </div>

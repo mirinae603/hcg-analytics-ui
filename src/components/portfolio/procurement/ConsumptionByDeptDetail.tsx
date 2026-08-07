@@ -3,7 +3,7 @@
 //   4 mini-dashboard cards (bars · ring · share bar · cumulative spark) · treemap · stream + leaderboard.
 import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import { useRegion } from "@/context/RegionContext";
+import { useRegion, displayRegion } from "@/context/RegionContext";
 import { useDrillBind } from "@/components/portfolio/useDrillBind";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import { inrAbbr, countAbbr, useMount, CountUp, smoothPath } from "@/components/portfolio/kit";
@@ -42,7 +42,7 @@ function Shell({ region, children }: any) {
       <div className="flex items-end justify-between flex-wrap gap-2">
         <div>
           <h1 className="text-[24px] font-bold leading-tight" style={{ color: INK }}>Consumption by department</h1>
-          <p className="text-[13px] mt-1" style={{ color: SUB }}>which cost-centers drive internal consumption · {region}</p>
+          <p className="text-[13px] mt-1" style={{ color: SUB }}>which cost-centers drive internal consumption · {displayRegion(region)}</p>
         </div>
         <span className="text-[12px] font-medium px-3.5 py-2 rounded-full bg-white" style={{ color: "#6c6084", boxShadow: "0 4px 14px -8px rgba(70,44,96,0.22)" }}>6-month window</span>
       </div>

@@ -11,6 +11,24 @@ const SimulatedKpiPage = dynamic(() => import("@/components/portfolio/SimulatedK
 // Bespoke, richly-detailed drill-downs per KPI (interactive grouping, custom
 // tooltips, insight cards). Falls back to the generic KpiDrilldown otherwise.
 const BESPOKE: Record<string, any> = {
+  "stock-out-rate": dynamic(
+    () => import("@/components/portfolio/ledger/StockOutRateDetail"),
+    { ssr: false }
+  ),
+  // Consumption KPIs promoted out of the simulated set — each gets its own real page
+  // rather than the generic chart+table shell (see components/portfolio/ledger/).
+  "billable-consumption": dynamic(
+    () => import("@/components/portfolio/ledger/BillableConsumptionDetail"),
+    { ssr: false }
+  ),
+  "revenue-per-location": dynamic(
+    () => import("@/components/portfolio/ledger/RevenuePerLocationDetail"),
+    { ssr: false }
+  ),
+  "op-ip-revenue": dynamic(
+    () => import("@/components/portfolio/ledger/OpIpRevenueDetail"),
+    { ssr: false }
+  ),
   "current-stock-value": dynamic(
     () => import("@/components/portfolio/inventory/StockValueDetail"),
     { ssr: false }

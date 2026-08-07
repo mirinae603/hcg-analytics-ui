@@ -5,7 +5,7 @@
 //   • Vendor beeswarm — every tracked vendor as a dot on a days axis, coloured by speed, sized by volume.
 import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import { useRegion } from "@/context/RegionContext";
+import { useRegion, displayRegion } from "@/context/RegionContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import { countAbbr, useMount, CountUp, smoothPath } from "@/components/portfolio/kit";
 import { TbTruckDelivery, TbRocket, TbAlertTriangle } from "react-icons/tb";
@@ -32,7 +32,7 @@ function Shell({ region, children }: any) {
       <div className="flex items-end justify-between flex-wrap gap-2">
         <div>
           <h1 className="text-[24px] font-bold leading-tight" style={{ color: INK }}>Vendor lead time</h1>
-          <p className="text-[13px] mt-1" style={{ color: SUB }}>how reliably suppliers turn a purchase order into delivered goods · {region}</p>
+          <p className="text-[13px] mt-1" style={{ color: SUB }}>how reliably suppliers turn a purchase order into delivered goods · {displayRegion(region)}</p>
         </div>
         <span className="text-[12px] font-medium px-3.5 py-2 rounded-full bg-white" style={{ color: "#6a6486", boxShadow: "0 4px 14px -8px rgba(58,44,110,0.22)" }} title="Average PO→GR turnaround across all recorded goods receipts (not limited to a 6-month window).">PO→GR · all deliveries</span>
       </div>

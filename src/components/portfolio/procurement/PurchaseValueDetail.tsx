@@ -151,7 +151,7 @@ export default function PurchaseValueDetail() {
   // apportioned. Vendors and plants are the two dimensions where that is unambiguous:
   // "who did we buy Rs 236.73 Cr of onco from" is one supplier, 94.9% of it.
   const vendCat = useCardScope(url, data, { accent: INDIGO, domain: "procurement", label: "Top vendors" });
-  const plantCat = useCardScope(url, data, { accent: TEAL, domain: "procurement", label: "Spend by plant" });
+  const plantCat = useCardScope(url, data, { accent: TEAL, domain: "procurement", label: "Spend by hospital" });
   if (!data) return <ProcShell title="Purchase value" subtitle="what you spend, on what, and with whom" region={region}><DetailSkeleton /></ProcShell>;
   const t = data?.totals || {};
   const spend = Number(t.spend ?? 0), lines = Number(t.lines ?? 0), avgPo = Number(t.avg_po ?? 0), vendors = Number(t.vendors ?? 0);
@@ -187,7 +187,7 @@ export default function PurchaseValueDetail() {
           </div>
         </div>
         <div className="flex flex-col min-w-0"><RankBars title="Top vendors" sub="largest suppliers by spend" rows={vendorRows} accent={INDIGO} icon={TbBuildingFactory2} delay={200} cat={vendCat} /></div>
-        <div className="flex flex-col min-w-0"><RankBars title="Spend by plant" sub="where purchasing happens" rows={plantRows} accent={TEAL} icon={TbMapPin} delay={240} cat={plantCat} /></div>
+        <div className="flex flex-col min-w-0"><RankBars title="Spend by hospital" sub="where purchasing happens" rows={plantRows} accent={TEAL} icon={TbMapPin} delay={240} cat={plantCat} /></div>
       </div>
 
       <TableCard title="PO-line purchase detail" sub="paginated · sortable · filterable · export CSV">

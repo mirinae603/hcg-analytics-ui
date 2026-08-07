@@ -173,10 +173,15 @@ const ITRCard: React.FC<ITRCardProps> = ({
   };
 
   const status = getITRStatus();
+  // currentITR is annualized (backend: 6-month COGS x2 / inventory value — the same
+  // "portfolio_itr" the bespoke Inventory Turnover Ratio page uses), so a full cycle
+  // is 365/currentITR days, not 30/currentITR — that would silently read an annual
+  // rate as a monthly one and print an absurd "days cycle" once currentITR moved off
+  // its old, wrongly-scoped internal-only value (2.8 days at a real ~11x/year rate).
   // A category with stock but no consumption (Onco Drugs — dispensed via IP/OP billing,
-  // not internal movements) has turnover 0.00, and 30/0 is Infinity, which rendered
+  // not internal movements) has turnover 0.00, and 365/0 is Infinity, which rendered
   // literally as "Infinity days cycle". No turnover means no meaningful cycle length.
-  const daysInInventory = currentITR > 0 ? Math.round(30 / currentITR) : null;
+  const daysInInventory = currentITR > 0 ? Math.round(365 / currentITR) : null;
 
   // Generate moving inventory boxes
   const generateBoxes = () => {
@@ -265,7 +270,7 @@ const ITRCard: React.FC<ITRCardProps> = ({
                 {displayITR.toFixed(1)}
               </span>
               <span className="text-sm text-slate-500 font-medium">
-                turns/month
+                turns/year
               </span>
                 {/* Speed Indicator - Top Right */}
         <div className="absolute top-13 left-40">
@@ -291,15 +296,28 @@ const ITRCard: React.FC<ITRCardProps> = ({
             </div>
           </div>
         
-          <div className="flex items-center gap-2 flex-shrink-0">
+          {/* Was `flex-shrink-0`. That, combined with a flex child's own default
+              `min-width: auto`, floors this group at its UNWRAPPED content width no
+              matter what — dropping `whiteSpace: nowrap` on the badge below did
+              nothing by itself, because nothing was actually forcing a narrower box
+              for the text to wrap inside. `min-w-0` removes that floor so the badge
+              can actually shrink and wrap on a narrow card instead of pushing past
+              the card's right edge. */}
+          <div className="flex items-center gap-2 min-w-0">
             {headerSlot}
             <div
-              className="px-2 py-1.5 rounded-lg text-xs font-small backdrop-blur-sm transition-all duration-300 ml-0 flex items-center"
+              className="px-2 py-1.5 rounded-lg text-xs font-small backdrop-blur-sm transition-all duration-300 ml-0 flex items-center text-right"
               style={{
                 background: `linear-gradient(135deg, ${status.color}15, ${status.color}25)`,
                 color: status.color,
                 boxShadow: `0 4px 15px ${status.color}15`,
-                whiteSpace: 'nowrap',
+                // Was `whiteSpace: 'nowrap'`. On a narrow phone the card is ~272px and
+                // the longest status text ("Excess Stock Risk", plus its icon) has no
+                // room next to the headline number on the left — nowrap forced it past
+                // the card's own right edge instead of yielding. Confirmed by measuring
+                // the live render at 320px: 22px of real, clipped overflow, not just a
+                // cramped look. Letting it wrap to two lines keeps the full text
+                // visible instead of silently cutting it off.
               }}
             >
               {status.description}

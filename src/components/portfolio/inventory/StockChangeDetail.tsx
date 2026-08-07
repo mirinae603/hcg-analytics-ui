@@ -1,12 +1,12 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import { useRegion } from "@/context/RegionContext";
+import { useRegion, displayRegion } from "@/context/RegionContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
-import { useCardCategory, useCardScopedData } from "@/components/common/CardCategoryFilter";
+import { useCardCategory } from "@/components/common/CardCategoryFilter";
 import { useDrillBind } from "@/components/portfolio/useDrillBind";
-import { TbArrowUpRight, TbArrowDownRight } from "react-icons/tb";
+import { TbArrowUpRight, TbArrowDownRight, TbInfoCircle } from "react-icons/tb";
 
 const KpiTable = dynamic(() => import("../KpiTable"), {
   ssr: false,
@@ -164,7 +164,7 @@ function FlowChart({ months, region, cat, loading }: { months: any[]; region: st
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
           <h3 className="text-[15px] font-semibold text-gray-900">Monthly flow — received vs consumed</h3>
-          <p className="text-xs text-gray-400 mt-0.5">inflow (up) · outflow (down) · net line · {region}</p>
+          <p className="text-xs text-gray-400 mt-0.5">inflow (up) · outflow (down) · net line · {displayRegion(region)}</p>
         </div>
         <div className="flex items-center gap-3 text-[11px] font-medium text-gray-500">
           {cat.chip}
@@ -173,7 +173,15 @@ function FlowChart({ months, region, cat, loading }: { months: any[]; region: st
           <span className="inline-flex items-center gap-1.5"><span className="w-3 h-[2px]" style={{ background: NET }} />Net</span>
         </div>
       </div>
-      {cat.note(!loading && months.every((m: any) => !m.inflow && !m.outflow)) && <div className="mt-3">{cat.note(true)}</div>}
+      {(() => {
+        const trulyEmpty = !loading && months.every((m: any) => !m.inflow && !m.outflow);
+        const noteEl = trulyEmpty ? cat.note(true) : null;
+        return noteEl && <div className="mt-3">{noteEl}</div>;
+      })()}
+      <div className="mt-2 flex items-start gap-1.5 text-[11px]" style={{ color: "#9aa1ae" }}>
+        <TbInfoCircle size={13} className="flex-shrink-0 mt-[1px]" />
+        <span>These monthly bars stay internal goods-issue only — patient billing has no month to attribute here. The totals above do include it.</span>
+      </div>
       <div className="mt-2 text-[11px] font-medium min-h-[18px]" style={{ color: hd ? INK : "#9aa1ae" }}>
         {hd ? <span>{hd.label} · in <b style={{ color: INFLOW }}>{numAbbr(hd.inflow)}</b> · out <b style={{ color: OUTFLOW }}>{numAbbr(hd.outflow)}</b> · net <b style={{ color: hd.net >= 0 ? INFLOW : OUTFLOW }}>{signed(hd.net)}</b></span> : <span>each bar pair shows what came in vs what went out that month · hover a bar for the items inside it</span>}
       </div>
@@ -210,7 +218,7 @@ function Movers({ rows, kind, region }: { rows: any[]; kind: "up" | "down"; regi
   return (
     <div className="csv-card rounded-3xl bg-white p-5 md:p-6 flex flex-col" style={{ animationDelay: kind === "up" ? "260ms" : "320ms", boxShadow: PANEL_SHADOW }}>
       <h3 className="text-[15px] font-semibold text-gray-900 flex items-center gap-2">{kind === "up" ? <TbArrowUpRight size={16} style={{ color }} /> : <TbArrowDownRight size={16} style={{ color }} />}{kind === "up" ? "Built up most" : "Drawn down most"}</h3>
-      <p className="text-xs text-gray-400 mt-0.5 mb-3">net {kind === "up" ? "increase" : "decrease"} over the period · {region}</p>
+      <p className="text-xs text-gray-400 mt-0.5 mb-3">net {kind === "up" ? "increase" : "decrease"} over the period · {displayRegion(region)}</p>
       <div className="space-y-2.5 flex-1">
         {rows.slice(0, 7).map((r, i) => (
           <div key={i}>
@@ -234,16 +242,33 @@ export default function StockChangeDetail() {
   const { selectedRegion } = useRegion();
   const region = selectedRegion?.name ?? "All Plants";
   const [data, setData] = useState<any>(null);
-
+  // Always billed+internal ("both") — the backend permanently folds patient billing
+  // into every total now, so this is a single plain fetch: no Scope param, no
+  // baseline/delta bookkeeping. See legacy_kpi.py's stockchange_insights comment.
+  // The monthly timeline stays internal-only regardless (see FlowChart's note).
   useEffect(() => {
-    fetch(`${DASHBOARD_API_BASE_URL}/kpi/stock-change/insights?Plant=${encodeURIComponent(region)}`).then((r) => r.json()).then((d) => setData(d || null)).catch(() => setData(null));
+    const ac = new AbortController();
+    fetch(`${DASHBOARD_API_BASE_URL}/kpi/stock-change/insights?Plant=${encodeURIComponent(region)}`, { signal: ac.signal })
+      .then((r) => r.json()).then((d) => setData(d || null)).catch((e) => { if (e?.name !== "AbortError") setData(null); });
+    return () => ac.abort();
   }, [region]);
 
   // Only the monthly flow chart is split; the hero above keeps the whole portfolio so
   // a category's flow can be read against it.
   const cat = useCardCategory({ accent: NET });
-  const scoped = useCardScopedData(data, cat.category, (c, signal) =>
-    fetch(`${DASHBOARD_API_BASE_URL}/kpi/stock-change/insights?Plant=${encodeURIComponent(region)}&Category=${encodeURIComponent(c)}`, { signal }).then((r) => r.json()));
+  const [catData, setCatData] = useState<any>(null);
+  const [catLoading, setCatLoading] = useState(false);
+  useEffect(() => {
+    if (!cat.category) { setCatData(null); setCatLoading(false); return; }
+    const ac = new AbortController();
+    setCatLoading(true);
+    fetch(`${DASHBOARD_API_BASE_URL}/kpi/stock-change/insights?Plant=${encodeURIComponent(region)}&Category=${encodeURIComponent(cat.category)}`, { signal: ac.signal })
+      .then((r) => r.json()).then((d) => { setCatData(d || null); setCatLoading(false); })
+      .catch((e) => { if (e?.name !== "AbortError") setCatLoading(false); });
+    return () => ac.abort();
+  }, [region, cat.category]);
+  const scopedMonths = (cat.category && catData ? catData : data)?.monthly || [];
+  const scopedLoading = cat.category ? catLoading : false;
 
   const t = data?.totals || {};
   const months: any[] = data?.monthly || [];
@@ -251,6 +276,10 @@ export default function StockChangeDetail() {
   return (
     <div className="-m-4 md:-m-6 p-4 md:p-6 space-y-4 min-w-0" style={{ background: MIST, minHeight: "calc(100vh - 64px)" }}>
       <PageBreadcrumb pageTitle="Stock Level Change Over Time" />
+
+      <p className="text-[11.5px] px-0.5" style={{ color: "#5f7679" }}>
+        "Consumed" in the totals above includes both internal goods-issue and patient billing (IP+OP) — filter by category above, not by billing type.
+      </p>
 
       <div className="csv-cards"><div className="csv-card" style={{ animationDelay: "0ms" }}>
         <ImmersiveHero months={months} net={Number(t.net ?? 0)} inflow={Number(t.inflow ?? 0)} outflow={Number(t.outflow ?? 0)} skus={Number(t.skus ?? 0)} />
@@ -261,7 +290,7 @@ export default function StockChangeDetail() {
         .csv-card { min-width: 0; }
       `}</style>
 
-      <FlowChart months={scoped.data?.monthly || []} region={region} cat={cat} loading={scoped.loading} />
+      <FlowChart months={scopedMonths} region={region} cat={cat} loading={scopedLoading} />
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
         <Movers rows={data?.risers || []} kind="up" region={region} />
@@ -269,9 +298,12 @@ export default function StockChangeDetail() {
       </div>
 
       <div className="csv-card rounded-3xl bg-white overflow-hidden" style={{ animationDelay: "420ms", boxShadow: PANEL_SHADOW }}>
-        <div className="px-6 py-4 border-b border-gray-50">
-          <h3 className="text-[15px] font-semibold text-gray-900">Monthly movement detail</h3>
-          <p className="text-xs text-gray-400 mt-0.5">paginated · sortable · filterable · export CSV</p>
+        <div className="px-6 py-4 border-b border-gray-50 flex items-center justify-between flex-wrap gap-2">
+          <div>
+            <h3 className="text-[15px] font-semibold text-gray-900">Monthly movement detail</h3>
+            <p className="text-xs text-gray-400 mt-0.5">paginated · sortable · filterable · export CSV</p>
+          </div>
+          <span className="text-[10.5px] font-medium px-2.5 py-1 rounded-full" style={{ background: "#f3f0ea", color: "#8a7d5f" }}>internal only — no month grain on billed data</span>
         </div>
         <KpiTable kpiKey="stock-change" plant={region} columns={COLUMNS} />
       </div>

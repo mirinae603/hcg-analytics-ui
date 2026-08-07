@@ -4,23 +4,20 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { useRegion } from "@/context/RegionContext";
-import { useCardCategory, useCardScopedData, type CardDomain } from "@/components/common/CardCategoryFilter";
+import { useRegion, displayRegion } from "@/context/RegionContext";
+import { useCardCategory, useCardScopedData } from "@/components/common/CardCategoryFilter";
 import { useDrillBind } from "@/components/portfolio/useDrillBind";
 import { fetchReorderBandDrill } from "@/lib/drilldown";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import { inrAbbr, countAbbr, useMount, CountUp, smoothPath } from "@/components/portfolio/kit";
-import { TbTargetArrow, TbCoin, TbTrendingUp, TbReload, TbArrowUpRight as TbUp, TbArrowDownRight, TbArrowNarrowRight, TbFlask } from "react-icons/tb";
-import { simulatedByPortfolio } from "@/lib/kpiRegistry";
-import { getSimulated } from "@/lib/simulatedKpi";
-import { simVisual } from "@/lib/simKpiVisual";
-import { fmt } from "@/lib/kpiFormat";
+import { TbTargetArrow, TbArrowUpRight as TbUp, TbArrowDownRight } from "react-icons/tb";
+import { Kpi } from "@/lib/kpiRegistry";
+import InventoryGlassKpiCard from "@/components/portfolio/inventory/InventoryGlassKpiCard";
+import { buildSimTiles } from "@/components/portfolio/inventory/kpiChartFetch";
 
-// simulated forecasting KPIs, rendered inline in the explore grid (washed-out + tag)
-const SIM_FORECAST = simulatedByPortfolio("forecasting").map((meta) => {
-  const b = getSimulated(meta.key)!;
-  return { meta, ...simVisual(meta.key), val: fmt(b.headline.value, b.headline.kind) };
-});
+// Simulated forecasting KPI(s) — same glass-card treatment, and the same buildSimTiles()
+// helper, that Inventory/Consumption/Procurement's simulated tiles already use.
+const simForecast = buildSimTiles("forecasting");
 
 // original home-page "Stock Replenishment Radar" card, wired to real HCG data
 const StockRadarCard = dynamic(() => import("@/components/ecommerce/AnalyticsHomeScreenCards/forecastCard1"), { ssr: false, loading: () => <div className="rounded-2xl bg-white" style={{ height: 320, border: "1px solid #ecedf4" }} /> });
@@ -32,11 +29,15 @@ const GREEN = "#1fa971", RED = "#e5545b", AMBER = "#f0a52a";      // semantic on
 const SH = "0 1px 2px rgba(20,24,60,0.05), 0 8px 24px -14px rgba(20,24,60,0.14)";
 const nm = (s: string, n = 26) => (s && s.length > n ? s.slice(0, n - 1) + "…" : s || "—");
 
-// 3 detailed forecast pages, labelled in plain operations language.
+// 3 detailed forecast pages, labelled in plain operations language. These live outside
+// kpiRegistry.KPIS — they use dedicated bespoke pages, not the generic /kpi/{key} route —
+// so ExploreTile below builds a synthetic Kpi object per tile (same approach buildSimTiles()
+// uses for simulated cards) and passes a real `href` override into InventoryGlassKpiCard,
+// which otherwise defaults to `/kpi/${kpi.key}`.
 const KPI_META: Record<string, any> = {
-  "expected-demand": { title: "Expected Usage", href: "/salesQuantityForecast", Icon: TbTrendingUp, sub: "how much you'll use, item by item" },
-  "cash-flow-forecast": { title: "Procurement Budget", href: "/cashFlowForecast", Icon: TbCoin, sub: "cash you'll need to restock" },
-  "stock-replenishment": { title: "Reorder & Stock Risk", href: "/stockReplenishmentForecast", Icon: TbReload, sub: "what to order · what's running low" },
+  "expected-demand": { title: "Expected Usage", href: "/salesQuantityForecast", sub: "how much you'll use, item by item" },
+  "cash-flow-forecast": { title: "Procurement Budget", href: "/cashFlowForecast", sub: "cash you'll need to restock" },
+  "stock-replenishment": { title: "Reorder & Stock Risk", href: "/stockReplenishmentForecast", sub: "what to order · what's running low" },
 };
 
 function Card({ children, className = "", style = {}, pad = "p-6" }: any) {
@@ -307,36 +308,29 @@ function Reorder({ rows, totals, cat, loading }: { rows: any[]; totals: any; cat
 }
 
 /**
- * One "See the full details" tile, with its own category control.
- *
- * A component rather than three inline blocks because each tile needs its OWN hooks and
- * hooks cannot be called inside the `.map`. The chip is rendered outside the <Link>: the
- * whole tile navigates, so a control nested inside it would route away rather than
- * filter. All three headline values genuinely move — expected-demand 4,007,448 → 908,070
- * for Consumables, cash-flow 119,292,910 → 35,122,671, stock-replenishment 1,107 → 369.
+ * One "See the full details" tile — always shows the all-categories total. No per-card
+ * category-filter chip here (previously `useCardCategory`/`useCardScopedData`): the same
+ * split-by-category dropdown lives once already, at the top of every "Overview" panel on
+ * this page and Consumption/Procurement's, and repeating it on every KPI tile added no
+ * extra value.
  */
-function ExploreTile({ kpiKey, region, pageData, domain }: { kpiKey: string; region: string; pageData: any; domain: CardDomain }) {
-  const m = KPI_META[kpiKey]; const Icon = m.Icon;
-  const cat = useCardCategory({ accent: AC, domain, label: m.title, allLabel: "All" });
-  const scoped = useCardScopedData(pageData, cat.category, (c, signal) =>
-    fetch(`${DASHBOARD_API_BASE_URL}/portfolio/forecasting/overview?Plant=${encodeURIComponent(region)}&Category=${encodeURIComponent(c)}`, { signal }).then((r) => r.json()));
-  const c = (scoped.data?.cards || {})[kpiKey] || {};
+function ExploreTile({ kpiKey, pageData, index }: { kpiKey: string; pageData: any; index: number }) {
+  const m = KPI_META[kpiKey];
+  const c = (pageData?.cards || {})[kpiKey] || {};
   const val = c.kind === "inr" ? inrAbbr(Number(c.value ?? 0)) : c.kind === "pct" ? `${Number(c.value ?? 0).toFixed(0)}%` : countAbbr(Number(c.value ?? 0));
+  // Synthetic Kpi object — these 3 keys aren't in kpiRegistry.KPIS (bespoke pages, not the
+  // generic /kpi/{key} route), so InventoryGlassKpiCard's own href default can't be used;
+  // the real `href` override below sends the click to the right bespoke page instead.
+  const kpi = {
+    key: kpiKey, title: m.title, short: m.sub, portfolio: "forecasting",
+    chart: { type: "bar", x: "", series: [] }, card: { field: "", agg: "sum", kind: c.kind ?? "num", label: m.sub }, columns: [],
+  } as unknown as Kpi;
+  const insights = [`${m.title}: ${val}`, m.sub, "Forecasting Portfolio KPI"];
   return (
-    <div className="relative">
-      <div className="absolute right-3 top-[18px] z-20">{cat.chip}</div>
-      <Link href={m.href} className="fc-card group rounded-[18px] p-5 block" style={{ background: CARD, border: `1px solid ${BORDER}`, boxShadow: SH }}
-        onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.boxShadow = "0 8px 30px -12px rgba(109,94,252,0.35)"; (e.currentTarget as HTMLElement).style.transform = "translateY(-2px)"; (e.currentTarget as HTMLElement).style.borderColor = "#dcd8ff"; }}
-        onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.boxShadow = SH; (e.currentTarget as HTMLElement).style.transform = "none"; (e.currentTarget as HTMLElement).style.borderColor = BORDER; }}>
-        <div className="flex items-center justify-between">
-          <span className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: ACSOFT, color: AC }}><Icon size={20} /></span>
-          <TbArrowNarrowRight size={18} style={{ color: MUT2 }} className="transition-transform group-hover:translate-x-1 mr-[86px]" />
-        </div>
-        <div className="mt-4 text-[21px] font-bold tabular-nums leading-none" style={{ color: INK }}>{val}</div>
-        <div className="mt-1.5 text-[13px] font-semibold" style={{ color: "#333850" }}>{m.title}</div>
-        <div className="text-[11.5px] mt-0.5" style={{ color: MUT2 }}>{m.sub}</div>
-      </Link>
-      {cat.note(!scoped.loading && !Number(c.value)) && <div className="mt-2">{cat.note(true)}</div>}
+    <div className="relative flex justify-center items-center p-6 transition duration-300" style={{ background: "rgba(255,255,255,0.9)" }}
+      onMouseEnter={(e) => { e.currentTarget.style.background = "linear-gradient(135deg, rgba(248,252,255,0.6) 0%, rgba(241,249,255,0.8) 100%)"; }}
+      onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.9)"; }}>
+      <InventoryGlassKpiCard kpi={kpi} index={index} insights={insights} chartData={[]} href={m.href} />
     </div>
   );
 }
@@ -450,7 +444,7 @@ export default function ForecastingOverview() {
       <div className="flex items-end justify-between flex-wrap gap-2 mb-6">
         <div>
           <h1 className="text-[25px] font-bold leading-tight tracking-tight" style={{ color: INK }}>Demand Forecast & Reorder Planning</h1>
-          <p className="text-[13px] mt-1" style={{ color: MUT }}>What to order, what's running low, and the budget you'll need — next 3 months · {region}</p>
+          <p className="text-[13px] mt-1" style={{ color: MUT }}>What to order, what's running low, and the budget you'll need — next 3 months · {displayRegion(region)}</p>
         </div>
         <span className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3 py-1.5 rounded-lg" style={{ color: GREEN, background: `${GREEN}12` }} title="How well the forecast matched actual usage in back-testing, at the planning (category) level.">
           <TbTargetArrow size={13} />{Number(t.accuracy ?? 0).toFixed(0)}% reliable for planning
@@ -511,27 +505,32 @@ export default function ForecastingOverview() {
         </div>
       </div>
 
-      {/* ── STEP 3 · DRILL IN: full breakdowns ── */}
+      {/* ── STEP 3 · DRILL IN: full breakdowns — pixel-identical to /inventory's glass grid ── */}
       <SectionLabel n={3} title="See the full details" hint="item-by-item usage, budget and stock risk" className="mt-8" />
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <ExploreTile kpiKey="expected-demand" region={region} pageData={data} domain="consumption" />
-        <ExploreTile kpiKey="cash-flow-forecast" region={region} pageData={data} domain="consumption" />
-        <ExploreTile kpiKey="stock-replenishment" region={region} pageData={data} domain="reorder" />
-        {SIM_FORECAST.map(({ meta, Icon, accent, val }) => (
-          <Link key={meta.key} href={`/kpi/${meta.key}`} className="fc-card group rounded-[18px] p-5 block" style={{ background: CARD, border: `1px solid ${BORDER}`, boxShadow: SH, opacity: 0.62, filter: "saturate(0.72)" }}
-            onMouseEnter={(e) => { const t = e.currentTarget as HTMLElement; t.style.opacity = "1"; t.style.filter = "none"; t.style.boxShadow = "0 8px 30px -12px rgba(109,94,252,0.35)"; t.style.transform = "translateY(-2px)"; t.style.borderColor = "#dcd8ff"; }}
-            onMouseLeave={(e) => { const t = e.currentTarget as HTMLElement; t.style.opacity = "0.62"; t.style.filter = "saturate(0.72)"; t.style.boxShadow = SH; t.style.transform = "none"; t.style.borderColor = BORDER; }}>
-            <div className="flex items-center justify-between">
-              <span className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: accent + "1c", color: accent }}><Icon size={20} /></span>
-              <span className="flex items-center gap-1 px-2 py-[3px] rounded-full" style={{ background: "#fff7ed", border: "1px solid #fadcae" }}>
-                <TbFlask size={10} style={{ color: "#c07d1a" }} /><span className="text-[9px] font-bold uppercase tracking-[0.06em]" style={{ color: "#a56a15" }}>Simulated</span>
-              </span>
-            </div>
-            <div className="mt-4 text-[21px] font-bold tabular-nums leading-none" style={{ color: INK }}>{val}</div>
-            <div className="mt-1.5 text-[13px] font-semibold" style={{ color: "#333850" }}>{meta.title}</div>
-            <div className="text-[11.5px] mt-0.5" style={{ color: MUT2 }}>{meta.why}</div>
-          </Link>
-        ))}
+      <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid rgba(186,230,253,0.6)", background: "rgba(255,255,255,0.4)" }}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 divide-x divide-y" style={{ borderColor: "transparent" }}>
+          <ExploreTile kpiKey="expected-demand" pageData={data} index={0} />
+          <ExploreTile kpiKey="cash-flow-forecast" pageData={data} index={1} />
+          <ExploreTile kpiKey="stock-replenishment" pageData={data} index={2} />
+          {simForecast.map((s, j) => {
+            const idx = 3 + j;
+            return (
+              <div
+                key={s.kpi.key}
+                className="relative flex justify-center items-center p-6 transition duration-300"
+                style={{ background: "rgba(255,255,255,0.9)", opacity: 0.6, filter: "saturate(0.72)" }}
+                title="Simulated preview — activates the moment HCG shares the source"
+                onMouseEnter={(e) => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.filter = "none"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.opacity = "0.6"; e.currentTarget.style.filter = "saturate(0.72)"; }}
+              >
+                <span className="absolute top-3 right-3 z-20 text-[10px] font-bold uppercase tracking-[0.05em] px-2 py-1 rounded-full" style={{ background: "#fff7ed", color: "#a56a15", border: "1px solid #fadcae" }}>
+                  Simulated
+                </span>
+                <InventoryGlassKpiCard kpi={s.kpi} index={idx} insights={s.insights} chartData={s.chartData} />
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       <div className="mt-6 rounded-[14px] px-4 py-3 text-[12px] leading-relaxed" style={{ background: CARD, border: `1px solid ${BORDER}`, color: MUT }}>

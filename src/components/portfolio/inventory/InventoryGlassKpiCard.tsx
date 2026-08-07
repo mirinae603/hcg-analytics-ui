@@ -7,7 +7,7 @@ import MiniSparkChart from "./MiniSparkChart";
 import {
   TbBoxMultiple, TbHourglassHigh, TbCalendarTime, TbArrowsExchange,
   TbChartDonut, TbHeartRateMonitor, TbBan, TbAlertTriangle, TbClockExclamation,
-  TbBuildingWarehouse, TbTrendingDown,
+  TbBuildingWarehouse, TbTrendingDown, TbTrendingUp, TbCoin, TbReload,
 } from "react-icons/tb";
 import { IconType } from "react-icons";
 import { Kpi } from "@/lib/kpiRegistry";
@@ -25,6 +25,10 @@ const KPI_ICONS: Record<string, IconType> = {
   "near-expiry": TbClockExclamation,
   "holding-cost": TbBuildingWarehouse,
   "stock-out-rate": TbTrendingDown,
+  // Forecasting's 3 bespoke-page KPIs (not in kpiRegistry.KPIS — see ForecastingOverview.tsx)
+  "expected-demand": TbTrendingUp,
+  "cash-flow-forecast": TbCoin,
+  "stock-replenishment": TbReload,
 };
 
 // Exact colorThemes from AnalyticsHomeScreen.tsx
@@ -224,6 +228,11 @@ const colorThemes = [
  *  than importing a foreign brand colour. Index-matched to `colorThemes`. */
 export const GLASS_ACCENTS = colorThemes.map((t) => t.chartColor);
 
+/** The full theme objects (background gradients, border, glow, blob colours) — exported
+ *  so other glass-styled tiles elsewhere in the app (e.g. ForecastingOverview's "See the
+ *  full details" cards) can share the exact same soft palette without redefining it. */
+export { colorThemes as GLASS_THEMES };
+
 interface ThemeProps {
   $cardTheme: (typeof colorThemes)[0];
 }
@@ -418,6 +427,10 @@ interface Props {
   index: number;
   insights: string[];
   chartData: any[];
+  /** Override the default `/kpi/{key}` target — for KPIs that live outside the generic
+   *  registry and route to their own bespoke page instead (e.g. Forecasting's
+   *  expected-demand/cash-flow-forecast/stock-replenishment tiles). */
+  href?: string;
 }
 
 // Flatten the aggregated chart rows into a single numeric array for the spark.
@@ -427,7 +440,7 @@ function buildSparkValues(kpi: Kpi, chartData: any[]): number[] {
   return chartData.map((row: any) => Number(row[seriesField] ?? 0)).filter((v) => Number.isFinite(v));
 }
 
-export default function InventoryGlassKpiCard({ kpi, index, insights, chartData }: Props) {
+export default function InventoryGlassKpiCard({ kpi, index, insights, chartData, href }: Props) {
   const theme = colorThemes[index % colorThemes.length];
   const chartType = kpi.chart?.type ?? "bar";
   const sparkKind: "bar" | "line" | "donut" =
@@ -436,7 +449,7 @@ export default function InventoryGlassKpiCard({ kpi, index, insights, chartData 
 
   return (
     <StyledWrapper $cardTheme={theme}>
-      <Link href={`/kpi/${kpi.key}`}>
+      <Link href={href ?? `/kpi/${kpi.key}`}>
         <div className="card relative text-center p-4 rounded-lg shadow-md transition-all duration-300 ease-in-out">
           <div className="blob absolute top-0 left-10" />
 

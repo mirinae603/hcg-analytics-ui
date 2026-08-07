@@ -18,6 +18,15 @@ const defaultRegion: Region = {
  id: 0, name: 'All Plants', code: 'ALL', avatar: '',
 }
 
+// The value above ("All Plants") is a functional sentinel — it's sent as-is in every
+// `Plant=` query param and the backend matches it literally to mean "no filter, show
+// everything." Renaming it would silently break that default view on every page. Display
+// code should never render `region.name`/`selectedRegion.name` directly — call this
+// instead, so the SCREEN says "Hospital" (per the client's terminology ask) while the
+// value that actually goes over the wire stays byte-identical to what the backend expects.
+export const displayRegion = (name?: string | null) =>
+  name === 'All Plants' ? 'All Hospitals' : (name ?? 'All Hospitals')
+
 const RegionContext = createContext<RegionContextType | undefined>(undefined)
 
 export const RegionProvider = ({ children }: { children: ReactNode }) => {

@@ -38,22 +38,6 @@ type Builder = (r: () => number) => SimBundle;
 const BUILDERS: Record<string, Builder> = {
   // ──────────────── CONSUMPTION & REVENUE ────────────────
   // Real consumption cost per real category; modelled billable vs non-billable split.
-  "billable-consumption": (r) => {
-    const rows = REAL.catConsumption.map((c) => {
-      const share = R(r, 0.5, 0.85), billable = Math.round(c.cost * share);
-      return { category: c.cat, billable, non_billable: c.cost - billable, billable_pct: +(share * 100).toFixed(1) };
-    });
-    const bl = sum(rows.map((x) => x.billable)), nb = sum(rows.map((x) => x.non_billable));
-    return {
-      chartCfg: { type: "bar", x: "category", series: [{ field: "billable", label: "Billable", color: "#10b981" }, { field: "non_billable", label: "Non-Billable", color: "#f59e0b" }], valueKind: "inr" },
-      chartData: rows,
-      headline: { label: "Billable Share", value: +(bl / (bl + nb) * 100).toFixed(1), kind: "pct", deltaPct: +R(r, 1, 4).toFixed(1) },
-      summary: [{ label: "Billable Value", value: bl, kind: "inr" }, { label: "Non-Billable Value", value: nb, kind: "inr" }, { label: "Categories", value: rows.length, kind: "num" }],
-      table: { columns: [{ key: "category", label: "Category" }, { key: "billable", label: "Billable", kind: "inr" }, { key: "non_billable", label: "Non-Billable", kind: "inr" }, { key: "billable_pct", label: "Billable %", kind: "pct" }], rows },
-      insight: "High-value clinical categories skew billable; consumables & housekeeping read as internal use.",
-      basis: { real: "Consumption cost by category (₹67 Cr, 6 mo)", modelled: "Billable vs non-billable split — no billing/charge flag in source" },
-    };
-  },
   // Real monthly issued units; modelled return rate.
   "return-rate": (r) => {
     const rows = REAL.months.map((m) => {
@@ -72,54 +56,8 @@ const BUILDERS: Record<string, Builder> = {
     };
   },
   // Real MRP-valued consumption per real hospital (the MRP revenue proxy).
-  "revenue-per-location": (r) => {
-    const rows = REAL.plants.map((p) => ({ location: p.name, revenue: p.revenue, units: p.units, avg_price: Math.round(p.revenue / Math.max(p.units, 1)) }));
-    const rev = sum(rows.map((x) => x.revenue));
-    return {
-      chartCfg: { type: "bar", x: "location", series: [{ field: "revenue", label: "Revenue (MRP proxy)", color: "#6366f1" }], valueKind: "inr" },
-      chartData: rows,
-      headline: { label: "Total Revenue", value: rev, kind: "inr", deltaPct: +R(r, 3, 8).toFixed(1) },
-      summary: [{ label: "Revenue (MRP proxy)", value: rev, kind: "inr" }, { label: "Hospitals", value: rows.length, kind: "num" }, { label: "Avg / Hospital", value: Math.round(rev / rows.length), kind: "inr" }],
-      table: { columns: [{ key: "location", label: "Hospital" }, { key: "revenue", label: "Revenue", kind: "inr" }, { key: "units", label: "Units", kind: "num" }, { key: "avg_price", label: "Avg MRP/Unit", kind: "inr" }], rows },
-      insight: "Medisurge & Oncology flagships lead MRP-valued consumption; the ranking is real.",
-      basis: { real: "MRP-valued consumption per hospital (₹188 Cr) — MRP proxy for revenue", modelled: "Pending true billed revenue to replace the MRP proxy" },
-    };
-  },
   // Real total MRP-valued consumption; modelled IP/OP/Day-care split.
-  "op-ip-revenue": (r) => {
-    const tot = REAL.totalMrpConsumption;
-    const ipS = R(r, 0.5, 0.58), opS = R(r, 0.28, 0.34), dayS = 1 - ipS - opS;
-    const rows = [
-      { segment: "Inpatient (IP)", revenue: Math.round(tot * ipS), share_pct: +(ipS * 100).toFixed(1) },
-      { segment: "Outpatient (OP)", revenue: Math.round(tot * opS), share_pct: +(opS * 100).toFixed(1) },
-      { segment: "Day Care", revenue: Math.round(tot * dayS), share_pct: +(dayS * 100).toFixed(1) },
-    ];
-    return {
-      chartCfg: { type: "donut", x: "segment", series: [{ field: "revenue", label: "Revenue" }], valueKind: "inr" },
-      chartData: rows,
-      headline: { label: "OP Revenue Share", value: +(opS * 100).toFixed(1), kind: "pct" },
-      summary: [{ label: "IP Revenue", value: rows[0].revenue, kind: "inr" }, { label: "OP Revenue", value: rows[1].revenue, kind: "inr" }, { label: "Day Care", value: rows[2].revenue, kind: "inr" }],
-      table: { columns: [{ key: "segment", label: "Segment" }, { key: "revenue", label: "Revenue", kind: "inr" }, { key: "share_pct", label: "Share %", kind: "pct" }], rows },
-      insight: "Inpatient care carries the majority of MRP-valued consumption; OP is the growth lever.",
-      basis: { real: "Total MRP-valued consumption (₹188 Cr)", modelled: "IP/OP/Day-care split — no patient-type tag (storage-location classifies <1%)" },
-    };
-  },
   // Real consumption cost per real category; modelled sale margin.
-  "revenue-margin": (r) => {
-    const rows = REAL.catConsumption.map((c) => {
-      const margin = R(r, 9, 33), revenue = Math.round(c.cost / (1 - margin / 100));
-      return { category: c.cat, revenue, cost: c.cost, margin_pct: +margin.toFixed(1) };
-    }).sort((a, b) => b.margin_pct - a.margin_pct);
-    return {
-      chartCfg: { type: "bar", x: "category", series: [{ field: "margin_pct", label: "Margin %", color: "#8b5cf6" }], valueKind: "pct" },
-      chartData: rows,
-      headline: { label: "Avg Margin", value: +avg(rows.map((x) => x.margin_pct)).toFixed(1), kind: "pct", deltaPct: +R(r, 1, 3).toFixed(1) },
-      summary: [{ label: "Revenue (modelled)", value: sum(rows.map((x) => x.revenue)), kind: "inr" }, { label: "Cost (real)", value: sum(rows.map((x) => x.cost)), kind: "inr" }, { label: "Best Margin", value: Math.max(...rows.map((x) => x.margin_pct)), kind: "pct" }],
-      table: { columns: [{ key: "category", label: "Category" }, { key: "revenue", label: "Revenue", kind: "inr" }, { key: "cost", label: "Cost (real)", kind: "inr" }, { key: "margin_pct", label: "Margin %", kind: "pct" }], rows },
-      insight: "Margin sits highest on specialised clinical categories; commodity lines run thin.",
-      basis: { real: "Consumption cost by category", modelled: "Sale margin — Selling Price is 0 in source (needs true price)" },
-    };
-  },
 
   // ──────────────── PROCUREMENT ────────────────
   // Real vendors + real PO→GR lead time; modelled SLA target & on-time %.
@@ -176,22 +114,6 @@ const BUILDERS: Record<string, Builder> = {
     };
   },
   // Real SKU count + real monthly window; modelled stock-out rate.
-  "stock-out-rate": (r) => {
-    const skus = REAL.skusConsumed;
-    const rows = REAL.months.map((m) => {
-      const rate = +R(r, 2.2, 7.8).toFixed(2), events = Math.round(skus * rate / 100);
-      return { month: m.m, skus_tracked: skus, stock_out_events: events, stock_out_pct: rate };
-    });
-    return {
-      chartCfg: { type: "line", x: "month", series: [{ field: "stock_out_pct", label: "Stock-Out %", color: "#ef4444" }], valueKind: "pct" },
-      chartData: rows,
-      headline: { label: "Avg Stock-Out Rate", value: +avg(rows.map((x) => x.stock_out_pct)).toFixed(2), kind: "pct", deltaPct: -+R(r, 3, 7).toFixed(1) },
-      summary: [{ label: "SKUs Tracked", value: skus, kind: "num" }, { label: "Peak %", value: Math.max(...rows.map((x) => x.stock_out_pct)), kind: "pct" }, { label: "Stock-Out Events", value: sum(rows.map((x) => x.stock_out_events)), kind: "num" }],
-      table: { columns: [{ key: "month", label: "Month" }, { key: "skus_tracked", label: "SKUs Tracked (real)", kind: "num" }, { key: "stock_out_events", label: "Stock-Out Events", kind: "num" }, { key: "stock_out_pct", label: "Stock-Out %", kind: "pct" }], rows },
-      insight: "Stock-out rate on 11,225 consumed SKUs eases as replenishment cadence tightens.",
-      basis: { real: "11,225 consumed SKUs over the 6-month window", modelled: "Month-by-month stock-out rate — only one inventory snapshot in source" },
-    };
-  },
 
   // ──────────────── FORECASTING ────────────────
   // Real monthly demand (Dec–May) as the last 6 months; modelled prior 6 + forecast.

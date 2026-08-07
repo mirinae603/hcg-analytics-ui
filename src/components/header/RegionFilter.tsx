@@ -5,7 +5,7 @@ import { ChevronUpDownIcon } from '@heroicons/react/16/solid'
 import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { TbBuildingHospital, TbBuildings } from 'react-icons/tb'
-import { useRegion } from '@/context/RegionContext'
+import { useRegion, displayRegion } from '@/context/RegionContext'
 import { byKey } from '@/lib/kpiRegistry'
 import { DASHBOARD_API_BASE_URL } from '@/utils/config'
 
@@ -71,39 +71,79 @@ export default function RegionFilter() {
   })
 
   return (
-    <Listbox value={selectedRegion} onChange={setSelectedRegion}>
+    /* Clearing the query on select stops a stale filter from greeting the user next
+       time they open the menu — previously it reopened still showing one result. */
+    <Listbox value={selectedRegion} onChange={(r) => { setSelectedRegion(r); setQuery('') }}>
       <div className="relative mt-0">
         <ListboxButton className="grid w-full min-w-[210px] cursor-pointer grid-cols-1 rounded-lg bg-white py-2.5 pr-3 pl-3 text-left text-blue-900 shadow-xs ring-1 ring-inset ring-blue-100 focus:outline-none focus:ring-1 focus:ring-blue-200 sm:text-sm transition-all">
           <span className="col-start-1 row-start-1 flex items-center gap-2.5 pr-6">
             <PlantIcon code={selectedRegion.code} />
-            <span className="block truncate font-medium">{selectedRegion.name}</span>
+            <span className="block truncate font-medium">{displayRegion(selectedRegion.name)}</span>
           </span>
           <ChevronUpDownIcon aria-hidden="true" className="col-start-1 row-start-1 size-5 self-center justify-self-end text-blue-400 sm:size-4" />
         </ListboxButton>
 
-        <ListboxOptions className="absolute z-10 mt-2 max-h-72 min-w-full w-max overflow-auto rounded-lg bg-white py-1 text-sm shadow-lg ring-1 ring-blue-100 focus:outline-none">
-          <div className="px-2 py-1 sticky top-0 bg-white">
+        {/* `anchor` portals the panel to the top layer and flips it when it would run
+            off-screen. The old `absolute z-10` sat inside the header's stacking context,
+            so on short viewports the list was clipped by the header instead of flipping. */}
+        <ListboxOptions
+          anchor={{ to: 'bottom start', gap: 8 }}
+          className="z-[70] w-[calc(100vw-2rem)] sm:w-[max(var(--button-width),20rem)] sm:max-w-[26rem]
+                     max-h-[min(20rem,var(--anchor-max-height,20rem))] overflow-y-auto overscroll-contain
+                     rounded-xl bg-white pb-1 text-sm shadow-[0_16px_40px_-12px_rgba(30,41,90,0.28)]
+                     ring-1 ring-blue-100 focus:outline-none"
+        >
+          {/* z-20 is the actual bug fix. Every ListboxOption below carries `relative`,
+              which paints it in the same stacking context — with no z-index here, the
+              rows scrolled straight over the search field. The solid background and
+              bottom rule give the scrolled list somewhere to visibly stop. */}
+          <div className="sticky top-0 z-20 bg-white px-2 pt-2 pb-2 border-b border-blue-50">
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search hospital…"
-              className="w-full rounded-md border border-blue-100 px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-300"
+              aria-label="Search hospital"
+              className="w-full rounded-lg border border-blue-100 bg-white px-2.5 py-2 text-sm text-blue-900 placeholder:text-blue-300 focus:outline-none focus:ring-1 focus:ring-blue-300"
               onClick={(e) => e.stopPropagation()}
+              /* Listbox owns type-ahead: without this, typing "b" jumped the selection
+                 to a plant instead of filtering, and space closed the menu. */
+              onKeyDown={(e) => { if (e.key !== 'Escape' && e.key !== 'Enter') e.stopPropagation() }}
             />
           </div>
-          {filtered.map((region) => (
-            <ListboxOption key={region.id} value={region}
-              className="group relative cursor-pointer select-none rounded-md py-2 pr-8 pl-3 text-blue-900 hover:bg-blue-50 data-focus:bg-blue-100 data-selected:bg-blue-100 data-selected:font-semibold transition-all">
-              <div className="flex items-center gap-2.5">
-                <PlantIcon code={region.code} size={22} />
-                <span className="block truncate">{region.name}</span>
-                {region.code && region.code !== 'ALL' && (
-                  <span className="ml-auto text-xs font-medium text-blue-400">{region.code}</span>
+          <div className="pt-1">
+            {filtered.map((region) => (
+              <ListboxOption key={region.id} value={region}
+                className="group relative mx-1 cursor-pointer select-none rounded-lg py-2.5 sm:py-2 pr-3 pl-2.5 text-blue-900 hover:bg-blue-50 data-focus:bg-blue-100 data-selected:bg-blue-100 data-selected:font-semibold transition-colors">
+                <div className="flex items-center gap-2.5">
+                  <PlantIcon code={region.code} size={22} />
+                  {/* min-w-0 lets the name truncate instead of shoving the code off the
+                      panel — long names used to push "HC40" past the right edge. */}
+                  <span className="block truncate min-w-0 flex-1">{displayRegion(region.name)}</span>
+                  {region.code && region.code !== 'ALL' && (
+                    <span className="shrink-0 tabular-nums text-xs font-medium text-blue-400">{region.code}</span>
+                  )}
+                </div>
+              </ListboxOption>
+            ))}
+            {/* Two different empty states. Saying "no hospital with data here" to
+                someone who simply mistyped a name is misleading — it reads as a data
+                gap when it is a search miss. */}
+            {!filtered.length && (
+              <div className="px-4 py-6 text-center">
+                {query ? (
+                  <>
+                    <div className="text-sm text-gray-500">No hospital matches “{query}”.</div>
+                    <button type="button" onClick={() => setQuery('')}
+                      className="mt-2 text-xs font-medium text-blue-500 hover:text-blue-600 hover:underline">
+                      Clear search
+                    </button>
+                  </>
+                ) : (
+                  <div className="text-sm text-gray-500">No hospital has data for this section.</div>
                 )}
               </div>
-            </ListboxOption>
-          ))}
-          {!filtered.length && <div className="px-4 py-3 text-sm text-gray-400">No hospital with data here.</div>}
+            )}
+          </div>
         </ListboxOptions>
       </div>
     </Listbox>

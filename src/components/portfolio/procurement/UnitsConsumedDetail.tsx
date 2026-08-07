@@ -3,12 +3,13 @@
 //   4 mini-dashboard cards (bars · area · marker track · ring) · units/cost heatmap · scatter + leaderboard.
 import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import { useRegion } from "@/context/RegionContext";
-import { useCardCategory, useCardScopedData } from "@/components/common/CardCategoryFilter";
+import { useRegion, displayRegion } from "@/context/RegionContext";
+import { useCardCategory } from "@/components/common/CardCategoryFilter";
 import { useDrillBind } from "@/components/portfolio/useDrillBind";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import { inrAbbr, countAbbr, catName, useMount, CountUp, smoothPath } from "@/components/portfolio/kit";
-import { TbPill, TbCoin, TbCurrencyRupee, TbBoxMultiple, TbLayoutGrid, TbChartDots, TbArrowUpRight, TbArrowDownRight, TbFlame, TbTrophy } from "react-icons/tb";
+import { ScopeToggle, type Scope } from "@/components/portfolio/ScopeToggle";
+import { TbPill, TbCoin, TbCurrencyRupee, TbBoxMultiple, TbLayoutGrid, TbChartDots, TbArrowUpRight, TbArrowDownRight, TbFlame, TbTrophy, TbArrowUp } from "react-icons/tb";
 
 const KpiTable = dynamic(() => import("../KpiTable"), { ssr: false, loading: () => <div className="p-6">{Array.from({ length: 6 }).map((_, i) => <div key={i} className="h-10 rounded-lg bg-gray-50 animate-pulse mb-2" />)}</div> });
 
@@ -28,7 +29,7 @@ function Shell({ region, children }: any) {
       <div className="flex items-end justify-between flex-wrap gap-2">
         <div>
           <h1 className="text-[24px] font-bold leading-tight" style={{ color: INK }}>Units consumed per SKU</h1>
-          <p className="text-[13px] mt-1" style={{ color: SUB }}>what the hospitals actually issue & use, by material · {region}</p>
+          <p className="text-[13px] mt-1" style={{ color: SUB }}>what the hospitals actually issue & use, by material · {displayRegion(region)}</p>
         </div>
         <span className="text-[12px] font-medium px-3.5 py-2 rounded-full bg-white" style={{ color: "#7a5f68", boxShadow: "0 4px 14px -8px rgba(90,40,55,0.22)" }}>6-month window</span>
       </div>
@@ -80,7 +81,7 @@ function Ring({ pct, size = 78, color = ROSE, center }: any) {
 }
 
 // ── heatmap (units/cost toggle) ──
-function Heatmap({ matrix, cat, loading }: { matrix: any; cat: any; loading: boolean }) {
+function Heatmap({ matrix, cat, loading, scope }: { matrix: any; cat: any; loading: boolean; scope: Scope }) {
   const [metric, setMetric] = useState<"units" | "cost">("units");
   // Row = material group, so "what did this row actually consume" is the next question.
   // Ranked by the metric the toggle is showing, so the panel's total is the row's total.
@@ -114,6 +115,9 @@ function Heatmap({ matrix, cat, loading }: { matrix: any; cat: any; loading: boo
         </div>
       </div>
       {cat.note(!loading && rows.length === 0) && <div className="mt-3">{cat.note(true)}</div>}
+      {scope !== "nonbillable" && (
+        <div className="mt-2 text-[10.5px] font-medium inline-flex px-2.5 py-1 rounded-full" style={{ background: "#f3f0ea", color: "#8a7d5f" }}>always internal only — no month grain on billed data</div>
+      )}
       {rows.length ? (
         <div className="mt-4 overflow-x-auto"><div style={{ minWidth: 560 }}>
           <div className="grid items-center gap-1.5 mb-1.5" style={{ gridTemplateColumns: gcols }}>
@@ -238,13 +242,49 @@ const COLUMNS = [
 export default function UnitsConsumedDetail() {
   const { selectedRegion } = useRegion();
   const region = selectedRegion?.name ?? "All Plants";
+  const [scope, setScope] = useState<Scope>("nonbillable");
   const [data, setData] = useState<any>(null);
-  useEffect(() => { fetch(`${DASHBOARD_API_BASE_URL}/kpi/unit-sold-per-sku/insights?Plant=${encodeURIComponent(region)}`).then((r) => r.json()).then(setData).catch(() => setData(null)); }, [region]);
+  // Scope=nonbillable baseline, kept fetched independent of the toggle position —
+  // "today's numbers", and the fixed point the delta badges diff against.
+  const [baseline, setBaseline] = useState<any>(null);
+
+  useEffect(() => {
+    const ac = new AbortController();
+    fetch(`${DASHBOARD_API_BASE_URL}/kpi/unit-sold-per-sku/insights?Plant=${encodeURIComponent(region)}&Scope=nonbillable`, { signal: ac.signal })
+      .then((r) => r.json()).then((d) => setBaseline(d || null)).catch((e) => { if (e?.name !== "AbortError") setBaseline(null); });
+    return () => ac.abort();
+  }, [region]);
+
+  useEffect(() => {
+    if (scope === "nonbillable") { setData(baseline); return; } // identical request already in flight above — reuse
+    const ac = new AbortController();
+    fetch(`${DASHBOARD_API_BASE_URL}/kpi/unit-sold-per-sku/insights?Plant=${encodeURIComponent(region)}&Scope=${scope}`, { signal: ac.signal })
+      .then((r) => r.json()).then((d) => setData(d || null)).catch((e) => { if (e?.name !== "AbortError") setData(null); });
+    return () => ac.abort();
+  }, [region, scope, baseline]);
+
   // Consumption-derived — see the note the chip surfaces when a category has no
-  // internal consumption (onco, dispensed through IP/OP billing instead).
+  // internal consumption (onco, dispensed through IP/OP billing instead) at the
+  // default scope; switching Scope is the other way to see it move.
   const cat = useCardCategory({ accent: ROSE, domain: "consumption" });
-  const scoped = useCardScopedData(data, cat.category, (c, signal) =>
-    fetch(`${DASHBOARD_API_BASE_URL}/kpi/unit-sold-per-sku/insights?Plant=${encodeURIComponent(region)}&Category=${encodeURIComponent(c)}`, { signal }).then((r) => r.json()));
+  // Hand-rolled rather than useCardScopedData: see NonMovingDetail.tsx's identical
+  // comment — that hook's effect is keyed on `category` alone, which would leave
+  // this card showing a stale Scope if the page-level toggle changed while a
+  // category was already selected.
+  const [catData, setCatData] = useState<any>(null);
+  const [catLoading, setCatLoading] = useState(false);
+  useEffect(() => {
+    if (!cat.category) { setCatData(null); setCatLoading(false); return; }
+    const ac = new AbortController();
+    setCatLoading(true);
+    fetch(`${DASHBOARD_API_BASE_URL}/kpi/unit-sold-per-sku/insights?Plant=${encodeURIComponent(region)}&Category=${encodeURIComponent(cat.category)}&Scope=${scope}`, { signal: ac.signal })
+      .then((r) => r.json()).then((d) => { setCatData(d || null); setCatLoading(false); })
+      .catch((e) => { if (e?.name !== "AbortError") setCatLoading(false); });
+    return () => ac.abort();
+  }, [region, cat.category, scope]);
+  const scopedMatrix = (cat.category && catData ? catData : data)?.matrix;
+  const scopedLoading = cat.category ? catLoading : false;
+
   const t = data?.totals || {};
   const tl = data?.timeline || [];
   const uVals = tl.map((d: any) => d.units), cVals = tl.map((d: any) => d.cost);
@@ -257,19 +297,40 @@ export default function UnitsConsumedDetail() {
   const top10Units = skus.slice(0, 10).reduce((s: number, r: any) => s + r.units, 0);
   const top10Share = units ? top10Units / units : 0;
   const avgMo = cVals.length ? cost / cVals.length : 0;
+  const deltaUnits = scope !== "nonbillable" && data && baseline ? units - Number(baseline.totals?.units ?? 0) : null;
+  const deltaCost = scope !== "nonbillable" && data && baseline ? cost - Number(baseline.totals?.cost ?? 0) : null;
   return (
     <Shell region={region}>
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div>
+          <div className="text-[13px] font-semibold" style={{ color: INK }}>What counts as "consumed"?</div>
+          <p className="text-[11.5px] mt-0.5" style={{ color: SUB }}>Internal only = today's default (internal goods-issue). Billed only / Both fold in patient billing (IP+OP) — see the Consumption page for why that gap exists.</p>
+        </div>
+        <ScopeToggle value={scope} onChange={setScope} accent={DEEP} track="#f7e9ee" trackBorder="#eed3dc" idle="#a67f8c" />
+      </div>
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
         <Card delay={0}>
           <Head icon={TbPill} label="Units consumed" badge="6 mo" />
           <div className="mt-3 text-[30px] leading-none font-bold tabular-nums tracking-tight" style={{ color: INK }}><CountUp value={units} format={countAbbr} /></div>
-          <div className="mt-1 text-[12px]" style={{ color: SUB }}>units issued</div>
+          <div className="mt-1 text-[12px]" style={{ color: SUB }}>{scope === "nonbillable" ? "units issued" : "billed + issued"}</div>
+          {deltaUnits != null && deltaUnits >= 1 && (
+            <div className="mt-1.5 inline-flex items-center gap-1 self-start px-2 py-0.5 rounded-full" style={{ background: `${ROSE}14` }}>
+              <TbArrowUp size={10} style={{ color: ROSE }} />
+              <span className="text-[10px] font-semibold" style={{ color: ROSE }}>+{countAbbr(deltaUnits)} vs. internal-only</span>
+            </div>
+          )}
           <div className="mt-auto pt-4"><MiniBars vals={uVals} /><div className="mt-2 flex items-center justify-between"><span className="text-[11px]" style={{ color: "#b7a7ae" }}>latest MoM</span><Chip text={pctSign(momU)} color={momU >= 0 ? "#5aa97e" : ROSE} icon={momU >= 0 ? TbArrowUpRight : TbArrowDownRight} /></div></div>
         </Card>
         <Card delay={60}>
           <Head icon={TbCoin} label="Consumption cost" badge="6 mo" />
           <div className="mt-3 text-[30px] leading-none font-bold tabular-nums tracking-tight" style={{ color: INK }}><CountUp value={cost} format={inrAbbr} /></div>
-          <div className="mt-1 text-[12px]" style={{ color: SUB }}>internal usage cost</div>
+          <div className="mt-1 text-[12px]" style={{ color: SUB }}>{scope === "nonbillable" ? "internal usage cost" : "billed + internal cost"}</div>
+          {deltaCost != null && deltaCost >= 1 && (
+            <div className="mt-1.5 inline-flex items-center gap-1 self-start px-2 py-0.5 rounded-full" style={{ background: `${CORAL}18` }}>
+              <TbArrowUp size={10} style={{ color: DEEP }} />
+              <span className="text-[10px] font-semibold" style={{ color: DEEP }}>+{inrAbbr(deltaCost)} vs. internal-only</span>
+            </div>
+          )}
           <div className="mt-auto pt-4"><MiniArea vals={cVals} /><div className="mt-1.5 flex items-center justify-between"><span className="text-[11px]" style={{ color: "#b7a7ae" }}>avg / month</span><Chip text={inrAbbr(avgMo)} color={CORAL} /></div></div>
         </Card>
         <Card delay={120}>
@@ -292,15 +353,20 @@ export default function UnitsConsumedDetail() {
           </div>
         </Card>
       </div>
-      <Heatmap matrix={scoped.data?.matrix} cat={cat} loading={scoped.loading} />
+      <Heatmap matrix={scopedMatrix} cat={cat} loading={scopedLoading} scope={scope} />
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-stretch">
         <div className="xl:col-span-7 flex flex-col min-w-0"><Scatter skus={scatter} /></div>
         <div className="xl:col-span-5 flex flex-col min-w-0"><Leaderboard skus={skus} scatter={scatter} /></div>
       </div>
       <div className="uc-card rounded-3xl bg-white overflow-hidden" style={{ boxShadow: SH, animationDelay: "420ms" }}>
-        <div className="px-6 py-4 border-b border-gray-50">
-          <h3 className="text-[15px] font-semibold" style={{ color: INK }}>Material consumption detail</h3>
-          <p className="text-xs text-gray-400 mt-0.5">paginated · sortable · filterable · export CSV</p>
+        <div className="px-6 py-4 border-b border-gray-50 flex items-center justify-between flex-wrap gap-2">
+          <div>
+            <h3 className="text-[15px] font-semibold" style={{ color: INK }}>Material consumption detail</h3>
+            <p className="text-xs text-gray-400 mt-0.5">paginated · sortable · filterable · export CSV</p>
+          </div>
+          {scope !== "nonbillable" && (
+            <span className="text-[10.5px] font-medium px-2.5 py-1 rounded-full" style={{ background: "#f3f0ea", color: "#8a7d5f" }}>always internal only</span>
+          )}
         </div>
         <KpiTable kpiKey="unit-sold-per-sku" plant={region} columns={COLUMNS} />
       </div>

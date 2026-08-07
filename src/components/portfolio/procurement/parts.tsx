@@ -3,6 +3,7 @@
 // design language: immersive gradient hero + staggered card entrances + soft panels.
 import React from "react";
 import { CountUp, useMount } from "@/components/portfolio/kit";
+import { displayRegion } from "@/context/RegionContext";
 
 export const PAGE = "#ECF3F1", INK = "#1f2333", SUBTLE = "#8a91a0";
 export const EMER = "#0e9f6e", TEAL = "#0d9488", INDIGO = "#4f46e5", SKY = "#0ea5e9", AMBER = "#e0992f", ROSE = "#e8604a", GREY = "#aab2c2";
@@ -18,7 +19,7 @@ export function ProcShell({ title, subtitle, region, pill = "6-month window", bg
       <div className="flex items-end justify-between flex-wrap gap-2">
         <div>
           <h1 className="text-[24px] font-bold leading-tight" style={{ color: INK }}>{title}</h1>
-          <p className="text-[13px] mt-1" style={{ color: SUBTLE }}>{subtitle} · {region}</p>
+          <p className="text-[13px] mt-1" style={{ color: SUBTLE }}>{subtitle} · {displayRegion(region)}</p>
         </div>
         <span className="text-[12px] font-medium px-3.5 py-2 rounded-full bg-white" style={{ color: "#5b6478", boxShadow: "0 4px 14px -8px rgba(40,52,86,0.2)" }}>{pill}</span>
       </div>

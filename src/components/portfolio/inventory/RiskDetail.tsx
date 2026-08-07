@@ -1,10 +1,10 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import { useRegion } from "@/context/RegionContext";
+import { useRegion, displayRegion } from "@/context/RegionContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
-import { useCardCategory, useCardScopedData } from "@/components/common/CardCategoryFilter";
+import { useCardCategory } from "@/components/common/CardCategoryFilter";
 import { useDrillBind } from "@/components/portfolio/useDrillBind";
 import { TbAlertOctagon, TbGridDots } from "react-icons/tb";
 
@@ -114,7 +114,7 @@ function RiskMatrix({ data, region }: { data: any; region: string }) {
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
           <h3 className="text-[15px] font-semibold text-gray-900 flex items-center gap-2"><TbGridDots size={16} style={{ color: HIGH }} />Risk matrix</h3>
-          <p className="text-xs text-gray-400 mt-0.5">stock value by inventory age × time to expiry · {region}</p>
+          <p className="text-xs text-gray-400 mt-0.5">stock value by inventory age × time to expiry · {displayRegion(region)}</p>
         </div>
         <div className="text-[11px] font-medium min-h-[18px]" style={{ color: hd ? INK : "#9a8e8e" }}>
           {hd ? <span>aged <b>{hd.a}</b> · expiry <b>{hd.e}</b> — {inrAbbr(hd.v)}</span>
@@ -161,11 +161,21 @@ function HighRiskCategories({ cats, region, cat, loading }: { cats: any[]; regio
       <div className="flex items-start justify-between gap-2">
         <div>
           <h3 className="text-[15px] font-semibold text-gray-900 flex items-center gap-2"><TbAlertOctagon size={16} style={{ color: HIGH }} />High-risk categories</h3>
-          <p className="text-xs text-gray-400 mt-0.5">value flagged high-risk · {region}</p>
+          <p className="text-xs text-gray-400 mt-0.5">value flagged high-risk · {displayRegion(region)}</p>
         </div>
         {cat.chip}
       </div>
-      {cat.note(!loading && cats.length === 0) && <div className="mt-3">{cat.note(true)}</div>}
+      {(() => {
+        const trulyEmpty = !loading && cats.length === 0;
+        // Same fix as DaysOnHandDetail.tsx/TurnoverDetail.tsx: cat.note()'s "domain
+        // missing" flag is a static fact about the internal-only ETL parquet, no
+        // longer accurate now that every total here is permanently billed+internal.
+        // A genuinely empty list is a real, GOOD outcome too (nothing in this
+        // category is high-risk), not a broken filter -- only the chart's own
+        // actual emptiness should ever drive the note.
+        const noteEl = trulyEmpty ? cat.note(true) : null;
+        return noteEl && <div className="mt-3">{noteEl}</div>;
+      })()}
       <div className="mb-4" />
       <div className="space-y-2.5 flex-1">
         {cats.slice(0, 8).map((c, i) => (
@@ -191,21 +201,42 @@ export default function RiskDetail() {
   const { selectedRegion } = useRegion();
   const region = selectedRegion?.name ?? "All Plants";
   const [data, setData] = useState<any>(null);
-
+  // Always billed+internal ("both") — the backend permanently folds patient billing
+  // into every total now, so this is a single plain fetch: no Scope param, no
+  // baseline/delta bookkeeping. See legacy_kpi.py's risk_insights comment.
   useEffect(() => {
-    fetch(`${DASHBOARD_API_BASE_URL}/kpi/inventory-risk/insights?Plant=${encodeURIComponent(region)}`).then((r) => r.json()).then((d) => setData(d || null)).catch(() => setData(null));
+    const ac = new AbortController();
+    fetch(`${DASHBOARD_API_BASE_URL}/kpi/inventory-risk/insights?Plant=${encodeURIComponent(region)}`, { signal: ac.signal })
+      .then((r) => r.json()).then((d) => setData(d || null)).catch((e) => { if (e?.name !== "AbortError") setData(null); });
+    return () => ac.abort();
   }, [region]);
 
   const cat = useCardCategory({ accent: HIGH });
-  const scoped = useCardScopedData(data, cat.category, (c, signal) =>
-    fetch(`${DASHBOARD_API_BASE_URL}/kpi/inventory-risk/insights?Plant=${encodeURIComponent(region)}&Category=${encodeURIComponent(c)}`, { signal }).then((r) => r.json()));
+  const [catData, setCatData] = useState<any>(null);
+  const [catLoading, setCatLoading] = useState(false);
+  useEffect(() => {
+    if (!cat.category) { setCatData(null); setCatLoading(false); return; }
+    const ac = new AbortController();
+    setCatLoading(true);
+    fetch(`${DASHBOARD_API_BASE_URL}/kpi/inventory-risk/insights?Plant=${encodeURIComponent(region)}&Category=${encodeURIComponent(cat.category)}`, { signal: ac.signal })
+      .then((r) => r.json()).then((d) => { setCatData(d || null); setCatLoading(false); })
+      .catch((e) => { if (e?.name !== "AbortError") setCatLoading(false); });
+    return () => ac.abort();
+  }, [region, cat.category]);
+  const scopedCats = (cat.category && catData ? catData : data)?.categories || [];
+  const scopedLoading = cat.category ? catLoading : false;
 
   const t = data?.totals || {};
   const tiers: any[] = data?.tiers || [];
+  const high = tiers.find((x) => x.level === "High") || { count: 0, value: 0 };
 
   return (
     <div className="-m-4 md:-m-6 p-4 md:p-6 space-y-4 min-w-0" style={{ background: MIST, minHeight: "calc(100vh - 64px)" }}>
       <PageBreadcrumb pageTitle="Inventory Risk Classification" />
+
+      <p className="text-[11.5px] px-0.5" style={{ color: "#9a8e8e" }}>
+        "Consumption" includes both internal goods-issue and patient billing (IP+OP) — filter by category above, not by billing type.
+      </p>
 
       <div className="csv-cards"><div className="csv-card" style={{ animationDelay: "0ms" }}>
         <CommandHero tiers={tiers} factors={data?.factors || []} totalValue={Number(t.total_value ?? 0)} totalSkus={Number(t.total_skus ?? 0)} />
@@ -217,7 +248,7 @@ export default function RiskDetail() {
 
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-4">
         <div className="xl:col-span-8"><RiskMatrix data={data} region={region} /></div>
-        <div className="xl:col-span-4"><HighRiskCategories cats={scoped.data?.categories || []} region={region} cat={cat} loading={scoped.loading} /></div>
+        <div className="xl:col-span-4"><HighRiskCategories cats={scopedCats} region={region} cat={cat} loading={scopedLoading} /></div>
       </div>
 
       <div className="csv-card rounded-3xl bg-white overflow-hidden" style={{ animationDelay: "340ms", boxShadow: PANEL_SHADOW }}>

@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { byPortfolio, PORTFOLIOS } from "@/lib/kpiRegistry";
-import { useRegion } from "@/context/RegionContext";
+import { useRegion, displayRegion } from "@/context/RegionContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import ExecutiveKpiCard from "./ExecutiveKpiCard";
 
@@ -32,7 +32,7 @@ export default function PortfolioDashboard({ portfolio }: { portfolio: string })
         </div>
         <div>
           <h1 className="text-xl font-bold text-gray-800">{meta?.name} Portfolio</h1>
-          <p className="text-sm text-gray-400 mt-0.5">{meta?.desc} · {kpis.length} KPIs · {region}</p>
+          <p className="text-sm text-gray-400 mt-0.5">{meta?.desc} · {kpis.length} KPIs · {displayRegion(region)}</p>
         </div>
         {loading && (
           <div className="ml-auto flex items-center gap-2">

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { displayRegion } from '@/context/RegionContext';
 
 // Static data dictionary
 const REGION_DATA = {
@@ -167,7 +168,7 @@ const StockRadarCard: React.FC<StockRadarCardProps> = ({
           <div className="text-center">
             <div className="text-red-500 text-lg font-semibold mb-2">Invalid Region</div>
             <div className="text-red-400 text-sm">
-              Region "{region}" not found. Valid regions: Bangalore, Chennai, Hyderabad East, Hyderabad West, Vijayawada
+              Region "{displayRegion(region)}" not found. Valid regions: Bangalore, Chennai, Hyderabad East, Hyderabad West, Vijayawada
             </div>
           </div>
         </div>
@@ -193,7 +194,7 @@ const StockRadarCard: React.FC<StockRadarCardProps> = ({
         <div className="absolute top-0 left-0 right-0 h-20 p-5 flex justify-between items-start">
           <div className="flex-1">
             <h3 className="text-xs sm:text-sm lg:text-md font-bold text-gray-500 mb-2 leading-tight">
-              {label} - {region}
+              {label} - {displayRegion(region)}
             </h3>
             <div className="flex flex-col items-start space-y-1">
               <div className="flex items-baseline space-x-3">

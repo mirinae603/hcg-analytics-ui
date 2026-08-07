@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import { useRegion } from "@/context/RegionContext";
+import { useRegion, displayRegion } from "@/context/RegionContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import { useDrillBind } from "@/components/portfolio/useDrillBind";
 import { useCardCategory, useCardScopedData } from "@/components/common/CardCategoryFilter";
@@ -314,7 +314,7 @@ export default function ValuationDetail() {
       <div className="flex items-end justify-between flex-wrap gap-2 mb-5">
         <div>
           <h1 className="text-[24px] font-bold leading-tight" style={{ color: INK }}>Inventory valuation</h1>
-          <p className="text-[13px] mt-1" style={{ color: SUBTLE }}>what your stock is worth · book cost vs retail · {region}</p>
+          <p className="text-[13px] mt-1" style={{ color: SUBTLE }}>what your stock is worth · book cost vs retail · {displayRegion(region)}</p>
         </div>
         <span className="text-[12px] font-medium px-3.5 py-2 rounded-full bg-white" style={{ color: "#5b6478", boxShadow: "0 4px 14px -8px rgba(46,42,80,0.22)" }}>snapshot · 31 May 2026</span>
       </div>

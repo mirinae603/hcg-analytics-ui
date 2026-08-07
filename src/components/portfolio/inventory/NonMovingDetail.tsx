@@ -1,10 +1,10 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import { useRegion } from "@/context/RegionContext";
+import { useRegion, displayRegion } from "@/context/RegionContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
-import { useCardCategory, useCardScopedData } from "@/components/common/CardCategoryFilter";
+import { useCardCategory } from "@/components/common/CardCategoryFilter";
 import { useDrillBind } from "@/components/portfolio/useDrillBind";
 import { TbLock, TbSnowflake, TbStack2 } from "react-icons/tb";
 
@@ -112,7 +112,7 @@ function BlockedByCategory({ cats, region, cat, loading }: { cats: any[]; region
       <div className="flex items-start justify-between gap-2">
         <div>
           <h3 className="text-[15px] font-semibold text-gray-900 flex items-center gap-2"><TbStack2 size={16} style={{ color: RUST }} />Blocked capital by category</h3>
-          <p className="text-xs text-gray-400 mt-0.5">where the dormant value sits · {region}</p>
+          <p className="text-xs text-gray-400 mt-0.5">where the dormant value sits · {displayRegion(region)}</p>
         </div>
         {cat.chip}
       </div>
@@ -147,20 +147,40 @@ export default function NonMovingDetail() {
   const { selectedRegion } = useRegion();
   const region = selectedRegion?.name ?? "All Plants";
   const [data, setData] = useState<any>(null);
-
+  // Always billed+internal ("both") — the backend permanently folds patient billing
+  // into every total now, so this is a single plain fetch: no Scope param, no
+  // baseline/delta bookkeeping. See legacy_kpi.py's nonmoving_insights comment.
   useEffect(() => {
-    fetch(`${DASHBOARD_API_BASE_URL}/kpi/non-moving-inventory/insights?Plant=${encodeURIComponent(region)}`).then((r) => r.json()).then((d) => setData(d || null)).catch(() => setData(null));
+    const ac = new AbortController();
+    fetch(`${DASHBOARD_API_BASE_URL}/kpi/non-moving-inventory/insights?Plant=${encodeURIComponent(region)}`, { signal: ac.signal })
+      .then((r) => r.json()).then((d) => setData(d || null)).catch((e) => { if (e?.name !== "AbortError") setData(null); });
+    return () => ac.abort();
   }, [region]);
 
   const cat = useCardCategory({ accent: RUST });
-  const scoped = useCardScopedData(data, cat.category, (c, signal) =>
-    fetch(`${DASHBOARD_API_BASE_URL}/kpi/non-moving-inventory/insights?Plant=${encodeURIComponent(region)}&Category=${encodeURIComponent(c)}`, { signal }).then((r) => r.json()));
+  const [catData, setCatData] = useState<any>(null);
+  const [catLoading, setCatLoading] = useState(false);
+  useEffect(() => {
+    if (!cat.category) { setCatData(null); setCatLoading(false); return; }
+    const ac = new AbortController();
+    setCatLoading(true);
+    fetch(`${DASHBOARD_API_BASE_URL}/kpi/non-moving-inventory/insights?Plant=${encodeURIComponent(region)}&Category=${encodeURIComponent(cat.category)}`, { signal: ac.signal })
+      .then((r) => r.json()).then((d) => { setCatData(d || null); setCatLoading(false); })
+      .catch((e) => { if (e?.name !== "AbortError") setCatLoading(false); });
+    return () => ac.abort();
+  }, [region, cat.category]);
+  const scopedCats = cat.category && catData ? catData : data;
+  const scopedLoading = cat.category ? catLoading : false;
 
   const t = data?.totals || {};
 
   return (
     <div className="-m-4 md:-m-6 p-4 md:p-6 space-y-4 min-w-0" style={{ background: MIST, minHeight: "calc(100vh - 64px)" }}>
       <PageBreadcrumb pageTitle="Non-Moving Inventory" />
+
+      <p className="text-[11.5px] px-0.5" style={{ color: SLATE }}>
+        "Moving" includes both internal goods-issue and patient billing (IP+OP) — filter by category above, not by billing type.
+      </p>
 
       <div className="csv-cards"><div className="csv-card" style={{ animationDelay: "0ms" }}>
         <VaultHero value={Number(t.blocked_value ?? 0)} skus={Number(t.blocked_skus ?? 0)} totalLines={Number(t.total_stock_lines ?? 0)} reasons={data?.reasons || []} aging={data?.aging || []} />
@@ -170,7 +190,7 @@ export default function NonMovingDetail() {
         .csv-card { animation: cardIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; min-width: 0; }
       `}</style>
 
-      <BlockedByCategory cats={scoped.data?.categories || []} region={region} cat={cat} loading={scoped.loading} />
+      <BlockedByCategory cats={scopedCats?.categories || []} region={region} cat={cat} loading={scopedLoading} />
 
       <div className="csv-card rounded-3xl bg-white overflow-hidden" style={{ animationDelay: "320ms", boxShadow: PANEL_SHADOW }}>
         <div className="px-6 py-4 border-b border-gray-50">

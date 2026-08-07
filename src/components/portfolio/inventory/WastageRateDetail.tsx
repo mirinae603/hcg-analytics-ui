@@ -117,8 +117,8 @@ function ByPlant({ rows, cat, loading }: { rows: PlantRow[]; cat: any; loading: 
     <div className="rounded-3xl bg-white p-5 md:p-6" style={{ boxShadow: PANEL_SHADOW }}>
       <div className="flex items-start justify-between flex-wrap gap-2 mb-4">
         <div>
-          <h3 className="text-[15px] font-semibold" style={{ color: INK }}>Wastage % by plant</h3>
-          <p className="text-xs mt-0.5" style={{ color: SLATE }}>all {sorted.length} plants · expired value ÷ stock value · a 0.00% here is a verified result, not missing data</p>
+          <h3 className="text-[15px] font-semibold" style={{ color: INK }}>Wastage % by hospital</h3>
+          <p className="text-xs mt-0.5" style={{ color: SLATE }}>all {sorted.length} hospitals · expired value ÷ stock value · a 0.00% here is a verified result, not missing data</p>
         </div>
         {cat.chip}
       </div>

@@ -6,7 +6,7 @@
 //   • Hospital speed ladder — gold→rust "thermometer" coloring vs the network avg.
 import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
-import { useRegion } from "@/context/RegionContext";
+import { useRegion, displayRegion } from "@/context/RegionContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import { countAbbr, useMount, CountUp, smoothPath } from "@/components/portfolio/kit";
 import { useCardScope } from "@/components/common/CardCategoryFilter";
@@ -38,7 +38,7 @@ function Shell({ region, children }: any) {
       <div className="flex items-end justify-between flex-wrap gap-2">
         <div>
           <h1 className="text-[24px] font-bold leading-tight" style={{ color: INK }}>Procurement cycle time</h1>
-          <p className="text-[13px] mt-1" style={{ color: SUB }}>how fast a requisition travels the buying pipeline into received goods · {region}</p>
+          <p className="text-[13px] mt-1" style={{ color: SUB }}>how fast a requisition travels the buying pipeline into received goods · {displayRegion(region)}</p>
         </div>
         <span className="text-[12px] font-medium px-3.5 py-2 rounded-full bg-white" style={{ color: "#7a6c53", boxShadow: "0 4px 14px -8px rgba(90,66,26,0.22)" }}>6-month window</span>
       </div>
@@ -320,7 +320,7 @@ export default function CycleTimeDetail() {
       </div>
       <Card delay={320} className="bg-white overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-50">
-          <h3 className="text-[15px] font-semibold" style={{ color: INK }}>Plant × month cycle-time detail</h3>
+          <h3 className="text-[15px] font-semibold" style={{ color: INK }}>Hospital × month cycle-time detail</h3>
           <p className="text-xs text-gray-400 mt-0.5">paginated · sortable · filterable · export CSV</p>
         </div>
         <KpiTable kpiKey="procurement-cycle-time" plant={region} columns={COLUMNS} />

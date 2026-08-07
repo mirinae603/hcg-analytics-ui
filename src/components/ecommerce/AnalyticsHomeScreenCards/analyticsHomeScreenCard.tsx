@@ -143,7 +143,7 @@ const AnalyticsDashboardLayout: React.FC = () => {
   return (
     <div className="space-y-10 p-0">
       <div className="flex flex-wrap lg:flex-nowrap gap-6 items-start w-full px-4">
-        <div className="w-full lg:w-[33.33%]">
+        <div className="w-full md:w-[calc(50%-0.75rem)] lg:w-[33.33%]">
           <div className="relative w-full max-w-md mx-auto lg:mx-0">
             {/* Ambient lighting - enhanced default state */}
             <div className="absolute -top-6 -bottom-6 -left-6 -right-6 rounded-full animate-pulse opacity-20 hover:opacity-30 transition-opacity duration-1000"
@@ -243,10 +243,10 @@ const AnalyticsDashboardLayout: React.FC = () => {
           </div>
         </div>
        
-        <div className="w-full lg:w-[33.33%]">
+        <div className="w-full md:w-[calc(50%-0.75rem)] lg:w-[33.33%]">
           <StockLevelCard {...dashboardData.kpiStockLevel} />
         </div>
-        <div className="w-full lg:w-[33.33%]">
+        <div className="w-full md:w-[calc(50%-0.75rem)] lg:w-[33.33%]">
           <StockAgingCard
             agingData={{
               fresh: dashboardData.stockAging.fresh,
@@ -259,9 +259,17 @@ const AnalyticsDashboardLayout: React.FC = () => {
           />
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 -mt-3">
-        <div>
-          <DOHCard {...dashboardData.daysOnHand} />
+      {/* items-stretch (grid's own default, made explicit here): each of the 3 cells
+          takes the row's tallest natural content height. Each card's OWN root element
+          still needs to actually fill that stretched cell — none of them did, so the
+          row height was silently set by whichever card happened to be tallest, and the
+          other two sat shorter inside their own equal-height cell, top-aligned, with
+          dead space below them that nobody could see because their wrapper has no
+          background. That's what made Expiry Risk (which carries a fixed minHeight)
+          read as "longer than its neighbours" once it became the tallest of the three. */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 -mt-3 items-stretch">
+        <div className="h-full grid">
+          <DOHCard {...dashboardData.daysOnHand} className="h-full" />
         </div>
         {/* Expiry Risk replaces Return Rate % in this slot. Return Rate has no source
             data at all — no return or credit-note rows exist — so it rendered a
@@ -269,7 +277,7 @@ const AnalyticsDashboardLayout: React.FC = () => {
             zero height, leaving a visible hole in the row. Expiry risk is the one
             number on this screen with a deadline attached, and unlike the four beside
             it, waiting has a guaranteed cost. */}
-        <div>
+        <div className="h-full grid">
           <NearExpiryCard
             value={Number(dashboardData.nearExpiry?.value ?? 0)}
             skuCount={Number(dashboardData.nearExpiry?.skuCount ?? 0)}
@@ -277,14 +285,35 @@ const AnalyticsDashboardLayout: React.FC = () => {
             urgentValue={Number(expiry?.urgent_value ?? 0)}
             totalStockValue={Number(dashboardData.kpiStockLevel?.stockValue ?? 0)}
             location={selectedRegion?.name ?? 'All Plants'}
+            className="h-full"
           />
         </div>
         {/* currentITR is a real, live-computed value (portfolio-weighted sum/sum, not a
             mean-of-ratios — see dashboard_summary.py), so it is never veiled. Showing
             "Data N/A" over a genuine number was itself the bug (client screenshot
-            review, 2026-07-25). */}
-        <div>
-          <ITRCard {...dashboardData.inventoryTurnover} />
+            review, 2026-07-25).
+            className="!h-full": ITRCard's own markup hardcodes h-61 (=244px) on this
+            same element. Tailwind gives every utility class equal specificity, so which
+            of two conflicting classes wins depends on the order Tailwind happened to
+            emit them in its compiled stylesheet — not the order they're written here —
+            which makes plain "h-full" unreliable against an existing h-61. The `!`
+            prefix compiles to `!important`, which is unambiguous regardless of that
+            ordering.
+            min-h-[244px] on the WRAPPER matters more than it looks: below the `lg`
+            breakpoint this grid drops to 1 or 2 columns, so ITR ends up alone in its
+            own row (no siblings to stretch against) — that row's height is `auto`,
+            which is an INDEFINITE size, and `height:100%` against an indefinite
+            ancestor resolves to nothing (effectively auto). Every one of ITRCard's
+            sections (header, conveyor belt, bottom stats) is `position:absolute` —
+            it has NO normal-flow content — so an auto height with nothing in normal
+            flow to measure computes to 0. Verified live: the card rendered as a real,
+            present, 2px-tall box at 375px and 768px, fully collapsed. min-h floors the
+            wrapper at its own designed height (h-61) regardless of row context, so it
+            never has that indefinite ancestor to fall through in the first place. DOH
+            and Expiry Risk don't need this — both render their content in normal flow,
+            so they degrade to a sane content-driven height instead of collapsing. */}
+        <div className="h-full min-h-[244px] grid">
+          <ITRCard {...dashboardData.inventoryTurnover} className="!h-full" />
         </div>
       </div>
     </div>

@@ -1,34 +1,21 @@
-import React from "react";
-import styled, { keyframes } from "styled-components";
+"use client";
+// Historically this was a SECOND full-screen blocking overlay — a 60px spinner on a
+// rgba(255,255,255,0.6) + blur(8px) scrim — which meant the app had two different, competing
+// answers to "we are loading".
+//
+// It is no longer an overlay in any sense: it draws nothing at all. It just reports "something
+// is loading" into the same counter GlobalLoader renders from, so a page that gates on its own
+// state gets the identical top rail + corner pill as every backend call. One loading identity
+// for the whole app, and no possibility of two indicators stacking.
+//
+// Kept as a component (rather than a bare hook) because pages mount it conditionally —
+// {loading && <LoaderOverlay />} — which is exactly the lifetime the beacon needs.
+// The 450ms anti-flicker delay applies here too: a load that resolves quickly shows nothing.
+import { useLoadingBeacon } from "./common/GlobalLoader";
 
-const spin = keyframes`
-  to { transform: rotate(360deg); }
-`;
-
-const Overlay = styled.div`
-  position: fixed;
-  z-index: 9999;
-  inset: 0;
-  background: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(8px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
-const Spinner = styled.div`
-  width: 60px;
-  height: 60px;
-  border: 6px solid #cce7f8;
-  border-top: 6px solid #4bb8ff;
-  border-radius: 50%;
-  animation: ${spin} 0.8s linear infinite;
-`;
-
-const LoaderOverlay = () => (
-  <Overlay>
-    <Spinner />
-  </Overlay>
-);
+const LoaderOverlay = () => {
+  useLoadingBeacon(true);
+  return null;
+};
 
 export default LoaderOverlay;

@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import { useRegion } from "@/context/RegionContext";
+import { useRegion, displayRegion } from "@/context/RegionContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import { useDrillBind } from "@/components/portfolio/useDrillBind";
@@ -267,7 +267,7 @@ function ValueAtRiskPanel({ risk, animate, region, cat, empty }: { risk: any; an
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
           <h3 className="text-[15px] font-semibold text-gray-900">Stock value at risk</h3>
-          <p className="text-xs text-gray-400 mt-0.5">value health by inventory age · {region}</p>
+          <p className="text-xs text-gray-400 mt-0.5">value health by inventory age · {displayRegion(region)}</p>
         </div>
         <div className="flex items-center gap-2.5">
           {cat.chip}
@@ -540,7 +540,7 @@ export default function StockValueDetail() {
           <div className="px-6 pt-5 pb-4 flex items-center justify-between flex-wrap gap-3">
             <div>
               <h3 className="text-[15px] font-semibold text-gray-900">Stock value breakdown</h3>
-              <p className="text-xs text-gray-400 mt-0.5">by {mode.label.toLowerCase()} · {region}</p>
+              <p className="text-xs text-gray-400 mt-0.5">by {mode.label.toLowerCase()} · {displayRegion(region)}</p>
             </div>
             <div className="flex items-center gap-2.5">
             {barCat.chip}

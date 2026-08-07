@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import { useRegion } from "@/context/RegionContext";
+import { useRegion, displayRegion } from "@/context/RegionContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import { useCardCategory, useCardScopedData } from "@/components/common/CardCategoryFilter";
@@ -256,7 +256,7 @@ function CategoryHeatmap({ heat, region, cat, loading }: { heat: any; region: st
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
           <h3 className="text-[15px] font-semibold text-gray-900 flex items-center gap-2"><TbLayoutGrid size={16} style={{ color: TEAL }} />Where the stock ages</h3>
-          <p className="text-xs text-gray-400 mt-0.5">stock value · top categories × age band · {region}</p>
+          <p className="text-xs text-gray-400 mt-0.5">stock value · top categories × age band · {displayRegion(region)}</p>
         </div>
         <div className="flex items-center gap-2.5">
           {cat.chip}
@@ -337,7 +337,7 @@ function SkuScatter({ skus, region }: { skus: any[]; region: string }) {
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
           <h3 className="text-[15px] font-semibold text-gray-900 flex items-center gap-2"><TbChartDots size={16} style={{ color: TEAL }} />SKU risk map</h3>
-          <p className="text-xs text-gray-400 mt-0.5">top 50 SKUs by value · age vs value · bubble size = quantity · {region}</p>
+          <p className="text-xs text-gray-400 mt-0.5">top 50 SKUs by value · age vs value · bubble size = quantity · {displayRegion(region)}</p>
         </div>
         <div className="hidden sm:inline-flex items-center gap-2.5 text-[10.5px] font-medium text-gray-400">
           {BANDS.map((b) => <span key={b.key} className="inline-flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full" style={{ background: b.bar }} />{b.short}</span>)}

@@ -1,11 +1,11 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import { useRegion } from "@/context/RegionContext";
+import { useRegion, displayRegion } from "@/context/RegionContext";
 import { useDrillBind } from "@/components/portfolio/useDrillBind";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
-import { useCardCategory, useCardScopedData } from "@/components/common/CardCategoryFilter";
+import { useCardCategory } from "@/components/common/CardCategoryFilter";
 import { TbActivityHeartbeat, TbShieldCheck, TbAlertTriangle, TbActivity, TbRadar2, TbReportMedical } from "react-icons/tb";
 
 const KpiTable = dynamic(() => import("../KpiTable"), {
@@ -187,7 +187,7 @@ function HealthRadar({ tiers, region }: { tiers: any[]; region: string }) {
   return (
     <div className="csv-card rounded-3xl bg-white p-5 md:p-6 flex flex-col" style={{ animationDelay: "380ms", boxShadow: PANEL_SHADOW }}>
       <h3 className="text-[15px] font-semibold text-gray-900 flex items-center gap-2"><TbRadar2 size={16} style={{ color: TEAL }} />Health driver profile</h3>
-      <p className="text-xs text-gray-400 mt-0.5">why each tier scores the way it does · {region}</p>
+      <p className="text-xs text-gray-400 mt-0.5">why each tier scores the way it does · {displayRegion(region)}</p>
       <div className="flex-1 flex items-center justify-center mt-1">
         <svg viewBox={`0 0 ${W} 312`} width="100%" style={{ maxWidth: 380 }}>
           {[0.25, 0.5, 0.75, 1].map((r) => (
@@ -221,7 +221,7 @@ function TierScorecard({ tiers, totalSkus, totalValue, region }: { tiers: any[];
   return (
     <div className="csv-card rounded-3xl bg-white p-5 md:p-6 flex flex-col" style={{ animationDelay: "440ms", boxShadow: PANEL_SHADOW }}>
       <h3 className="text-[15px] font-semibold text-gray-900 flex items-center gap-2"><TbReportMedical size={16} style={{ color: TEAL }} />Classification scorecard</h3>
-      <p className="text-xs text-gray-400 mt-0.5 mb-4">tier breakdown with the vitals behind each · {region}</p>
+      <p className="text-xs text-gray-400 mt-0.5 mb-4">tier breakdown with the vitals behind each · {displayRegion(region)}</p>
       <div className="space-y-3 flex-1">
         {tiers.map((t, i) => { const meta = TIER_META[t.tier]; const pctV = totalValue ? t.value / totalValue : 0; const pctS = totalSkus ? t.count / totalSkus : 0; return (
           <div key={i} className="rounded-2xl p-4" style={{ background: meta.soft }} {...drill.bind(t.tier)}>
@@ -267,11 +267,18 @@ function CategoryReportCard({ cats, region, cat, loading }: { cats: any[]; regio
       <div className="flex items-start justify-between gap-2">
         <div>
           <h3 className="text-[15px] font-semibold text-gray-900 flex items-center gap-2"><TbReportMedical size={16} style={{ color: TEAL }} />Category report card</h3>
-          <p className="text-xs text-gray-400 mt-0.5">average health grade + tier mix by category · {region}</p>
+          <p className="text-xs text-gray-400 mt-0.5">average health grade + tier mix by category · {displayRegion(region)}</p>
         </div>
         {cat.chip}
       </div>
-      {cat.note(!loading && cats.length === 0) && <div className="mt-3">{cat.note(true)}</div>}
+      {(() => {
+        const trulyEmpty = !loading && cats.length === 0;
+        // See DaysOnHandDetail.tsx/TurnoverDetail.tsx for the identical fix: cat.note()'s
+        // "domain missing" flag is a static fact about the internal-only ETL parquet, no
+        // longer accurate now that every total here is permanently billed+internal.
+        const noteEl = trulyEmpty ? cat.note(true) : null;
+        return noteEl && <div className="mt-3">{noteEl}</div>;
+      })()}
       <div className="mb-4" />
       <div className="space-y-3">
         {cats.map((c, i) => {
@@ -320,29 +327,49 @@ export default function HealthScoreDetail() {
   const { selectedRegion } = useRegion();
   const region = selectedRegion?.name ?? "All Plants";
   const [data, setData] = useState<any>(null);
-
+  // Always billed+internal ("both") — the backend permanently folds patient billing
+  // into every total now, so this is a single plain fetch: no Scope param, no
+  // baseline/delta bookkeeping. See legacy_kpi.py's health_insights comment.
   useEffect(() => {
-    fetch(`${DASHBOARD_API_BASE_URL}/kpi/inventory-health-score/insights?Plant=${encodeURIComponent(region)}`).then((r) => r.json()).then((d) => setData(d || null)).catch(() => setData(null));
+    const ac = new AbortController();
+    fetch(`${DASHBOARD_API_BASE_URL}/kpi/inventory-health-score/insights?Plant=${encodeURIComponent(region)}`, { signal: ac.signal })
+      .then((r) => r.json()).then((d) => setData(d || null)).catch((e) => { if (e?.name !== "AbortError") setData(null); });
+    return () => ac.abort();
   }, [region]);
 
   // Only the category report card is split — the tier cards above stay whole so a
   // filtered category can be read against the portfolio it came out of.
   const cat = useCardCategory({ accent: TEAL });
-  const scoped = useCardScopedData(data, cat.category, (c, signal) =>
-    fetch(`${DASHBOARD_API_BASE_URL}/kpi/inventory-health-score/insights?Plant=${encodeURIComponent(region)}&Category=${encodeURIComponent(c)}`, { signal }).then((r) => r.json()));
+  const [catData, setCatData] = useState<any>(null);
+  const [catLoading, setCatLoading] = useState(false);
+  useEffect(() => {
+    if (!cat.category) { setCatData(null); setCatLoading(false); return; }
+    const ac = new AbortController();
+    setCatLoading(true);
+    fetch(`${DASHBOARD_API_BASE_URL}/kpi/inventory-health-score/insights?Plant=${encodeURIComponent(region)}&Category=${encodeURIComponent(cat.category)}`, { signal: ac.signal })
+      .then((r) => r.json()).then((d) => { setCatData(d || null); setCatLoading(false); })
+      .catch((e) => { if (e?.name !== "AbortError") setCatLoading(false); });
+    return () => ac.abort();
+  }, [region, cat.category]);
+  const scopedData = cat.category && catData ? catData : data;
+  const scopedLoading = cat.category ? catLoading : false;
 
   const t = data?.totals || {};
   const tiers: any[] = data?.tiers || [];
   const catName = (g: string) => String(g).replace(/^M\d+-/, "");
   // `raw` keeps the untouched "M065-INJECTIONS" the drill-down has to send; `name` is the
   // prefix-stripped label the card shows. Losing the prefix would match zero rows.
-  const cats = useMemo(() => (scoped.data?.categories || []).map((c: any) => ({ ...c, raw: c.name, name: catName(c.name) })), [scoped.data]);
+  const cats = useMemo(() => (scopedData?.categories || []).map((c: any) => ({ ...c, raw: c.name, name: catName(c.name) })), [scopedData]);
   const healthy = tiers.find((x) => x.tier === "Healthy") || { tier: "Healthy", count: 0, value: 0, avg_score: 0, avg_aging: 0, moving_pct: 0 };
   const atRisk = tiers.find((x) => x.tier === "At Risk") || { tier: "At Risk", count: 0, value: 0, avg_score: 0, avg_aging: 0, moving_pct: 0 };
 
   return (
     <div className="-m-4 md:-m-6 p-4 md:p-6 space-y-5 min-w-0" style={{ background: MIST, minHeight: "calc(100vh - 64px)" }}>
       <PageBreadcrumb pageTitle="Inventory Health Score" />
+
+      <p className="text-[11.5px] px-0.5" style={{ color: SUBTLE }}>
+        "Movement" includes both internal goods-issue and patient billing (IP+OP) — filter by category above, not by billing type.
+      </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 csv-cards">
         <div className="csv-card" style={{ animationDelay: "0ms" }}><HealthGradeCard score={Number(t.avg_score ?? 0)} bands={data?.bands || []} /></div>
@@ -362,7 +389,7 @@ export default function HealthScoreDetail() {
         <div className="xl:col-span-7"><TierScorecard tiers={tiers} totalSkus={Number(t.total_skus ?? 0)} totalValue={Number(t.total_value ?? 0)} region={region} /></div>
       </div>
 
-      <CategoryReportCard cats={cats} region={region} cat={cat} loading={scoped.loading} />
+      <CategoryReportCard cats={cats} region={region} cat={cat} loading={scopedLoading} />
 
       <div className="csv-card rounded-3xl bg-white overflow-hidden" style={{ animationDelay: "600ms", boxShadow: PANEL_SHADOW }}>
         <div className="px-6 py-4 border-b border-gray-50">

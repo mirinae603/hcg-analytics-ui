@@ -115,6 +115,28 @@ export const KPIS: Kpi[] = [
       { field: "days_to_expiry", label: "Days to Expiry", kind: "num" }, { field: "closing_stock_value", label: "Value", kind: "inr" }],
   },
   {
+    // Promoted out of SIMULATED_KPIS. It was previously a random-number generator on the
+    // belief that daily stock history was required — it isn't: fact_inventory never writes
+    // a qty=0 row, so a stocked-out item is simply ABSENT from the snapshot and absence is
+    // the signal. Universe is deliberately narrow: (plant, material) pairs at the 25 plants
+    // covered by BOTH the snapshot and consumption, consumed in >=2 distinct months AND in
+    // the snapshot month — i.e. genuinely live demand. Widening it to "any issue in 6
+    // months" would report 57% by counting one-off issues from December as live demand.
+    key: "stock-out-rate", title: "Stock-Out Rate", short: "Stock-Out Rate", portfolio: "inventory", icon: "📉",
+    note: "Actively-moving items (used in ≥2 months incl. the snapshot month) currently holding zero stock, at the 25 hospitals with inventory coverage.",
+    chart: { type: "donut", groupBy: "stock_status", measures: "cost_6mo", x: "stock_status",
+      series: [{ field: "cost_6mo", label: "6-mo consumption value" }], valueKind: "inr" },
+    card: { field: "out_pct", agg: "mean", kind: "pct", label: "Stock-Out Rate" },
+    summary: [{ field: "out_pct", agg: "mean", kind: "pct", label: "Stock-Out Rate" },
+              { field: "cost_6mo", agg: "sum", kind: "inr", label: "Consumption at Stake" }],
+    columns: [{ field: "plant", label: "Hospital" }, { field: "material", label: "Material" },
+      { field: "material_desc", label: "Description" }, { field: "material_group", label: "Group" },
+      { field: "stock_status", label: "Status" }, { field: "qty_now", label: "Qty Now", kind: "num" },
+      { field: "months_consumed", label: "Months Used", kind: "num" },
+      { field: "units_6mo", label: "Units (6mo)", kind: "num" },
+      { field: "cost_6mo", label: "Consumption (6mo)", kind: "inr" }],
+  },
+  {
     key: "near-expiry", title: "Near-Expiry Inventory", short: "Near Expiry", portfolio: "inventory", icon: "⏰",
     chart: { type: "donut", groupBy: "expiry_bucket", measures: "total_cost", x: "expiry_bucket",
       series: [{ field: "total_cost", label: "Value" }], valueKind: "inr" },
@@ -138,7 +160,7 @@ export const KPIS: Kpi[] = [
     card: { field: "wastage_pct_value", agg: "mean", kind: "pct", label: "Wastage % (Value)" },
     summary: [{ field: "wastage_pct_value", agg: "mean", kind: "pct", label: "Wastage % (Value)" },
               { field: "wastage_pct_qty", agg: "mean", kind: "pct", label: "Wastage % (Qty)" }],
-    columns: [{ field: "plant", label: "Plant" }, { field: "expired_value", label: "Expired Value", kind: "inr" },
+    columns: [{ field: "plant", label: "Hospital" }, { field: "expired_value", label: "Expired Value", kind: "inr" },
       { field: "stock_value", label: "Stock Value", kind: "inr" }, { field: "wastage_pct", label: "Wastage %", kind: "pct" }],
     note: "Expired value reconciles exactly with the Near-Expiry page's Expired bucket.",
   },
@@ -172,8 +194,11 @@ export const KPIS: Kpi[] = [
   },
   {
     key: "monthly-purchase-value", title: "Monthly SKU Purchase Value", short: "Monthly Purchase", portfolio: "procurement", icon: "🧾",
-    chart: { type: "line", groupBy: "year,month", measures: "monthly_purchase_value", x: "month",
-      series: [{ field: "monthly_purchase_value", label: "Purchase Value", color: C.cyan }], valueKind: "inr" },
+    // chart.x/series.field match kpiChartFetch.ts's monthly-purchase-value special
+    // case (zipped from the bespoke /insights route's {labels, total} arrays), not
+    // the generic /kpi/{key} route — see that file for why.
+    chart: { type: "line", groupBy: "year,month", measures: "monthly_purchase_value", x: "label",
+      series: [{ field: "value", label: "Purchase Value", color: C.cyan }], valueKind: "inr" },
     card: { field: "monthly_purchase_value", agg: "sum", kind: "inr", label: "Total (6mo)" },
     columns: [{ field: "month", label: "Month" }, { field: "material", label: "Material" }, { field: "material_desc", label: "Description" },
       { field: "monthly_purchase_value", label: "Value", kind: "inr" }, { field: "purchase_qty", label: "Qty", kind: "num" }],
@@ -200,7 +225,7 @@ export const KPIS: Kpi[] = [
     chart: { type: "bar", top: 20, x: "plant",
       series: [{ field: "purchase_value", label: "Spend", color: C.cyan }], valueKind: "inr" },
     card: { field: "purchase_value", agg: "sum", kind: "inr", label: "Total Spend" },
-    columns: [{ field: "plant", label: "Plant" }, { field: "purchase_value", label: "Spend", kind: "inr" },
+    columns: [{ field: "plant", label: "Hospital" }, { field: "purchase_value", label: "Spend", kind: "inr" },
       { field: "purchase_qty", label: "Qty", kind: "num" }, { field: "vendor_count", label: "Vendors", kind: "num" }],
   },
   {
@@ -224,7 +249,7 @@ export const KPIS: Kpi[] = [
     chart: { type: "bar", top: 20, x: "plant",
       series: [{ field: "fill_rate_pct", label: "Fill Rate %", color: C.green }], valueKind: "pct" },
     card: { field: "fill_rate_pct", agg: "mean", kind: "pct", label: "Avg Fill Rate" },
-    columns: [{ field: "plant", label: "Plant" }, { field: "ordered_qty", label: "Ordered", kind: "num" },
+    columns: [{ field: "plant", label: "Hospital" }, { field: "ordered_qty", label: "Ordered", kind: "num" },
       { field: "open_qty", label: "Open", kind: "num" }, { field: "fill_rate_pct", label: "Fill Rate %", kind: "pct" }],
   },
   {
@@ -250,8 +275,11 @@ export const KPIS: Kpi[] = [
   // ---------------- CONSUMPTION & REVENUE ----------------
   {
     key: "unit-sold-per-sku", title: "Units Consumed per SKU", short: "Units Consumed", portfolio: "consumption", icon: "💊",
-    chart: { type: "line", groupBy: "year,month", measures: "total_units", x: "month",
-      series: [{ field: "total_units", label: "Units Consumed", color: C.green }], valueKind: "num" },
+    // chart.x/series.field match the bespoke /insights route's own `timeline` shape
+    // ({label, month, units, cost}), not the generic /kpi/{key} route — see
+    // kpiChartFetch.ts's unit-sold-per-sku special case for why.
+    chart: { type: "line", groupBy: "year,month", measures: "total_units", x: "label",
+      series: [{ field: "units", label: "Units Consumed", color: C.green }], valueKind: "num" },
     card: { field: "total_units", agg: "sum", kind: "num", label: "Total Units (6mo)" },
     summary: [{ field: "consumption_cost", agg: "sum", kind: "inr", label: "Consumption Cost" }],
     columns: [{ field: "month", label: "Month" }, { field: "material", label: "Material" }, { field: "material_desc", label: "Description" },
@@ -265,6 +293,51 @@ export const KPIS: Kpi[] = [
     card: { field: "consumption_cost", agg: "sum", kind: "inr", label: "Total Consumption" },
     columns: [{ field: "department_name", label: "Department (Cost Ctr)" }, { field: "month", label: "Month" },
       { field: "consumption_qty", label: "Qty", kind: "num" }, { field: "consumption_cost", label: "Cost", kind: "inr" }],
+  },
+
+  // Promoted out of SIMULATED_KPIS once HCG's IP+OP billing extract landed. They were
+  // previously four previews that ALL linked to /revenueMargin — that page is the
+  // executive umbrella, not a per-KPI source, so each now has its own real grain, its
+  // own chart and its own drill-down table.
+  //   (Revenue Margin Analysis was NOT promoted: it *is* /revenueMargin. Keeping both
+  //    would have been the fifth copy of the same view, so it was merged away.)
+  {
+    key: "revenue-per-location", title: "Revenue per Location", short: "Revenue / Location", portfolio: "consumption", icon: "💵",
+    note: "Billed patient revenue (IP + OP). Row grain is hospital × material.",
+    chart: { type: "bar", groupBy: "hospital", measures: "revenue", top: 20, x: "hospital",
+      series: [{ field: "revenue", label: "Billed Revenue", color: C.blue }], valueKind: "inr" },
+    card: { field: "revenue", agg: "sum", kind: "inr", label: "Billed Revenue" },
+    summary: [{ field: "revenue", agg: "sum", kind: "inr", label: "Billed Revenue" },
+              { field: "cost", agg: "sum", kind: "inr", label: "Cost of Goods" }],
+    columns: [{ field: "hospital", label: "Hospital" }, { field: "material", label: "Material" },
+      { field: "desc", label: "Description" }, { field: "group", label: "Group" },
+      { field: "revenue", label: "Revenue", kind: "inr" }, { field: "cost", label: "Cost", kind: "inr" },
+      { field: "qty", label: "Qty", kind: "num" }, { field: "lines", label: "Lines", kind: "num" }],
+  },
+  {
+    key: "op-ip-revenue", title: "OP / IP Revenue Contribution", short: "OP / IP Split", portfolio: "consumption", icon: "🛏️",
+    note: "Patient-type split exists only at month grain in the billing extract — 12 rows is the complete truth, not a sample.",
+    chart: { type: "donut", groupBy: "patient", measures: "revenue", x: "patient",
+      series: [{ field: "revenue", label: "Billed Revenue" }], valueKind: "inr" },
+    card: { field: "revenue", agg: "sum", kind: "inr", label: "Billed Revenue" },
+    summary: [{ field: "revenue", agg: "sum", kind: "inr", label: "Billed Revenue" },
+              { field: "qty", agg: "sum", kind: "num", label: "Units Billed" }],
+    columns: [{ field: "patient", label: "Patient Type" }, { field: "month", label: "Month" },
+      { field: "revenue", label: "Revenue", kind: "inr" }, { field: "cost", label: "Cost", kind: "inr" },
+      { field: "qty", label: "Qty", kind: "num" }, { field: "lines", label: "Lines", kind: "num" }],
+  },
+  {
+    key: "billable-consumption", title: "Billable vs Non-Billable Consumption", short: "Billable Split", portfolio: "consumption", icon: "🧾",
+    note: "Billed and internal catalogues barely overlap — only 1,230 of 15,171 billed materials (8.1%) are also issued internally.",
+    chart: { type: "bar", groupBy: "scope", measures: "total_material_cost", x: "scope",
+      series: [{ field: "total_material_cost", label: "Material Cost", color: C.green }], valueKind: "inr" },
+    card: { field: "total_material_cost", agg: "sum", kind: "inr", label: "Total Material Cost" },
+    summary: [{ field: "billed_cost", agg: "sum", kind: "inr", label: "Billed (recovered)" },
+              { field: "internal_cost", agg: "sum", kind: "inr", label: "Internal (not billed)" }],
+    columns: [{ field: "material", label: "Material" }, { field: "material_desc", label: "Description" },
+      { field: "material_group", label: "Group" }, { field: "scope", label: "Scope" },
+      { field: "billed_cost", label: "Billed Cost", kind: "inr" }, { field: "internal_cost", label: "Internal Cost", kind: "inr" },
+      { field: "total_material_cost", label: "Total", kind: "inr" }, { field: "billable_share_pct", label: "Billable %", kind: "pct" }],
   },
 
   // ---------------- FORECASTING (generic ones; demand/cashflow/replenishment use dedicated pages) ----------------
@@ -321,28 +394,15 @@ export type SimKpiMeta = {
 };
 
 export const SIMULATED_KPIS: SimKpiMeta[] = [
-  // ---------------- CONSUMPTION & REVENUE (biggest gap — no sales/billing) ----------------
-  // HCG has since supplied the IP/OP billing extracts these four were waiting on,
-  // so each now carries a link to the page holding the real figures. The preview
-  // stays as a design reference, but can no longer be mistaken for the live number.
-  { key: "billable-consumption", title: "Billable vs Non-Billable Consumption", short: "Billable Consumption", portfolio: "consumption", icon: "🧾",
-    why: "Split chargeable vs internal-use consumption", requires: "Billing / charge flag per goods-issue",
-    realHref: "/revenueMargin", realLabel: "Revenue & Margin",
-    realNote: "Billed patient revenue is now reconciled against internal (non-billable) consumption cost on the live page." },
+  // ---------------- CONSUMPTION & REVENUE ----------------
+  // Billable-vs-non-billable, Revenue per Location and OP/IP Revenue used to live here.
+  // HCG's IP+OP billing extract landed, so all three were promoted into KPIS above with
+  // their own real grain and drill-down table, and Revenue Margin Analysis was merged
+  // into /revenueMargin (it *was* that page). Return Rate is the only one still genuinely
+  // unbuildable: fact_consumption carries movement type 201 only — no returns, no
+  // write-offs, zero negative quantities — so there is nothing to measure yet.
   { key: "return-rate", title: "Return Rate %", short: "Return Rate", portfolio: "consumption", icon: "↩️",
     why: "Returned vs issued units by SKU & department", requires: "Return / write-off transactions" },
-  { key: "revenue-per-location", title: "Revenue per Location", short: "Revenue / Location", portfolio: "consumption", icon: "💵",
-    why: "True revenue by hospital (today shown as MRP proxy)", requires: "Actual sales / billing revenue",
-    realHref: "/revenueMargin", realLabel: "Revenue & Margin",
-    realNote: "Real billed revenue per hospital is live. This preview used an MRP proxy, so its totals are much lower." },
-  { key: "op-ip-revenue", title: "OP / IP Revenue Contribution", short: "OP / IP Split", portfolio: "consumption", icon: "🛏️",
-    why: "Outpatient vs inpatient revenue share", requires: "Patient-type (IP/OP) tag per transaction",
-    realHref: "/revenueMargin", realLabel: "Revenue & Margin",
-    realNote: "The real IP/OP split comes straight from the billing extract and differs sharply from this modelled estimate." },
-  { key: "revenue-margin", title: "Revenue Margin Analysis", short: "Revenue Margin", portfolio: "consumption", icon: "📊",
-    why: "Real sales margin per SKU / category", requires: "True selling price (Selling Price = 0 in source)",
-    realHref: "/revenueMargin", realLabel: "Revenue & Margin",
-    realNote: "True margin (billed MRP − actual cost) is live, by manufacturer, category and item." },
 
   // ---------------- PROCUREMENT ----------------
   { key: "vendor-sla-compliance", title: "Vendor SLA Compliance", short: "Vendor SLA", portfolio: "procurement", icon: "📶",
@@ -353,8 +413,6 @@ export const SIMULATED_KPIS: SimKpiMeta[] = [
   // ---------------- INVENTORY ----------------
   { key: "holding-cost", title: "Inventory Holding Cost", short: "Holding Cost", portfolio: "inventory", icon: "🏷️",
     why: "Annual cost of holding stock (capital + storage)", requires: "Carrying-cost rate %" },
-  { key: "stock-out-rate", title: "Stock-Out Rate", short: "Stock-Out Rate", portfolio: "inventory", icon: "📉",
-    why: "How often SKUs hit zero against live demand", requires: "Daily stock-level history (only 1 snapshot today)" },
 
   // ---------------- FORECASTING ----------------
   { key: "seasonal-forecast", title: "Seasonal / 12-Month Forecast Accuracy", short: "Seasonal Forecast", portfolio: "forecasting", icon: "🗓️",

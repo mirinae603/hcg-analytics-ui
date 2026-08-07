@@ -1,12 +1,12 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import { useRegion } from "@/context/RegionContext";
+import { useRegion, displayRegion } from "@/context/RegionContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import { useDrillBind } from "@/components/portfolio/useDrillBind";
-import { useCardCategory, useCardScopedData } from "@/components/common/CardCategoryFilter";
-import { TbSnowflake, TbBolt, TbArrowDownRight, TbGauge } from "react-icons/tb";
+import { useCardCategory } from "@/components/common/CardCategoryFilter";
+import { TbSnowflake, TbBolt, TbArrowDownRight, TbGauge, TbInfoCircle } from "react-icons/tb";
 
 const KpiTable = dynamic(() => import("../KpiTable"), {
   ssr: false,
@@ -28,6 +28,7 @@ const TINT_BLUE = { bg: "#eaf2ff", bd: "#dbe8fc", ring: "#3b82f6", track: "#dbe8
 const TINT_ROSE = { bg: "#fdedef", bd: "#f8dee2", ring: "#e8604a", track: "#f8dee2" };
 const TINT_MINT = { bg: "#e8f6ef", bd: "#d6efe1", ring: "#15a978", track: "#d6efe1" };
 const speedColor = (itr: number) => (itr <= 0.001 ? DEAD : itr < 1 ? SLOW : itr < 4 ? MOD : FAST);
+const speedLabel = (itr: number) => (itr <= 0.001 ? "Dead" : itr < 1 ? "Slow" : itr < 4 ? "Moderate" : "Fast");
 const CARD_SH = "0 16px 40px -24px rgba(40,52,86,0.24), 0 4px 14px -8px rgba(40,52,86,0.08)";
 
 const inrAbbr = (v: number) => { const a = Math.abs(v); if (a >= 1e7) return `₹${(v / 1e7).toFixed(2)} Cr`; if (a >= 1e5) return `₹${(v / 1e5).toFixed(2)} L`; if (a >= 1e3) return `₹${(v / 1e3).toFixed(1)} K`; return `₹${Math.round(v)}`; };
@@ -60,7 +61,7 @@ function smoothPath(pts: { x: number; y: number }[]) {
 }
 
 // Smooth gradient area chart — the turnover "engine": monthly consumption flow
-function TrendCard({ timeline }: { timeline: any[] }) {
+function TrendCard({ timeline, billedAvailable }: { timeline: any[]; billedAvailable: boolean }) {
   const on = useMount(140);
   const [hov, setHov] = useState<number | null>(null);
   const data = timeline || [];
@@ -83,13 +84,21 @@ function TrendCard({ timeline }: { timeline: any[] }) {
       <div className="flex items-start justify-between flex-wrap gap-2">
         <div>
           <h3 className="text-[16px] font-semibold" style={{ color: INK }}>Turnover flow</h3>
-          <p className="text-[12px] mt-0.5" style={{ color: SUBTLE }}>monthly consumption that turns your stock · 6-month window</p>
+          <p className="text-[12px] mt-0.5" style={{ color: SUBTLE }}>
+            {billedAvailable ? "internal + patient-billed, monthly" : "internal only — billed monthly figures have no hospital/category breakdown yet"} · 6-month window
+          </p>
         </div>
         <div className="text-right">
           <div className="text-[20px] font-bold leading-none tabular-nums" style={{ color: BLUE }}>{inrAbbr(avg)}</div>
           <div className="text-[11px] mt-1" style={{ color: SUBTLE }}>avg / month</div>
         </div>
       </div>
+      {!billedAvailable && (
+        <div className="mt-2.5 flex items-start gap-1.5 text-[11px]" style={{ color: "#9aa1b3" }}>
+          <TbInfoCircle size={13} className="flex-shrink-0 mt-[1px]" />
+          <span>Billed monthly figures are network-wide only — narrow to All Hospitals + All Categories to see them folded in here.</span>
+        </div>
+      )}
       <div className="relative mt-3">
         <svg viewBox={`0 0 ${W} ${H}`} width="100%" preserveAspectRatio="none" style={{ display: "block", overflow: "visible" }} onMouseLeave={() => setHov(null)}>
           <defs>
@@ -192,7 +201,15 @@ function VelocityCard({ cats, itr, region, cat, loading }: any) {
           {[["Slow", SLOW], ["Moderate", MOD], ["Fast", FAST]].map(([l, c]) => <span key={l} className="inline-flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full" style={{ background: c as string }} />{l}</span>)}
         </div>
       </div>
-      {cat.note(!loading && sorted.length === 0) && <div className="mt-3">{cat.note(true)}</div>}
+      {(() => {
+        const trulyEmpty = !loading && sorted.length === 0;
+        // cat.note()'s "domain missing" flag is a static fact about Category coverage
+        // under the internal-only ETL parquet (Onco genuinely has near-zero internal
+        // consumption) — no longer accurate now that every total here is permanently
+        // billed+internal, so it is only trusted when the chart is ACTUALLY empty.
+        const noteEl = trulyEmpty ? cat.note(true) : null;
+        return noteEl && <div className="mt-3">{noteEl}</div>;
+      })()}
       <div className="mt-5 flex-1 flex flex-col justify-between gap-2.5">
         {sorted.map((c, i) => { const col = speedColor(c.itr); const w = Math.max((c.itr / max) * 100, 4); return (
           <div key={i} className="flex items-center gap-3" {...drill.bind(c.raw)}>
@@ -283,21 +300,34 @@ export default function TurnoverDetail() {
   const { selectedRegion } = useRegion();
   const region = selectedRegion?.name ?? "All Plants";
   const [data, setData] = useState<any>(null);
-
+  // Always billed+internal ("both") — the backend permanently folds patient billing
+  // into every total now, so this is a single plain fetch: no Scope param, no
+  // baseline/delta bookkeeping. See legacy_kpi.py's itr_insights comment.
   useEffect(() => {
-    fetch(`${DASHBOARD_API_BASE_URL}/kpi/inventory-turnover-ratio/insights?Plant=${encodeURIComponent(region)}`).then((r) => r.json()).then((d) => setData(d || null)).catch(() => setData(null));
+    const ac = new AbortController();
+    fetch(`${DASHBOARD_API_BASE_URL}/kpi/inventory-turnover-ratio/insights?Plant=${encodeURIComponent(region)}`, { signal: ac.signal })
+      .then((r) => r.json()).then((d) => setData(d || null)).catch((e) => { if (e?.name !== "AbortError") setData(null); });
+    return () => ac.abort();
   }, [region]);
 
-  // Turns = COGS / inventory, and COGS comes from consumption — so onco reads a near
-  // zero turn rate here for the same real reason it does everywhere downstream of
-  // fact_consumption. The chip's note says which, instead of leaving a flat chart.
   const cat = useCardCategory({ accent: BLUE, domain: "consumption" });
-  const scoped = useCardScopedData(data, cat.category, (c, signal) =>
-    fetch(`${DASHBOARD_API_BASE_URL}/kpi/inventory-turnover-ratio/insights?Plant=${encodeURIComponent(region)}&Category=${encodeURIComponent(c)}`, { signal }).then((r) => r.json()));
+  const [catData, setCatData] = useState<any>(null);
+  const [catLoading, setCatLoading] = useState(false);
+  useEffect(() => {
+    if (!cat.category) { setCatData(null); setCatLoading(false); return; }
+    const ac = new AbortController();
+    setCatLoading(true);
+    fetch(`${DASHBOARD_API_BASE_URL}/kpi/inventory-turnover-ratio/insights?Plant=${encodeURIComponent(region)}&Category=${encodeURIComponent(cat.category)}`, { signal: ac.signal })
+      .then((r) => r.json()).then((d) => { setCatData(d || null); setCatLoading(false); })
+      .catch((e) => { if (e?.name !== "AbortError") setCatLoading(false); });
+    return () => ac.abort();
+  }, [region, cat.category]);
+  const scopedData = cat.category && catData ? catData : data;
+  const scopedLoading = cat.category ? catLoading : false;
 
   const t = data?.totals || {};
   // `raw` is the untouched "M065-INJECTIONS" the drill-down sends; `name` is the stripped label.
-  const cats: any[] = useMemo(() => (scoped.data?.categories || []).map((c: any) => ({ ...c, raw: c.name, name: catName(c.name) })), [scoped.data]);
+  const cats: any[] = useMemo(() => (scopedData?.categories || []).map((c: any) => ({ ...c, raw: c.name, name: catName(c.name) })), [scopedData]);
   const inv = Number(t.inventory ?? 0), cogs = Number(t.cogs_6mo ?? 0), itr = Number(t.portfolio_itr ?? 0);
   const dead = useMemo(() => (data?.bands || []).find((b: any) => b.key === "dead")?.value ?? 0, [data]);
   const moving = Math.max(0, inv - dead);
@@ -310,21 +340,25 @@ export default function TurnoverDetail() {
       <div className="flex items-end justify-between flex-wrap gap-2 mb-5">
         <div>
           <h1 className="text-[24px] font-bold leading-tight" style={{ color: INK }}>Inventory turnover</h1>
-          <p className="text-[13px] mt-1" style={{ color: SUBTLE }}>how fast your stock is moving · {region}</p>
+          <p className="text-[13px] mt-1" style={{ color: SUBTLE }}>how fast your stock is moving · {displayRegion(region)}</p>
         </div>
         <span className="text-[12px] font-medium px-3.5 py-2 rounded-full bg-white" style={{ color: "#5b6478", boxShadow: "0 4px 14px -8px rgba(40,52,86,0.2)" }}>6-month window</span>
       </div>
 
+      <p className="text-[11.5px] mb-5" style={{ color: SUBTLE }}>
+        "COGS" includes both internal goods-issue and patient billing (IP+OP) — filter by category above, not by billing type.
+      </p>
+
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-stretch">
         <div className="xl:col-span-8 flex flex-col gap-5 min-w-0">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-            <StatCard tint={TINT_BLUE} icon={TbGauge} label="Turnover" value={itr} format={(n: number) => `${n.toFixed(2)}×`} sub={itr > 0 ? `Slow · ≈ ${Math.round(Number(t.months_on_hand ?? 0))} months on hand`
+            <StatCard tint={TINT_BLUE} icon={TbGauge} label="Turnover" value={itr} format={(n: number) => `${n.toFixed(2)}×`} sub={itr > 0 ? `${speedLabel(itr)} · ≈ ${Number(t.months_on_hand ?? 0).toFixed(1)} months on hand`
                          : "No consumption in this scope — cover is undefined"} pct={Math.min(itr / 4, 1) * 100} barLabel="of 4× healthy" delay={0} />
             <StatCard tint={TINT_ROSE} icon={TbSnowflake} label="Capital frozen" value={frozen} format={inrAbbr} sub={`${frozenN} slow-moving categories`} pct={inv ? (frozen / inv) * 100 : 0} barLabel="of inventory value" delay={80} />
             <StatCard tint={TINT_MINT} icon={TbBolt} label="Actively moving" value={moving} format={inrAbbr} sub="the part that actually turns" pct={inv ? (moving / inv) * 100 : 0} barLabel="of inventory value" delay={160} />
           </div>
-          <TrendCard timeline={data?.timeline || []} />
-          <VelocityCard cats={cats} itr={itr} region={region} cat={cat} loading={scoped.loading} />
+          <TrendCard timeline={data?.timeline || []} billedAvailable={!!data?.timeline_billed_available} />
+          <VelocityCard cats={cats} itr={itr} region={region} cat={cat} loading={scopedLoading} />
         </div>
         <div className="xl:col-span-4 flex flex-col gap-5 min-w-0">
           <SpeedMixList bands={data?.bands || []} />

@@ -46,6 +46,16 @@ export type WiredDrill = {
  * spec that is missing from this list, so drift is caught rather than assumed away.
  */
 export const WIRED_DRILLS: WiredDrill[] = [
+  // ── Ledger-kit KPI pages (Stock-Out, Billable Split, Revenue per Location) ──
+  // op-ip-revenue is deliberately ABSENT: its source (sales_monthly) is patient x month
+  // with no material/plant/vendor column, so /drill/top-items correctly refuses it —
+  // there is no entity grain to break a patient-type bar down by.
+  { page: 'Stock-Out Rate', chart: 'hospitals by value at stake', kpi: 'stock-out-rate', dim: 'plant', by: 'material', measure: 'cost_6mo' },
+  { page: 'Stock-Out Rate', chart: 'categories that break', kpi: 'stock-out-rate', dim: 'material_group', by: 'material', measure: 'cost_6mo' },
+  { page: 'Billable Split', chart: 'two-catalogue scope buckets', kpi: 'billable-consumption', dim: 'scope', by: 'material', measure: 'internal_cost' },
+  { page: 'Revenue per Location', chart: 'scale-vs-quality plane', kpi: 'revenue-per-location', dim: 'hospital', by: 'material', measure: 'revenue' },
+  { page: 'Revenue per Location', chart: 'concentration bars', kpi: 'revenue-per-location', dim: 'hospital', by: 'material', measure: 'revenue' },
+
   // ── Inventory ──
   { page: 'Stock Value', chart: 'breakdown bars · Category', kpi: 'current-stock-value', dim: 'material_group', by: 'material', measure: 'stock_value_cost' },
   { page: 'Stock Value', chart: 'breakdown bars · Hospital', kpi: 'current-stock-value', dim: 'plant', by: 'material', measure: 'stock_value_cost' },
