@@ -80,24 +80,32 @@ function Chip({ text, color }: { text: string; color: string }) {
 }
 
 // CARD 1 — Median cover on a runway with the 30–90 healthy target band
-function CoverHeroCard({ median, movingSkus }: { median: number; movingSkus: number }) {
+// Client's own formula: Closing Inventory Value / (avg daily Value sold+consumed) —
+// a single, portfolio-level, VALUE-weighted ratio (da.doh_value_scoped on the backend).
+// Deliberately NOT the per-SKU median doh_days shown elsewhere on this page (bands,
+// reorder list) -- those stay unit-quantity based on purpose, this hero card is the
+// headline figure the client asked to see followed here.
+function CoverHeroCard({ days, closingValue, billedApplicable }: { days: number; closingValue: number; billedApplicable: boolean }) {
   const on = useMount(0);
   const cap = 365;
-  const pos = Math.min(100, (Math.min(median, cap) / cap) * 100);
+  const pos = Math.min(100, (Math.min(days, cap) / cap) * 100);
   const hz0 = (30 / cap) * 100, hz1 = (90 / cap) * 100;
-  const state = median < 30 ? { t: "below target", c: "#cf7e6f" } : median <= 90 ? { t: "on target", c: "#5fa886" } : { t: "above target", c: "#6f76b3" };
+  const state = days < 30 ? { t: "below target", c: "#cf7e6f" } : days <= 90 ? { t: "on target", c: "#5fa886" } : { t: "above target", c: "#6f76b3" };
   return (
     <Card>
-      <Head icon={TbCalendarStats} label="Median cover" badge="moving SKUs" color={INDIGO} />
+      <Head icon={TbCalendarStats} label="Days inventory" badge="value basis" color={INDIGO} />
       <div className="mt-4 flex items-end gap-1.5">
-        <span className="text-[40px] leading-none font-bold tabular-nums tracking-tight" style={{ color: INK }}><CountUp value={median} format={(n) => `${Math.round(n)}`} /></span>
+        <span className="text-[40px] leading-none font-bold tabular-nums tracking-tight" style={{ color: INK }}><CountUp value={days} format={(n) => `${Math.round(n)}`} /></span>
         <span className="text-[15px] font-semibold mb-1 text-gray-400">days of cover</span>
       </div>
-      <div className="mt-1.5 text-[12px] text-gray-400">across {movingSkus.toLocaleString("en-IN")} SKUs that move</div>
+      <div className="mt-1.5 text-[12px] text-gray-400">closing inventory ÷ avg daily value sold+consumed · {inrAbbr(closingValue)} on shelf</div>
+      {!billedApplicable && (
+        <div className="mt-1 text-[10.5px]" style={{ color: "#a08a4a" }}>internal consumption only — patient-billed cost has no per-hospital split in source data</div>
+      )}
       <div className="mt-auto pt-8">
         <div className="relative">
           <div className="absolute -top-6 z-10 flex flex-col items-center" style={{ left: `${on ? pos : 0}%`, transform: "translateX(-50%)", transition: "left 1.3s cubic-bezier(0.34,1.12,0.64,1)" }}>
-            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md text-white tabular-nums shadow-sm" style={{ background: INK }}>{Math.round(median)}d</span>
+            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md text-white tabular-nums shadow-sm" style={{ background: INK }}>{Math.round(days)}d</span>
             <span className="w-0 h-0" style={{ borderLeft: "4px solid transparent", borderRight: "4px solid transparent", borderTop: `5px solid ${INK}` }} />
           </div>
           {/* runway track with healthy band */}
@@ -384,6 +392,11 @@ export default function DaysOnHandDetail() {
   }, [region, cat.category]);
   const scopedBands = (cat.category && catData ? catData : data)?.bands || [];
   const scopedLoading = cat.category ? catLoading : false;
+  // Days Inventory's own headline is a portfolio-level ratio, so unlike the SKU bands
+  // below it genuinely changes shape under a category cut (fewer, different SKUs feed
+  // both the numerator and denominator) -- it has to read the category-scoped fetch,
+  // not the Plant-only one every other total on this page still uses.
+  const scopedTotals = (cat.category && catData ? catData : data)?.totals || {};
 
   const t = data?.totals || {};
   const bands = data?.bands || [];
@@ -399,7 +412,7 @@ export default function DaysOnHandDetail() {
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 csv-cards">
-        <div className="csv-card" style={{ animationDelay: "0ms" }}><CoverHeroCard median={Number(t.median_doh ?? 0)} movingSkus={Number(t.moving_skus ?? 0)} /></div>
+        <div className="csv-card" style={{ animationDelay: "0ms" }}><CoverHeroCard days={Number(scopedTotals.days_inventory_value ?? 0)} closingValue={Number(scopedTotals.closing_inventory_value ?? 0)} billedApplicable={Boolean(scopedTotals.billed_applicable ?? true)} /></div>
         <div className="csv-card" style={{ animationDelay: "100ms" }}><StockoutRiskCard value={Number(t.risk_value ?? 0)} count={Number(t.risk_count ?? 0)} critical={bandBy.critical} low={bandBy.low} /></div>
         <div className="csv-card" style={{ animationDelay: "200ms" }}><OverstockCard value={Number(t.overstock_value ?? 0)} count={Number(t.overstock_count ?? 0)} totalMovingValue={movingValue} /></div>
         <div className="csv-card" style={{ animationDelay: "300ms" }}><IdleCapitalCard value={Number(t.nonmoving_value ?? 0)} count={Number(t.nonmoving_skus ?? 0)} totalValue={Number(t.total_value ?? 0)} totalSkus={Number(t.total_skus ?? 0)} /></div>
