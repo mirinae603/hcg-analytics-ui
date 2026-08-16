@@ -251,6 +251,14 @@ function CategoryHeatmap({ heat, region, cat, loading }: { heat: any; region: st
   const [hov, setHov] = useState<{ ri: number; ci: number } | null>(null);
   const rgba = (rgb: number[], a: number) => `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${a})`;
   const hd = hov && heat.rows[hov.ri] ? { cat: heat.rows[hov.ri].name, band: BANDS[hov.ci], val: heat.rows[hov.ri].cells[hov.ci], catTotal: heat.rows[hov.ri].total } : null;
+  // Same dim/kpi as AgingDistributionDetail's Marimekko, which already proves material_group
+  // drills to the rupee off this kpi. Bound per ROW (not per cell): the endpoint has no
+  // combined category×band dim, so a cell can only honestly drill its row's category, not
+  // that one cell's slice -- same call Marimekko's own comment makes for its column axis.
+  const drill = useDrillBind({
+    kpi: "aging-distribution", dim: "material_group", by: "material", measure: "stock_value",
+    label: "items", dimLabel: "Category", format: inrAbbr,
+  });
   return (
     <div className="csv-card rounded-3xl bg-white p-5 md:p-6" style={{ animationDelay: "380ms", boxShadow: PANEL_SHADOW }}>
       <div className="flex items-center justify-between flex-wrap gap-2">
@@ -279,7 +287,12 @@ function CategoryHeatmap({ heat, region, cat, loading }: { heat: any; region: st
             {heat.rows.map((r: any, ri: number) => (
               <div key={ri} className="grid items-center gap-1.5 mb-1.5" style={{ gridTemplateColumns: "144px repeat(5,1fr) 112px" }}
                 onMouseLeave={() => setHov((h) => (h && h.ri === ri ? null : h))}>
-                <span className="text-[11.5px] font-medium truncate pr-1" title={r.name} style={{ color: hov?.ri === ri ? INK : "#5c6862" }}>{r.name}</span>
+                {/* Drill lives on the ROW LABEL, not the cells: the panel can only ever show
+                    this row's category total (no category×band dim exists), and putting it
+                    on every cell made hovering a near-blank cell pop a large unrelated-
+                    looking number -- confusing, reported live on RiskMatrix's identical
+                    pattern. The label reads as "this whole row"; a cell stays visual-only. */}
+                <span className="text-[11.5px] font-medium truncate pr-1" title={r.name} style={{ color: hov?.ri === ri ? INK : "#5c6862" }} {...drill.bind(r.raw)}>{r.name}</span>
                 {r.cells.map((v: number, ci: number) => {
                   const intensity = r.rowMax ? Math.sqrt(v / r.rowMax) : 0;
                   const active = hov?.ri === ri && hov?.ci === ci;
@@ -305,6 +318,7 @@ function CategoryHeatmap({ heat, region, cat, loading }: { heat: any; region: st
           </div>
         </div>
       ) : <div className="py-16 text-center text-gray-400 text-sm">No data.</div>}
+      {drill.panel}
     </div>
   );
 }
@@ -459,7 +473,10 @@ export default function InventoryAgingDetail() {
     const bands = ["0-30", "31-90", "91-180", "181-365", "365+"];
     const by: Record<string, Record<string, number>> = {};
     matrix.forEach((r) => { const g = String(r.material_group); by[g] = by[g] || {}; by[g][r.aging_bucket] = (by[g][r.aging_bucket] || 0) + Number(r.stock_value ?? 0); });
-    let rows = Object.entries(by).map(([g, m]) => { const cells = bands.map((b) => m[b] || 0); const total = cells.reduce((s, v) => s + v, 0); return { name: catName(g), cells, total, rowMax: Math.max(...cells, 1) }; });
+    // `raw` is the untouched material_group key (e.g. "M017-ENDO SURG ACCES") the drill-down
+    // sends; `name` is the stripped display label. Same raw/name split as AgingDistributionDetail's
+    // Marimekko, which drills this exact dim off this exact kpi.
+    let rows = Object.entries(by).map(([g, m]) => { const cells = bands.map((b) => m[b] || 0); const total = cells.reduce((s, v) => s + v, 0); return { name: catName(g), raw: g, cells, total, rowMax: Math.max(...cells, 1) }; });
     rows.sort((a, b) => b.total - a.total); rows = rows.slice(0, 10);
     const maxTotal = Math.max(...rows.map((r) => r.total), 1);
     const bandTotals = bands.map((_, i) => rows.reduce((s, r) => s + r.cells[i], 0));

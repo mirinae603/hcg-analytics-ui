@@ -109,6 +109,16 @@ function RiskMatrix({ data, region }: { data: any; region: string }) {
   const expUrg = [1, 0.82, 0.42, 0.12, 0.25]; const ageUrg = [0.12, 0.3, 0.5, 0.7, 0.9];
   const cellRisk = (r: number, c: number) => Math.max(expUrg[c] ?? 0.2, (ageUrg[r] ?? 0.5) * 0.7);
   const hd = hov ? { a: arows[hov.r], e: ecols[hov.c], v: matrix[hov.r][hov.c] } : null;
+  // Row axis only: `aging_bucket` is a real dim on the drill source and arows' bucket
+  // boundaries match it exactly once the display en-dash is normalised to the dim's plain
+  // hyphen ("0–30" -> "0-30"). The column axis (time-to-expiry) has no matching dim on the
+  // drill source at all -- and no combined age×expiry dim either -- so a cell can only
+  // honestly drill its row's age band, not that one cell's age+expiry slice. Same
+  // single-axis call CategoryHeatmap/Marimekko already make for the same reason.
+  const drill = useDrillBind({
+    kpi: "inventory-risk", dim: "aging_bucket", by: "material", measure: "closing_stock_value",
+    label: "items", dimLabel: "Age band", format: inrAbbr,
+  });
   return (
     <div className="csv-card rounded-3xl bg-white p-5 md:p-6" style={{ animationDelay: "180ms", boxShadow: PANEL_SHADOW }}>
       <div className="flex items-center justify-between flex-wrap gap-2">
@@ -129,7 +139,12 @@ function RiskMatrix({ data, region }: { data: any; region: string }) {
           </div>
           {arows.map((a, r) => (
             <div key={a} className="grid gap-1.5 mb-1.5" style={{ gridTemplateColumns: "92px repeat(5,1fr)" }} onMouseLeave={() => setHov((h) => (h && h.r === r ? null : h))}>
-              <span className="text-[11px] font-medium self-center" style={{ color: hov?.r === r ? INK : "#9a8e8e" }}>{a}d</span>
+              {/* Drill lives on the ROW LABEL, not the cells: the panel can only ever show
+                  this row's age-band total (no age×expiry dim exists), and putting it on
+                  every cell made hovering a near-blank cell pop a large unrelated-looking
+                  number -- confusing, reported live. The label reads as "this whole row";
+                  a cell now stays visual-only, same as before this dim existed. */}
+              <span className="text-[11px] font-medium self-center" style={{ color: hov?.r === r ? INK : "#9a8e8e" }} {...drill.bind(a.replace(/–/g, "-"))}>{a}d</span>
               {ecols.map((e, c) => {
                 const v = matrix[r][c]; const intensity = Math.sqrt(v / max); const active = hov?.r === r && hov?.c === c;
                 return (
@@ -143,6 +158,7 @@ function RiskMatrix({ data, region }: { data: any; region: string }) {
           ))}
         </div></div>
       ) : <div className="py-16 text-center text-gray-400 text-sm">No data.</div>}
+      {drill.panel}
     </div>
   );
 }

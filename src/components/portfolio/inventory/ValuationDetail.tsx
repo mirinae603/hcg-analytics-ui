@@ -284,10 +284,13 @@ function MarkupLeadersCard({ cats }: { cats: any[] }) {
   );
 }
 
+// /kpi/inventory-valuation-table is a flat, snapshot-aware legacy route (kpi_stock_value
+// has no year/month of its own — the backend hardcodes year=2026/period="May" onto every
+// row) and renames its columns; these fields match THAT contract, not the raw parquet.
 const COLUMNS = [
-  { field: "year", label: "Year" }, { field: "period", label: "Period" }, { field: "material", label: "Material" },
-  { field: "material_desc", label: "Description" }, { field: "material_group", label: "Category" },
-  { field: "stock_value_cost", label: "Book Value", kind: "inr" as const },
+  { field: "year", label: "Year" }, { field: "period", label: "Period" }, { field: "materialId", label: "Material" },
+  { field: "materialName", label: "Description" }, { field: "materialGroup", label: "Category" },
+  { field: "inventoryValuation", label: "Book Value", kind: "inr" as const },
 ];
 
 export default function ValuationDetail() {
@@ -345,7 +348,7 @@ export default function ValuationDetail() {
           <h3 className="text-[15px] font-semibold" style={{ color: INK }}>SKU-level valuation detail</h3>
           <p className="text-xs text-gray-400 mt-0.5">paginated · sortable · filterable · export CSV</p>
         </div>
-        <KpiTable kpiKey="inventory-valuation" plant={region} columns={COLUMNS} />
+        <KpiTable kpiKey="inventory-valuation" plant={region} columns={COLUMNS} endpoint="/kpi/inventory-valuation-table" />
       </div>
     </div>
   );

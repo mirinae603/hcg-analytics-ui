@@ -46,8 +46,6 @@ export default function RevenuePerLocationDetail() {
     return { rev, margin, rate: rev ? (margin / rev) * 100 : 0 };
   }, [sites]);
 
-  if (!rows) return <PageShell title="Revenue per location" sub="billed patient revenue by hospital — scale against margin quality" pill="23 hospitals"><Skeleton /></PageShell>;
-
   // ── hero plane ──
   const W = 900, H = 420, PL = 62, PR = 120, PT = 28, PB = 52;
   const PW = W - PL - PR, PH = H - PT - PB;
@@ -65,6 +63,13 @@ export default function RevenuePerLocationDetail() {
     label: "items", dimLabel: "Hospital · billed revenue", format: inr, category: cat.drill,
   });
   const a = hi != null ? sites[hi] : null;
+
+  // Checked here, AFTER every hook above has run unconditionally on every render (not
+  // before them) — an early return above useMemo/useDrillBind meant the very first render
+  // (rows still null) skipped those hooks entirely, then called them once rows arrived.
+  // React sees that as the hook list itself changing between renders, which is exactly
+  // the "change in the order of Hooks" crash this page was throwing.
+  if (!rows) return <PageShell title="Revenue per location" sub="billed patient revenue by hospital — scale against margin quality" pill="23 hospitals"><Skeleton /></PageShell>;
 
   return (
     <PageShell title="Revenue per location"

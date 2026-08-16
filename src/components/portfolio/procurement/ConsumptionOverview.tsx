@@ -221,10 +221,12 @@ function CategoriesCard({ categories, cat, loading }: { categories: any[]; cat: 
       <div className="mb-3" />
       <div className="flex-1 flex flex-col justify-between gap-2.5">
         {rows.map((r: any, i: number) => { const uncat = r.uncat; const col = uncat ? GREY : ROSE; return (
-          // The "Uncategorized" row deliberately gets no drill-down: it is every line whose
-          // material_group is null, invented client-side, so there is no group value to send.
-          // bind(undefined) returns inert props rather than a panel that would come back empty.
-          <div key={i} {...drill.bind(uncat ? undefined : r.name)}>
+          // "Uncategorized" is every line whose material_group is null -- there's no real
+          // group value to send, but the backend maps null dims to a stable sentinel
+          // ("(unassigned)", kpi_generic.py UNASSIGNED) for exactly this case, so the drill
+          // still resolves to real rows instead of coming back empty. Verified live: this
+          // slice alone covers 6,851 materials / ₹6.46 Cr of the ₹22.56 Cr total.
+          <div key={i} {...drill.bind(uncat ? "(unassigned)" : r.name)}>
             <div className="flex items-center justify-between mb-1">
               <span className="text-[12px] font-medium truncate pr-2" style={{ color: uncat ? "#a99aa1" : "#3c2f36" }} title={r.name}>{catName(r.name)}</span>
               <span className="text-[12px] font-bold tabular-nums flex-shrink-0" style={{ color: uncat ? "#a99aa1" : INK }}>{inrAbbr(r.value)}</span>
@@ -245,7 +247,10 @@ function DepartmentsCard({ departments }: { departments: any[] }) {
   return (
     <div className="rounded-3xl bg-white p-6 flex flex-col flex-1" style={{ boxShadow: CARD_SH }}>
       <h3 className="text-[15px] font-semibold flex items-center gap-2" style={{ color: INK }}><TbBuildingHospital size={16} style={{ color: PLUM }} />Top departments</h3>
-      <p className="text-[12px] mt-0.5 mb-1" style={{ color: SUB }}>by consumption cost · cost-center code</p>
+      {/* HCG hasn't supplied real department NAMES yet -- the code itself stays the
+          identity, but the hospital it belongs to is real data (every cost center maps
+          to exactly one plant), not a placeholder, so it's worth a line under the code. */}
+      <p className="text-[12px] mt-0.5 mb-1" style={{ color: SUB }}>by consumption cost · cost-center code, department names pending from HCG</p>
       <div className="flex-1 flex flex-col justify-between divide-y divide-gray-50">
         {rows.map((r: any, i: number) => (
           <div key={i} className="flex items-center justify-between py-2.5">
@@ -253,7 +258,7 @@ function DepartmentsCard({ departments }: { departments: any[] }) {
               <span className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: `${PLUM}14`, color: PLUM }}><TbReportMedical size={15} /></span>
               <div className="min-w-0">
                 <div className="text-[12.5px] font-medium tabular-nums" style={{ color: "#3c2f36" }}>{r.code}</div>
-                <div className="text-[11px]" style={{ color: SUB }}>{countAbbr(r.qty)} units</div>
+                <div className="text-[11px] truncate" style={{ color: SUB }} title={r.hospital}>{r.hospital || "—"} · {countAbbr(r.qty)} units</div>
               </div>
             </div>
             <span className="text-[12.5px] font-bold tabular-nums flex-shrink-0" style={{ color: INK }}>{inrAbbr(r.value)}</span>
