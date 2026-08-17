@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { TbSend, TbChartBar, TbShieldCheck, TbDatabase, TbChevronDown, TbFileSpreadsheet, TbFileTypePdf, TbDownload, TbArrowDown, TbPlus, TbUserCircle } from "react-icons/tb";
+import { TbSend, TbChartBar, TbShieldCheck, TbDatabase, TbChevronDown, TbFileSpreadsheet, TbFileTypePdf, TbDownload, TbArrowDown, TbPlus, TbUserCircle, TbCopy, TbCheck, TbRefresh, TbPlayerStopFilled } from "react-icons/tb";
 import { useAiChat, AiMsg } from "@/context/AiChatContext";
 import { groupTurns, exportExcel, exportPdf, Turn } from "@/lib/aiExport";
 import AnalystMark from "./AnalystMark";
@@ -108,6 +108,33 @@ function ExportMenu({ label, onExcel, onPdf, compact }: { label: string; onExcel
   );
 }
 
+function CopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => { if (timerRef.current) clearTimeout(timerRef.current); }, []);
+  const copy = async () => {
+    try { await navigator.clipboard.writeText(text); }
+    catch {
+      // Clipboard API needs a secure context; fall back to the old execCommand path
+      // rather than silently doing nothing on an http:// dev box.
+      const ta = document.createElement("textarea");
+      ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand("copy"); } catch { /* give up quietly */ }
+      document.body.removeChild(ta);
+    }
+    setCopied(true);
+    timerRef.current = setTimeout(() => setCopied(false), 1500);
+  };
+  return (
+    <button onClick={copy} title="Copy response"
+      className="inline-flex items-center gap-1 text-[10.5px] font-medium px-2 py-0.5 rounded-full transition-colors"
+      style={{ background: copied ? "#e7f6ef" : "#f4f5f8", color: copied ? "#0e7a54" : "#5a6072" }}>
+      {copied ? <><TbCheck size={12} /> Copied</> : <><TbCopy size={12} /> Copy</>}
+    </button>
+  );
+}
+
 function buildTurnAt(messages: AiMsg[], id: string): Turn {
   const i = messages.findIndex((x) => x.id === id);
   const turn: Turn = { question: "", answer: "", figures: [], tables: [] };
@@ -124,7 +151,12 @@ function buildTurnAt(messages: AiMsg[], id: string): Turn {
   return turn;
 }
 
-function Message({ m, onOption, onExport }: { m: AiMsg; onOption?: (o: string) => void; onExport?: (kind: "excel" | "pdf") => void }) {
+function Message({ m, onOption, onExport, onRegenerate }: {
+  m: AiMsg; onOption?: (o: string) => void; onExport?: (kind: "excel" | "pdf") => void;
+  /** Present only on the LAST bot text bubble — regenerating any earlier answer would
+   *  be ambiguous (regenerate replaying WHICH later question, on top of what?). */
+  onRegenerate?: () => void;
+}) {
   if (m.role === "user") {
     return (
       <div className="flex justify-end">
@@ -148,13 +180,21 @@ function Message({ m, onOption, onExport }: { m: AiMsg; onOption?: (o: string) =
             {m.options.map((o) => <button key={o} onClick={() => onOption?.(o)} className="text-[11.5px] px-2.5 py-1 rounded-full border transition-colors hover:bg-gray-50" style={{ borderColor: "#e4e7ee", color: "#4b5468" }}>{o}</button>)}
           </div>
         ) : null}
-        {(m.verified || (m.queries && m.queries.length) || onExport) ? (
+        {(m.verified || (m.queries && m.queries.length) || onExport || m.text || onRegenerate) ? (
           <div className="flex items-center gap-2 mt-2.5 flex-wrap">
             {m.verified === "ok" || m.verified === "corrected" ? (
               <span className="inline-flex items-center gap-1 text-[10.5px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "#e7f6ef", color: "#0e7a54" }}><TbShieldCheck size={12} /> Verified{m.verified === "corrected" ? " · auto-corrected" : ""}</span>
             ) : null}
             {m.queries && m.queries.length ? <QueriesDisclosure queries={m.queries} /> : null}
             {onExport ? <ExportMenu label="Export" compact onExcel={() => onExport("excel")} onPdf={() => onExport("pdf")} /> : null}
+            {m.text ? <CopyButton text={m.text} /> : null}
+            {onRegenerate ? (
+              <button onClick={onRegenerate} title="Regenerate response"
+                className="inline-flex items-center gap-1 text-[10.5px] font-medium px-2 py-0.5 rounded-full transition-colors"
+                style={{ background: "#f4f5f8", color: "#5a6072" }}>
+                <TbRefresh size={12} /> Regenerate
+              </button>
+            ) : null}
           </div>
         ) : null}
       </div>
@@ -187,7 +227,7 @@ function QueriesDisclosure({ queries }: { queries: NonNullable<AiMsg["queries"]>
 }
 
 export default function AiChat({ variant = "floater" }: { variant?: "floater" | "page" }) {
-  const { messages, busy, step, send, newChat, activeSession, loadingActive, currentUserId } = useAiChat();
+  const { messages, busy, step, send, stop, regenerate, newChat, activeSession, loadingActive, currentUserId } = useAiChat();
   const stillLoadingHistory = loadingActive && !!activeSession && !activeSession.loaded;
   const [input, setInput] = useState("");
   const [atBottom, setAtBottom] = useState(true);
@@ -209,6 +249,12 @@ export default function AiChat({ variant = "floater" }: { variant?: "floater" | 
   // otherwise clicking a chip silently starts a new turn with no visible scroll to it.
   const sendAndFollow = (q: string) => { atBottomRef.current = true; setAtBottom(true); send(q); };
   const submit = () => { if (!input.trim() || busy) return; sendAndFollow(input); setInput(""); };
+
+  // The most recent bot TEXT bubble is where "Regenerate" belongs — not necessarily the
+  // last array element, since a chart/table bubble from the same turn is appended AFTER
+  // the text and would otherwise steal the spot.
+  let lastBotTextIdx = -1;
+  for (let j = messages.length - 1; j >= 0; j--) { if (messages[j].role === "bot" && messages[j].kind === "text") { lastBotTextIdx = j; break; } }
 
   const exportAll = async (kind: "excel" | "pdf") => {
     const turns = groupTurns(messages);
@@ -259,11 +305,17 @@ export default function AiChat({ variant = "floater" }: { variant?: "floater" | 
                 Started by {activeSession.createdBy.id === currentUserId ? "you" : (activeSession.createdBy.name || activeSession.createdBy.email)}
               </div>
             )}
-            {messages.map((m) => (
-              <div key={m.id} className="ai-msg">
-                <Message m={m} onOption={m.options && m.options.length ? (o) => sendAndFollow(o) : undefined} />
-              </div>
-            ))}
+            {messages.map((m, i) => {
+              // Only once the turn has actually finished streaming, too — mid-stream it
+              // would just restart itself.
+              const isLastBotText = i === lastBotTextIdx && !busy;
+              return (
+                <div key={m.id} className="ai-msg">
+                  <Message m={m} onOption={m.options && m.options.length ? (o) => sendAndFollow(o) : undefined}
+                    onRegenerate={isLastBotText ? regenerate : undefined} />
+                </div>
+              );
+            })}
             {busy && (
               <div className="ai-msg flex justify-start">
                 <div className="rounded-2xl rounded-bl-md px-4 py-2.5 bg-white border inline-flex items-center gap-2.5" style={{ borderColor: "#eef0f4" }}>
@@ -296,7 +348,15 @@ export default function AiChat({ variant = "floater" }: { variant?: "floater" | 
           )}
           <div className="flex items-end gap-2 rounded-2xl px-2 py-1.5 transition-shadow" style={{ background: "#fff", border: "1px solid #e6e9f1", boxShadow: "0 1px 2px rgba(20,24,40,0.04)" }}>
             <MentionTextarea value={input} onChange={setInput} onSubmit={submit} disabled={busy} placeholder="Ask about your data…  type @ to reference an item, vendor or category" />
-            <button onClick={submit} disabled={!input.trim() || busy} className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 disabled:opacity-30 transition-all hover:opacity-90" style={{ background: ACCENT, color: "#fff" }} aria-label="Send"><TbSend size={16} /></button>
+            {busy ? (
+              <button onClick={stop} title="Stop generating" aria-label="Stop generating"
+                className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-all hover:opacity-90"
+                style={{ background: INK, color: "#fff" }}>
+                <TbPlayerStopFilled size={14} />
+              </button>
+            ) : (
+              <button onClick={submit} disabled={!input.trim()} className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 disabled:opacity-30 transition-all hover:opacity-90" style={{ background: ACCENT, color: "#fff" }} aria-label="Send"><TbSend size={16} /></button>
+            )}
           </div>
         </div>
       </div>

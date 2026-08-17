@@ -7,7 +7,7 @@
 // on load/refresh; a thin localStorage entry just remembers which tab was open so a
 // page refresh reopens the same conversation instead of always landing on the newest.
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
-import { apiFetch, ApiError } from "@/utils/api";
+import { apiFetch, streamFetch, ApiError } from "@/utils/api";
 import { getUser } from "@/utils/auth";
 
 const ACTIVE_KEY = "hcg_ai_active_session_v3"; // which tab was open — NOT chat content
@@ -54,9 +54,16 @@ type Ctx = {
   currentUserId: number | null;
   setOpen: (v: boolean) => void;
   send: (q: string) => void;
+  stop: () => void;
   newChat: () => void;
   switchSession: (id: string) => void;
   refreshSessions: () => void;
+  deleteSession: (id: string) => Promise<void>;
+  renameSession: (id: string, title: string) => Promise<void>;
+  /** Re-send the last user turn in the active session as a brand-new turn (does not
+   *  edit or remove the previous assistant reply — matches ChatGPT's own "regenerate",
+   *  which appends rather than overwrites). No-op if the last turn isn't a bot reply. */
+  regenerate: () => void;
 };
 
 const AiChatContext = createContext<Ctx | null>(null);
@@ -121,6 +128,9 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
   const activeRef = useRef<string>("");
   const busyRef = useRef(false);
   const currentUser = useRef(getUser());
+  /** The in-flight turn's AbortController, if any — stop() aborts this; a fresh send()
+   *  replaces it. Null whenever nothing is streaming. */
+  const abortRef = useRef<AbortController | null>(null);
 
   const commit = useCallback((updater: AiSession[] | ((s: AiSession[]) => AiSession[])) => {
     const next = typeof updater === "function" ? (updater as any)(sessionsRef.current) : updater;
@@ -208,10 +218,46 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
     if (sessionsRef.current.find((s) => s.id === id)) setActive(id);
   }, [setActive]);
 
+  // "Chat is common" (AiSessions.tsx / backend chat.py): any signed-in user can delete
+  // any session, same as they can already list/open/post to it — not scoped to "your
+  // own", by the app's own existing design, not a new gap introduced here.
+  const deleteSession = useCallback(async (id: string) => {
+    await apiFetch(`/chat/sessions/${id}`, { method: "DELETE" });
+    commit((ss) => ss.filter((s) => s.id !== id));
+    if (activeRef.current === id) {
+      // The deleted session may have been open in another tab/user too — fall back to
+      // whatever is now first (most-recent) rather than leaving a dangling active id
+      // that no longer resolves to anything in the list.
+      setActive(sessionsRef.current[0]?.id || "");
+    }
+  }, [commit, setActive]);
+
+  const renameSession = useCallback(async (id: string, title: string) => {
+    const clean = title.trim();
+    if (!clean) return;
+    const prevTitle = sessionsRef.current.find((s) => s.id === id)?.title;
+    commit((ss) => ss.map((s) => (s.id === id ? { ...s, title: clean } : s))); // optimistic
+    try {
+      await apiFetch(`/chat/sessions/${id}`, { method: "PATCH", body: JSON.stringify({ title: clean }) });
+    } catch (e) {
+      // Revert on failure — an optimistic rename that silently fails to persist would
+      // look successful locally and then reappear under the old title on next refresh.
+      commit((ss) => ss.map((s) => (s.id === id ? { ...s, title: prevTitle ?? s.title } : s)));
+      throw e;
+    }
+  }, [commit]);
+
   const writeMsgs = useCallback((sid: string, updater: (m: AiMsg[]) => AiMsg[], meta?: Partial<AiSession>) => {
     commit((ss) => ss.map((s) => (s.id === sid ? { ...s, messages: updater(s.messages), updatedAt: Date.now(), ...(meta || {}) } : s)));
   }, [commit]);
 
+  // Streams POST .../messages/stream (chat.py) instead of blocking on the plain JSON
+  // route: step/sql events update `step` live instead of one frozen label for the whole
+  // turn, and the answer/chart/table bubbles appear progressively as each is ready
+  // rather than all at once at the end. The final "persisted" event carries the exact
+  // same shape post_message used to return synchronously, so it's fed through the same
+  // backendMsgToFrontend() the non-streaming path (and page reload) already use — one
+  // rendering path for a session's messages regardless of how they arrived.
   const send = useCallback(async (q: string) => {
     const query = q.trim();
     if (!query || busyRef.current) return;
@@ -231,26 +277,84 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
     const optimisticId = uid();
     writeMsgs(sid, (m) => [...m, { id: optimisticId, role: "user", kind: "text", text: query }], isFirst ? { title: titleFrom(query) } : undefined);
 
+    // Ids this turn draws provisionally, so the "persisted" event can cleanly swap them
+    // for the canonical set instead of duplicating (both are appended, never one over
+    // the other — see the "persisted" branch below).
+    const turnBaseId = uid();
+    const turnMsgIds = new Set<string>();
+    const ac = new AbortController();
+    abortRef.current = ac;
+
     try {
-      const res = await apiFetch<{ user_message: BackendMessage; assistant_message: BackendMessage }>(`/chat/sessions/${sid}/messages`, {
-        method: "POST",
-        body: JSON.stringify({ query }),
-      });
-      const assistantMsgs = backendMsgToFrontend(res.assistant_message);
-      writeMsgs(sid, (m) => {
-        const withReal = m.map((x) => (x.id === optimisticId ? { id: String(res.user_message.id), role: "user" as const, kind: "text" as const, text: query } : x));
-        return [...withReal, ...assistantMsgs];
-      });
+      await streamFetch(`/chat/sessions/${sid}/messages/stream`, { query }, (ev) => {
+        const t = ev.type;
+        if (t === "user_message" && ev.message?.id != null) {
+          const realId = String(ev.message.id);
+          writeMsgs(sid, (m) => m.map((x) => (x.id === optimisticId ? { ...x, id: realId } : x)));
+        } else if (t === "step") {
+          setStep(ev.text || "");
+        } else if (t === "answer") {
+          setStep("");
+          const id = `${turnBaseId}-text`; turnMsgIds.add(id);
+          const text: string = ev.text || "";
+          writeMsgs(sid, (m) => [...m, {
+            id, role: "bot", kind: "text", text,
+            verified: ev.verified ?? null, options: ev.options || [], queries: [],
+          }]);
+        } else if (t === "chart" && ev.plotly) {
+          const id = `${turnBaseId}-chart`; turnMsgIds.add(id);
+          writeMsgs(sid, (m) => [...m, { id, role: "bot", kind: "plotly", figure: ev.plotly }]);
+        } else if (t === "table" && ev.table) {
+          const id = `${turnBaseId}-table`; turnMsgIds.add(id);
+          writeMsgs(sid, (m) => [...m, { id, role: "bot", kind: "table", table: { ...ev.table, note: ev.note || "" } }]);
+        } else if (t === "clarify") {
+          setStep("");
+          const id = `${turnBaseId}-text`; turnMsgIds.add(id);
+          writeMsgs(sid, (m) => [...m, { id, role: "bot", kind: "text", text: ev.text || "", options: ev.options || [] }]);
+        } else if (t === "error") {
+          setStep("");
+          const id = `${turnBaseId}-text`; turnMsgIds.add(id);
+          const raw = ev.text || "Something went wrong answering that.";
+          const text = raw.trim().startsWith("⚠️") ? raw : `⚠️ ${raw}`;
+          writeMsgs(sid, (m) => [...m, { id, role: "bot", kind: "text", text }]);
+        } else if (t === "persisted" && ev.assistant_message) {
+          const canonical = backendMsgToFrontend(ev.assistant_message);
+          writeMsgs(sid, (m) => [...m.filter((x) => !turnMsgIds.has(x.id)), ...canonical]);
+        }
+        // "sql"/"followups"/"done" don't draw their own bubble — sql detail rides along
+        // inside the persisted content's `queries`, and followups piggyback on "answer".
+      }, ac.signal);
     } catch (e) {
-      writeMsgs(sid, (m) => [...m, {
-        id: uid(), role: "bot", kind: "text",
-        text: `⚠️ Couldn't reach the AI Analyst. ${e instanceof ApiError ? e.message : ""}`.trim(),
-      }]);
+      if (e instanceof DOMException && e.name === "AbortError") {
+        // stop() was called — note the turn was cut short rather than pretending it
+        // finished; whatever partial bubbles already streamed in stay exactly as-is.
+        writeMsgs(sid, (m) => [...m, { id: uid(), role: "bot", kind: "text", text: "_Stopped._" }]);
+      } else {
+        writeMsgs(sid, (m) => [...m, {
+          id: uid(), role: "bot", kind: "text",
+          text: `⚠️ Couldn't reach the AI Analyst. ${e instanceof ApiError ? e.message : ""}`.trim(),
+        }]);
+      }
     } finally {
       busyRef.current = false; setBusy(false); setStep("");
+      abortRef.current = null;
       refreshSessions();
     }
   }, [createSession, writeMsgs, refreshSessions]);
+
+  const stop = useCallback(() => { abortRef.current?.abort(); }, []);
+
+  const regenerate = useCallback(() => {
+    if (busyRef.current) return;
+    const sess = sessionsRef.current.find((s) => s.id === activeRef.current);
+    if (!sess || sess.messages.length === 0) return;
+    const last = sess.messages[sess.messages.length - 1];
+    // Only makes sense right after a bot turn finished — regenerating mid-conversation
+    // (last message is the user's own, still unanswered) has nothing to redo yet.
+    if (last.role !== "bot") return;
+    const lastUser = [...sess.messages].reverse().find((m) => m.role === "user");
+    if (lastUser?.text) send(lastUser.text);
+  }, [send]);
 
   const activeSession = sessions.find((s) => s.id === activeId) || null;
   const messages = activeSession?.messages || [];
@@ -260,7 +364,8 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
       sessions, activeId, activeSession, messages, busy, step, open,
       loadingSessions, loadingActive, listError,
       currentUserId: currentUser.current?.id ?? null,
-      setOpen, send, newChat, switchSession, refreshSessions,
+      setOpen, send, stop, newChat, switchSession, refreshSessions,
+      deleteSession, renameSession, regenerate,
     }}>
       {children}
     </AiChatContext.Provider>
