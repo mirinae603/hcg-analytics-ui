@@ -24,6 +24,8 @@ export type AiMsg = {
   queries?: AiQuery[];
   /** the work the assistant actually did for this turn, in order */
   trace?: string[];
+  /** true while tokens are still arriving for this message */
+  streaming?: boolean;
   options?: string[];
   scope?: string;
 };
@@ -311,6 +313,23 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
           // the wait show what was actually done, which is also the honest answer to
           // "where did this number come from".
           if (ev.text) setTrace((prev) => (prev[prev.length - 1] === ev.text ? prev : [...prev, ev.text]));
+        } else if (t === "answer_delta") {
+          // Real token streaming. The first delta creates the bot message; the rest append
+          // to it, so the answer is written into the transcript as the model produces it.
+          const id = `${turnBaseId}-text`;
+          if (!turnMsgIds.has(id)) {
+            turnMsgIds.add(id);
+            setStep("");
+            writeMsgs(sid, (m) => [...m, { id, role: "bot", kind: "text", text: ev.text || "", streaming: true }]);
+          } else {
+            writeMsgs(sid, (m) => m.map((x) => (x.id === id ? { ...x, text: (x.text || "") + (ev.text || "") } : x)));
+          }
+        } else if (t === "answer_reset") {
+          // the stream died and the non-streaming path is retrying — drop the partial so
+          // the retry does not append onto half a sentence
+          const id = `${turnBaseId}-text`;
+          turnMsgIds.delete(id);
+          writeMsgs(sid, (m) => m.filter((x) => x.id !== id));
         } else if (t === "sql") {
           // the queries the answer rests on — previously captured here and discarded,
           // then hardcoded to [] on the answer below, so the "N queries run" disclosure
@@ -318,13 +337,22 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
           turnQueries.push({ sql: ev.sql || "", purpose: ev.purpose || "", rows: ev.rows ?? undefined });
         } else if (t === "answer") {
           setStep("");
-          const id = `${turnBaseId}-text`; turnMsgIds.add(id);
+          const id = `${turnBaseId}-text`;
           const text: string = ev.text || "";
-          writeMsgs(sid, (m) => [...m, {
-            id, role: "bot", kind: "text", text,
+          const meta = {
             verified: ev.verified ?? null, options: ev.options || [],
             queries: turnQueries.slice(), trace: traceRef.current.slice(),
-          }]);
+            streaming: false,
+          };
+          if (turnMsgIds.has(id)) {
+            // finalise what streamed: `text` is authoritative (it has been through the
+            // sanitizer and any post-hoc correction), so replace rather than trust the
+            // accumulated deltas, then attach the badge/queries the stream could not carry
+            writeMsgs(sid, (m) => m.map((x) => (x.id === id ? { ...x, text, ...meta } : x)));
+          } else {
+            turnMsgIds.add(id);
+            writeMsgs(sid, (m) => [...m, { id, role: "bot", kind: "text", text, ...meta }]);
+          }
         } else if (t === "chart" && ev.plotly) {
           const id = `${turnBaseId}-chart`; turnMsgIds.add(id);
           writeMsgs(sid, (m) => [...m, { id, role: "bot", kind: "plotly", figure: ev.plotly }]);

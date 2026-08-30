@@ -20,40 +20,6 @@ const SUGGESTIONS = [
   "Monthly revenue trend",
 ];
 
-/** Reveal text progressively once it lands, instead of snapping the whole answer in.
- *
- *  Deliberately NOT token-streaming from the model. The answer is checked against its own
- *  query results BEFORE any of it is shown (orchestrator's deterministic number check plus
- *  the auditor) — real streaming would put unverified figures on screen and retract them
- *  after, which on a tool whose whole promise is "these numbers are right" is the wrong
- *  trade. So the wait is honest work (the step log shows what is actually running) and the
- *  arrival is smooth.
- *
- *  Reveals by word, not character: character reveal on a 14.5px measure makes the last word
- *  visibly jitter as it grows. ~700ms total regardless of length, so a long answer doesn't
- *  crawl. Respects prefers-reduced-motion, and never animates on history replay. */
-function useRevealed(text: string, animate: boolean): string {
-  const [n, setN] = useState(animate ? 0 : Number.MAX_SAFE_INTEGER);
-  const words = React.useMemo(() => (text || "").split(/(\s+)/), [text]);
-  useEffect(() => {
-    if (!animate) { setN(Number.MAX_SAFE_INTEGER); return; }
-    if (typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
-      setN(Number.MAX_SAFE_INTEGER); return;
-    }
-    const total = words.length;
-    if (!total) return;
-    const stepMs = Math.max(8, Math.min(30, 700 / Math.max(total, 1)));
-    let i = 0;
-    const id = setInterval(() => {
-      i += 2;                       // split() interleaves word/whitespace, so step by two
-      setN(i);
-      if (i >= total) clearInterval(id);
-    }, stepMs);
-    return () => clearInterval(id);
-  }, [words, animate]);
-  return n >= words.length ? text : words.slice(0, n).join("");
-}
-
 function fmt(v: any, kind: string): string {
   if (v === null || v === undefined || v === "") return "—";
   const n = Number(v);
@@ -193,10 +159,8 @@ function buildTurnAt(messages: AiMsg[], id: string): Turn {
   return turn;
 }
 
-function Message({ m, onOption, onExport, onRegenerate, fresh }: {
+function Message({ m, onOption, onExport, onRegenerate }: {
   m: AiMsg; onOption?: (o: string) => void; onExport?: (kind: "excel" | "pdf") => void;
-  /** true only for an answer that just arrived in this session — history replays instantly */
-  fresh?: boolean;
   /** Present only on the LAST bot text bubble — regenerating any earlier answer would
    *  be ambiguous (regenerate replaying WHICH later question, on top of what?). */
   onRegenerate?: () => void;
@@ -220,18 +184,18 @@ function Message({ m, onOption, onExport, onRegenerate, fresh }: {
   // often several paragraphs with figures in it; it earns the same treatment a document
   // gets. The card, the border and the tail are gone; what remains is a comfortable measure
   // and a real vertical rhythm. Actions move to hover so they stop competing with the text.
-  return <BotText m={m} onOption={onOption} onExport={onExport} onRegenerate={onRegenerate} fresh={fresh} />;
+  return <BotText m={m} onOption={onOption} onExport={onExport} onRegenerate={onRegenerate} />;
 }
 
-function BotText({ m, onOption, onExport, onRegenerate, fresh }: {
+function BotText({ m, onOption, onExport, onRegenerate }: {
   m: AiMsg; onOption?: (o: string) => void; onExport?: (kind: "excel" | "pdf") => void;
-  onRegenerate?: () => void; fresh?: boolean;
+  onRegenerate?: () => void;
 }) {
-  const shown = useRevealed(m.text || "", !!fresh);
-  const done = shown === (m.text || "");
+  const shown = m.text || "";
+  const done = !m.streaming;   // chips/actions wait until the stream finishes
   return (
     <div className="group w-full ai-prose" style={{ color: "#32384a" }}>
-      <div className="text-[14.5px] leading-[1.72]"><ReactMarkdown remarkPlugins={[remarkGfm]}>{shown}</ReactMarkdown></div>
+      <div className={`text-[14.5px] leading-[1.72]${m.streaming ? " ai-caret" : ""}`}><ReactMarkdown remarkPlugins={[remarkGfm]}>{shown}</ReactMarkdown></div>
       {done && m.options && m.options.length ? (
         <div className="flex flex-wrap gap-2 mt-4">
           {m.options.map((o) => (
@@ -313,14 +277,9 @@ export default function AiChat({ variant = "floater" }: { variant?: "floater" | 
   const [input, setInput] = useState("");
   const [atBottom, setAtBottom] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
-  // ids present on first paint are HISTORY and never animate; anything appearing later
-  // arrived live in this session and gets the reveal exactly once.
-  const freshIdsRef = useRef<Set<string>>(new Set());
-  const seededRef = useRef(false);
-  useEffect(() => {
-    if (!seededRef.current) { seededRef.current = true; return; }
-    messages.forEach((m) => { if (m.role === "bot" && m.kind === "text") freshIdsRef.current.add(m.id); });
-  }, [messages]);
+  // once the answer starts writing itself, it IS the progress indicator — the
+  // separate thinking line would just sit underneath it saying nothing new
+  const streamingNow = messages.some((m) => m.streaming);
   const atBottomRef = useRef(true);
 
   const onScroll = () => {
@@ -386,6 +345,12 @@ export default function AiChat({ variant = "floater" }: { variant?: "floater" | 
         .ai-prose table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; display: block; overflow-x: auto; }
         .ai-prose th, .ai-prose td { padding: 7px 10px; text-align: left; border-bottom: 1px solid #f0f1f6; white-space: nowrap; }
         .ai-prose th { color: #6b7285; font-weight: 600; background: #fafbfc; }
+        /* caret on the last line while tokens land */
+        .ai-caret > *:last-child::after {
+          content: ""; display: inline-block; width: 2px; height: 1em; margin-left: 2px;
+          vertical-align: -2px; background: #3b5bdb; animation: aiCaret 1s steps(2) infinite;
+        }
+        @keyframes aiCaret { 0%,50%{opacity:1} 51%,100%{opacity:0} }
         @keyframes aiDot { 0%,80%,100%{opacity:.25;transform:translateY(0)} 40%{opacity:1;transform:translateY(-3px)} }
         @keyframes aiMsgIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
         .ai-msg { animation: aiMsgIn .32s cubic-bezier(.22,1,.36,1) both; }
@@ -426,36 +391,26 @@ export default function AiChat({ variant = "floater" }: { variant?: "floater" | 
               const isLastBotText = i === lastBotTextIdx && !busy;
               return (
                 <div key={m.id} className="ai-msg">
-                  <Message m={m} fresh={freshIdsRef.current.has(m.id)}
+                  <Message m={m}
                     onOption={m.options && m.options.length ? (o) => sendAndFollow(o) : undefined}
                     onRegenerate={isLastBotText ? regenerate : undefined} />
                 </div>
               );
             })}
-            {/* The wait shows the REAL work, not a rotating label. The backend already
-                narrates every step it takes — which item it is resolving, the purpose of
-                each query it runs — and the UI used to discard all of it, leaving one line
-                standing in for 6-10 seconds. Completed steps stay on screen with a tick;
-                only the current one animates. It turns dead air into an audit trail, which
-                is also the honest answer to "where did this number come from". */}
-            {busy && (
-              <div className="ai-msg flex justify-start">
-                <div className="rounded-2xl rounded-bl-md px-4 py-3 bg-white border inline-block max-w-[85%]" style={{ borderColor: "#eef0f4" }}>
-                  <div className="flex flex-col gap-1.5">
-                    {trace.slice(0, -1).map((t, i) => (
-                      <div key={i} className="flex items-start gap-2 text-[12px]" style={{ color: "#98a0b0" }}>
-                        <TbCheck size={13} className="mt-[2px] flex-shrink-0" style={{ color: "#33b37f" }} />
-                        <span className="line-through decoration-[#d8dce4]">{t}</span>
-                      </div>
-                    ))}
-                    <div className="flex items-start gap-2">
-                      <span className="inline-flex gap-1 mt-[6px] flex-shrink-0">
-                        {[0, 1, 2].map((i) => <span key={i} className="w-1.5 h-1.5 rounded-full" style={{ background: ACCENT, animation: `aiDot 1.2s ${i * 0.15}s infinite ease-in-out` }} />)}
-                      </span>
-                      <span className="text-[12.5px]" style={{ color: SUB }}>{step || "Thinking"}</span>
-                    </div>
-                  </div>
-                </div>
+            {/* One quiet line, not a growing checklist.
+                An earlier version stacked every completed step with a green tick, which
+                turned a 5s wait into a wall of ticked text that pushed the conversation off
+                screen and looked like a build log. The steps are real work and are still
+                worth surfacing — but as ONE line that updates in place, the way a person
+                glances at a status, not a transcript of everything that has happened.
+                Once tokens start arriving this disappears entirely: the answer writing
+                itself IS the progress indicator. */}
+            {busy && !streamingNow && (
+              <div className="ai-msg flex items-center gap-2.5 text-[13px]" style={{ color: SUB }}>
+                <span className="inline-flex gap-1">
+                  {[0, 1, 2].map((i) => <span key={i} className="w-1.5 h-1.5 rounded-full" style={{ background: ACCENT, animation: `aiDot 1.2s ${i * 0.15}s infinite ease-in-out` }} />)}
+                </span>
+                <span className="truncate">{step || "Thinking"}</span>
               </div>
             )}
           </div>
