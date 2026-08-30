@@ -77,14 +77,18 @@ function ChartCard({ figure }: { figure: { data: any[]; layout?: any } }) {
     } catch { /* noop */ }
   };
   return (
-    <div ref={wrapRef} className="w-full rounded-2xl bg-white border overflow-hidden group" style={{ borderColor: "#eceef4", boxShadow: "0 1px 2px rgba(20,24,40,0.04)" }}>
-      <div className="flex items-center justify-between px-4 pt-3 pb-1">
-        <span className="text-[10.5px] font-semibold uppercase tracking-[0.06em]" style={{ color: "#a2a8b6" }}>Chart</span>
-        <button onClick={downloadPng} title="Download as PNG" className="inline-flex items-center gap-1 text-[10.5px] font-medium px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: "#f4f5f8", color: "#5a6072" }}>
+    // The chart's own title carries the heading now, rather than a generic "CHART" eyebrow
+    // over an untitled plot — the eyebrow said nothing the reader could not already see.
+    <div ref={wrapRef} className="w-full rounded-2xl bg-white border overflow-hidden group" style={{ borderColor: "#ecedf3", boxShadow: "0 1px 2px rgba(20,24,40,0.03)" }}>
+      <div className="flex items-start justify-between gap-3 px-5 pt-4 pb-1">
+        <span className="text-[13.5px] font-semibold leading-snug" style={{ color: INK }}>{title}</span>
+        <button onClick={downloadPng} title="Download as PNG"
+          className="inline-flex items-center gap-1 text-[10.5px] font-medium px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
+          style={{ background: "#f4f5f8", color: "#5a6072" }}>
           <TbDownload size={12} /> PNG
         </button>
       </div>
-      <div className="px-2 pb-2"><PlotlyChart figure={figure} title={title} /></div>
+      <div className="px-3 pb-3"><PlotlyChart figure={figure} title={title} /></div>
     </div>
   );
 }
@@ -164,28 +168,36 @@ function Message({ m, onOption, onExport, onRegenerate }: {
   if (m.role === "user") {
     return (
       <div className="flex justify-end">
-        <div className="max-w-[85%] rounded-2xl rounded-br-md px-4 py-2.5 text-[13.5px] leading-relaxed" style={{ background: INK, color: "#fff" }}>{m.text}</div>
+        <div className="max-w-[80%] rounded-[18px] px-4 py-2.5 text-[14px] leading-[1.55]" style={{ background: "#f0f1f5", color: INK }}>{m.text}</div>
       </div>
     );
   }
   if (m.kind === "plotly" && m.figure) {
-    return <div className="flex justify-start"><div className="w-full"><ChartCard figure={m.figure} /></div></div>;
+    return <div className="w-full"><ChartCard figure={m.figure} /></div>;
   }
   if (m.kind === "table" && m.table) {
-    return <div className="flex justify-start"><div className="w-full"><TableView table={m.table} /></div></div>;
+    return <div className="w-full"><TableView table={m.table} /></div>;
   }
-  // bot text (markdown) + verified badge + queries disclosure
+  // ASSISTANT ANSWER — set as prose, not as a chat bubble.
+  // A bordered white card inside a white column drew a box around the one thing on the
+  // page that should read like writing, and capped it at 13.5px/relaxed. An answer here is
+  // often several paragraphs with figures in it; it earns the same treatment a document
+  // gets. The card, the border and the tail are gone; what remains is a comfortable measure
+  // and a real vertical rhythm. Actions move to hover so they stop competing with the text.
   return (
-    <div className="flex justify-start">
-      <div className="max-w-[92%] w-full rounded-2xl rounded-bl-md px-4 py-3 bg-white border ai-prose" style={{ borderColor: "#eef0f4", color: "#2b3040" }}>
-        <div className="text-[13.5px] leading-relaxed"><ReactMarkdown remarkPlugins={[remarkGfm]}>{m.text || ""}</ReactMarkdown></div>
-        {m.options && m.options.length ? (
-          <div className="flex flex-wrap gap-1.5 mt-2.5">
-            {m.options.map((o) => <button key={o} onClick={() => onOption?.(o)} className="text-[11.5px] px-2.5 py-1 rounded-full border transition-colors hover:bg-gray-50" style={{ borderColor: "#e4e7ee", color: "#4b5468" }}>{o}</button>)}
-          </div>
-        ) : null}
+    <div className="group w-full ai-prose" style={{ color: "#32384a" }}>
+      <div className="text-[14.5px] leading-[1.72]"><ReactMarkdown remarkPlugins={[remarkGfm]}>{m.text || ""}</ReactMarkdown></div>
+      {m.options && m.options.length ? (
+        <div className="flex flex-wrap gap-2 mt-4">
+          {m.options.map((o) => (
+            <button key={o} onClick={() => onOption?.(o)}
+              className="text-[12.5px] px-3 py-1.5 rounded-lg border text-left transition-all hover:-translate-y-[1px]"
+              style={{ borderColor: "#e6e8ef", color: "#4b5468", background: "#fff" }}>{o}</button>
+          ))}
+        </div>
+      ) : null}
         {(m.verified || (m.queries && m.queries.length) || onExport || m.text || onRegenerate) ? (
-          <div className="flex items-center gap-2 mt-2.5 flex-wrap">
+          <div className="flex items-center gap-2 mt-3.5 flex-wrap">
             {/* All four states, in words an executive can act on. Previously only ok and
                 corrected rendered, which meant "canonical" — the STRONGEST guarantee we
                 have, the same calculation the dashboard card uses — showed no badge at all,
@@ -205,18 +217,23 @@ function Message({ m, onOption, onExport, onRegenerate }: {
                     style={{ background: "#fdf0e3", color: "#a2650f" }}><TbAlertTriangle size={12} /> Couldn&rsquo;t confirm</span>
             ) : null}
             {m.queries && m.queries.length ? <QueriesDisclosure queries={m.queries} /> : null}
-            {onExport ? <ExportMenu label="Export" compact onExcel={() => onExport("excel")} onPdf={() => onExport("pdf")} /> : null}
-            {m.text ? <CopyButton text={m.text} /> : null}
-            {onRegenerate ? (
-              <button onClick={onRegenerate} title="Regenerate response"
-                className="inline-flex items-center gap-1 text-[10.5px] font-medium px-2 py-0.5 rounded-full transition-colors"
-                style={{ background: "#f4f5f8", color: "#5a6072" }}>
-                <TbRefresh size={12} /> Regenerate
-              </button>
-            ) : null}
+            {/* tools, not claims — they fade in on hover so they stop competing with the
+                answer. The trust badge above deliberately does NOT hide: it is a statement
+                about how far the figures were checked, and concealing that until someone
+                happens to mouse over would be the dishonest kind of tidy. */}
+            <span className="inline-flex items-center gap-2 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-150">
+              {onExport ? <ExportMenu label="Export" compact onExcel={() => onExport("excel")} onPdf={() => onExport("pdf")} /> : null}
+              {m.text ? <CopyButton text={m.text} /> : null}
+              {onRegenerate ? (
+                <button onClick={onRegenerate} title="Regenerate response"
+                  className="inline-flex items-center gap-1 text-[10.5px] font-medium px-2 py-0.5 rounded-full transition-colors hover:bg-[#eceef4]"
+                  style={{ background: "#f4f5f8", color: "#5a6072" }}>
+                  <TbRefresh size={12} /> Regenerate
+                </button>
+              ) : null}
+            </span>
           </div>
         ) : null}
-      </div>
     </div>
   );
 }
@@ -285,11 +302,37 @@ export default function AiChat({ variant = "floater" }: { variant?: "floater" | 
   return (
     <div className="flex flex-col h-full min-h-0" style={{ background: variant === "page" ? "#f6f7f9" : "#fbfbfc" }}>
       <style jsx global>{`
-        .ai-prose p { margin: 0 0 7px; } .ai-prose p:last-child { margin-bottom: 0; }
-        .ai-prose strong { color: #1a1f36; font-weight: 700; }
-        .ai-prose ol, .ai-prose ul { margin: 5px 0 7px; padding-left: 18px; }
-        .ai-prose li { margin: 3px 0; }
-        .ai-prose a { color: #3b5bdb; }
+        /* Prose, not chat-bubble text. Real vertical rhythm, a comfortable measure, and
+           headings/lists/tables that are actually styled — answers here routinely run to
+           several paragraphs with figures and sub-lists in them, and were being set as one
+           undifferentiated block. */
+        .ai-prose { max-width: 74ch; }
+        .ai-prose p { margin: 0 0 12px; } .ai-prose p:last-child { margin-bottom: 0; }
+        .ai-prose strong { color: #10142a; font-weight: 650; }
+        .ai-prose ol, .ai-prose ul { margin: 10px 0 14px; padding-left: 20px; }
+        .ai-prose li { margin: 5px 0; padding-left: 2px; }
+        .ai-prose li::marker { color: #a8aec0; }
+        .ai-prose a { color: #3b5bdb; text-underline-offset: 2px; }
+        .ai-prose h1, .ai-prose h2, .ai-prose h3 {
+          color: #10142a; font-weight: 650; line-height: 1.35; letter-spacing: -0.01em;
+          margin: 20px 0 8px;
+        }
+        .ai-prose h1 { font-size: 17px; } .ai-prose h2 { font-size: 15.5px; } .ai-prose h3 { font-size: 14.5px; }
+        .ai-prose > *:first-child { margin-top: 0; }
+        .ai-prose hr { border: 0; border-top: 1px solid #ebedf3; margin: 18px 0; }
+        .ai-prose blockquote {
+          margin: 12px 0; padding: 2px 0 2px 14px;
+          border-left: 2px solid #e0e3ec; color: #5c6478;
+        }
+        .ai-prose code {
+          font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12.5px;
+          background: #f2f3f7; padding: 1.5px 5px; border-radius: 5px; color: #3c4256;
+        }
+        /* markdown tables: the model is told not to emit these, but when it does they must
+           not render as raw pipes running off the edge */
+        .ai-prose table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; display: block; overflow-x: auto; }
+        .ai-prose th, .ai-prose td { padding: 7px 10px; text-align: left; border-bottom: 1px solid #f0f1f6; white-space: nowrap; }
+        .ai-prose th { color: #6b7285; font-weight: 600; background: #fafbfc; }
         @keyframes aiDot { 0%,80%,100%{opacity:.25;transform:translateY(0)} 40%{opacity:1;transform:translateY(-3px)} }
         @keyframes aiMsgIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
         .ai-msg { animation: aiMsgIn .32s cubic-bezier(.22,1,.36,1) both; }
@@ -317,7 +360,7 @@ export default function AiChat({ variant = "floater" }: { variant?: "floater" | 
             </div>
           </div>
         ) : (
-          <div className="mx-auto w-full max-w-[840px] px-4 sm:px-5 py-5 space-y-4">
+          <div className="mx-auto w-full max-w-[800px] px-4 sm:px-6 py-7 space-y-6">
             {activeSession?.createdBy && (
               <div className="flex items-center gap-1.5 text-[11px] pb-1" style={{ color: SUB }}>
                 <TbUserCircle size={13} />
