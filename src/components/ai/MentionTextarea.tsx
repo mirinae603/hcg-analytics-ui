@@ -6,6 +6,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { TbPill, TbTruck, TbBuildingFactory2, TbCategory2, TbBuildingHospital, TbChevronRight, TbChevronLeft, TbSearch } from "react-icons/tb";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
+import { T } from "./theme";
+import GlobalStyle from "./GlobalStyle";
 
 type Mention = { type: string; label: string };
 const TYPE_META: Record<string, { Icon: any; color: string; bg: string; label: string; hint: string }> = {
@@ -159,8 +161,9 @@ export default function MentionTextarea({ value, onChange, onSubmit, disabled, p
       <textarea
         ref={taRef} value={value} onChange={handleChange} onKeyDown={handleKeyDown} rows={1} disabled={disabled}
         placeholder={placeholder}
-        className="w-full resize-none bg-transparent px-2.5 py-2 text-[13.5px] outline-none max-h-32 leading-relaxed"
-        style={{ color: "#1a1f36" }} />
+        className="ai-ta w-full resize-none bg-transparent px-2.5 py-2 text-[14px] outline-none max-h-40 leading-[1.6]"
+        style={{ color: T.ink }} />
+      <GlobalStyle rules={`.ai-ta::placeholder { color: ${T.faint}; }`} />
     </div>
   );
 }

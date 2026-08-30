@@ -28,6 +28,10 @@ export type AiMsg = {
   streaming?: boolean;
   options?: string[];
   scope?: string;
+  /** When this message was created, ms epoch. Persisted messages carry the backend's
+   *  `created_at`; live ones are stamped as they arrive. Used to timestamp each turn so a
+   *  long conversation can be navigated by when things were asked. */
+  at?: number;
 };
 export type SessionCreator = { id: number; name: string; email: string } | null;
 export type AiSession = {
@@ -59,6 +63,9 @@ type Ctx = {
   currentUserId: number | null;
   setOpen: (v: boolean) => void;
   send: (q: string) => void;
+  /** false = the single-pass fast path; true = the deep reasoning engine. */
+  deep: boolean;
+  setDeep: (v: boolean) => void;
   stop: () => void;
   newChat: () => void;
   switchSession: (id: string) => void;
@@ -101,9 +108,10 @@ function assistantContentToMsgs(baseId: string, content: any): AiMsg[] {
 
 function backendMsgToFrontend(m: BackendMessage): AiMsg[] {
   if (m.role === "user") {
-    return [{ id: String(m.id), role: "user", kind: "text", text: typeof m.content === "string" ? m.content : String(m.content ?? "") }];
+    return [{ id: String(m.id), role: "user", kind: "text", text: typeof m.content === "string" ? m.content : String(m.content ?? ""), at: toMs((m as any).created_at) }];
   }
-  return assistantContentToMsgs(String(m.id), m.content);
+  const at = toMs((m as any).created_at);
+  return assistantContentToMsgs(String(m.id), m.content).map((x) => ({ ...x, at }));
 }
 
 function sessionListItemToLocal(s: any, existing?: AiSession): AiSession {
@@ -121,6 +129,22 @@ function sessionListItemToLocal(s: any, existing?: AiSession): AiSession {
 
 export function AiChatProvider({ children }: { children: React.ReactNode }) {
   const [sessions, setSessions] = useState<AiSession[]>([]);
+  // Remembered across reloads: an analyst who works in deep mode should not have to
+  // re-arm it every visit, and it changes the cost and latency of every question enough
+  // that it must be visibly, deliberately set rather than silently defaulted each time.
+  const [deep, setDeepState] = useState(false);
+  useEffect(() => { try { setDeepState(localStorage.getItem("hcg_ai_deep") === "1"); } catch { /* private mode */ } }, []);
+  const setDeep = useCallback((v: boolean) => {
+    setDeepState(v);
+    try { localStorage.setItem("hcg_ai_deep", v ? "1" : "0"); } catch { /* private mode */ }
+  }, []);
+  const deepRef = useRef(false);
+  deepRef.current = deep;
+
+  /** Buffer + frame handle for the paced token stream (see the `answer_delta` branch). */
+  const pendingRef = useRef("");
+  const rafRef = useRef<number | null>(null);
+  useEffect(() => () => { if (rafRef.current != null) cancelAnimationFrame(rafRef.current); }, []);
   const [activeId, setActiveId] = useState<string>("");
   const [busy, setBusy] = useState(false);
   const [step, setStep] = useState("");
@@ -286,7 +310,7 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
     const isFirst = !sess || sess.messages.length === 0;
 
     const optimisticId = uid();
-    writeMsgs(sid, (m) => [...m, { id: optimisticId, role: "user", kind: "text", text: query }], isFirst ? { title: titleFrom(query) } : undefined);
+    writeMsgs(sid, (m) => [...m, { id: optimisticId, role: "user", kind: "text", text: query, at: Date.now() }], isFirst ? { title: titleFrom(query) } : undefined);
     if (isFirst) {
       // PERSIST the auto-title, don't just set it locally. It was only ever written to
       // local state, so the backend kept its "New Chat" default and every row in the
@@ -301,6 +325,8 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
     // Ids this turn draws provisionally, so the "persisted" event can cleanly swap them
     // for the canonical set instead of duplicating (both are appended, never one over
     // the other — see the "persisted" branch below).
+    pendingRef.current = "";
+    if (rafRef.current != null) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
     const turnBaseId = uid();
     const turnMsgIds = new Set<string>();
     const turnQueries: AiQuery[] = [];
@@ -309,7 +335,7 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
     abortRef.current = ac;
 
     try {
-      await streamFetch(`/chat/sessions/${sid}/messages/stream`, { query }, (ev) => {
+      await streamFetch(`/chat/sessions/${sid}/messages/stream`, { query, mode: deepRef.current ? "deep" : "fast" }, (ev) => {
         const t = ev.type;
         if (t === "user_message" && ev.message?.id != null) {
           const realId = String(ev.message.id);
@@ -324,20 +350,43 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
           // "where did this number come from".
           if (ev.text) setTrace((prev) => (prev[prev.length - 1] === ev.text ? prev : [...prev, ev.text]));
         } else if (t === "answer_delta") {
-          // Real token streaming. The first delta creates the bot message; the rest append
-          // to it, so the answer is written into the transcript as the model produces it.
+          // Real token streaming, PACED. Writing each delta straight to state as it lands
+          // makes the text arrive in visible clumps: the model emits a whole clause in one
+          // network chunk and then pauses, so React renders a burst, nothing, a burst. The
+          // deltas go into a buffer and one animation frame drains a slice of it, which
+          // turns the same tokens into an even, readable rate. It drains proportionally
+          // (an eighth of the backlog, minimum two characters) so a fast stream never falls
+          // behind — it just types faster.
           const id = `${turnBaseId}-text`;
+          pendingRef.current += ev.text || "";
           if (!turnMsgIds.has(id)) {
             turnMsgIds.add(id);
             setStep("");
-            writeMsgs(sid, (m) => [...m, { id, role: "bot", kind: "text", text: ev.text || "", streaming: true }]);
-          } else {
-            writeMsgs(sid, (m) => m.map((x) => (x.id === id ? { ...x, text: (x.text || "") + (ev.text || "") } : x)));
+            writeMsgs(sid, (m) => [...m, { id, role: "bot", kind: "text", text: "", streaming: true, at: Date.now() }]);
+          }
+          // Nobody is watching a hidden tab, and rAF does not run in one — pacing there
+          // would just stall the text until the tab came back. Write it straight through.
+          if (typeof document !== "undefined" && document.hidden) {
+            const all = pendingRef.current; pendingRef.current = "";
+            writeMsgs(sid, (m) => m.map((x) => (x.id === id ? { ...x, text: (x.text || "") + all } : x)));
+          } else if (rafRef.current == null) {
+            const drain = () => {
+              const buf = pendingRef.current;
+              if (!buf) { rafRef.current = null; return; }
+              const take = Math.max(2, Math.ceil(buf.length / 8));
+              const slice = buf.slice(0, take);
+              pendingRef.current = buf.slice(take);
+              writeMsgs(sid, (m) => m.map((x) => (x.id === id ? { ...x, text: (x.text || "") + slice } : x)));
+              rafRef.current = requestAnimationFrame(drain);
+            };
+            rafRef.current = requestAnimationFrame(drain);
           }
         } else if (t === "answer_reset") {
           // the stream died and the non-streaming path is retrying — drop the partial so
           // the retry does not append onto half a sentence
           const id = `${turnBaseId}-text`;
+          if (rafRef.current != null) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
+          pendingRef.current = "";
           turnMsgIds.delete(id);
           writeMsgs(sid, (m) => m.filter((x) => x.id !== id));
         } else if (t === "sql") {
@@ -346,6 +395,9 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
           // never had anything to disclose on a live turn
           turnQueries.push({ sql: ev.sql || "", purpose: ev.purpose || "", rows: ev.rows ?? undefined });
         } else if (t === "answer") {
+          // whatever is still buffered is superseded by the authoritative text below
+          if (rafRef.current != null) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
+          pendingRef.current = "";
           setStep("");
           const id = `${turnBaseId}-text`;
           const text: string = ev.text || "";
@@ -426,6 +478,7 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
       sessions, activeId, activeSession, messages, busy, step, trace, open,
       loadingSessions, loadingActive, listError,
       currentUserId: currentUser.current?.id ?? null,
+      deep, setDeep,
       setOpen, send, stop, newChat, switchSession, refreshSessions,
       deleteSession, renameSession, regenerate,
     }}>

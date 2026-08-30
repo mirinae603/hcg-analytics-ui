@@ -1,37 +1,68 @@
-// One source of truth for the AI Analyst surface.
+// ── AI Analyst surface tokens ───────────────────────────────────────────────────
 //
-// These are the APPLICATION's own tokens (see ForecastingOverview.tsx), not a second
-// palette invented for the chat. The chat had been running on its own blue accent
-// (#3b5bdb) while every other screen in the product uses the violet #6d5efc — which is
-// why it read as a bolted-on tool rather than part of the app.
+// LIGHT, WARM-NEUTRAL, CHARCOAL-LED — built to the reference design.
+//
+// The palette is warm grey rather than the blue-grey the rest of the dashboard uses:
+// #F7F6F4 for the sidebar, white for the working canvas, and a single charcoal
+// (#413B35) carrying every primary action — the New chat button, the send button, the
+// icon badges on the starter cards. There is no brand colour on this surface by design:
+// colour is reserved for meaning (a checked figure is green, an unconfirmed one amber),
+// so when something IS coloured here, it is telling you something.
+//
+// ONE scale. If a colour or radius is needed and it is not here, look again at what is —
+// the dozen one-off greys this replaced (#eef0f4, #f7f8fb, #f2f4f8, #ecedf3 …) are exactly
+// what made the old surface feel assembled rather than designed.
 export const T = {
-  ground:   "#F6F7FB",   // app BG — the page behind everything
-  surface:  "#FFFFFF",   // cards, composer, sidebar
-  sunk:     "#F1F2F7",   // hover wells, tracks
-  ink:      "#171A2E",   // app INK — headings, answer body
-  ink2:     "#414A63",   // secondary text
-  mut:      "#6A7085",   // app MUT — labels
-  faint:    "#9CA2B6",   // app MUT2 — captions, placeholders
-  line:     "#ECEDF4",   // app BORDER
-  hair:     "#F2F3F8",   // lighter divider
+  // ── grounds ──
+  canvas:  "#FFFFFF",   // the working area
+  surface: "#FFFFFF",   // cards, menus, the composer
+  rail:    "#F7F6F4",   // the sidebar
+  sunk:    "#FAF9F7",   // starter cards, table headers, key-figure band
+  tile:    "#F1EFEB",   // illustration grounds inside the starter cards
+  hover:   "#EFEEEA",   // hover well on the rail
 
-  accent:   "#6D5EFC",   // app AC
-  accent2:  "#9B8FFD",   // app AC2
-  accentSoft: "#EFEDFF", // app ACSOFT
+  // ── ink ──
+  ink:   "#252220",     // headings, figures
+  ink2:  "#4A4642",     // body prose
+  mut:   "#8B857E",     // labels, meta, secondary greeting line
+  faint: "#A9A39B",     // placeholders, disabled
 
-  good:     "#1FA971",
-  warn:     "#F0A52A",
-  bad:      "#E5545B",
+  // ── lines ──
+  line: "#E7E5E1",      // every real border
+  hair: "#EFEDE9",      // dividers inside a block
+  dash: "#DCD8D2",      // the dashed frames on the starter cards
 
-  radius:   18,          // app Card is rounded-[18px]
-  shadow:   "0 1px 2px rgba(20,24,60,.05), 0 8px 24px -14px rgba(20,24,60,.14)",
-  shadowLg: "0 2px 6px rgba(20,24,60,.06), 0 18px 44px -18px rgba(20,24,60,.28)",
+  // ── the one primary ──
+  dark:   "#413B35",    // primary buttons, icon badges, send
+  darkHi: "#544C44",    // its hover
+  darkSoft: "#EDEAE5",  // a charcoal wash (selection, data bars)
 
-  /** Every column on this surface shares ONE measure so the composer lines up with the
-   *  text above it. They were 800px and 840px before, which reads as a misalignment even
-   *  when nobody can name what is off. */
-  col:      760,
+  // ── meaning only ──
+  good: "#3F7D5C", goodBg: "#EDF4EF",
+  warn: "#8A6318", warnBg: "#FAF2E4",
+  bad:  "#A4463F", badBg:  "#F8ECEA",
+
+  // ── one radius scale, two shadows ──
+  r:  10,   // chips, nav rows, small buttons
+  r2: 14,   // cards, inputs, evidence blocks
+  r3: 18,   // the composer, menus
+  /** A resting card's barely-there edge lift. */
+  card: "0 1px 2px rgba(37,34,32,.05)",
+  /** Floating things only: menus, the scroll-to-latest button. */
+  pop:  "0 6px 14px -6px rgba(37,34,32,.12), 0 18px 42px -22px rgba(37,34,32,.30)",
+
+  /** ONE measure, shared by the answer column and the composer, so the input lines up
+   *  with the text above it. They were 800 and 840 before — a misalignment you feel
+   *  without being able to name it.
+   *
+   *  It is 1080, not the ~700 a pure reading column would take, because this column
+   *  carries charts and 50-row tables as well as prose: at 760 those were squeezed into
+   *  half the available screen with a third of it left blank on either side. The PROSE is
+   *  still held to 72ch by `.ai-prose`, so paragraphs stay readable while the evidence
+   *  gets the room it needs. */
+  col: 1080,
 } as const;
 
-/** One easing for everything that moves, so the surface feels like a single object. */
+/** One easing for the whole surface. Motion is 140–220ms and never moves more than 6px:
+ *  a reading surface that bounces is a reading surface you stop trusting. */
 export const EASE = "cubic-bezier(.22,1,.36,1)";
