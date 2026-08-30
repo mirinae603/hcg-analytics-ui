@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { TbSend, TbChartBar, TbShieldCheck, TbDatabase, TbChevronDown, TbFileSpreadsheet, TbFileTypePdf, TbDownload, TbArrowDown, TbPlus, TbUserCircle, TbCopy, TbCheck, TbRefresh, TbPlayerStopFilled } from "react-icons/tb";
+import { TbSend, TbChartBar, TbShieldCheck, TbDatabase, TbChevronDown, TbFileSpreadsheet, TbFileTypePdf, TbDownload, TbArrowDown, TbPlus, TbUserCircle, TbCopy, TbCheck, TbRefresh, TbPlayerStopFilled, TbAlertTriangle } from "react-icons/tb";
 import { useAiChat, AiMsg } from "@/context/AiChatContext";
 import { groupTurns, exportExcel, exportPdf, Turn } from "@/lib/aiExport";
 import AnalystMark from "./AnalystMark";
@@ -39,12 +39,16 @@ function fmt(v: any, kind: string): string {
 
 function TableView({ table }: { table: NonNullable<AiMsg["table"]> }) {
   const cols = table.columns || [];
-  const rows = (table.rows || []).slice(0, 12);
+  // No .slice(0, 12). The backend sends up to 50 rows AND a caption that says so
+  // ("Showing top 50 of N rows") — truncating to 12 here made the table contradict its
+  // own footnote, and quietly hid 38 rows of evidence the answer was resting on. Scroll
+  // instead of truncate; the caption is now true.
+  const rows = table.rows || [];
   return (
     <div className="rounded-2xl border overflow-hidden" style={{ borderColor: "#eef0f4", background: "#fff" }}>
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto overflow-y-auto" style={{ maxHeight: 420 }}>
         <table className="w-full text-[12px]" style={{ borderCollapse: "collapse" }}>
-          <thead><tr style={{ background: "#f7f8fb", color: SUB }}>
+          <thead className="sticky top-0 z-10"><tr style={{ background: "#f7f8fb", color: SUB }}>
             {cols.map((c: any) => <th key={c.key} className="text-left font-medium px-3 py-2 whitespace-nowrap">{c.label}</th>)}
           </tr></thead>
           <tbody>
@@ -182,8 +186,23 @@ function Message({ m, onOption, onExport, onRegenerate }: {
         ) : null}
         {(m.verified || (m.queries && m.queries.length) || onExport || m.text || onRegenerate) ? (
           <div className="flex items-center gap-2 mt-2.5 flex-wrap">
-            {m.verified === "ok" || m.verified === "corrected" ? (
-              <span className="inline-flex items-center gap-1 text-[10.5px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "#e7f6ef", color: "#0e7a54" }}><TbShieldCheck size={12} /> Verified{m.verified === "corrected" ? " · auto-corrected" : ""}</span>
+            {/* All four states, in words an executive can act on. Previously only ok and
+                corrected rendered, which meant "canonical" — the STRONGEST guarantee we
+                have, the same calculation the dashboard card uses — showed no badge at all,
+                while "flagged" also showed nothing and so was indistinguishable from a
+                clean answer. Both silences were misleading in opposite directions. */}
+            {m.verified === "canonical" ? (
+              <span className="inline-flex items-center gap-1 text-[10.5px] font-semibold px-2 py-0.5 rounded-full"
+                    title="This figure comes from the same calculation the dashboard card uses — not re-derived by the assistant."
+                    style={{ background: "#e7f6ef", color: "#0b6b49" }}><TbShieldCheck size={12} /> Same as your dashboard</span>
+            ) : m.verified === "ok" || m.verified === "corrected" ? (
+              <span className="inline-flex items-center gap-1 text-[10.5px] font-semibold px-2 py-0.5 rounded-full"
+                    title="Every figure in this answer was checked back against the query results it came from."
+                    style={{ background: "#e7f6ef", color: "#0e7a54" }}><TbShieldCheck size={12} /> Figures checked{m.verified === "corrected" ? " · auto-corrected" : ""}</span>
+            ) : m.verified === "flagged" ? (
+              <span className="inline-flex items-center gap-1 text-[10.5px] font-semibold px-2 py-0.5 rounded-full"
+                    title="The checker could not confirm these figures against the data. Treat them as indicative."
+                    style={{ background: "#fdf0e3", color: "#a2650f" }}><TbAlertTriangle size={12} /> Couldn&rsquo;t confirm</span>
             ) : null}
             {m.queries && m.queries.length ? <QueriesDisclosure queries={m.queries} /> : null}
             {onExport ? <ExportMenu label="Export" compact onExcel={() => onExport("excel")} onPdf={() => onExport("pdf")} /> : null}
@@ -227,7 +246,7 @@ function QueriesDisclosure({ queries }: { queries: NonNullable<AiMsg["queries"]>
 }
 
 export default function AiChat({ variant = "floater" }: { variant?: "floater" | "page" }) {
-  const { messages, busy, step, send, stop, regenerate, newChat, activeSession, loadingActive, currentUserId } = useAiChat();
+  const { messages, busy, step, trace, send, stop, regenerate, newChat, activeSession, loadingActive, currentUserId } = useAiChat();
   const stillLoadingHistory = loadingActive && !!activeSession && !activeSession.loaded;
   const [input, setInput] = useState("");
   const [atBottom, setAtBottom] = useState(true);
@@ -316,13 +335,29 @@ export default function AiChat({ variant = "floater" }: { variant?: "floater" | 
                 </div>
               );
             })}
+            {/* The wait shows the REAL work, not a rotating label. The backend already
+                narrates every step it takes — which item it is resolving, the purpose of
+                each query it runs — and the UI used to discard all of it, leaving one line
+                standing in for 6-10 seconds. Completed steps stay on screen with a tick;
+                only the current one animates. It turns dead air into an audit trail, which
+                is also the honest answer to "where did this number come from". */}
             {busy && (
               <div className="ai-msg flex justify-start">
-                <div className="rounded-2xl rounded-bl-md px-4 py-2.5 bg-white border inline-flex items-center gap-2.5" style={{ borderColor: "#eef0f4" }}>
-                  <span className="text-[12.5px]" style={{ color: SUB }}>{step || "Thinking"}</span>
-                  <span className="inline-flex gap-1">
-                    {[0, 1, 2].map((i) => <span key={i} className="w-1.5 h-1.5 rounded-full" style={{ background: ACCENT, animation: `aiDot 1.2s ${i * 0.15}s infinite ease-in-out` }} />)}
-                  </span>
+                <div className="rounded-2xl rounded-bl-md px-4 py-3 bg-white border inline-block max-w-[85%]" style={{ borderColor: "#eef0f4" }}>
+                  <div className="flex flex-col gap-1.5">
+                    {trace.slice(0, -1).map((t, i) => (
+                      <div key={i} className="flex items-start gap-2 text-[12px]" style={{ color: "#98a0b0" }}>
+                        <TbCheck size={13} className="mt-[2px] flex-shrink-0" style={{ color: "#33b37f" }} />
+                        <span className="line-through decoration-[#d8dce4]">{t}</span>
+                      </div>
+                    ))}
+                    <div className="flex items-start gap-2">
+                      <span className="inline-flex gap-1 mt-[6px] flex-shrink-0">
+                        {[0, 1, 2].map((i) => <span key={i} className="w-1.5 h-1.5 rounded-full" style={{ background: ACCENT, animation: `aiDot 1.2s ${i * 0.15}s infinite ease-in-out` }} />)}
+                      </span>
+                      <span className="text-[12.5px]" style={{ color: SUB }}>{step || "Thinking"}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}

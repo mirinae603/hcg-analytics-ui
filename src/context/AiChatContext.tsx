@@ -22,6 +22,8 @@ export type AiMsg = {
   table?: { title: string; columns: any[]; rows: any[]; note?: string };
   verified?: string | null;
   queries?: AiQuery[];
+  /** the work the assistant actually did for this turn, in order */
+  trace?: string[];
   options?: string[];
   scope?: string;
 };
@@ -47,6 +49,7 @@ type Ctx = {
   messages: AiMsg[];
   busy: boolean;
   step: string;
+  trace: string[];
   open: boolean;
   loadingSessions: boolean;
   loadingActive: boolean;
@@ -119,10 +122,16 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
   const [activeId, setActiveId] = useState<string>("");
   const [busy, setBusy] = useState(false);
   const [step, setStep] = useState("");
+  // Live work log for the turn in flight. `step` remains the single most-recent line
+  // (existing callers depend on it); `trace` is the accumulated list the UI now shows.
+  const [trace, setTrace] = useState<string[]>([]);
+  const traceRef = useRef<string[]>([]);
   const [open, setOpen] = useState(false);
   const [loadingSessions, setLoadingSessions] = useState(true);
   const [loadingActive, setLoadingActive] = useState(false);
   const [listError, setListError] = useState<string | null>(null);
+
+  useEffect(() => { traceRef.current = trace; }, [trace]);
 
   const sessionsRef = useRef<AiSession[]>([]);
   const activeRef = useRef<string>("");
@@ -282,6 +291,8 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
     // the other — see the "persisted" branch below).
     const turnBaseId = uid();
     const turnMsgIds = new Set<string>();
+    const turnQueries: AiQuery[] = [];
+    setTrace([]); traceRef.current = [];
     const ac = new AbortController();
     abortRef.current = ac;
 
@@ -293,13 +304,26 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
           writeMsgs(sid, (m) => m.map((x) => (x.id === optimisticId ? { ...x, id: realId } : x)));
         } else if (t === "step") {
           setStep(ev.text || "");
+          // ACCUMULATE, don't overwrite. The backend narrates real work — "Locating
+          // KEYTRUDA across all tables", the purpose of each query it runs — and this
+          // used to throw every line away the moment the next arrived, leaving one
+          // rotating label standing in for 6-10s of genuine activity. Keeping them lets
+          // the wait show what was actually done, which is also the honest answer to
+          // "where did this number come from".
+          if (ev.text) setTrace((prev) => (prev[prev.length - 1] === ev.text ? prev : [...prev, ev.text]));
+        } else if (t === "sql") {
+          // the queries the answer rests on — previously captured here and discarded,
+          // then hardcoded to [] on the answer below, so the "N queries run" disclosure
+          // never had anything to disclose on a live turn
+          turnQueries.push({ sql: ev.sql || "", purpose: ev.purpose || "", rows: ev.rows ?? undefined });
         } else if (t === "answer") {
           setStep("");
           const id = `${turnBaseId}-text`; turnMsgIds.add(id);
           const text: string = ev.text || "";
           writeMsgs(sid, (m) => [...m, {
             id, role: "bot", kind: "text", text,
-            verified: ev.verified ?? null, options: ev.options || [], queries: [],
+            verified: ev.verified ?? null, options: ev.options || [],
+            queries: turnQueries.slice(), trace: traceRef.current.slice(),
           }]);
         } else if (t === "chart" && ev.plotly) {
           const id = `${turnBaseId}-chart`; turnMsgIds.add(id);
@@ -361,7 +385,7 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AiChatContext.Provider value={{
-      sessions, activeId, activeSession, messages, busy, step, open,
+      sessions, activeId, activeSession, messages, busy, step, trace, open,
       loadingSessions, loadingActive, listError,
       currentUserId: currentUser.current?.id ?? null,
       setOpen, send, stop, newChat, switchSession, refreshSessions,
