@@ -5,8 +5,11 @@ import {
   TbDots, TbPencil, TbTrash, TbCheck, TbX, TbSearch,
 } from "react-icons/tb";
 import { useAiChat, AiSession } from "@/context/AiChatContext";
+import AnalystMark from "./AnalystMark";
 
-const INK = "#1a1f36", SUB = "#8a91a3", ACCENT = "#3b5bdb", DANGER = "#d64545";
+import { T, EASE } from "./theme";
+
+const INK = T.ink, SUB = T.mut, ACCENT = T.accent, DANGER = T.bad;
 
 function groupLabel(ts: number): string {
   const d = new Date(ts); const now = new Date();
@@ -144,24 +147,61 @@ export default function AiSessions({ onPick }: { onPick?: () => void }) {
   };
 
   return (
-    <div className="flex flex-col h-full min-h-0" style={{ background: "#fbfbfc" }}>
-      <div className="p-3 flex items-center gap-2">
+    <div className="flex flex-col h-full min-h-0" style={{ background: T.surface }}>
+      <style jsx global>{`
+        /* Hover/active as CSS, not inline style assignment — an inline background set from
+           onMouseOver cannot transition, which is why row hover used to snap. */
+        .ai-row { transition: background-color .16s ${EASE}; }
+        .ai-row::before {
+          content: ""; position: absolute; left: 0; top: 6px; bottom: 6px; width: 2.5px;
+          border-radius: 0 3px 3px 0; background: ${T.accent};
+          transform: scaleY(0); transform-origin: 50% 50%;
+          transition: transform .22s ${EASE};
+        }
+        .ai-row:hover { background: ${T.sunk}; }
+        .ai-row.is-active { background: ${T.accentSoft}; }
+        .ai-row.is-active::before { transform: scaleY(1); }
+
+        .ai-newchat { transition: transform .16s ${EASE}, box-shadow .16s ${EASE}, filter .16s ${EASE}; }
+        .ai-newchat:hover { filter: brightness(1.06); box-shadow: 0 6px 18px -8px ${T.accent}; }
+        .ai-newchat:active { transform: scale(.985); }
+
+        .ai-search { transition: box-shadow .16s ${EASE}, background-color .16s ${EASE}; }
+        .ai-search:focus { background: ${T.surface}; box-shadow: 0 0 0 2px ${T.accentSoft}, 0 0 0 3px ${T.accent}40; }
+        .ai-search::placeholder { color: ${T.faint}; }
+
+        @media (prefers-reduced-motion: reduce) {
+          .ai-row, .ai-row::before, .ai-newchat, .ai-search { transition: none !important; }
+        }
+      `}</style>
+      {/* Identity sits here now, beside the primary action, instead of in a full-width
+          header bar that spent 72px on a sentence you read once. */}
+      <div className="px-4 pt-4 pb-3">
+        <div className="flex items-center gap-2.5 mb-3.5">
+          <AnalystMark size={26} />
+          <div className="min-w-0">
+            <div className="text-[13.5px] font-semibold leading-none" style={{ color: T.ink }}>AI Analyst</div>
+            <div className="text-[11px] mt-1 truncate" style={{ color: T.faint }}>Answers from your real data</div>
+          </div>
+          <button onClick={() => refreshSessions()} title="Refresh conversations"
+            className="ml-auto w-7 h-7 flex-shrink-0 rounded-lg flex items-center justify-center transition-colors hover:bg-[#F1F2F7]"
+            style={{ color: T.faint }}>
+            <TbRefresh size={14} />
+          </button>
+        </div>
         <button onClick={() => { newChat(); onPick?.(); }}
-          className="flex-1 flex items-center justify-center gap-2 h-10 rounded-xl text-[13px] font-semibold transition-all hover:opacity-90"
-          style={{ background: INK, color: "#fff" }}>
+          className="ai-newchat w-full flex items-center justify-center gap-2 h-10 rounded-xl text-[13px] font-semibold"
+          style={{ background: T.accent, color: "#fff" }}>
           <TbPlus size={16} /> New chat
-        </button>
-        <button onClick={() => refreshSessions()} title="Refresh conversations" className="w-10 h-10 flex-shrink-0 rounded-xl flex items-center justify-center hover:bg-gray-100 transition-colors" style={{ color: SUB }}>
-          <TbRefresh size={16} />
         </button>
       </div>
 
       {sessions.length > 0 && (
-        <div className="px-3 pb-2 relative">
-          <TbSearch size={14} className="absolute left-[22px] top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: SUB }} />
+        <div className="px-4 pb-3 relative">
+          <TbSearch size={14} className="absolute left-[28px] top-1/2 -translate-y-1/2 pointer-events-none z-10" style={{ color: T.faint }} />
           <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search conversations"
-            className="w-full h-8 pl-8 pr-2.5 rounded-lg text-[12px] outline-none"
-            style={{ background: "#f1f2f6", color: INK }} />
+            className="ai-search w-full h-9 pl-8 pr-2.5 rounded-lg text-[12.5px] outline-none"
+            style={{ background: T.sunk, color: T.ink }} />
         </div>
       )}
 
@@ -188,17 +228,14 @@ export default function AiSessions({ onPick }: { onPick?: () => void }) {
           </div>
         ) : groups.map((g) => (
           <div key={g.label} className="mb-2">
-            <div className="text-[10px] font-semibold uppercase tracking-[0.06em] px-2.5 py-1.5" style={{ color: "#aab0bd" }}>{g.label}</div>
+            <div className="text-[10px] font-semibold uppercase tracking-[0.09em] px-3 pt-3 pb-1.5" style={{ color: T.faint }}>{g.label}</div>
             {g.items.map((s) => {
               const active = s.id === activeId;
               const who = creatorLabel(s, currentUserId);
               const renaming = renamingId === s.id;
               return (
                 <div key={s.id} onClick={() => { if (!renaming) { switchSession(s.id); onPick?.(); } }}
-                  className="group flex items-start gap-1 px-2.5 py-2 rounded-lg cursor-pointer mb-0.5 transition-colors"
-                  style={{ background: active ? "rgba(59,91,219,0.09)" : "transparent" }}
-                  onMouseOver={(e) => { if (!active) (e.currentTarget as HTMLElement).style.background = "#f1f2f6"; }}
-                  onMouseOut={(e) => { if (!active) (e.currentTarget as HTMLElement).style.background = "transparent"; }}>
+                  className={`ai-row group relative flex items-start gap-1 pl-3 pr-2 py-2 mx-1.5 rounded-lg cursor-pointer${active ? " is-active" : ""}`}>
                   <div className="min-w-0 flex-1 flex flex-col gap-0.5">
                     {renaming ? (
                       <input ref={renameInputRef} value={renameValue} onClick={(e) => e.stopPropagation()}
@@ -208,9 +245,9 @@ export default function AiSessions({ onPick }: { onPick?: () => void }) {
                         className="w-full text-[12.5px] font-medium bg-white rounded px-1.5 py-0.5 outline-none"
                         style={{ color: INK, border: `1px solid ${ACCENT}` }} />
                     ) : (
-                      <span className="min-w-0 truncate text-[12.5px]" style={{ color: active ? INK : "#42485a", fontWeight: active ? 600 : 400 }} title={s.title}>{s.title}</span>
+                      <span className="min-w-0 truncate text-[12.5px] leading-snug" style={{ color: active ? T.ink : T.ink2, fontWeight: active ? 600 : 500 }} title={s.title}>{s.title}</span>
                     )}
-                    <span className="flex items-center gap-1 min-w-0 truncate text-[10.5px]" style={{ color: active ? ACCENT : SUB }}>
+                    <span className="flex items-center gap-1 min-w-0 truncate text-[10.5px]" style={{ color: T.faint }}>
                       <TbUserCircle size={11} className="flex-shrink-0" /> <span className="truncate">{who}</span>
                       {typeof s.messageCount === "number" && <span className="flex-shrink-0">· {s.messageCount} msg{s.messageCount === 1 ? "" : "s"}</span>}
                     </span>

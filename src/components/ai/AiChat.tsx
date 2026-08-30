@@ -11,13 +11,14 @@ import MentionTextarea from "./MentionTextarea";
 
 const PlotlyChart = dynamic(() => import("./PlotlyChart"), { ssr: false });
 
-const INK = "#1a1f36", SUB = "#8a91a3", ACCENT = "#3b5bdb";
+import { T, EASE } from "./theme";
+
+const INK = T.ink, SUB = T.mut, ACCENT = T.accent;
 const SUGGESTIONS = [
-  "Revenue & margin by manufacturer",
-  "How much stock is expiring soon?",
-  "Top vendors by spend",
-  "Which items should we reorder?",
-  "Monthly revenue trend",
+  { q: "What should we order first, and why?",        h: "Reorder priority" },
+  { q: "How much stock is expiring in 90 days?",      h: "Expiry risk" },
+  { q: "Which vendors do we spend the most with?",    h: "Procurement" },
+  { q: "How much cash do we need to restock next month?", h: "Budget" },
 ];
 
 function fmt(v: any, kind: string): string {
@@ -312,7 +313,7 @@ export default function AiChat({ variant = "floater" }: { variant?: "floater" | 
   };
 
   return (
-    <div className="flex flex-col h-full min-h-0" style={{ background: variant === "page" ? "#f6f7f9" : "#fbfbfc" }}>
+    <div className="flex flex-col h-full min-h-0" style={{ background: variant === "page" ? T.ground : T.surface }}>
       <style jsx global>{`
         /* Prose, not chat-bubble text. Real vertical rhythm, a comfortable measure, and
            headings/lists/tables that are actually styled — answers here routinely run to
@@ -351,6 +352,34 @@ export default function AiChat({ variant = "floater" }: { variant?: "floater" | 
           vertical-align: -2px; background: #3b5bdb; animation: aiCaret 1s steps(2) infinite;
         }
         @keyframes aiCaret { 0%,50%{opacity:1} 51%,100%{opacity:0} }
+        /* ── motion: one easing, everything subtle, all of it optional ── */
+        @keyframes aiFade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+        .ai-fade { animation: aiFade .45s ${EASE} both; }
+
+        .ai-sugg { transition: transform .18s ${EASE}, box-shadow .18s ${EASE}, border-color .18s ${EASE}; }
+        .ai-sugg:hover { transform: translateY(-2px); border-color: ${T.accent2}; box-shadow: 0 10px 24px -14px ${T.accent}; }
+        .ai-sugg:active { transform: translateY(0); }
+
+        /* the composer lifts toward you on focus rather than just recolouring a border */
+        .ai-composer { transition: box-shadow .2s ${EASE}, border-color .2s ${EASE}, transform .2s ${EASE}; }
+        .ai-composer:focus-within {
+          border-color: ${T.accent2};
+          box-shadow: 0 0 0 4px ${T.accentSoft}, 0 10px 30px -16px ${T.accent};
+        }
+        .ai-send { transition: transform .15s ${EASE}, filter .15s ${EASE}; }
+        .ai-send:not(:disabled):hover { filter: brightness(1.08); }
+        .ai-send:not(:disabled):active { transform: scale(.92); }
+
+        .ai-jump { animation: aiFade .3s ${EASE} both; transition: transform .16s ${EASE}; }
+        .ai-jump:hover { transform: translate(-50%, -2px); }
+        .ai-link { transition: color .15s ${EASE}; }
+        .ai-link:hover { color: ${T.mut}; }
+
+        @media (prefers-reduced-motion: reduce) {
+          .ai-fade, .ai-msg, .ai-jump { animation: none !important; }
+          .ai-sugg, .ai-composer, .ai-send, .ai-jump, .ai-link { transition: none !important; }
+          .ai-sugg:hover, .ai-jump:hover { transform: none; }
+        }
         @keyframes aiDot { 0%,80%,100%{opacity:.25;transform:translateY(0)} 40%{opacity:1;transform:translateY(-3px)} }
         @keyframes aiMsgIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
         .ai-msg { animation: aiMsgIn .32s cubic-bezier(.22,1,.36,1) both; }
@@ -367,18 +396,36 @@ export default function AiChat({ variant = "floater" }: { variant?: "floater" | 
             <div className="text-[12.5px] mt-3" style={{ color: SUB }}>Loading conversation…</div>
           </div>
         ) : messages.length === 0 ? (
-          <div className="min-h-full flex flex-col items-center justify-center text-center px-4 py-10">
-            <AnalystMark size={52} />
-            <div className="text-[16px] font-semibold mt-4" style={{ color: INK }}>HCG AI Analyst</div>
-            <div className="text-[12.5px] mt-1.5 max-w-[340px] leading-relaxed" style={{ color: SUB }}>Ask anything about revenue, inventory, procurement, expiry or forecasts — I query the real data and answer with charts.</div>
-            <div className="flex flex-wrap gap-2 justify-center mt-6 max-w-[460px]">
-              {SUGGESTIONS.map((s) => (
-                <button key={s} onClick={() => sendAndFollow(s)} className="text-[12px] px-3.5 py-1.5 rounded-lg border transition-all hover:-translate-y-0.5" style={{ borderColor: "#e7e9f0", color: "#4b5468", background: "#fff", boxShadow: "0 1px 2px rgba(20,24,40,0.03)" }}>{s}</button>
-              ))}
+          <div className="min-h-full flex flex-col justify-center px-6 py-10">
+            {/* Left-aligned on the same measure the conversation uses, so the first answer
+                lands exactly where the invitation was — a centred splash that jumps to a
+                left column the moment you ask is a small but constant jolt. Suggestions are
+                real executive questions with a category label, not feature names. */}
+            <div className="mx-auto w-full" style={{ maxWidth: T.col }}>
+              <div className="ai-fade" style={{ animationDelay: "40ms" }}>
+                <AnalystMark size={40} />
+                <h2 className="text-[24px] font-semibold mt-4 tracking-[-0.02em]" style={{ color: T.ink }}>
+                  What would you like to know?
+                </h2>
+                <p className="text-[13.5px] mt-2 leading-relaxed" style={{ color: T.mut, maxWidth: "52ch" }}>
+                  Ask in plain English. Every answer is worked out from HCG&rsquo;s real supply-chain
+                  data, and shows the queries it used.
+                </p>
+              </div>
+              <div className="grid sm:grid-cols-2 gap-2.5 mt-7">
+                {SUGGESTIONS.map((s, i) => (
+                  <button key={s.q} onClick={() => sendAndFollow(s.q)}
+                    className="ai-sugg ai-fade text-left px-4 py-3 rounded-xl"
+                    style={{ animationDelay: `${120 + i * 55}ms`, background: T.surface, border: `1px solid ${T.line}` }}>
+                    <span className="block text-[10px] font-semibold uppercase tracking-[0.09em]" style={{ color: T.faint }}>{s.h}</span>
+                    <span className="block text-[13px] mt-1.5 leading-snug" style={{ color: T.ink2 }}>{s.q}</span>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         ) : (
-          <div className="mx-auto w-full max-w-[800px] px-4 sm:px-6 py-7 space-y-6">
+          <div className="mx-auto w-full px-4 sm:px-6 py-8 space-y-7" style={{ maxWidth: T.col }}>
             {activeSession?.createdBy && (
               <div className="flex items-center gap-1.5 text-[11px] pb-1" style={{ color: SUB }}>
                 <TbUserCircle size={13} />
@@ -417,32 +464,49 @@ export default function AiChat({ variant = "floater" }: { variant?: "floater" | 
         )}
       </div>
 
-      <div className="border-t px-4 sm:px-5 pt-3 pb-4 relative" style={{ borderColor: "#eef0f4", background: variant === "page" ? "#f6f7f9" : "#fbfbfc" }}>
+      {/* Composer. No top border: the scroll area fades out underneath it instead, so the
+          conversation reads as continuing behind the input rather than being cut off by a
+          rule. Shares T.col with the messages above, which they did not before (800 vs
+          840px) — a misalignment you feel without being able to name it. */}
+      <div className="relative flex-shrink-0 px-4 sm:px-6 pb-5 pt-2" style={{ background: T.ground }}>
+        <div className="pointer-events-none absolute left-0 right-0 -top-8 h-8"
+             style={{ background: `linear-gradient(to bottom, transparent, ${T.ground})` }} />
         {!atBottom && messages.length > 0 && (
-          <button onClick={() => scrollToBottom()} aria-label="Scroll to latest" className="absolute -top-12 right-6 w-9 h-9 rounded-full flex items-center justify-center bg-white transition-transform hover:scale-105" style={{ boxShadow: "0 8px 22px -8px rgba(20,24,40,0.35)", border: "1px solid #eceef4", color: ACCENT }}>
+          <button onClick={() => scrollToBottom()} aria-label="Scroll to latest"
+            className="ai-jump absolute -top-6 left-1/2 -translate-x-1/2 w-9 h-9 rounded-full flex items-center justify-center z-10"
+            style={{ background: T.surface, boxShadow: T.shadowLg, border: `1px solid ${T.line}`, color: T.accent }}>
             <TbArrowDown size={17} />
           </button>
         )}
-        <div className="mx-auto w-full max-w-[840px]">
-          {messages.length > 0 && (
-            <div className="flex items-center justify-between mb-2 px-1">
-              <span className="text-[10.5px] inline-flex items-center gap-1" style={{ color: SUB }}><TbChartBar size={12} /> answers use your real data</span>
-              <div className="flex items-center gap-2.5">
-                <ExportMenu label="Export all" onExcel={() => exportAll("excel")} onPdf={() => exportAll("pdf")} />
-                <button onClick={newChat} className="inline-flex items-center gap-1 text-[11px] font-medium hover:underline" style={{ color: SUB }}><TbPlus size={12} /> New chat</button>
-              </div>
-            </div>
-          )}
-          <div className="flex items-end gap-2 rounded-2xl px-2 py-1.5 transition-shadow" style={{ background: "#fff", border: "1px solid #e6e9f1", boxShadow: "0 1px 2px rgba(20,24,40,0.04)" }}>
-            <MentionTextarea value={input} onChange={setInput} onSubmit={submit} disabled={busy} placeholder="Ask about your data…  type @ to reference an item, vendor or category" />
+        <div className="mx-auto w-full" style={{ maxWidth: T.col }}>
+          <div className="ai-composer flex items-end gap-2 rounded-[20px] px-2.5 py-2"
+               style={{ background: T.surface, border: `1px solid ${T.line}`, boxShadow: T.shadow }}>
+            <MentionTextarea value={input} onChange={setInput} onSubmit={submit} disabled={busy}
+              placeholder="Ask about your data…  type @ to reference an item, vendor or category" />
             {busy ? (
               <button onClick={stop} title="Stop generating" aria-label="Stop generating"
-                className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-all hover:opacity-90"
-                style={{ background: INK, color: "#fff" }}>
-                <TbPlayerStopFilled size={14} />
+                className="ai-send w-9 h-9 rounded-[13px] flex items-center justify-center flex-shrink-0"
+                style={{ background: T.ink, color: "#fff" }}>
+                <TbPlayerStopFilled size={13} />
               </button>
             ) : (
-              <button onClick={submit} disabled={!input.trim()} className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 disabled:opacity-30 transition-all hover:opacity-90" style={{ background: ACCENT, color: "#fff" }} aria-label="Send"><TbSend size={16} /></button>
+              <button onClick={submit} disabled={!input.trim()} aria-label="Send"
+                className="ai-send w-9 h-9 rounded-[13px] flex items-center justify-center flex-shrink-0 disabled:opacity-25"
+                style={{ background: T.accent, color: "#fff" }}><TbSend size={15} /></button>
+            )}
+          </div>
+          {/* One quiet line under the input, not a toolbar competing with it. */}
+          <div className="flex items-center justify-between gap-3 mt-2 px-1.5">
+            <span className="text-[10.5px] inline-flex items-center gap-1.5" style={{ color: T.faint }}>
+              <TbChartBar size={11} /> Answers use your real data
+            </span>
+            {messages.length > 0 && (
+              <div className="flex items-center gap-3">
+                <ExportMenu label="Export" onExcel={() => exportAll("excel")} onPdf={() => exportAll("pdf")} />
+                <button onClick={newChat} className="ai-link inline-flex items-center gap-1 text-[11px] font-medium" style={{ color: T.faint }}>
+                  <TbPlus size={11} /> New chat
+                </button>
+              </div>
             )}
           </div>
         </div>

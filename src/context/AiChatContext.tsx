@@ -287,6 +287,16 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
 
     const optimisticId = uid();
     writeMsgs(sid, (m) => [...m, { id: optimisticId, role: "user", kind: "text", text: query }], isFirst ? { title: titleFrom(query) } : undefined);
+    if (isFirst) {
+      // PERSIST the auto-title, don't just set it locally. It was only ever written to
+      // local state, so the backend kept its "New Chat" default and every row in the
+      // sidebar read "New Chat" the moment anyone reloaded — a conversation list you
+      // cannot navigate. Fire-and-forget: a failed title must never block the answer,
+      // and the backend deliberately preserves updated_at on rename so this cannot
+      // reorder the list on its own.
+      apiFetch(`/chat/sessions/${sid}`, { method: "PATCH", body: JSON.stringify({ title: titleFrom(query) }) })
+        .catch(() => { /* keeps the optimistic local title; harmless */ });
+    }
 
     // Ids this turn draws provisionally, so the "persisted" event can cleanly swap them
     // for the canonical set instead of duplicating (both are appended, never one over
