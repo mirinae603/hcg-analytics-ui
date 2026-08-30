@@ -20,6 +20,40 @@ const SUGGESTIONS = [
   "Monthly revenue trend",
 ];
 
+/** Reveal text progressively once it lands, instead of snapping the whole answer in.
+ *
+ *  Deliberately NOT token-streaming from the model. The answer is checked against its own
+ *  query results BEFORE any of it is shown (orchestrator's deterministic number check plus
+ *  the auditor) — real streaming would put unverified figures on screen and retract them
+ *  after, which on a tool whose whole promise is "these numbers are right" is the wrong
+ *  trade. So the wait is honest work (the step log shows what is actually running) and the
+ *  arrival is smooth.
+ *
+ *  Reveals by word, not character: character reveal on a 14.5px measure makes the last word
+ *  visibly jitter as it grows. ~700ms total regardless of length, so a long answer doesn't
+ *  crawl. Respects prefers-reduced-motion, and never animates on history replay. */
+function useRevealed(text: string, animate: boolean): string {
+  const [n, setN] = useState(animate ? 0 : Number.MAX_SAFE_INTEGER);
+  const words = React.useMemo(() => (text || "").split(/(\s+)/), [text]);
+  useEffect(() => {
+    if (!animate) { setN(Number.MAX_SAFE_INTEGER); return; }
+    if (typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
+      setN(Number.MAX_SAFE_INTEGER); return;
+    }
+    const total = words.length;
+    if (!total) return;
+    const stepMs = Math.max(8, Math.min(30, 700 / Math.max(total, 1)));
+    let i = 0;
+    const id = setInterval(() => {
+      i += 2;                       // split() interleaves word/whitespace, so step by two
+      setN(i);
+      if (i >= total) clearInterval(id);
+    }, stepMs);
+    return () => clearInterval(id);
+  }, [words, animate]);
+  return n >= words.length ? text : words.slice(0, n).join("");
+}
+
 function fmt(v: any, kind: string): string {
   if (v === null || v === undefined || v === "") return "—";
   const n = Number(v);
@@ -159,8 +193,10 @@ function buildTurnAt(messages: AiMsg[], id: string): Turn {
   return turn;
 }
 
-function Message({ m, onOption, onExport, onRegenerate }: {
+function Message({ m, onOption, onExport, onRegenerate, fresh }: {
   m: AiMsg; onOption?: (o: string) => void; onExport?: (kind: "excel" | "pdf") => void;
+  /** true only for an answer that just arrived in this session — history replays instantly */
+  fresh?: boolean;
   /** Present only on the LAST bot text bubble — regenerating any earlier answer would
    *  be ambiguous (regenerate replaying WHICH later question, on top of what?). */
   onRegenerate?: () => void;
@@ -184,10 +220,19 @@ function Message({ m, onOption, onExport, onRegenerate }: {
   // often several paragraphs with figures in it; it earns the same treatment a document
   // gets. The card, the border and the tail are gone; what remains is a comfortable measure
   // and a real vertical rhythm. Actions move to hover so they stop competing with the text.
+  return <BotText m={m} onOption={onOption} onExport={onExport} onRegenerate={onRegenerate} fresh={fresh} />;
+}
+
+function BotText({ m, onOption, onExport, onRegenerate, fresh }: {
+  m: AiMsg; onOption?: (o: string) => void; onExport?: (kind: "excel" | "pdf") => void;
+  onRegenerate?: () => void; fresh?: boolean;
+}) {
+  const shown = useRevealed(m.text || "", !!fresh);
+  const done = shown === (m.text || "");
   return (
     <div className="group w-full ai-prose" style={{ color: "#32384a" }}>
-      <div className="text-[14.5px] leading-[1.72]"><ReactMarkdown remarkPlugins={[remarkGfm]}>{m.text || ""}</ReactMarkdown></div>
-      {m.options && m.options.length ? (
+      <div className="text-[14.5px] leading-[1.72]"><ReactMarkdown remarkPlugins={[remarkGfm]}>{shown}</ReactMarkdown></div>
+      {done && m.options && m.options.length ? (
         <div className="flex flex-wrap gap-2 mt-4">
           {m.options.map((o) => (
             <button key={o} onClick={() => onOption?.(o)}
@@ -196,7 +241,7 @@ function Message({ m, onOption, onExport, onRegenerate }: {
           ))}
         </div>
       ) : null}
-        {(m.verified || (m.queries && m.queries.length) || onExport || m.text || onRegenerate) ? (
+        {done && (m.verified || (m.queries && m.queries.length) || onExport || m.text || onRegenerate) ? (
           <div className="flex items-center gap-2 mt-3.5 flex-wrap">
             {/* All four states, in words an executive can act on. Previously only ok and
                 corrected rendered, which meant "canonical" — the STRONGEST guarantee we
@@ -268,6 +313,14 @@ export default function AiChat({ variant = "floater" }: { variant?: "floater" | 
   const [input, setInput] = useState("");
   const [atBottom, setAtBottom] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
+  // ids present on first paint are HISTORY and never animate; anything appearing later
+  // arrived live in this session and gets the reveal exactly once.
+  const freshIdsRef = useRef<Set<string>>(new Set());
+  const seededRef = useRef(false);
+  useEffect(() => {
+    if (!seededRef.current) { seededRef.current = true; return; }
+    messages.forEach((m) => { if (m.role === "bot" && m.kind === "text") freshIdsRef.current.add(m.id); });
+  }, [messages]);
   const atBottomRef = useRef(true);
 
   const onScroll = () => {
@@ -373,7 +426,8 @@ export default function AiChat({ variant = "floater" }: { variant?: "floater" | 
               const isLastBotText = i === lastBotTextIdx && !busy;
               return (
                 <div key={m.id} className="ai-msg">
-                  <Message m={m} onOption={m.options && m.options.length ? (o) => sendAndFollow(o) : undefined}
+                  <Message m={m} fresh={freshIdsRef.current.has(m.id)}
+                    onOption={m.options && m.options.length ? (o) => sendAndFollow(o) : undefined}
                     onRegenerate={isLastBotText ? regenerate : undefined} />
                 </div>
               );
