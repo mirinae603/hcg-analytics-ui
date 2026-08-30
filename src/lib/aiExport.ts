@@ -1,19 +1,19 @@
 // Export helpers for the AI Analyst — a single answer or the whole conversation,
 // to Excel (SheetJS) or PDF (jsPDF + Plotly image + autotable).
 import type { AiMsg } from "@/context/AiChatContext";
+// One formatting layer, shared with the on-screen table. Everything below used to format
+// its own way, which is why the export shipped "2,025", "total_qty" and "plant" long after
+// the screen was correct.
+import { fmtValue, humanLabels, hospitalise, kindOf } from "@/lib/aiFormat";
 
 export type Turn = { question: string; answer: string; figures: any[]; tables: NonNullable<AiMsg["table"]>[] };
 
-const FONTFMT = (v: any, kind?: string): string => {
-  if (v === null || v === undefined || v === "") return "";
-  if (!kind || kind === "text") return String(v);
-  const n = Number(v);
-  if (Number.isNaN(n)) return String(v);
-  if (kind === "inr") { const a = Math.abs(n); if (a >= 1e7) return `₹${(n / 1e7).toFixed(2)} Cr`; if (a >= 1e5) return `₹${(n / 1e5).toFixed(2)} L`; if (a >= 1e3) return `₹${(n / 1e3).toFixed(1)} K`; return `₹${Math.round(n)}`; }
-  if (kind === "pct") return `${n.toFixed(1)}%`;
-  if (kind === "days") return `${Math.round(n)} d`;
-  return n.toLocaleString("en-IN");
-};
+/** Resolve each column's unit the same way the screen does, rather than trusting the
+ *  `kind` the backend guessed — `year` arrives as a number and printed as "2,025". */
+const colKinds = (cols: any[], rows: any[]): string[] =>
+  cols.map((c: any) => kindOf(c.key || c.label, rows.find((r) => r?.[c.key] != null)?.[c.key], c.kind));
+
+const FONTFMT = (v: any, kind?: string): string => (v === null || v === undefined || v === "" ? "" : fmtValue(v, kind));
 
 export function groupTurns(messages: AiMsg[]): Turn[] {
   const turns: Turn[] = [];
@@ -56,7 +56,9 @@ export async function exportExcel(turns: Turn[], filename: string) {
       const cols = tbl.columns || [];
       const rows = (tbl.rows || []).map((r: any) => {
         const o: any = {};
-        cols.forEach((c: any) => { o[c.label || c.key] = c.kind === "text" ? r[c.key] : (typeof r[c.key] === "number" ? r[c.key] : r[c.key]); });
+        const labels = humanLabels(cols.map((c: any) => c.label || c.key));
+        const kinds = colKinds(cols, tbl.rows || []);
+        cols.forEach((c: any, i: number) => { o[labels[i]] = FONTFMT(r[c.key], kinds[i]); });
         return o;
       });
       let name = clean(tbl.title || `Q${ti + 1}`, 22) + (t.tables.length > 1 ? `_${bi + 1}` : "");
@@ -73,7 +75,14 @@ async function figureToPng(figure: any): Promise<string | null> {
   try {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const Plotly = require("plotly.js-dist-min");
-    return await Plotly.toImage({ data: figure.data, layout: { ...figure.layout, paper_bgcolor: "#fff", plot_bgcolor: "#fff" } }, { format: "png", width: 820, height: 420, scale: 1.4 });
+    // The exported PNG rendered the RAW backend figure — still in #3b5bdb, a blue that
+    // appears nowhere in this product, with "plants" in its title. Theme it the same way
+    // the on-screen chart is themed before rasterising.
+    const { themeFigure } = await import("@/components/ai/plotlyTheme");
+    const themed = themeFigure(figure);
+    const layout = { ...themed.layout, paper_bgcolor: "#fff", plot_bgcolor: "#fff" };
+    if (layout.title?.text) layout.title = { ...layout.title, text: hospitalise(String(layout.title.text)) };
+    return await Plotly.toImage({ data: themed.data, layout }, { format: "png", width: 820, height: 420, scale: 1.4 });
   } catch { return null; }
 }
 
@@ -95,13 +104,13 @@ export async function exportPdf(turns: Turn[], title: string) {
     ensure(70);
     if (t.question) {
       // question chip
-      doc.setFillColor(31, 35, 51); doc.roundedRect(M, y - 12, Math.min(doc.getTextWidth(pdfSafe(t.question)) + 34, W - 2 * M), 22, 5, 5, "F");
+      doc.setFillColor(65, 59, 53); doc.roundedRect(M, y - 12, Math.min(doc.getTextWidth(pdfSafe(t.question)) + 34, W - 2 * M), 22, 5, 5, "F");
       doc.setFont("helvetica", "bold"); doc.setFontSize(11); doc.setTextColor(255, 255, 255);
-      doc.text(pdfSafe(t.question).slice(0, 120), M + 12, y + 3); y += 22;
+      doc.text(pdfSafe(hospitalise(t.question)).slice(0, 120), M + 12, y + 3); y += 22;
     }
     if (t.answer) {
       doc.setFont("helvetica", "normal"); doc.setFontSize(10.5); doc.setTextColor(55, 62, 82);
-      const a = doc.splitTextToSize(pdfSafe(pdfProse(t.answer)), W - 2 * M);
+      const a = doc.splitTextToSize(pdfSafe(hospitalise(pdfProse(t.answer))), W - 2 * M);
       ensure(a.length * 14 + 6);
       doc.text(a, M, y); y += a.length * 14 + 10;
     }
@@ -111,11 +120,14 @@ export async function exportPdf(turns: Turn[], title: string) {
     }
     for (const tbl of t.tables) {
       const cols = tbl.columns || [];
-      const head = [cols.map((c: any) => pdfSafe(c.label || c.key))];
-      const body = (tbl.rows || []).slice(0, 40).map((r: any) => cols.map((c: any) => pdfSafe(FONTFMT(r[c.key], c.kind))));
+      const rowsAll = tbl.rows || [];
+      const labels = humanLabels(cols.map((c: any) => c.label || c.key));
+      const kinds = colKinds(cols, rowsAll);
+      const head = [labels.map((l) => pdfSafe(l))];
+      const body = rowsAll.slice(0, 40).map((r: any) => cols.map((c: any, i: number) => pdfSafe(FONTFMT(r[c.key], kinds[i]))));
       ensure(60);
       autoTable(doc, { head, body, startY: y, margin: { left: M, right: M }, styles: { fontSize: 8.5, cellPadding: 4, font: "helvetica" },
-        headStyles: { fillColor: [59, 91, 219], textColor: 255, fontStyle: "bold" }, alternateRowStyles: { fillColor: [247, 248, 251] }, theme: "grid" });
+        headStyles: { fillColor: [65, 59, 53], textColor: 255, fontStyle: "bold" }, alternateRowStyles: { fillColor: [247, 248, 251] }, theme: "grid" });
       // @ts-ignore
       y = (doc as any).lastAutoTable.finalY + 16;
     }

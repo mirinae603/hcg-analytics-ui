@@ -6,6 +6,10 @@ import remarkGfm from "remark-gfm";
 import { TbShieldCheck, TbDatabase, TbChevronDown, TbFileSpreadsheet, TbFileTypePdf, TbDownload, TbArrowDown, TbPlus, TbCopy, TbCheck, TbRefresh, TbPlayerStopFilled, TbAlertTriangle, TbMenu2, TbAt, TbTelescope, TbListNumbers, TbClockExclamation, TbBuildingStore, TbCoin, TbBuildingHospital, TbChartLine, TbArrowUp } from "react-icons/tb";
 import { useAiChat, AiMsg } from "@/context/AiChatContext";
 import { getUser } from "@/utils/auth";
+// Formatting, labelling and the Plant→Hospital rule live in ONE place, shared with the
+// PDF/Excel export — they were implemented in this file only, so the export shipped raw
+// values ("2,025", "total_qty", "plant") long after the screen was correct.
+import { fmtValue as fmt, humanLabel, humanLabels, kindOf } from "@/lib/aiFormat";
 import { groupTurns, exportExcel, exportPdf, Turn } from "@/lib/aiExport";
 import MentionTextarea from "./MentionTextarea";
 
@@ -43,69 +47,6 @@ function greeting(): string {
   if (h < 17) return "Good afternoon";
   return "Good evening";
 }
-
-/** Column labels arrive from whatever the SQL aliased, so a real answer shipped a table
- *  headed "vendor_name" and a chart titled "Spend by vendor name". The backend does label
- *  most columns properly; this is the fallback for the ones it cannot, applied at the last
- *  possible moment so nothing upstream has to be trusted to have done it. */
-// values are in sentence case (a header reads "Median days on hand", not "Median Days On
-// Hand"); the acronyms carry their own casing and keep it wherever they land
-const LABEL_FIXUPS: Record<string, string> = {
-  qty: "qty", doh: "days on hand", pct: "%", avg: "avg", num: "count",
-  sku: "SKU", skus: "SKUs", grn: "GRN", po: "PO", id: "ID", ytd: "YTD", mtd: "MTD", asp: "ASP",
-};
-/** Label a whole column set, keeping every label distinct.
- *
- *  `humanLabel` drops a trailing "desc" because a column of vendors is "Vendor", not
- *  "Vendor name". When BOTH `material` and `material_desc` are selected — which is the
- *  normal shape of a ranking result — they both collapse to "Material" and the table
- *  ships two identically-headed columns. Where that happens, the bare-code column is
- *  named for what it actually is. */
-function humanLabels(keys: string[]): string[] {
-  const base = keys.map(humanLabel);
-  const seen = new Map<string, number[]>();
-  base.forEach((l, i) => seen.set(l, [...(seen.get(l) || []), i]));
-  for (const [, idxs] of seen) {
-    if (idxs.length < 2) continue;
-    for (const i of idxs) {
-      const k = keys[i].toLowerCase();
-      if (!/(desc|description|name)$/.test(k)) base[i] = "Code";
-    }
-  }
-  return base;
-}
-
-function humanLabel(raw: string): string {
-  const words = String(raw).trim().replace(/[_-]+/g, " ").replace(/\s+/g, " ").split(" ");
-  // a trailing "name"/"code"/"desc" is a database habit, not information: a column of
-  // vendors is "Vendor", not "Vendor name"
-  if (words.length > 1 && /^(name|desc|description)$/i.test(words[words.length - 1])) words.pop();
-  return words
-    .map((w, i) => {
-      const fix = LABEL_FIXUPS[w.toLowerCase()];
-      const t = fix ?? (w === w.toUpperCase() && w.length <= 4 ? w : w.toLowerCase());  // keep acronyms
-      return i === 0 ? t.charAt(0).toUpperCase() + t.slice(1) : t;
-    })
-    .join(" ");
-}
-
-function fmt(v: any, kind: string): string {
-  if (v === null || v === undefined || v === "") return "—";
-  const n = Number(v);
-  if (kind === "inr") { const a = Math.abs(n); if (a >= 1e7) return `₹${(n / 1e7).toFixed(2)} Cr`; if (a >= 1e5) return `₹${(n / 1e5).toFixed(2)} L`; if (a >= 1e3) return `₹${(n / 1e3).toFixed(1)} K`; return `₹${Math.round(n)}`; }
-  if (kind === "pct") return `${n.toFixed(1)}%`;
-  if (kind === "days") return `${Math.round(n)} d`;
-  // Counts/quantities are conceptually whole — a demand of 84,166.667 or a total of
-  // 1,08,73,100.944 reaching the table as raw floats reads as broken. Round to whole
-  // for magnitudes ≥1000 (or already-integer); keep 2 decimals only for genuine small
-  // fractionals (a ratio like 2.34) where the decimals actually carry meaning.
-  if (kind === "num") {
-    if (Math.abs(n) >= 1000 || Number.isInteger(n)) return Math.round(n).toLocaleString("en-IN");
-    return n.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  }
-  return String(v);
-}
-
 
 /** Group the flat message stream into TURNS. The transcript arrives as separate messages
  *  (question, answer text, chart, table) and used to render as separate stacked blocks,
@@ -187,6 +128,7 @@ function TableView({ table }: { table: NonNullable<AiMsg["table"]> }) {
   const rows = table.rows || [];
   const measure = measureColumn(cols, rows);
   const labels = humanLabels(cols.map((c: any) => c.label || c.key));
+  const kinds = cols.map((c: any) => kindOf(c.key || c.label, rows.find((r: any) => r?.[c.key] != null)?.[c.key], c.kind));
 
   return (
     <div className="overflow-hidden" style={{ border: `1px solid ${T.line}`, borderRadius: T.r2, background: T.surface }}>
@@ -195,25 +137,25 @@ function TableView({ table }: { table: NonNullable<AiMsg["table"]> }) {
           <thead className="sticky top-0 z-10"><tr style={{ background: T.sunk, color: T.mut }}>
             {cols.map((c: any, ci: number) => (
               <th key={c.key}
-                  className={`font-medium px-3.5 py-2.5 whitespace-nowrap ${c.kind && c.kind !== "text" ? "text-right" : "text-left"}`}
+                  className={`font-medium px-3.5 py-2.5 whitespace-nowrap ${kinds[ci] === "text" || kinds[ci] === "id" ? "text-left" : "text-right"}`}
                   style={{ borderBottom: `1px solid ${T.line}` }}>{labels[ci]}</th>
             ))}
           </tr></thead>
           <tbody>
             {rows.map((r: any, i: number) => (
               <tr key={i} className="ai-tr" style={{ borderTop: i ? `1px solid ${T.hair}` : undefined }}>
-                {cols.map((c: any) => {
+                {cols.map((c: any, ci: number) => {
                   const isMeasure = measure?.key === c.key;
                   const pct = isMeasure ? Math.max(2, (Number(r[c.key]) / measure!.max) * 100) : 0;
                   return (
                     <td key={c.key}
-                        className={`relative px-3.5 py-2.5 whitespace-nowrap ${c.kind !== "text" ? "text-right tabular-nums" : ""}`}
-                        style={{ color: c.kind === "text" ? T.ink : T.ink2, fontWeight: c.kind === "inr" ? 600 : 400 }}>
+                        className={`relative px-3.5 py-2.5 whitespace-nowrap ${kinds[ci] === "text" || kinds[ci] === "id" ? "" : "text-right tabular-nums"}`}
+                        style={{ color: kinds[ci] === "text" ? T.ink : T.ink2, fontWeight: kinds[ci] === "inr" ? 600 : 400 }}>
                       {isMeasure ? (
                         <span aria-hidden className="absolute left-0 top-[3px] bottom-[3px] pointer-events-none"
                               style={{ width: `${pct}%`, background: T.darkSoft, borderRadius: "0 3px 3px 0" }} />
                       ) : null}
-                      <span className="relative">{fmt(r[c.key], c.kind)}</span>
+                      <span className="relative">{fmt(r[c.key], kinds[ci])}</span>
                     </td>
                   );
                 })}
