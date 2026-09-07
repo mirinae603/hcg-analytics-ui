@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import dynamic from "next/dynamic";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { TbShieldCheck, TbDatabase, TbChevronDown, TbFileSpreadsheet, TbFileTypePdf, TbDownload, TbArrowDown, TbPlus, TbCopy, TbCheck, TbRefresh, TbPlayerStopFilled, TbAlertTriangle, TbMenu2, TbAt, TbTelescope, TbListNumbers, TbClockExclamation, TbBuildingStore, TbCoin, TbBuildingHospital, TbChartLine, TbArrowUp } from "react-icons/tb";
+import { TbShieldCheck, TbDatabase, TbChevronDown, TbFileSpreadsheet, TbFileTypePdf, TbDownload, TbArrowDown, TbPlus, TbCopy, TbCheck, TbRefresh, TbPlayerStopFilled, TbAlertTriangle, TbMenu2, TbTelescope, TbListNumbers, TbClockExclamation, TbBuildingStore, TbCoin, TbBuildingHospital, TbChartLine, TbArrowUp } from "react-icons/tb";
 import { useAiChat, AiMsg } from "@/context/AiChatContext";
 import { getUser } from "@/utils/auth";
 // Formatting, labelling and the Plant→Hospital rule live in ONE place, shared with the
@@ -907,11 +907,6 @@ export default function AiChat({ variant = "floater", onOpenSessions }: { varian
                   ? { border: `1px solid ${T.dark}`, borderRadius: 999, color: "#fff", background: T.dark }
                   : { border: `1px solid ${T.line}`, borderRadius: 999, color: T.ink2 }}>
                 <TbTelescope size={13} /> Deep
-              </button>
-              <button onClick={() => setInput((v) => (v.endsWith("@") ? v : v + "@"))} title="Reference an item, vendor or category"
-                className="ai-tool inline-flex items-center gap-1.5 h-[30px] px-2.5 text-[12px] font-medium"
-                style={{ border: `1px solid ${T.line}`, borderRadius: 999, color: T.ink2 }}>
-                <TbAt size={13} /> Reference
               </button>
               {messages.length > 0 && (
                 <ExportMenu label="Export" onExcel={() => exportAll("excel")} onPdf={() => exportAll("pdf")} pill up />
