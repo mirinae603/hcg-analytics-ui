@@ -14,6 +14,7 @@ import { TbActivityHeartbeat, TbBuildingHospital, TbFlask, TbReportMedical, TbEy
 import { KPIS, Kpi } from "@/lib/kpiRegistry";
 import InventoryGlassKpiCard from "@/components/portfolio/inventory/InventoryGlassKpiCard";
 import { fetchKpiChart, computeInsights, buildSimTiles } from "@/components/portfolio/inventory/kpiChartFetch";
+import ConsumablesDepartments from "./ConsumablesDepartments";
 
 // Consumption KPIs from registry — same pattern as /inventory's grid.
 const consumptionKpis: Kpi[] = KPIS.filter((k) => k.portfolio === "consumption");
@@ -396,6 +397,10 @@ export default function ConsumptionOverview() {
         <CategoriesCard categories={scoped.data?.categories || []} cat={cat} loading={scoped.loading} />
         <DepartmentsCard departments={departments} />
       </div>
+
+      {/* Consumables per department: its own API over material-level issues, since the
+          department cards above have no material column to cut to consumables. */}
+      <div className="mt-5"><ConsumablesDepartments region={region} /></div>
 
       {/* ── GLASSMORPHIC KPI grid — pixel-identical to /inventory's grid ── */}
       <div className="mt-5">

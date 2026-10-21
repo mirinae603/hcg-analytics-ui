@@ -100,10 +100,10 @@ const StockAgingCard: React.FC<StockAgingCardProps> = ({
   const health = getHealthMetrics();
 
   const stockSegments = [
-    { key: 'fresh', label: '<3 Months', value: displayData.fresh, color: '#56d3a5ff', lightColor: '#D1FAE5' },
-    { key: 'aging', label: '3–6 Months', value: displayData.aging, color: '#80b7f9ff', lightColor: '#DBEAFE' },
-    { key: 'problem', label: '6–12 Months', value: displayData.problem, color: '#fcb77fff', lightColor: '#FFEDD5' },
-    { key: 'deadStock', label: '1+ Year', value: displayData.deadStock, color: '#f98686ff', lightColor: '#FEE2E2' }
+    { key: 'fresh', label: '0–30 days', value: displayData.fresh, color: '#56d3a5ff', lightColor: '#D1FAE5' },
+    { key: 'aging', label: '31–90 days', value: displayData.aging, color: '#80b7f9ff', lightColor: '#DBEAFE' },
+    { key: 'problem', label: '91–365 days', value: displayData.problem, color: '#fcb77fff', lightColor: '#FFEDD5' },
+    { key: 'deadStock', label: '365+ days', value: displayData.deadStock, color: '#f98686ff', lightColor: '#FEE2E2' }
   ];
   const [isHovered, setIsHovered] = useState(false);
   return (

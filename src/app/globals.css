@@ -2,6 +2,14 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* One-screen overviews (Formulary, Spend; ledger/onescreen.tsx). `fit:` applies on a desktop
+   wide and tall enough to hold an overview's whole chart grid without scrolling; below it
+   (1366x768 laptops, tablets, phones) the same panels stack and the page scrolls.
+   `onescreen:` applies while such an overview is on screen (OneScreenShell sets the attribute),
+   e.g. `fit:onescreen:` docks the AI Analyst's launcher in the page bar. */
+@custom-variant fit (@media (min-width: 1280px) and (min-height: 760px));
+@custom-variant onescreen (html[data-onescreen="fit"] &);
+
 @theme {
   --font-*: initial;
   --font-outfit: Outfit, sans-serif;
@@ -176,6 +184,11 @@
   color utility to any element that depends on these defaults.
 */
 @layer base {
+  /* The app header's rendered height. AppHeader measures itself and writes the real value;
+     this is its height at >= lg (44px controls + 2 x 16px padding + 1px border) until then. */
+  :root {
+    --app-header-h: 77px;
+  }
   *,
   ::after,
   ::before,

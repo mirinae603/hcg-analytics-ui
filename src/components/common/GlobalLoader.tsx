@@ -7,6 +7,11 @@
 // a 2px indeterminate rail along the top edge plus a small translucent pill in the corner.
 // Nothing is dimmed, nothing is covered, and the page stays fully interactive throughout.
 //
+// The same patch is where the session reaches the backend: every backend request gets
+// `Authorization: Bearer <token>` (unless the caller already set one, as apiFetch does), and
+// a 401 clears the session and sends the browser to /signin once. Most pages call raw
+// `fetch`, so without this only the admin page and the AI chat ever carried the token.
+//
 // Two deliberate exclusions:
 //   • AI Analyst traffic (/ai/*, /chat/*) is never counted — those calls are long by design
 //     (the analyst streams a multi-step answer) and the chat renders its own in-thread
@@ -16,6 +21,7 @@
 // Shared state lives on `window` so a single tracker survives dev HMR re-evals.
 import { useEffect, useState } from "react";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
+import { getToken, clearSession } from "@/utils/auth";
 
 const BASE = (DASHBOARD_API_BASE_URL || "").replace(/\/+$/, "");
 const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
@@ -25,18 +31,52 @@ const COLD = new Set([502, 503, 504]); // "service still waking" responses
 // the AI Analyst adds later (/ai/anything, /chat/anything) is exempt automatically.
 const UNTRACKED_PREFIXES = ["/ai", "/chat"];
 
-/** true when `url` is a backend URL belonging to the AI Analyst (chat, mentions, stream). */
-function isUntracked(url: string): boolean {
+// Backend paths that ESTABLISH a session rather than present one: they never carry a token,
+// and their 401 ("wrong password") belongs to the sign-in form, not to the session handler.
+const AUTH_PATHS = ["/signin", "/signup"];
+
+/** The path part of a backend `url` — no query, no hash. */
+function backendPath(url: string): string {
   // Collapse repeated leading slashes before matching. Hosted environments often set
   // NEXT_PUBLIC_DASHBOARD_API with a trailing slash, which makes callers build
   // "https://host//chat/sessions"; without this the prefix would silently stop matching
   // and every chat message would light up the global indicator again.
-  const rest = url.slice(BASE.length).split("?")[0].split("#")[0].replace(/^\/+/, "/");
+  return url.slice(BASE.length).split("?")[0].split("#")[0].replace(/^\/+/, "/");
+}
+
+/** true when `url` is a backend URL belonging to the AI Analyst (chat, mentions, stream). */
+function isUntracked(url: string): boolean {
+  const rest = backendPath(url);
   return UNTRACKED_PREFIXES.some((p) => rest === p || rest.startsWith(`${p}/`));
 }
 
 type GlState = { active: number; subs: Set<() => void> };
-type WGL = Window & { __gl?: GlState; __glPatched?: boolean };
+type WGL = Window & { __gl?: GlState; __glPatched?: boolean; __authRedirecting?: boolean };
+
+/** `init` with the session's bearer token added. Left untouched when there is no session
+ *  or the caller already sent an Authorization header (apiFetch, streamFetch). A Request's
+ *  own headers are carried over, because headers in `init` replace them wholesale. */
+function withAuth(input: RequestInfo | URL, init: RequestInit | undefined, token: string | null): RequestInit | undefined {
+  if (!token) return init;
+  const headers = new Headers(init?.headers ?? (input instanceof Request ? input.headers : undefined));
+  if (headers.has("Authorization")) return init;
+  headers.set("Authorization", `Bearer ${token}`);
+  return { ...init, headers };
+}
+
+/** A 401 means the session is gone (expired, revoked, signed with another secret). A page
+ *  fires many calls at once and every one of them comes back 401, so clear the session and
+ *  redirect exactly once. `sent` is the token the failed call carried: if a newer sign-in
+ *  has replaced it since, the 401 is about the old session and must not end the new one. */
+function onUnauthorized(sent: string | null) {
+  const w = window as WGL;
+  if (w.__authRedirecting || getToken() !== sent) return;
+  clearSession();
+  const here = window.location.pathname;
+  if (here === "/signin" || here === "/signup") return;
+  w.__authRedirecting = true;
+  window.location.href = "/signin";
+}
 
 function store(): GlState {
   const w = window as WGL;
@@ -60,6 +100,14 @@ if (typeof window !== "undefined" && BASE && !(window as WGL).__glPatched) {
     const backend = !!url && url.startsWith(BASE);
     if (!backend) return orig(input, init);
 
+    const authCall = AUTH_PATHS.includes(backendPath(url));
+    const token = authCall ? null : getToken();
+    const req = authCall ? init : withAuth(input, init, token);
+    const watch = (p: Promise<Response>) => {
+      if (!authCall) p.then((res) => { if (res.status === 401) onUnauthorized(token); }, () => { /* the caller handles it */ });
+      return p;
+    };
+
     // AI Analyst calls still get the cold-start retry below — they just never light up the
     // global indicator, because the chat thread shows its own progress inline.
     const counted = !isUntracked(url);
@@ -67,25 +115,25 @@ if (typeof window !== "undefined" && BASE && !(window as WGL).__glPatched) {
     const done = () => { if (!counted) return; st.active = Math.max(0, st.active - 1); notify(); };
 
     let method = "GET";
-    try { method = String(init?.method || (typeof input !== "string" && (input as Request).method) || "GET").toUpperCase(); } catch { /* noop */ }
+    try { method = String(req?.method || (typeof input !== "string" && (input as Request).method) || "GET").toUpperCase(); } catch { /* noop */ }
 
     // Only idempotent GETs self-heal the cold start (never retry POST like /signin).
     if (method !== "GET") {
-      const p = orig(input, init);
+      const p = orig(input, req);
       p.then(done, done);
-      return p;
+      return watch(p);
     }
     // A caller-cancelled request (AbortController — used by tables/charts on param
     // change or React re-mount) must NOT be retried; otherwise it would hold the
     // indicator up for the full ~50s wake window. Detect abort and bail immediately.
-    const sig = init?.signal || (typeof input !== "string" ? (input as Request).signal : undefined);
+    const sig = req?.signal || (typeof input !== "string" ? (input as Request).signal : undefined);
     const isAbort = (e: any) => (e && (e.name === "AbortError" || e.name === "DOMException")) || !!sig?.aborted;
 
     // Retry a waking backend (502/503/504 or network error) for up to ~50s, keeping
     // the indicator up, so pages get real data instead of falling back to zeros.
     const attempt = async (left: number): Promise<Response> => {
       try {
-        const res = await orig(input, init);
+        const res = await orig(input, req);
         if (COLD.has(res.status) && left > 0) { await wait(3000); return attempt(left - 1); }
         return res;
       } catch (e) {
@@ -95,7 +143,7 @@ if (typeof window !== "undefined" && BASE && !(window as WGL).__glPatched) {
     };
     const p = attempt(16);
     p.then(done, done);
-    return p;
+    return watch(p);
   } as typeof window.fetch;
 }
 

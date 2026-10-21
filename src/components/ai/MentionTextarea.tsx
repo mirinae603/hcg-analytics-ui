@@ -91,10 +91,13 @@ export default function MentionTextarea({ value, onChange, onSubmit, disabled, p
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    // Enter during IME composition belongs to the IME: Gboard's Hindi/Kannada
+    // transliteration commits each word with Enter, which sent half-typed questions.
+    const composing = e.nativeEvent.isComposing;
     if (open) {
       if (e.key === "ArrowDown" && listLen) { e.preventDefault(); kbRef.current = true; setIdx((i) => (i + 1) % listLen); return; }
       if (e.key === "ArrowUp" && listLen) { e.preventDefault(); kbRef.current = true; setIdx((i) => (i - 1 + listLen) % listLen); return; }
-      if (e.key === "Enter" || e.key === "Tab") {
+      if ((e.key === "Enter" && !composing) || e.key === "Tab") {
         e.preventDefault();
         if (listLen) { phase === "types" ? pickType(TYPES[Math.min(idx, TYPES.length - 1)]) : pickValue(items[Math.min(idx, items.length - 1)]); }
         return; // never submit while the picker is open
@@ -102,7 +105,7 @@ export default function MentionTextarea({ value, onChange, onSubmit, disabled, p
       if (e.key === "Escape") { e.preventDefault(); activeType ? backToTypes() : setOpen(false); return; }
       if (e.key === "Backspace" && activeType && query === "") { backToTypes(); return; }
     }
-    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); onSubmit(); }
+    if (e.key === "Enter" && !e.shiftKey && !composing) { e.preventDefault(); onSubmit(); }
   };
 
   return (
@@ -158,10 +161,11 @@ export default function MentionTextarea({ value, onChange, onSubmit, disabled, p
           )}
         </div>
       )}
+      {/* 16px on phones: iOS Safari zooms the page into any field set smaller than that */}
       <textarea
         ref={taRef} value={value} onChange={handleChange} onKeyDown={handleKeyDown} rows={1} disabled={disabled}
         placeholder={placeholder}
-        className="ai-ta w-full resize-none bg-transparent px-2.5 py-2 text-[14px] outline-none max-h-40 leading-[1.6]"
+        className="ai-ta w-full resize-none bg-transparent px-2.5 py-2 text-[16px] sm:text-[14px] outline-none max-h-40 leading-[1.6]"
         style={{ color: T.ink }} />
       <GlobalStyle rules={`.ai-ta::placeholder { color: ${T.faint}; }`} />
     </div>

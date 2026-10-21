@@ -14,7 +14,7 @@ interface RegionContextType {
   setSelectedRegion: (region: Region) => void
 }
 
-const defaultRegion: Region = {
+export const defaultRegion: Region = {
  id: 0, name: 'All Plants', code: 'ALL', avatar: '',
 }
 
@@ -58,4 +58,13 @@ export const useRegion = () => {
     throw new Error('useRegion must be used within RegionProvider')
   }
   return context
+}
+
+/** What a hospital row on a card does: selects that hospital in the header selector, or goes
+ *  back to all hospitals when the row is the one already selected. By SAP plant code + SAP
+ *  name, the pair the backend resolves (an HIS name there would mean "all"). */
+export const useSelectHospital = () => {
+  const { setSelectedRegion } = useRegion()
+  return (h: { plant: string; name: string; selected?: boolean }) =>
+    setSelectedRegion(h.selected ? defaultRegion : { id: 0, name: h.name, code: h.plant, avatar: '' })
 }

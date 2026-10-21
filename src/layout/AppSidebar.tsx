@@ -13,6 +13,7 @@ import {
   TbPill, TbBuildingHospital,
   TbTargetArrow, TbRadar2, TbChartDots3, TbChartLine, TbCashBanknote, TbReload,
   TbLogin2, TbUserPlus, TbHome, TbLogout2, TbMessage2, TbShieldCheck,
+  TbClipboardList, TbStethoscope, TbBuildingBank, TbCoinRupee, TbReplace, TbListCheck,
 } from "react-icons/tb";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -35,6 +36,7 @@ const HEADER_H = 77; // app header is sticky/77px — flyout tucks below it
 
 const PF_ICON: Record<string, Ico> = {
   inventory: TbPackage, procurement: TbShoppingCart, consumption: TbReportMedical, forecasting: TbTelescope,
+  formulary: TbClipboardList, spend: TbCoinRupee,
 };
 const KPI_ICON: Record<string, Ico> = {
   "current-stock-value": TbStack2, "inventory-aging": TbHourglass, "days-on-hand": TbCalendarTime,
@@ -59,6 +61,24 @@ const FC_EXTRA: PanelItem[] = [
   { name: "Replenishment & Aging Risk", title: "Replenishment · Stock Radar · Aging Risk", path: "/stockReplenishmentForecast", Icon: TbReload },
 ];
 
+// Formulary Compliance is ONE static page with in-page tabs (?view=), so a nested-route
+// page and a folder of the same name never meet on the static host. The page itself
+// follows these links when it is already open.
+const FORMULARY_EXTRA: PanelItem[] = [
+  { name: "Doctors", title: "Out-of-formulary spend by doctor", path: "/formulary?view=doctors", Icon: TbStethoscope },
+  { name: "Items", title: "Out of / Non / Formulary items", path: "/formulary?view=items", Icon: TbPill },
+  { name: "Scheme brands", title: "Restricted & preferred brands billed to GOV schemes", path: "/formulary?view=scheme", Icon: TbBuildingBank },
+  { name: "Brand rules", title: "HCG's brand rules per payer: breaches, doctors and the rule book", path: "/formulary?view=rules", Icon: TbListCheck },
+];
+
+// Spend Analysis — the same one-page shape as Formulary Compliance: sections in ?section=.
+// The panel's Overview link (/spend) opens the Summary; any one brand is the page's Brand filter.
+const SPEND_EXTRA: PanelItem[] = [
+  { name: "Scheme brands", title: "Margin missed on scheme patients: cheaper suggested brands", path: "/spend?section=scheme", Icon: TbBuildingBank },
+  { name: "Cash & TPA margin", title: "Margin missed on cash and insurance patients", path: "/spend?section=cash", Icon: TbCoinRupee },
+  { name: "Out of formulary", title: "Margin missed on brands outside the formulary", path: "/spend?section=oof", Icon: TbReplace },
+];
+
 // Revenue & Margin — real IP+OP billing page, lives under Consumption & Revenue.
 const REVENUE_EXTRA: PanelItem = { name: "Revenue & Margin", title: "Revenue & Margin (IP + OP billing)", path: "/revenueMargin", Icon: TbReportMoney };
 
@@ -66,6 +86,10 @@ const PANELS: Panel[] = PORTFOLIOS.map((p) => ({
   key: p.key, name: p.name, desc: p.desc, Icon: PF_ICON[p.key] ?? TbChartDots3,
   items: p.key === "forecasting"
     ? FC_EXTRA
+    : p.key === "formulary"
+    ? FORMULARY_EXTRA
+    : p.key === "spend"
+    ? SPEND_EXTRA
     : p.key === "consumption"
       ? [...byPortfolio(p.key).map((k) => ({ name: k.short, title: k.title, path: `/kpi/${k.key}`, Icon: KPI_ICON[k.key] ?? TbChartDots3 })), REVENUE_EXTRA]
       : byPortfolio(p.key).map((k) => ({ name: k.short, title: k.title, path: `/kpi/${k.key}`, Icon: KPI_ICON[k.key] ?? TbChartDots3 })),

@@ -4,8 +4,9 @@
 // analytics tool, where a sparkle reads as a stock AI logo.
 //
 // Three tones, because the mark has to sit on three different grounds and an ink tile on
-// a near-ink rail is a tile you cannot see. The accent dot is the app's violet in every
-// tone — it used to be a #7f9cf5 blue that appears nowhere else in the product.
+// a near-ink rail is a tile you cannot see. The accent dot is a warm tan from the chart
+// palette (T.accent2) — it used to be a #7f9cf5 blue that appears nowhere else in the
+// product, and then pointed at theme tokens that did not exist and drew black.
 import { T } from "./theme";
 
 export default function AnalystMark({ size = 40, tone = "ink" }: { size?: number; tone?: "ink" | "light" | "rail" }) {

@@ -1,5 +1,5 @@
 "use client";
-// Landing home — four blocks, each an exact copy of the "Analytics KPI's" card
+// Landing home — five blocks, each an exact copy of the "Analytics KPI's" card
 // (tinted fill, bold drop-shadow title, spinning corner rings, underline, dot
 // separator, uppercase label, progress bars), one colour shade per domain.
 // Editorial neutral canvas matching the forecast pages. No purple.
@@ -28,8 +28,30 @@ function useHospitalCount() {
   return n;
 }
 
+const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+// Formulary runs on its own window (HIS sales, published month by month), not the "6 months"
+// in the header above — so its tile says which months it covers, e.g. "Jun–Aug 2026".
+function useFormularyWindow() {
+  const [w, setW] = useState<string | null>(null);
+  useEffect(() => {
+    let dead = false;
+    fetch(`${DASHBOARD_API_BASE_URL}/formulary/meta`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        const ms: string[] = [...(d?.months || [])].sort();
+        if (dead || !ms.length) return;
+        const at = (p: string) => ({ y: p.slice(0, 4), m: MON[Number(p.slice(5, 7)) - 1] ?? p });
+        const a = at(ms[0]), b = at(ms[ms.length - 1]);
+        setW(ms.length === 1 ? `${a.m} ${a.y}` : a.y === b.y ? `${a.m}–${b.m} ${b.y}` : `${a.m} ${a.y} – ${b.m} ${b.y}`);
+      })
+      .catch(() => {});
+    return () => { dead = true; };
+  }, []);
+  return w;
+}
+
 // exact "Analytics KPI's" card, tinted to `accent`
-function KpiBlock({ title, subtitle, href, accent, delay = 0 }: { title: string; subtitle: string; href: string; accent: string; delay?: number }) {
+function KpiBlock({ title, subtitle, href, accent, delay = 0, note }: { title: string; subtitle: string; href: string; accent: string; delay?: number; note?: string | null }) {
   const [h, setH] = useState(false);
   return (
     <Link href={href} onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)} className="hm-tile block" style={{ animationDelay: `${delay}ms` }}>
@@ -66,6 +88,7 @@ function KpiBlock({ title, subtitle, href, accent, delay = 0 }: { title: string;
           <div className="flex justify-center mt-4 gap-1.5">
             {[...Array(5)].map((_, i) => <div key={i} className="w-1 rounded-full transition-all duration-300" style={{ height: (i + 1) * 4, background: accent, transitionDelay: `${i * 40}ms` }} />)}
           </div>
+          {note && <p className="text-[12px] mt-4 tabular-nums" style={{ color: `${accent}c0` }}>{note}</p>}
         </div>
       </div>
     </Link>
@@ -79,6 +102,8 @@ const ANALYTICS = [
   { title: "Procurement", subtitle: "Purchasing · Vendors", href: "/procurement", accent: "#d9932b" },
 ];
 const FC_ACCENT = "#e2674c";
+const FM_ACCENT = "#3d9a50";
+const SP_ACCENT = "#b0762a";
 // The three forecast sub-pages this used to link out to (Expected demand, Procurement
 // budget, Reorder & stock risk) are not orphaned by removing that card — every one of
 // them is a first-class sidebar item, and is the very first thing /forecasting itself
@@ -95,6 +120,7 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 
 export default function HomeScreen() {
   const hospitals = useHospitalCount();
+  const formularyWindow = useFormularyWindow();
   return (
     <div className="-m-4 md:-m-6 p-6 md:p-10" style={{ minHeight: "calc(100vh - 64px)", background: BG }}>
       <style jsx global>{`
@@ -133,6 +159,19 @@ export default function HomeScreen() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="md:col-start-2">
             <KpiBlock title="Forecasting" subtitle="Demand · Budget · Risk" href="/forecasting" accent={FC_ACCENT} delay={420} />
+          </div>
+        </div>
+
+        <div className="mt-11"><SectionLabel>Compliance &amp; Spend</SectionLabel></div>
+        {/* Two tiles, centred: a 6-column grid keeps each tile the width of the 3-column rows above. */}
+        <div className="grid grid-cols-1 md:grid-cols-6 gap-6">
+          <div className="md:col-start-2 md:col-span-2">
+            <KpiBlock title="Formulary" subtitle="Compliance · Doctors · Scheme" href="/formulary" accent={FM_ACCENT} delay={510}
+              note={formularyWindow ? `HIS sales · ${formularyWindow}` : null} />
+          </div>
+          <div className="md:col-span-2">
+            <KpiBlock title="Spend" subtitle="Scheme · Cash & TPA · Out of formulary" href="/spend" accent={SP_ACCENT} delay={570}
+              note={formularyWindow ? `HIS sales · ${formularyWindow}` : null} />
           </div>
         </div>
 
