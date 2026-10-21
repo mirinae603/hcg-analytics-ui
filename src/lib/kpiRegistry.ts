@@ -2,7 +2,9 @@
 // Field names match the backend generic endpoints (/kpi/{key}, /kpi/{key}/table,
 // /portfolio/{name}/summary). Only the 28 buildable KPIs are listed.
 
-export type Kind = "inr" | "num" | "pct" | "date" | "text" | "bool";
+// "pct2" = a percentage shown to 2 decimals, for rates that sit near 100% (formulary
+// compliance), where 1 decimal turns 99.96% into a misleading "100.0%".
+export type Kind = "inr" | "num" | "pct" | "pct2" | "date" | "text" | "bool";
 export type Col = { field: string; label: string; kind?: Kind };
 export type ChartCfg = {
   type: "line" | "bar" | "donut";
@@ -429,4 +431,10 @@ export const PORTFOLIOS = [
   { key: "procurement", name: "Procurement", icon: "🛒", desc: "Spend, vendors & lead time" },
   { key: "consumption", name: "Consumption & Revenue", icon: "📈", desc: "Internal consumption" },
   { key: "forecasting", name: "Forecasting", icon: "🔭", desc: "Demand & replenishment" },
+  // A custom area (/formulary, one page with in-page tabs) — deliberately has NO entries
+  // in KPIS: a KPIS entry would generate a /kpi/<key> route backed by endpoints that
+  // don't exist for formulary.
+  { key: "formulary", name: "Formulary Compliance", icon: "💊", desc: "Formulary adherence & scheme brands" },
+  // Same shape as formulary: /spend is one page with in-page tabs, no KPIS entries.
+  { key: "spend", name: "Spend Analysis", icon: "💰", desc: "Scheme, cash & out-of-formulary margin missed" },
 ];

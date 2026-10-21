@@ -1,11 +1,18 @@
 "use client";
 import React, { useState } from "react";
+import dynamic from "next/dynamic";
 import { usePathname, useRouter } from "next/navigation";
 import { TbX, TbArrowsDiagonal, TbMessage2, TbPlus, TbHistory, TbChevronLeft } from "react-icons/tb";
 import { useAiChat } from "@/context/AiChatContext";
-import AiChat from "./AiChat";
-import AiSessions from "./AiSessions";
 import AnalystMark from "./AnalystMark";
+
+// Loaded when the panel first opens, not with the page. The floater is mounted on every
+// dashboard route, and a static import here carried the chat (react-markdown, micromark,
+// and through it Plotly at 1.5 MB gzipped) onto Formulary, Spend and the home page even
+// when nobody opened it. Hovering the launcher starts the download early.
+const AiChat = dynamic(() => import("./AiChat"), { ssr: false });
+const AiSessions = dynamic(() => import("./AiSessions"), { ssr: false });
+const warm = () => { void import("./AiChat"); };
 
 export default function AiFloater() {
   const { open, setOpen, newChat } = useAiChat();
@@ -18,23 +25,26 @@ export default function AiFloater() {
 
   return (
     <>
-      {/* Launcher */}
+      {/* Launcher. While a one-screen overview fills the viewport (OneScreenShell, fit mode) it
+          docks small at the right end of the page bar, off the bottom-right chart it would cover. */}
       {!onAiPage && (
         <button
           onClick={() => setOpen(!open)}
+          onMouseEnter={warm} onFocus={warm}
           aria-label={open ? "Close AI Analyst" : "Open AI Analyst"}
-          className="fixed z-[60] bottom-6 right-6 w-14 h-14 rounded-[18px] flex items-center justify-center transition-transform hover:scale-105 active:scale-95"
+          className="fixed z-[60] bottom-6 right-6 w-14 h-14 rounded-[18px] flex items-center justify-center transition-transform hover:scale-105 active:scale-95 fit:onescreen:top-[calc(var(--app-header-h)+16px)] fit:onescreen:bottom-auto fit:onescreen:w-8 fit:onescreen:h-8 fit:onescreen:rounded-[10px] fit:onescreen:[&_svg]:size-4"
           style={{ background: "#1a1f36", boxShadow: "0 14px 34px -10px rgba(26,31,54,0.5)" }}
         >
           {open ? <TbX size={22} color="#fff" /> : <TbMessage2 size={23} color="#fff" strokeWidth={2} />}
         </button>
       )}
 
-      {/* Panel */}
+      {/* Panel. Above the launcher; with the launcher docked in the page bar it opens under it
+          instead, so the panel never covers the button that closes it. */}
       {open && !onAiPage && (
         <div
-          className="fixed z-[60] bottom-24 right-6 flex flex-col rounded-[22px] overflow-hidden bg-white"
-          style={{ width: "min(420px, calc(100vw - 32px))", height: "min(640px, calc(100vh - 140px))", boxShadow: "0 30px 70px -24px rgba(26,31,54,0.42), 0 0 0 1px rgba(20,24,40,0.05)", animation: "aiPanelIn .28s cubic-bezier(.22,1,.36,1)" }}
+          className="fixed z-[60] bottom-24 right-6 flex flex-col rounded-[22px] overflow-hidden bg-white h-[min(640px,calc(100dvh_-_140px))] fit:onescreen:top-[calc(var(--app-header-h)_+_56px)] fit:onescreen:bottom-auto fit:onescreen:h-[min(640px,calc(100dvh_-_var(--app-header-h)_-_72px))]"
+          style={{ width: "min(420px, calc(100vw - 32px))", boxShadow: "0 30px 70px -24px rgba(26,31,54,0.42), 0 0 0 1px rgba(20,24,40,0.05)", animation: "aiPanelIn .28s cubic-bezier(.22,1,.36,1)" }}
         >
           <style jsx global>{`@keyframes aiPanelIn{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}`}</style>
           <div className="flex items-center justify-between px-3 py-2.5 flex-shrink-0 border-b" style={{ background: "#fff", borderColor: "#eef0f4" }}>

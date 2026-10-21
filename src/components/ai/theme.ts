@@ -37,6 +37,13 @@ export const T = {
   darkHi: "#544C44",    // its hover
   darkSoft: "#EDEAE5",  // a charcoal wash (selection, data bars)
 
+  // ── the analyst mark (AnalystMark.tsx) ──
+  // Drawn from the warm tones already here, not a new hue. The mark read these three and
+  // they did not exist, so its accent dot had no fill and rendered black on the ink tile.
+  accent:     "#413B35",   // = dark
+  accent2:    "#A8907A",   // a warm tint, visible on the ink tile
+  accentSoft: "#EDEAE5",   // = darkSoft
+
   // ── meaning only ──
   good: "#3F7D5C", goodBg: "#EDF4EF",
   warn: "#8A6318", warnBg: "#FAF2E4",

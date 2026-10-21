@@ -53,18 +53,26 @@ export default function PlotlyChart({ figure, title }: { figure: { data: any[]; 
       ticks: "" as const,
       automargin: true,          // long category labels get the room they need
       tickfont: { family: FONT, size: 11.5, color: T.mut },
-      titlefont: { family: FONT, size: 11, color: T.faint },
+      // `titlefont` was removed in plotly.js 3 (installed: 3.7) and silently did nothing
+      title: { font: { family: FONT, size: 11, color: T.faint } },
+    };
+    /** The backend's axis on top of ours, one level deep. A plain spread let the backend's
+     *  axis object replace ours wholesale, and it always sends one, so our tick font and
+     *  title font never applied; now only the keys it actually sets win. */
+    const axis = (over: any, showgrid: boolean) => {
+      const o = over || {};
+      const t = typeof o.title === "string" ? { text: o.title } : (o.title || {});
+      return {
+        ...axisBase, showgrid, ...o,
+        tickfont: { ...axisBase.tickfont, ...(o.tickfont || {}) },
+        title: { ...t, font: { ...axisBase.title.font, ...(t.font || {}) } },
+      };
     };
 
     const layout = {
       autosize: true,
       height: autoHeight(figure),
       font: { family: FONT, size: 12, color: T.ink2 },
-      // Gridlines only across the measure axis. A full grid in both directions boxes the
-      // data in and competes with it; one direction is enough to read a value off.
-      xaxis: { ...axisBase, showgrid: horizontal },
-      yaxis: { ...axisBase, showgrid: !horizontal },
-      margin: { l: 8, r: 24, t: 8, b: 8 },
       bargap: 0.34,
       hoverlabel: {
         bgcolor: T.ink,
@@ -80,6 +88,13 @@ export default function PlotlyChart({ figure, title }: { figure: { data: any[]; 
       },
       colorway: SERIES,
       ...figure.layout,
+      // The backend reserves 52-56px at the top for a title the card replaces, which left
+      // an empty band over every chart; keep only a little air above the plot.
+      margin: { l: 8, r: 24, b: 8, ...(figure.layout?.margin || {}), t: 14 },
+      // Gridlines only across the measure axis. A full grid in both directions boxes the
+      // data in and competes with it; one direction is enough to read a value off.
+      xaxis: axis(figure.layout?.xaxis, horizontal),
+      yaxis: axis(figure.layout?.yaxis, !horizontal),
       // hard overrides — the card supplies its own title and background
       title: undefined,
       paper_bgcolor: "rgba(0,0,0,0)",
@@ -88,14 +103,40 @@ export default function PlotlyChart({ figure, title }: { figure: { data: any[]; 
 
     // No native modebar — the chart card has its own PNG button (declutter).
     const config = { displaylogo: false, responsive: true, displayModeBar: false, staticPlot: false };
+    const el = ref.current;
     try {
-      Plotly.react(ref.current, themed(figure.data), layout, config);
+      Plotly.react(el, themed(figure.data), layout, config);
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error("Plotly render failed", e);
     }
-    const el = ref.current;
-    return () => { if (el && Plotly) try { Plotly.purge(el); } catch { /* noop */ } };
+    // `responsive` only listens to the WINDOW. A chart whose column changes width without
+    // the window changing (floater to page, the sessions drawer) kept its old size, so
+    // watch the chart's own box as well. One resize per frame at most.
+    //
+    // Plotly refuses to resize a div that is not displayed ("Resize must be passed a displayed
+    // plot div element": the AI panel closed or hidden, the chart's turn not on screen), and it
+    // refuses with a REJECTED PROMISE, which a try/catch never sees, so Next reported it as an
+    // unhandled error. A hidden, detached or purged div is skipped (showing it again changes
+    // its box, which resizes it then); a rejection from one hidden between the frame being
+    // asked for and run is absorbed.
+    const resize = () => {
+      if (!el.isConnected || el.getClientRects().length === 0 || !(el as any)._fullLayout) return;
+      try {
+        Promise.resolve(Plotly.Plots.resize(el)).catch(() => undefined);
+      } catch { /* purged */ }
+    };
+    let frame = 0;
+    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(() => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(resize);
+    }) : null;
+    ro?.observe(el);
+    return () => {
+      ro?.disconnect();
+      cancelAnimationFrame(frame);
+      if (el && Plotly) try { Plotly.purge(el); } catch { /* noop */ }
+    };
   }, [figure, title]);
 
   return <div ref={ref} className="w-full" />;

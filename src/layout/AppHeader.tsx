@@ -51,6 +51,21 @@ const AppHeader: React.FC = () => {
   };
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // The one-screen overviews size themselves to the viewport below this header
+  // (100svh − --app-header-h), so publish its rendered height: it changes with the breakpoint
+  // and when the mobile menu opens. Measured on the <header> itself, which stays sticky.
+  const headerRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const el = headerRef.current;
+    if (!el) return;
+    const root = document.documentElement;
+    const write = () => root.style.setProperty("--app-header-h", `${el.offsetHeight}px`);
+    write();
+    const ro = new ResizeObserver(write);
+    ro.observe(el);
+    return () => { ro.disconnect(); root.style.removeProperty("--app-header-h"); };
+  }, []);
+
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if ((event.metaKey || event.ctrlKey) && event.key === "k") {
@@ -67,7 +82,7 @@ const AppHeader: React.FC = () => {
   }, []);
 
   return (
-    <header className="sticky top-0 flex w-full bg-white border-gray-200 z-50 dark:border-gray-800 dark:bg-gray-900 lg:border-b">
+    <header ref={headerRef} className="sticky top-0 flex w-full bg-white border-gray-200 z-50 dark:border-gray-800 dark:bg-gray-900 lg:border-b">
       <div className="flex flex-col items-center justify-between grow lg:flex-row lg:px-6">
         <div className="flex items-center justify-between w-full gap-2 px-3 py-3 border-b border-gray-200 dark:border-gray-800 sm:gap-4 lg:justify-normal lg:border-b-0 lg:px-0 lg:py-4">
           {/*TODO*/}

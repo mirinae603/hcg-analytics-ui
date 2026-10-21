@@ -20,6 +20,8 @@ function sectionDomain(pathname: string): string | null {
   if (pathname.startsWith('/procurement')) return 'procurement'
   if (pathname.startsWith('/consumption')) return 'consumption'
   if (pathname.startsWith('/forecasting') || FC_PATHS.includes(pathname)) return 'forecasting'
+  if (pathname.startsWith('/formulary')) return 'formulary'   // HIS pharmacy sales hospitals
+  if (pathname.startsWith('/spend')) return 'formulary'       // same HIS sales, same hospitals
   return null   // executive summary etc. → show every plant
 }
 

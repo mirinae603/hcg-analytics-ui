@@ -36,7 +36,9 @@ export default function AiAnalystPage() {
           so narrow screens are untouched. Guarded to lg because below it the shell drops
           its 88px icon-rail offset entirely. */}
       <GlobalStyle rules={`
-        .ai-page { height: calc(100vh - ${HEADER_H}px); margin: -16px; }
+        /* dvh, with vh as the fallback: on a phone 100vh includes the URL bar, which put
+           the composer underneath it */
+        .ai-page { height: calc(100vh - ${HEADER_H}px); height: calc(100dvh - ${HEADER_H}px); margin: -16px; }
         @media (min-width: 768px) { .ai-page { margin: -24px; } }
         @media (min-width: 1024px) {
           .ai-page {

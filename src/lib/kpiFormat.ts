@@ -18,6 +18,7 @@ export const fmt = (v: any, kind?: Kind) => {
   switch (kind) {
     case "inr": return inr(Number(v));
     case "pct": return pct(Number(v));
+    case "pct2": return pct(Number(v), 2);
     case "num": return num(Number(v), 2);
     case "date": return String(v).slice(0, 10);
     case "bool": return v === true || v === "true" ? "Yes" : "No";

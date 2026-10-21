@@ -11,6 +11,8 @@ const PORTFOLIO_META: Record<string, { route: string; title: string }> = {
   procurement: { route: "/procurement", title: "Procurement" },
   consumption: { route: "/consumption", title: "Consumption & Revenue" },
   forecasting: { route: "/forecasting", title: "Forecasting" },
+  formulary: { route: "/formulary", title: "Formulary Compliance" },
+  spend: { route: "/spend", title: "Spend Analysis" },
 };
 
 // Sub-pages that belong under a portfolio but aren't /kpi/* routes.
@@ -38,8 +40,9 @@ export function parentOf(pathname: string | null | undefined): ParentLink | null
   // First path segment (e.g. "inventory", "revenueMargin").
   const seg = pathname.split("/").filter(Boolean)[0] ?? "";
 
-  // Portfolio landing pages → Home.
-  if (["inventory", "procurement", "consumption", "forecasting"].includes(seg)) {
+  // Portfolio landing pages → Home. /formulary and /spend are single pages whose tabs live
+  // in ?view=, so every one of their tabs is the landing page too.
+  if (["inventory", "procurement", "consumption", "forecasting", "formulary", "spend"].includes(seg)) {
     return { href: "/", label: "Back to Home" };
   }
 
