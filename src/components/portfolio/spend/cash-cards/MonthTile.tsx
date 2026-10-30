@@ -1,5 +1,5 @@
 "use client";
-// Spend Analysis (Cash & TPA / Out of formulary) — the months on one chart, as HCG's spend email
+// Spend Analysis (Cash & TPA) — the months on one chart, as HCG's spend email
 // draws them: the margin missed as bars from zero (left axis) and the % missed as a line on its own
 // fitted axis (right). The tile shows the year ending at the selected month, shaded. Its drawer
 // has every month: the same chart, HCG's "actual vs budget" pairing (actual and margin possible

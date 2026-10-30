@@ -37,6 +37,14 @@ export const BRASS = "#9A6A16", CLAY = "#B04A2E", RUST = "#B8612A";
 //   LAVENDER = hospitals; BRONZE = brands; LEAF = doctors.
 export const BLUE = "#3970C2", ROSE = "#DD4677", ORANGE = "#E2832D", PLUM = "#8E3B82", PINE = "#036F4F";
 export const LAVENDER = "#B180D4", BRONZE = "#8A4B01", LEAF = "#7DA84C";
+/** The chart hues as a categorical series, for a chart whose bars are things with no hue of
+ *  their own (vendors): in this fixed order every neighbouring pair passed the data-viz palette
+ *  checks (colour-blind separation ΔE ≥ 14.5, normal vision ≥ 17.5). Taken in order, never
+ *  cycled: a ninth thing goes to "+N more" or takes the last hue. ORANGE and LEAF sit under 3:1
+ *  on white, so such a chart prints its values. */
+export const SERIES = [BLUE, ORANGE, PLUM, LEAF, JADE, LAVENDER, BRONZE, ROSE] as const;
+/** The series hue of the `i`-th thing (0-based), the last one past the end. */
+export const seriesCol = (i: number): string => SERIES[Math.min(Math.max(0, i), SERIES.length - 1)];
 /** The pulse a loading placeholder is drawn in. */
 export const SKELETON = "#E7E3DA";
 export const SH_CARD = "0 18px 44px -28px rgba(30,38,34,0.26), 0 3px 10px -8px rgba(30,38,34,0.07)";

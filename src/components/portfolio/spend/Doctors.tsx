@@ -1,16 +1,17 @@
 "use client";
-// Spend Analysis — Doctors tab, for every section: money missed per treating doctor (keyed by
-// HIS TREATINGDOCID within a hospital), most first — HCG's email asks units to follow up with
-// exactly these consultants. Clicking a doctor opens the brands behind it, scoped to that
-// doctor's hospital. The table's footer carries the column totals (the API's `sums`), and the
-// header states the total the "Share of total" column divides by.
+// Spend Analysis — Doctors tab of the sections read from patients' bills (scheme, cash & TPA;
+// purchases have no doctor): money missed per treating doctor (keyed by HIS TREATINGDOCID
+// within a hospital), most first — HCG's email asks units to follow up with exactly these
+// consultants. Clicking a doctor opens the brands behind it, scoped to that doctor's hospital.
+// The table's footer carries the column totals (the API's `sums`), and the header states the
+// total the "Share of total" column divides by.
 import React, { useCallback, useState } from "react";
 import dynamic from "next/dynamic";
 import type { Col } from "@/lib/kpiRegistry";
 import { Card, Head } from "@/components/portfolio/ledger/kit";
 import { inr } from "@/lib/kpiFormat";
 import { SlideOver } from "../formulary/parts";
-import { isMargin, sectionParams, useTableSums, type Filters, type Section } from "./api";
+import { sectionParams, useTableSums, type Filters, type PatientSection } from "./api";
 import { brandCols } from "./Items";
 import { SHARES_NOTE } from "../table/query";
 
@@ -45,35 +46,31 @@ const CASH_COLS: Col[] = [
   { field: "lines", label: "Lines", kind: "num" },
 ];
 
-// Out of formulary has no allowance: every cash & TPA unit counts.
-const OOF_COLS: Col[] = CASH_COLS.filter((c) => c.field !== "cash_qty").map((c) => (c.field === "qty" ? { ...c, label: "Qty" } : c));
+export const doctorCols = (section: PatientSection): Col[] =>
+  section === "cash" ? CASH_COLS : schemeCols("suggested");
 
-export const doctorCols = (section: Section): Col[] =>
-  section === "cash" ? CASH_COLS : section === "oof" ? OOF_COLS : schemeCols("suggested");
-
-const NOTE: Record<Section, string> = {
+const NOTE: Record<PatientSection, string> = {
   scheme: "Scheme (GOV) patients only: per treating doctor, what the brands they prescribed cost against the cheaper brand HCG's scheme list suggests. Click a doctor to see the brands.",
-  oof: "Cash and TPA patients only: per treating doctor, the margin lost on out-of-formulary brands against the formulary brand of the same molecule, strength and form (the app's match). Brands with no formulary match are not counted. Click a doctor to see the brands.",
   cash: "Cash and TPA patients only: per treating doctor, the margin lost against the brand HCG's cash list suggests. For a bifurcated brand, HCG's allowance is shared across its doctors in proportion to their quantity. Click a doctor to see the brands.",
 };
 
 type DoctorRow = { doctor_id: string; doctor_name: string; plant: string; hospital_name: string };
 
-export default function Doctors({ section, filters, plant }: { section: Section; filters: Filters; plant: string }) {
+export default function Doctors({ section, filters, plant }: { section: PatientSection; filters: Filters; plant: string }) {
   const params = sectionParams(section, filters);
   const [doc, setDoc] = useState<DoctorRow | null>(null);
   const [open, setOpen] = useState(false);
   const close = useCallback(() => setOpen(false), []);
   const base = `/spend/${section}`;
   const sums = useTableSums(`${base}/doctors`, { Plant: plant, ...params });
-  const total = sums?.[isMargin(section) ? "margin_loss" : "saving_missed"];
+  const total = sums?.[section === "cash" ? "margin_loss" : "saving_missed"];
 
   return (
     <>
       <Card delay={80}>
-        <Head label={section === "cash" ? "Doctors by margin missed" : section === "oof" ? "Doctors by margin missed on out-of-formulary brands" : "Doctors by margin missed on scheme patients"}
+        <Head label={section === "cash" ? "Doctors by margin missed" : "Doctors by margin missed on scheme patients"}
           note={`${NOTE[section]} ${SHARES_NOTE}`}
-          badge={`${isMargin(section) ? "cash + TPA" : "scheme patients"} · ${section === "oof" ? "bill vs list price" : "list prices"}${total != null ? ` · ${inr(total)} margin missed in total` : ""}`} />
+          badge={`${section === "cash" ? "cash + TPA" : "scheme patients"} · list prices${total != null ? ` · ${inr(total)} margin missed in total` : ""}`} />
         <KpiTable key={section} kpiKey={`spend-${section}-doctors`} endpoint={`${base}/doctors`} plant={plant}
           columns={doctorCols(section)} extraParams={params}
           onRowClick={(r: DoctorRow) => { setDoc(r); setOpen(true); }} />

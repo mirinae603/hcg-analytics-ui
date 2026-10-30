@@ -1,5 +1,5 @@
 "use client";
-// Spend Analysis (Cash & TPA / Out of formulary) — where the margin missed sits: cash vs TPA
+// Spend Analysis (Cash & TPA) — where the margin missed sits: cash vs TPA
 // patients, onco / non-onco / consumables, and inpatient vs outpatient. The tile ranks every
 // slice's loss as a bar from zero on ONE scale, so a slice of one cut compares with a slice of
 // another; the drawer lists the same slices with exact rupees.
@@ -12,7 +12,8 @@ import { isNum, lakhs, pct, rupeesExact } from "@/components/portfolio/ledger/fo
 import { num } from "@/lib/kpiFormat";
 import type { CashBlock } from "../api";
 import { payerLabel, typeLabel, type Ctx } from "./context";
-import { DataTable, Method, type Col } from "./parts";
+import { DataTable, type Col } from "../DataTable";
+import { Method } from "./parts";
 
 type Slice = { key: string; label: string; b: CashBlock };
 type Cut = { key: "payer" | "category" | "type"; name: string; slices: Slice[] };

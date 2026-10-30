@@ -14,6 +14,8 @@
 //                     the header has no room for it).
 //   usePanelReadout — a chart's hover readout takes the legend's place in the header while the
 //                     pointer is on the chart: fixed height, nothing reflows.
+//   PanelPart       — the part of a body a chart fills when it shares the body with something
+//                     else (a line of figures over a bridge, a 100% bar over a list).
 //   fitRows, MoreRows — a list shows the rows that fit and ends on "+N more" (the drawer has all).
 //   InfoButton, LinkButton — the (i), and the pill that moves to another tab of the page.
 //
@@ -27,7 +29,7 @@ import { Legend, legendWidth, type LegendItem } from "./legend";
 import { SourceBadge } from "./KpiCard";
 import { useSize, type Size } from "./minis";
 import { clamp, textW } from "./scale";
-import type { Source } from "./status";
+import { sourceKind, type SourceOf } from "./status";
 import { entranceDelay, placeProps, type Place } from "./onescreen";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -70,6 +72,22 @@ export function usePanelReadout(active: string | number | null, render: () => Re
     setReadout(active == null ? null : renderRef.current());
   }, [setReadout, active]);
   useEffect(() => () => setReadout?.(null), [setReadout]);
+}
+
+/** The rest of a panel's body, for a chart drawn under (or over) other content: the chart reads
+ *  this part's size instead of the whole body's, so it fills what is left rather than spilling
+ *  out of the panel. The part takes the flex space of a column body. Outside a panel (in a
+ *  drawer) it adds nothing: the chart keeps its own height. */
+export function PanelPart({ className = "", children }: { className?: string; children: React.ReactNode }) {
+  const panel = usePanel();
+  const [ref, size] = useSize<HTMLDivElement>({ w: 0, h: 0 });
+  const api = useMemo<PanelApi | null>(() => (panel ? { ...panel, size } : null), [panel, size]);
+  if (!panel) return <>{children}</>;
+  return (
+    <div ref={ref} className={`relative flex-1 min-h-0 ${className}`}>
+      {api && size.w > 0 && size.h > 0 ? <PanelContext.Provider value={api}>{children}</PanelContext.Provider> : null}
+    </div>
+  );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -218,8 +236,9 @@ export type ChartPanelProps = {
   /** The topic colour: a 4px strip along the top, washing faintly into the header below it. */
   accent?: string;
   place: Place;
-  /** "estimate" (and "hcg") figures carry their badge in the header; computed ones need none. */
-  source?: Source;
+  /** "estimate" (and "hcg") figures carry their badge in the header; computed ones need none. A
+   *  SourceSpec gives the badge's tooltip the section's own words. */
+  source?: SourceOf;
   /** The legend, when the chart does not hand over its own (usePanelLegend). */
   legend?: LegendItem[];
   /** The accessible name: the title and the key figures in words. */
@@ -240,7 +259,7 @@ export function ChartPanel({ id, title, context, accent, place, source, legend, 
   const [handed, setLegend] = useState<LegendItem[] | null>(null);
   const api = useMemo<PanelApi>(() => ({ size, setReadout, setLegend }), [size]);
   const items = legend ?? handed ?? [];
-  const badge = source && source !== "computed" ? source : null;
+  const badge = source && sourceKind(source) !== "computed" ? source : null;
 
   // The legend shares the header line when it fits beside the title and the buttons; otherwise
   // it takes a line of its own at the top of the body, and the chart below gets less height.

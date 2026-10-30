@@ -1,5 +1,5 @@
 "use client";
-// Spend Analysis (Cash & TPA / Out of formulary) — the hospitals. With all hospitals shown, the
+// Spend Analysis (Cash & TPA) — the hospitals. With all hospitals shown, the
 // tile ranks them by margin missed in rupees, most first, as bars from zero (the ones that fit,
 // then "+N more"). With one selected, it shows where that hospital stands among all of them on
 // % missed (the OpenPrescribing pattern: every hospital a dot, this one large and labelled). A
@@ -17,7 +17,8 @@ import { isNum, lakhs, pct, rupeesExact } from "@/components/portfolio/ledger/fo
 import { fitDomain } from "@/components/portfolio/ledger/scale";
 import { useSelectHospital } from "@/context/RegionContext";
 import { HOSPITAL_COL, LOSS_COL, USED_COL, type Ctx, type Hospital } from "./context";
-import { DataTable, Method, type Col } from "./parts";
+import { DataTable, type Col } from "../DataTable";
+import { Method } from "./parts";
 
 const nameOf = (h: Hospital) => h.his_name || h.name;
 const byRank = (rows: Hospital[]) => [...rows].sort((a, b) => a.rank - b.rank);

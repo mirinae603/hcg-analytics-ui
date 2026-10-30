@@ -8,8 +8,9 @@
 //               the step before ended (proposed − loss = actual). A gain is drawn in JADE.
 //   PartBar   — one whole as a 100% bar of labelled parts, the shares as the API sends them.
 // All three are panel-aware (usePanel): in a one-screen panel they fill its body, in a drawer
-// they take their natural height. Bars never start anywhere but zero, and a negative value
-// draws no bar and keeps its minus in the label.
+// they take their natural height. Bars never start anywhere but zero. A negative value draws no
+// bar and keeps its minus in the label, unless a ranking is `signed` (a margin missed that is a
+// gain): then the scale runs below zero and its bar runs left from the zero line.
 import React from "react";
 import { RowStyles, hatchFill, useArmed, tint, inkOn, INK, SUB, LINE, TRACK, EASE, SEL_BG, JADE } from "./kit";
 import { Swatch } from "./legend";
@@ -60,7 +61,7 @@ export type RankRow = {
   onClick?: () => void;
 };
 
-export function RankBars({ rows, format, color, ariaLabel, onMore, empty = "Nothing in this selection." }: {
+export function RankBars({ rows, format, color, ariaLabel, onMore, signed = false, negativeColor, empty = "Nothing in this selection." }: {
   rows: RankRow[];
   /** Prints the scale's end. */
   format: (v: number) => string;
@@ -69,6 +70,11 @@ export function RankBars({ rows, format, color, ariaLabel, onMore, empty = "Noth
   ariaLabel: string;
   /** In an interactive panel: opens the full list from "+N more". */
   onMore?: () => void;
+  /** Negative values are real (a margin missed where the brand used earned more): the scale
+   *  runs below zero, a zero line is drawn, and a negative bar runs left from it. */
+  signed?: boolean;
+  /** A negative bar's colour in a signed ranking (the row's or the chart's colour unless set). */
+  negativeColor?: string;
   empty?: string;
 }) {
   const panel = usePanel();
@@ -83,8 +89,14 @@ export function RankBars({ rows, format, color, ariaLabel, onMore, empty = "Noth
   const heads = groupHeads(fit.shown, rows);
   // Sub-lines and asides need a second line; a short row keeps them for its tooltip.
   const twoLine = hasSecond && fit.rowH >= 30;
-  // One scale for every row, shown or not, so "+N more" never changes a bar's length.
-  const max = niceCeil(Math.max(0, ...rows.flatMap((r) => [r.value, r.tick]).filter(isNum)));
+  // One scale for every row, shown or not, so "+N more" never changes a bar's length. A signed
+  // ranking reaches below zero only as far as its most negative value needs.
+  const values = rows.flatMap((r) => [r.value, r.tick]).filter(isNum);
+  const max = niceCeil(Math.max(0, ...values));
+  const least = signed ? Math.min(0, ...values) : 0;
+  const min = least < 0 ? -niceCeil(-least) : 0;
+  const X = (v: number) => ((v - min) / (max - min)) * 100;
+  const zeroX = X(0);
   const labelW = clamp(Math.max(0, ...fit.shown.map((r) => textW(r.label, LABEL_FS))) + 8, 56, W * 0.4);
   const valueW = clamp(Math.max(0, ...fit.shown.map((r) => Math.max(textW(r.valueLabel, VALUE_FS), twoLine && r.aside ? textW(r.aside, SUB_FS) : 0))) + 4, 36, W * 0.38);
   const barH = clamp(Math.round(fit.rowH * 0.42), 6, 14);
@@ -94,10 +106,14 @@ export function RankBars({ rows, format, color, ariaLabel, onMore, empty = "Noth
 
   return (
     <div ref={ref}>
-      <div role="list" aria-label={`${ariaLabel}. Bars from ${format(0)} to ${format(max)}.`} className="-mx-2">
+      <div role="list" aria-label={`${ariaLabel}. Bars from ${format(min)} to ${format(max)}.`} className="-mx-2">
         {fit.shown.map((r, i) => {
-          const c = r.color ?? color;
-          const w = isNum(r.value) && r.value > 0 ? (r.value / max) * 100 : 0;
+          const below = isNum(r.value) && r.value < 0 && min < 0;
+          const c = below && negativeColor ? negativeColor : r.color ?? color;
+          // A bar grows out of the zero line: rightwards for a positive value, leftwards (anchored
+          // on its right edge) for a negative one in a signed ranking.
+          const w = isNum(r.value) && (r.value > 0 || below) ? Math.abs(X(r.value) - zeroX) : 0;
+          const anchor: React.CSSProperties = below ? { right: `${100 - zeroX}%` } : { left: `${zeroX}%` };
           const name = said(r.label, r.sub, r.valueLabel, r.aside, r.tickLabel);
           const cells = (
             <>
@@ -106,12 +122,13 @@ export function RankBars({ rows, format, color, ariaLabel, onMore, empty = "Noth
                 {twoLine && r.sub && <span className="block truncate" title={r.sub} style={{ fontSize: SUB_FS, color: SUB }}>{r.sub}</span>}
               </span>
               <span aria-hidden="true" className="relative block rounded-[3px]" style={{ height: barH, background: TRACK }}>
-                <span className="absolute left-0 top-0 bottom-0 rounded-[3px]" style={{
-                  ...fillOf(c, r.hatched), width: on ? `${w}%` : "0%", transition: `width 620ms ${EASE} ${80 + i * 40}ms`,
+                <span className="absolute top-0 bottom-0 rounded-[3px]" style={{
+                  ...fillOf(c, r.hatched), ...anchor, width: on ? `${w}%` : "0%", transition: `width 620ms ${EASE} ${80 + i * 40}ms`,
                 }} />
-                {isNum(r.tick) && r.tick >= 0 && (
+                {min < 0 && <span className="absolute w-px -top-[2px] -bottom-[2px]" style={{ left: `${zeroX}%`, background: INK, opacity: 0.55 }} />}
+                {isNum(r.tick) && r.tick >= min && (
                   <span className="absolute w-[2px] -top-[3px] -bottom-[3px]" title={r.tickLabel}
-                    style={{ left: `calc(${(r.tick / max) * 100}% - 1px)`, background: INK, opacity: 0.75 }} />
+                    style={{ left: `calc(${X(r.tick)}% - 1px)`, background: INK, opacity: 0.75 }} />
                 )}
               </span>
               <span aria-hidden="true" className="block min-w-0 text-right tabular-nums">

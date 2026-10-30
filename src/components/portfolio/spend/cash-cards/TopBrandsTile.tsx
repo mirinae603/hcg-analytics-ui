@@ -1,5 +1,5 @@
 "use client";
-// Spend Analysis (Cash & TPA / Out of formulary) — the brands to switch first: the five with the
+// Spend Analysis (Cash & TPA) — the brands to switch first: the five with the
 // most margin missed, each with the brand it should be and its share of the selection's loss,
 // ranked as bars from zero on one scale. The drawer carries HCG's "Top 10 materials list
 // contribution in margin missed" table with exact rupees, and the way to every brand and doctor.
@@ -14,7 +14,8 @@ import { num } from "@/lib/kpiFormat";
 import type { View } from "../api";
 import { topTitle } from "../shared";
 import { BRAND_COL, type Ctx, type TopItem } from "./context";
-import { DataTable, Method, type Col } from "./parts";
+import { DataTable, type Col } from "../DataTable";
+import { Method } from "./parts";
 
 /** HCG's report lists ten; the tile shows the first five and the drawer all of them. */
 const ON_FACE = 5;
@@ -41,7 +42,7 @@ function TopBrandsDrawer({ c, dr }: { c: Ctx; dr: DrawerCtl }) {
         </span>
       ),
     },
-    { label: c.kind === "oof" ? "Qty" : "Qty counted", render: ({ r }) => num(r.qty) },
+    { label: "Qty counted", render: ({ r }) => num(r.qty) },
     { label: "Margin earned", render: ({ r }) => rupeesExact(r.actual_margin) },
     { label: "Margin possible", render: ({ r }) => rupeesExact(r.potential_margin) },
     { label: "Margin missed", render: ({ r }) => <b>{rupeesExact(r.margin_loss)}</b> },
@@ -103,9 +104,8 @@ export function TopBrandsTile({ c, place }: { c: Ctx; place: Place }) {
         onOpen={() => dr.show("top")} onInfo={() => dr.show("method")}>
         <RankBars format={lakhs} color={BRAND_COL} ariaLabel={`${title} by margin missed, ${c.context}`}
           rows={top.map((r) => ({
-            // An out-of-formulary brand is matched on its molecule: it is named after the match.
             key: r.material, label: wide ? `${brandOf(r)} → ${switchOf(r)}` : brandOf(r),
-            sub: [wide ? null : `→ ${switchOf(r)}`, c.kind === "oof" ? r.molecule : null].filter(Boolean).join(" · ") || undefined,
+            sub: wide ? undefined : `→ ${switchOf(r)}`,
             value: r.margin_loss, valueLabel: lakhs(r.margin_loss), aside: shareText(r),
           }))} />
       </ChartPanel>

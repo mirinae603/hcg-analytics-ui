@@ -5,25 +5,26 @@
 // the written summary, exact rupees, every month, every hospital, the splits and the method,
 // and from there a link leads to the section with the full brand and doctor tables.
 //
-//   r1  Margin missed, by part                 | Margin missed by month (cash & insurance patients, incl. out-of-formulary brands)
+//   r1  Margin missed, by part                 | Margin missed by month (cash & insurance patients + out-of-formulary purchases)
 //   r2  Margin possible vs earned     | Where margin was missed | Margin missed by hospital / where it stands
 //   r3  Top brand switches                                 | Scheme: margin missed by month
 //
 // It reads the sections' own overviews (cash & TPA, which carries HCG's combined cash and
 // out-of-formulary table; scheme, which carries the Attis and Healthium slices; out of
 // formulary for its drawer and brands), so every figure here is the one the section shows.
-// Each section counts its own payers: scheme figures are GOV patients, cash and out of
-// formulary CASH and CASH(TPA), whatever payer another section had picked.
+// Each section counts its own: scheme figures are GOV patients, cash & TPA CASH and CASH(TPA)
+// patients, whatever payer another section had picked, and out of formulary purchases (HCG's
+// GRN method, no payer or patient type), for the months its purchase build has.
 import React, { useState } from "react";
 import { OneScreenGrid, type Place } from "@/components/portfolio/ledger/onescreen";
 import { DrawerSection, type DrawerTab } from "@/components/portfolio/ledger/DetailDrawer";
 import { pct } from "@/components/portfolio/ledger/format";
 import { Notice } from "../../formulary/parts";
-import { sectionParams, useOverview, type CashOverview, type Filters, type Meta, type OofOverview, type Overview } from "../api";
-import { KIND, marginSection, schemeSection, spendLoss, subLoss, whenOf, whereOf, type LossRow } from "./model";
+import { oofMonthOf, oofMonths, sectionParams, useOverview, type CashOverview, type Filters, type Meta, type OofOverview, type Overview } from "../api";
+import { KIND, cashSection, oofSection, schemeSection, spendLoss, subLoss, whenOf, whereOf, type LossRow } from "./model";
 import { CombinedDrawer, SectionDrawer } from "./drawers";
 import { GoLinks, LossTable, type Go } from "./pieces";
-import { SwitchesDrawer, SwitchesTile, marginSwitches, rankSwitches, schemeSwitches } from "./TopSwitches";
+import { SwitchesDrawer, SwitchesTile, cashSwitches, oofSwitches, rankSwitches, schemeSwitches } from "./TopSwitches";
 import { BridgeTile, HospitalsTile, MarginMonthsTile, PartsTile, SchemeMonthsTile, WhereTile, type DrawerKey } from "./tiles";
 
 // Each panel's place on a desktop's 12 × 3 grid. Listed, and drawn, in the order a smaller
@@ -45,6 +46,9 @@ export function SummarySkeleton() {
   return <OneScreenGrid ariaLabel="Spend margin missed, loading" loading skeleton={SKELETON}>{null}</OneScreenGrid>;
 }
 
+/** The same months, in any order. */
+const sameMonths = (a: string[], b: string[]) => a.length === b.length && [...a].sort().join() === [...b].sort().join();
+
 /** The open drawer, kept (with open false) while it slides out so its tab does not change. */
 type DrawerState = { key: DrawerKey; tab?: string; open: boolean };
 
@@ -53,17 +57,25 @@ export default function SpendSummary({ meta, filters, plant, onGo }: { meta: Met
   const f: Filters = { ...filters, payer: "ALL" };
   const cash = useOverview<CashOverview>({ Plant: plant, ...sectionParams("cash", f) }, "cash");
   const scheme = useOverview<Overview>({ Plant: plant, ...sectionParams("scheme", f) }, "scheme");
-  const oof = useOverview<OofOverview>({ Plant: plant, ...sectionParams("oof", f) }, "oof", meta.oof_built !== false);
+  // Out of formulary for the same month, when its purchase build has that month; else none.
+  const oofMonth = oofMonthOf(meta, f.month);
+  const oof = useOverview<OofOverview>({ Plant: plant, ...sectionParams("oof", { ...f, month: oofMonth ?? f.month }) }, "oof", oofMonth != null);
   const [drawer, setDrawer] = useState<DrawerState | null>(null);
 
   if (cash.error || scheme.error) return <Notice title="Couldn't load the spend summary">{cash.error ?? scheme.error}</Notice>;
   if (!cash.data || !scheme.data) return <SummarySkeleton />;
 
   const c = cash.data, s = scheme.data;
-  const cashSec = marginSection(c, "cash", meta);
+  const cashSec = cashSection(c, meta);
   const schemeSec = schemeSection(s, meta);
-  const oofSec = oof.data ? marginSection(oof.data, "oof", meta, oof.data.headline.coverage) : null;
-  const w = c.with_oof ?? null;
+  // Out of formulary's answer for THESE months only: while another month loads, the previous
+  // answer stays in `oof.data`, and its switches must not sit beside the new month's figures.
+  const oofWanted = oofMonth === "ALL" ? oofMonths(meta) : oofMonth != null ? [oofMonth] : [];
+  const oofHere = oof.data && oofMonth != null && sameMonths(oof.data.scope?.months ?? [], oofWanted) ? oof.data : null;
+  const oofLoading = oofMonth != null && oof.loading;
+  const oofSec = oofHere ? oofSection(oofHere, meta) : null;
+  // HCG's combined table, where the selected months have out-of-formulary purchase data.
+  const w = c.with_oof && (c.with_oof.oof_months ?? []).length > 0 ? c.with_oof : null;
   const groups = s.groups ?? null;
   const where = whereOf(c.scope), when = whenOf(meta, c.scope);
 
@@ -71,9 +83,12 @@ export default function SpendSummary({ meta, filters, plant, onGo }: { meta: Met
   const close = () => setDrawer((d) => d && { ...d, open: false });
   const go: Go = (loc) => { close(); onGo(loc); };
 
-  const schemeTop = schemeSwitches(s), cashTop = marginSwitches(c, "cash"), oofTop = oof.data ? marginSwitches(oof.data, "oof") : null;
+  const schemeTop = schemeSwitches(s), cashTop = cashSwitches(c), oofTop = oofHere ? oofSwitches(oofHere) : null;
   const ranked = rankSwitches([schemeTop, cashTop, oofTop ?? []]);
-  const oofMissing = oof.error ? `${KIND.oof.short} could not be loaded: ${oof.error}` : oof.loading && !oof.data ? `${KIND.oof.short} is still loading.` : null;
+  const oofMissing = !meta.oof_built ? null
+    : oofMonth == null ? `${KIND.oof.short} has no purchase data for ${when}.`
+    : oof.error ? `${KIND.oof.short} could not be loaded: ${oof.error}`
+    : !oofHere ? `${KIND.oof.short} is still loading.` : null;
 
   // HCG's two slices of the scheme margin missed, as a tab of the scheme drawer.
   const healthiumParts: LossRow[] = groups
@@ -109,10 +124,10 @@ export default function SpendSummary({ meta, filters, plant, onGo }: { meta: Met
   // The drawers render in a portal, so they take no place in the grid; they stay outside the
   // panels, whose bodies are buttons a click inside a drawer must not reach.
   return (
-    <OneScreenGrid ariaLabel={`Spend margin missed, ${where}, ${when}`} stale={cash.loading || scheme.loading} skeleton={SKELETON}>
+    <OneScreenGrid ariaLabel={`Spend margin missed, ${where}, ${when}`} stale={cash.loading || scheme.loading || oofLoading} skeleton={SKELETON}>
       <PartsTile place={PLACES.parts} cash={cashSec} scheme={schemeSec} w={w} groups={groups} oofReady={oofSec != null} onShow={show} />
       <BridgeTile place={PLACES.bridge} cash={cashSec} w={w} onShow={show} />
-      <MarginMonthsTile place={PLACES.months} d={c} meta={meta} cash={cashSec} when={when} onShow={show} />
+      <MarginMonthsTile place={PLACES.months} d={c} w={w} meta={meta} cash={cashSec} when={when} onShow={show} />
       <WhereTile place={PLACES.where} cash={cashSec} scheme={schemeSec} onShow={show} />
       <HospitalsTile place={PLACES.hospitals} cash={cashSec} network={c.network ?? null} onShow={show} />
       <SwitchesTile place={PLACES.switches} rows={ranked} context="ranked by rupees lost, never added" missing={oofMissing}

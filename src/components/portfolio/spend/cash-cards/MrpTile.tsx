@@ -1,7 +1,6 @@
 "use client";
-// Spend Analysis (Cash & TPA / Out of formulary) — the MRP the margins are earned on: the MRP
-// value of the brands used against the MRP value of the suggested (or matched formulary)
-// brands on the same qty, two bars from zero on one scale. Each carries its margin % (HCG's S6:
+// Spend Analysis (Cash & TPA) — the MRP the margins are earned on: the MRP value of the brands
+// used against the MRP value of the suggested brands on the same qty, two bars from zero on one scale. Each carries its margin % (HCG's S6:
 // margin ÷ MRP value) and the second the MRP increase the switch would bring.
 import React from "react";
 import { ChartPanel } from "@/components/portfolio/ledger/panel";
@@ -44,11 +43,7 @@ function MrpDrawer({ c, dr, title }: { c: Ctx; dr: DrawerCtl; title: string }) {
         {
           key: "method", label: "Method", render: () => (
             <Method c={c}>
-              {c.kind === "oof" ? (
-                <p>MRP value = MRP excl GST × qty. For the out-of-formulary brands it is the bill&apos;s MRP excl GST (they have no FY list price; the GST is the matched brand&apos;s); for the matched formulary brands, their list MRP excl GST on the same qty.</p>
-              ) : (
-                <p>MRP value = MRP excl GST (MRP ÷ (1 + GST%)) × the qty counted, from HCG&apos;s FY price list: for the brands used, and for the {c.w.sug} on the same qty.</p>
-              )}
+              <p>MRP value = MRP excl GST (MRP ÷ (1 + GST%)) × the qty counted, from HCG&apos;s FY price list: for the brands used, and for the {c.w.sug} on the same qty.</p>
               <p>MRP increase = {c.w.increaseNote}: the revenue HCG would also gain with the switch, beside the margin.</p>
               <p>Margin % = margin ÷ MRP value, as in HCG&apos;s S6 Summary: the margin earned on the MRP of the brands used, the margin possible on the MRP of the {c.w.sug}.</p>
               <p>On the chart both bars start from zero on one scale.</p>

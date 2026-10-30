@@ -1,17 +1,18 @@
 "use client";
-// Spend Analysis — Brands tab, for every section. Scheme: brands used for scheme (GOV) patients
-// that HCG's scheme list would replace (it can narrow to HCG's Attis or J&J & Covidien ->
-// Healthium slice). Cash & TPA: brands used for cash and insurance patients that
-// HCG's cash list would replace with a higher-margin brand. Most money first; clicking a brand
-// opens the doctors who prescribed it. The table's footer carries the column totals (the API's
-// `sums`), and the header states the total the "Share of total" column divides by.
+// Spend Analysis — Brands tab of the sections read from patients' bills. Scheme: brands used for
+// scheme (GOV) patients that HCG's scheme list would replace (it can narrow to HCG's Attis or
+// J&J & Covidien -> Healthium slice). Cash & TPA: brands used for cash and insurance patients
+// that HCG's cash list would replace with a higher-margin brand. Most money first; clicking a
+// brand opens the doctors who prescribed it. The table's footer carries the column totals (the
+// API's `sums`), and the header states the total the "Share of total" column divides by. (Out
+// of formulary is purchases, with vendors instead of doctors: OofTables.)
 import React, { useCallback, useState } from "react";
 import dynamic from "next/dynamic";
 import type { Col } from "@/lib/kpiRegistry";
 import { Card, Head, SUB } from "@/components/portfolio/ledger/kit";
 import { inr } from "@/lib/kpiFormat";
 import { Pills, SlideOver } from "../formulary/parts";
-import { isMargin, sectionParams, useTableSums, type Filters, type Section } from "./api";
+import { sectionParams, useTableSums, type Filters, type PatientSection } from "./api";
 import { doctorCols } from "./Doctors";
 import { SHARES_NOTE } from "../table/query";
 
@@ -70,40 +71,8 @@ const CASH_COLS: Col[] = [
   { field: "hospitals", label: "Hospitals", kind: "num" },
 ];
 
-// Out of formulary: each out-of-formulary brand given to cash & TPA patients, the formulary
-// brand of the same molecule, strength and form it is set against (the app's match), and HCG's
-// cash margins on the bill. Brands with no match come last, with their bill only.
-const OOF_COLS: Col[] = [
-  { field: "material_desc", label: "Out-of-formulary brand" },
-  { field: "material", label: "Material" },
-  { field: "suggested_desc", label: "Formulary brand" },
-  { field: "margin_loss", label: "Margin missed", kind: "inr" },
-  { field: "loss_pct", label: "% missed", kind: "pct2" },
-  { field: "actual_margin", label: "Margin earned", kind: "inr" },
-  { field: "potential_margin", label: "Margin possible", kind: "inr" },
-  { field: "molecule", label: "Molecule" },
-  { field: "matched", label: "Matched", kind: "bool" },
-  { field: "candidates", label: "Formulary options", kind: "num" },
-  { field: "suggested_category", label: "Formulary brand class" },
-  { field: "category", label: "Category" },
-  { field: "qty", label: "Qty", kind: "num" },
-  { field: "actual_cost", label: "Bill cost", kind: "inr" },
-  { field: "bill_mrp", label: "Bill MRP", kind: "inr" },
-  { field: "used_gst", label: "GST %", kind: "num" },
-  { field: "used_margin", label: "Margin / unit used", kind: "inr" },
-  { field: "used_margin_pct", label: "Used margin %", kind: "pct2" },
-  { field: "suggested_price", label: "Formulary brand price", kind: "inr" },
-  { field: "suggested_mrp", label: "Formulary brand MRP", kind: "inr" },
-  { field: "suggested_margin", label: "Margin / unit formulary", kind: "inr" },
-  { field: "suggested_margin_pct", label: "Formulary margin %", kind: "pct2" },
-  { field: "margin_gap", label: "Gap / unit", kind: "inr" },
-  { field: "share_pct", label: "Share of total", kind: "pct2" },
-  { field: "doctors", label: "Doctors", kind: "num" },
-  { field: "hospitals", label: "Hospitals", kind: "num" },
-];
-
-export const brandCols = (section: Section): Col[] =>
-  section === "cash" ? CASH_COLS : section === "oof" ? OOF_COLS : schemeCols("Suggested brand");
+export const brandCols = (section: PatientSection): Col[] =>
+  section === "cash" ? CASH_COLS : schemeCols("Suggested brand");
 
 type SchemeGroup = "ALL" | "attis" | "healthium";
 const GROUPS: { key: SchemeGroup; label: string }[] = [
@@ -112,15 +81,14 @@ const GROUPS: { key: SchemeGroup; label: string }[] = [
   { key: "healthium", label: "J&J & Covidien → Healthium" },
 ];
 
-const NOTE: Record<Section, string> = {
+const NOTE: Record<PatientSection, string> = {
   scheme: "Scheme (GOV) patients only. Spent = quantity × the brand's list price; With suggested = the same quantity × the price of the brand HCG's scheme list suggests (FY price list, excl GST); Margin missed = spend − with suggested (HCG's scheme margin missed); % missed = margin missed ÷ spend. Click a brand to see the doctors who prescribed it.",
-  oof: "Cash and TPA patients only, brands the month's Item Master flags OUT OF FORMULARY. Formulary brand = the brand flagged FORMULARY with the same molecule (Item Master 'Minor Group'), strength and form, priced in HCG's CASH&TPA list, with the best margin — the app's own match until HCG sends its list; 'Formulary options' says how many such brands there were to choose from. Margin earned = the bill's MRP excl GST (GST of the formulary brand) − the bill's cost; Margin possible = the same qty × the formulary brand's margin per unit (MRP excl GST − HCG Pharma price); Margin missed = margin possible − margin earned; % missed = margin missed ÷ margin possible. Brands with no match are listed last, with their bill only. Click a matched brand to see the doctors who prescribed it.",
   cash: "Cash and TPA patients only. Margin earned = qty counted × the used brand's margin per unit; Margin possible = the same qty × the suggested brand's; Margin missed = margin possible − margin earned; % missed = margin missed ÷ margin possible (HCG's %). Margin per unit = MRP excl GST − HCG Pharma price (FY list) for the brand used and the suggested one; margin % = that margin ÷ MRP excl GST (HCG's S6 column). Qty counted is the cash + TPA quantity, less HCG's allowance for bifurcated brands: allowed = SHARING × the molecule group's quantity at the hospital, and only the excess counts. SHARING, Group, Allowed and Excess qty are worked out per hospital and month on the whole brand (IP + OP, cash + TPA together, as HCG does), so they do not follow the Patient type, Payer or doctor filters; Qty counted does. Click a brand to see the doctors who prescribed it.",
 };
 
-type BrandRow = { material: string; material_desc: string | null; suggested_desc: string | null; bifurcated?: boolean; matched?: boolean };
+type BrandRow = { material: string; material_desc: string | null; suggested_desc: string | null; bifurcated?: boolean };
 
-export default function Items({ section, filters, plant }: { section: Section; filters: Filters; plant: string }) {
+export default function Items({ section, filters, plant }: { section: PatientSection; filters: Filters; plant: string }) {
   const [group, setGroup] = useState<SchemeGroup>("ALL");
   const params = { ...sectionParams(section, filters), ...(section === "scheme" && group !== "ALL" ? { Group: group } : {}) };
   const [item, setItem] = useState<BrandRow | null>(null);
@@ -129,7 +97,7 @@ export default function Items({ section, filters, plant }: { section: Section; f
   const base = `/spend/${section}`;
   // The total the "Share of total" column divides by, from the API's column sums.
   const sums = useTableSums(`${base}/items`, { Plant: plant, ...params });
-  const totalKey = isMargin(section) ? "margin_loss" : "saving_missed";
+  const totalKey = section === "cash" ? "margin_loss" : "saving_missed";
   const total = sums?.[totalKey];
 
   return (
@@ -141,18 +109,17 @@ export default function Items({ section, filters, plant }: { section: Section; f
             <span className="text-[11.5px]" style={{ color: SUB }}>HCG&apos;s report shows the Attis and Healthium slices under the scheme total</span>
           </div>
         )}
-        <Head label={section === "cash" ? "Brands with a higher-margin suggestion" : section === "oof" ? "Out-of-formulary brands vs the formulary brand" : "Brands to switch for scheme patients"}
+        <Head label={section === "cash" ? "Brands with a higher-margin suggestion" : "Brands to switch for scheme patients"}
           note={`${NOTE[section]} ${SHARES_NOTE}`}
-          badge={`${section === "cash" ? "cash + TPA · list prices" : section === "oof" ? "cash + TPA · bill vs list price" : "scheme patients · list prices"}${total != null ? ` · ${inr(total)} margin missed in total` : ""}`} />
+          badge={`${section === "cash" ? "cash + TPA · list prices" : "scheme patients · list prices"}${total != null ? ` · ${inr(total)} margin missed in total` : ""}`} />
         <KpiTable key={`${section}|${group}`} kpiKey={`spend-${section}-items`} endpoint={`${base}/items`} plant={plant}
           columns={brandCols(section)} extraParams={params}
-          // An out-of-formulary brand with no formulary match has no margin to split by doctor.
-          onRowClick={(r: BrandRow) => { if (section === "oof" && r.matched === false) return; setItem(r); setOpen(true); }} />
+          onRowClick={(r: BrandRow) => { setItem(r); setOpen(true); }} />
       </Card>
 
-      <SlideOver open={open} onClose={close} eyebrow={section === "cash" ? "Brand used for cash & TPA patients" : section === "oof" ? "Out-of-formulary brand used for cash & TPA patients" : "Brand used for scheme patients"}
+      <SlideOver open={open} onClose={close} eyebrow={section === "cash" ? "Brand used for cash & TPA patients" : "Brand used for scheme patients"}
         title={item?.material_desc || item?.material || ""}
-        sub={item ? `Material ${item.material} · ${section === "oof" ? "formulary" : "suggested"} brand ${item.suggested_desc ?? "—"}${item.bifurcated ? " · bifurcated: only use above HCG's allowance counts" : ""} · doctors who prescribed it` : undefined}>
+        sub={item ? `Material ${item.material} · suggested brand ${item.suggested_desc ?? "—"}${item.bifurcated ? " · bifurcated: only use above HCG's allowance counts" : ""} · doctors who prescribed it` : undefined}>
         {item && (
           <KpiTable key={`${section}|${item.material}|${plant}|${group}`} kpiKey={`spend-${section}-item-doctors`}
             endpoint={`${base}/doctors`} plant={plant} columns={doctorCols(section)}

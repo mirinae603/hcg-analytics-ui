@@ -1,13 +1,16 @@
 "use client";
 // The Spend page's Brand filter: one chip in the filter strip that narrows every tab (the
-// Summary, each section's charts and tables) to one brand used, and, once a brand is picked,
-// the line saying what switching it would have added: the margin in each section, never added
-// across sections (a scheme spend and a cash margin are different measures).
+// Summary, each section's charts and tables) to one brand used (or, out of formulary, bought),
+// and, once a brand is picked, the line saying what switching it would have added: the margin in
+// each section, never added across sections (a scheme spend and a cash margin are different
+// measures). Out of formulary's figure is HCG's net one, so it can be negative (the brand bought
+// earns more), and a brand bought with no alternative is offered too, missing nothing.
 //
 //   BrandFilter  — the chip; a click opens a search box over the brands the page's other filters
 //                  leave (/spend/brands). On a section's tab it offers only the brands used in that
-//                  section, biggest gain there first, so every brand it offers fills that tab; on
-//                  the Summary, every brand, by its biggest gain in any section.
+//                  section (out of formulary: every brand bought out of formulary), biggest gain
+//                  there first, so every brand it offers fills that tab; on the Summary, every
+//                  brand, by its biggest gain in any section.
 //   BrandGain    — the selection line's words while a brand is picked: "If switched: Cash & TPA
 //                  +₹ 24.02 L margin · Scheme +₹ 2.73 L".
 //   BrandNotHere — what a section's tab shows instead of empty charts when the brand picked (on
@@ -17,11 +20,11 @@ import React, { useEffect, useId, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { TbChevronDown, TbSearch, TbX } from "react-icons/tb";
 import { CARD, INK, SUB, LINE, RULE, LEDGER_2, tint } from "@/components/portfolio/ledger/kit";
-import { lakhs, pct } from "@/components/portfolio/ledger/format";
+import { lakhs, pct, withSign } from "@/components/portfolio/ledger/format";
 import { LinkButton } from "@/components/portfolio/ledger/panel";
 import { errText } from "../formulary/api";
 import { CASH_COL, OOF_COL, SCHEME_COL } from "./shared";
-import { filterParams, getBrand, getBrands, type BrandOption, type BrandPick, type BrandSide, type Filters, type Section } from "./api";
+import { filterParams, getBrand, getBrands, isPurchases, type BrandOption, type BrandPick, type BrandSide, type Filters, type Section } from "./api";
 
 const POP_W = 420;
 const LIMIT = 20;
@@ -41,13 +44,19 @@ const sidesOf = (b: BrandOption, first?: Section | null) => {
 };
 const sideLabel = (k: Section) => SIDES.find((s) => s.key === k)?.label ?? k;
 
+/** What a switch in one section would add, "+₹ 24.02 L" (a minus where the brand used earns
+ *  more), or "no suggested brand" for a brand bought out of formulary with none counted (no
+ *  alternative mapped, or only receipts HCG parked). */
+const gainOf = (side: BrandSide) => (side.suggested_material == null && side.missed === 0 ? "no suggested brand" : withSign(side.missed, lakhs));
+
 /** A brand's name as the chip and the drawers print it. */
 export const brandName = (b: Pick<BrandOption, "material" | "material_desc">) => b.material_desc || b.material;
 
-/** The query the brand list and a brand's row are asked under: the page's hospital and other
- *  filters, never the brand itself, and the payer only where the tab takes one. */
-export const brandQuery = (filters: Filters, plant: string, cash: boolean): Record<string, string> =>
-  ({ Plant: plant, ...filterParams({ ...filters, brand: null }, { cash }) });
+/** The query the brand list and a brand's row are asked under: the page's hospital and the other
+ *  filters the open tab takes (`section`; null on the Summary), never the brand itself. Out of
+ *  formulary's brands are purchases, which have no payer or patient type. */
+export const brandQuery = (filters: Filters, plant: string, section: Section | null): Record<string, string> =>
+  ({ Plant: plant, ...filterParams({ ...filters, brand: null }, { cash: section === "cash", patients: !isPurchases(section) }) });
 
 /** The picked brand's row under `params`: undefined while it loads (or if the request failed:
  *  then nothing is claimed about it), null when the brand has no use in them. */
@@ -170,7 +179,7 @@ export function BrandFilter({ value, params, section, onChange }: {
             <Option id={`${id}-0`} row={0} active={hi === 0} selected={!value} onPick={() => pick(null)} onHover={() => setHi(0)}>
               <span className="font-semibold" style={{ color: INK }}>All brands</span>
               <span className="text-[11px]" style={{ color: SUB }}>
-                {section ? `listed below: brands used for ${sideLabel(section)}, biggest gain there first` : "listed below: every brand, by its biggest gain in any section"}
+                {section ? `listed below: brands ${isPurchases(section) ? "bought" : "used"} for ${sideLabel(section)}, biggest gain there first` : "listed below: every brand, by its biggest gain in any section"}
               </span>
             </Option>
             {rows.map((b, i) => (
@@ -224,7 +233,7 @@ function SideLine({ b, first }: { b: BrandOption; first?: Section | null }) {
         <span key={key} className="inline-flex items-center gap-1 min-w-0" title={side.suggested_desc ? `${label}: switch to ${side.suggested_desc}` : label}>
           <span aria-hidden="true" className="inline-block w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: color }} />
           <span style={{ color: SUB }}>{label}</span>
-          <b style={{ color: INK }}>+{lakhs(side.missed)}</b>
+          <b style={{ color: INK }}>{gainOf(side)}</b>
           {side.suggested_desc && <span className="truncate max-w-[150px]" style={{ color: SUB }}>→ {side.suggested_desc}</span>}
         </span>
       ))}
@@ -243,14 +252,14 @@ export function BrandGain({ brand, params, section }: { brand: BrandPick; params
 
   if (row === undefined) return <span>{brand.name} · working out its switch…</span>;
   if (!sides.length) return <span>{brand.name}: no use with a suggested brand in this selection</span>;
-  const said = sides.map((s) => `${s.label} +${lakhs(s.side.missed)} margin${s.side.suggested_desc ? ` (to ${s.side.suggested_desc})` : ""}${s.side.pct != null ? `, ${pct(s.side.pct, 1)} missed` : ""}`).join("; ");
+  const said = sides.map((s) => `${s.label} ${gainOf(s.side)}${s.side.suggested_desc ? ` margin (to ${s.side.suggested_desc})` : ""}${s.side.pct != null ? `, ${pct(s.side.pct, 1)} missed` : ""}`).join("; ");
   return (
     <span className="inline-flex items-center gap-2" title={`If ${brand.name} had been switched: ${said}`}>
       <span style={{ color: INK, fontWeight: 600 }}>If switched:</span>
       {sides.map(({ key: k, label, color, side }) => (
         <span key={k} className="inline-flex items-center gap-1 tabular-nums">
           <span aria-hidden="true" className="inline-block w-2 h-2 rounded-full" style={{ background: color }} />
-          {label} <b style={{ color: INK }}>+{lakhs(side.missed)}</b>
+          {label} <b style={{ color: INK }}>{gainOf(side)}</b>
         </span>
       ))}
     </span>
@@ -287,7 +296,7 @@ export function BrandNotHere({ brand, row, section, onSection, onClear }: {
           <span key={key} className="inline-flex items-center gap-2">
             <LinkButton onClick={() => onSection(key)}>
               <span aria-hidden="true" className="inline-block w-2 h-2 rounded-full" style={{ background: color }} />
-              {label}: +{lakhs(side.missed)} if switched
+              {label}: {gainOf(side)}{side.suggested_material != null ? " if switched" : ""}
             </LinkButton>
           </span>
         ))}

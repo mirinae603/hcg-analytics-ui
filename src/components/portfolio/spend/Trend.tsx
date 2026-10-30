@@ -2,7 +2,8 @@
 // Spend Analysis — the month-by-month pieces every section's drawers share: HCG's table under
 // each month chart, one row per month with the base amounts (Actual, Proposed, Loss, % missed),
 // so a % never stands without the amounts it is a share of. The chart itself is the ledger's
-// MonthCombo. Every month is our own figure from the HIS sales lines.
+// MonthCombo. Every month is our own figure, from the HIS sales lines (out of formulary: from
+// HCG's purchases).
 import React from "react";
 import { INK, SUB, LINE, RULE, SEL_BG } from "@/components/portfolio/ledger/kit";
 
