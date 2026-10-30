@@ -10,7 +10,7 @@ import React from "react";
 import DetailDrawer, { DrawerSection, type DrawerFilter, type DrawerKpi } from "./DetailDrawer";
 import { INK, SUB, LINE, RULE } from "./kit";
 import { LinkButton } from "./panel";
-import type { Source } from "./status";
+import type { SourceOf } from "./status";
 import { cachedFetch, toQuery, useFetched } from "@/components/portfolio/formulary/api";
 
 /** How many rows a top list holds. */
@@ -81,7 +81,7 @@ export function TopListDrawer<T>({
   title: string;
   /** The total the five are compared with, in exact rupees. */
   kpi?: DrawerKpi;
-  source?: Source;
+  source?: SourceOf;
   asOf: string | null;
   filters: DrawerFilter[];
   /** "The 5 largest", and what its share column is a share of. */

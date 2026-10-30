@@ -62,5 +62,13 @@ export const SOURCE_LABEL: Record<Source, string> = { computed: "Computed", hcg:
 export const SOURCE_NOTE: Record<Source, string> = {
   computed: "Recomputed by the app from HCG's HIS sales lines and masters",
   hcg: "Pooled by the app from the rupees in HCG's MIS workbook (no HIS sales lines for it); HCG's printed % is shown beside it",
-  estimate: "Partly estimated by the app, because HCG has not shared its own basis yet (for out of formulary: which formulary brand replaces each brand). The (i) says how it is worked out.",
+  estimate: "Partly estimated by the app, where HCG has not shared its own basis yet. The (i) says how it is worked out.",
 };
+
+/** A source with the words its badge's tooltip gives, for figures SOURCE_NOTE does not describe:
+ *  ones read from HCG's purchases (GRN) rather than its sales lines, or an estimated definition. */
+export type SourceSpec = { kind: Source; note: string };
+/** What a badge, a panel or a drawer is told about a figure's source. */
+export type SourceOf = Source | SourceSpec;
+export const sourceKind = (s: SourceOf): Source => (typeof s === "string" ? s : s.kind);
+export const sourceNote = (s: SourceOf): string => (typeof s === "string" ? SOURCE_NOTE[s] : s.note);

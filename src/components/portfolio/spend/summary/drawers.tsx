@@ -16,7 +16,7 @@ import { num } from "@/lib/kpiFormat";
 import { monthBefore, monthLabel } from "../../formulary/api";
 import { MonthTable } from "../Trend";
 import type { CashOverview, Filters, Meta, WithOof } from "../api";
-import { RATE_COL, lossMethod } from "../shared";
+import { RATE_COL, coverageWords, lossMethod, oofSource, salesAndPurchasesSource } from "../shared";
 import {
   KIND, filterChips, marginLoss, whenOf, whereOf,
   type LossKind, type MonthLoss, type SectionLoss,
@@ -30,12 +30,12 @@ const EVERY_FIGURE = "Every figure is summed for the selection and the % is take
 
 const NONE: Record<LossKind, string> = {
   cash: "no cash or TPA patient got a brand that HCG's cash list has a suggestion for.",
-  oof: "no cash or TPA patient got an out-of-formulary brand with a formulary match.",
+  oof: "no out-of-formulary brand with a suggested brand was bought.",
   scheme: "no scheme patient got a brand that HCG's scheme list has a suggestion for.",
 };
 const LEAD: Record<LossKind, (h: SectionLoss["head"]) => string> = {
   cash: (h) => `cash & TPA patients got brands that earned ${rx(h.actual)} in margin, where the brands HCG's cash list suggests would have earned ${rx(h.proposed)}.`,
-  oof: (h) => `out-of-formulary brands given to cash & TPA patients earned ${rx(h.actual)} in margin, where the formulary brand of the same molecule, strength and form would have earned ${rx(h.proposed)}.`,
+  oof: (h) => `the brands HCG bought out of formulary earn ${rx(h.actual)} in margin, where the brands HCG suggests for them would earn ${rx(h.proposed)} on the same units.`,
   scheme: (h) => `scheme (GOV) patients got brands that cost ${rx(h.actual)}, where the cheaper brands HCG's scheme list suggests would have cost ${rx(h.proposed)}.`,
 };
 
@@ -53,9 +53,10 @@ function brief(sec: SectionLoss, where: string, when: string, prev: MonthLoss | 
       ? `That is unchanged from ${prev.label} (${rx(prev.loss)}).`
       : `That is ${d > 0 ? "up" : "down"} ${rx(Math.abs(d))} from ${prev.label} (${rx(prev.loss)}, ${pct(prev.pct, 2)}).`);
   }
-  out.push(`It comes from ${count(h.brands, "brand", "brands")}, used by ${count(h.doctors, "doctor", "doctors")} at ${count(h.hospitals, "hospital", "hospitals")}.`);
-  if (sec.kind === "oof") out.push("This is the app's estimate: the formulary brand each one is set against is the app's own match until HCG sends its list.");
-  return out;
+  out.push(h.vendors != null
+    ? `It comes from ${count(h.brands, "brand", "brands")} bought from ${count(h.vendors, "vendor", "vendors")} at ${count(h.hospitals, "hospital", "hospitals")}.`
+    : `It comes from ${count(h.brands, "brand", "brands")}, used by ${count(h.doctors ?? 0, "doctor", "doctors")} at ${count(h.hospitals, "hospital", "hospitals")}.`);
+  return [...out, ...sec.remarks];
 }
 
 // The method in the words the section's own drawers use (lossMethod), on the price list the
@@ -85,7 +86,7 @@ export function SectionDrawer({ sec, meta, filters, open, initialTab, onClose, o
         comparator: `${w.loss}: ${pct(h.pct, 2)} ${w.pctOf}, ${rx(whole)}`,
         delta: prev ? { value: h.loss - prev.loss, unit: "rs", goodWhen: "down", vsLabel: `vs ${prev.label}` } : undefined,
       }}
-      source={w.source} asOf={sec.asOf} filters={filterChips(meta, filters, sec.scope, w.payer)}
+      source={sec.source} asOf={sec.asOf} filters={filterChips(meta, filters, sec.scope, w.payer, w.patients)}
       tabs={[
         {
           key: "summary", label: "Summary", render: () => (
@@ -101,7 +102,7 @@ export function SectionDrawer({ sec, meta, filters, open, initialTab, onClose, o
                   ...sec.facts,
                 ]} />
               </DrawerSection>
-              <DrawerSection title="Full tables" note="Every brand and every doctor behind these figures, with the same filters.">
+              <DrawerSection title="Full tables" note={`Every brand and every ${sec.kind === "oof" ? "vendor" : "doctor"} behind these figures, with the same filters.`}>
                 <GoLinks links={sectionLinks(sec.kind)} onGo={onGo} />
               </DrawerSection>
             </>
@@ -118,7 +119,7 @@ export function SectionDrawer({ sec, meta, filters, open, initialTab, onClose, o
         {
           key: "hospitals", label: "Hospitals", render: () => (
             <DrawerSection title="Every hospital, most missed first"
-              note={`Each bar is the hospital's ${w.whole === "proposed" ? w.proposed.toLowerCase() : w.actual.toLowerCase()}, split into the ${w.loss.toLowerCase()} and its ${w.whole === "proposed" ? w.actual.toLowerCase() : w.proposed.toLowerCase()}, as the section draws it; the figure after it is the loss. Same months, patient type and material type; this list ignores the hospital selector. Click a hospital to select it, the selected one again for all hospitals.`}>
+              note={`Each bar is the hospital's ${w.whole === "proposed" ? w.proposed.toLowerCase() : w.actual.toLowerCase()}, split into the ${w.loss.toLowerCase()} and its ${w.whole === "proposed" ? w.actual.toLowerCase() : w.proposed.toLowerCase()}; the figure after it is the loss${sec.kind === "oof" ? " (a negative one, where the brands bought earn more, has no part missed on its bar)" : ""}. Same months and filters; this list ignores the hospital selector. Click a hospital to select it, the selected one again for all hospitals.`}>
               <HospitalShares kind={sec.kind} rows={sec.hospitals} />
             </DrawerSection>
           ),
@@ -135,22 +136,23 @@ export function SectionDrawer({ sec, meta, filters, open, initialTab, onClose, o
   );
 }
 
-/** HCG's combined cash & out-of-formulary loss by month as bars from zero, each part its own
- *  bar (they are added only in HCG's own table, never stacked here), with the % missed of both
- *  together as the line. Before the out-of-formulary table is built, cash & TPA alone. The
- *  legend's words are short enough to share a panel's header line. */
-export function LossByMonth({ d, meta }: { d: CashOverview; meta: Meta }) {
-  const w = d.with_oof;
+/** HCG's combined cash & out-of-formulary loss by month as bars from zero, the two parts
+ *  stacked, with the % missed of both together as the line. Without HCG's combined table (`w`
+ *  null: no purchase data for the selection), cash & TPA alone; a month without purchase data
+ *  has the cash part only. The out-of-formulary part is hatched only where it is partly the
+ *  app's estimate. The legend's words are short enough to share a panel's header line. */
+export function LossByMonth({ d, w, meta }: { d: CashOverview; w: WithOof | null; meta: Meta }) {
   const sel = new Set(d.scope?.months || []);
   const label = (r: { period: string; label: string }) => r.label || monthLabel(meta, r.period);
+  const estimated = !!w && oofSource(w.coverage) === "estimate";
   const months = w
-    ? (w.trend || []).map((r) => ({ key: r.period, label: label(r), pct: r.loss_pct, selected: sel.has(r.period), values: { cash: r.cash_loss, oof: r.oof_loss } }))
+    ? (w.trend || []).map((r) => ({ key: r.period, label: label(r), pct: r.loss_pct, selected: sel.has(r.period), values: { cash: r.cash_loss, oof: r.has_oof ? r.oof_loss : null } }))
     : (d.trend || []).map((r) => ({ key: r.period, label: label(r), pct: r.loss_pct, selected: sel.has(r.period), values: { cash: r.margin_loss } }));
   return (
     <MonthCombo ariaLabel={`${w ? "Cash & TPA and out-of-formulary" : "Cash & TPA"} margin missed by month, with the % missed of the margin possible${w ? " (both together)" : ""} as a line, ${whereOf(d.scope)}`}
       series={[
         { key: "cash", label: `${KIND.cash.short} missed`, color: KIND.cash.accent },
-        ...(w ? [{ key: "oof", label: `${KIND.oof.short} missed (estimated)`, color: KIND.oof.accent, hatched: true }] : []),
+        ...(w ? [{ key: "oof", label: `${KIND.oof.short} missed${estimated ? " (estimated)" : ""}`, color: KIND.oof.accent, hatched: estimated }] : []),
       ]}
       line={{ label: "% missed", color: RATE_COL, decimals: 1 }}
       months={months} />
@@ -162,9 +164,9 @@ export function CombinedDrawer({ d, w, meta, filters, asOf, open, initialTab, on
 }) {
   const t = marginLoss(w.total);
   const where = whereOf(d.scope);
-  const months = (w.trend || []).map((r) => ({ period: r.period, label: r.label || monthLabel(meta, r.period), ...marginLoss(r), cash_loss: r.cash_loss, oof_loss: r.oof_loss }));
+  const months = (w.trend || []).map((r) => ({ period: r.period, label: r.label || monthLabel(meta, r.period), ...marginLoss(r), cash_loss: r.cash_loss, oof_loss: r.oof_loss, has_oof: r.has_oof }));
   const prev = monthBefore(months, d.scope.months);
-  const cov = w.coverage;
+  const sources = coverageWords(w.coverage);
   return (
     <DetailDrawer open={open} onClose={onClose} initialTab={initialTab}
       eyebrow="Spend summary · Cash & TPA and out of formulary" title={`CASH(TPA) & OUT OF FORMULARY · ${where}`}
@@ -173,17 +175,17 @@ export function CombinedDrawer({ d, w, meta, filters, asOf, open, initialTab, on
         comparator: `Margin missed: ${pct(t.pct, 2)} of the margin possible, ${rx(t.proposed)}`,
         delta: prev ? { value: t.loss - prev.loss, unit: "rs", goodWhen: "down", vsLabel: `vs ${prev.label}` } : undefined,
       }}
-      source="estimate" asOf={asOf}
+      source={salesAndPurchasesSource(KIND.cash.short, oofSource(w.coverage) === "estimate")} asOf={asOf}
       filters={filterChips(meta, filters, d.scope, KIND.cash.payer)}
       tabs={[
         {
           key: "mail", label: "As in HCG mail", render: () => (
             <>
               <DrawerSection title="CASH(TPA) & OUT OF FORMULARY"
-                note={`HCG's table: each margin added up over the two rows and the % taken on the totals. The out-of-formulary row is the app's estimate (${num(cov.matched_brands)} of ${num(cov.brands)} brands matched to a formulary brand, ${pct(cov.matched_cost_pct, 1)} of their bill cost).`}>
+                note={`HCG's table: each margin added up over the two rows and the % taken on the totals. The out-of-formulary row is HCG's purchase (GRN) method for the same hospitals and months${sources ? `; its suggested brands, by money spent: ${sources}` : ""}.`}>
                 <LossTable words={KIND.cash} strong={["total"]} rows={[
                   { key: "cash", label: KIND.cash.short, ...marginLoss(w.cash) },
-                  { key: "oof", label: "Out of formulary (estimate)", ...marginLoss(w.oof) },
+                  { key: "oof", label: "Out of formulary (purchases)", ...marginLoss(w.oof) },
                   { key: "total", label: "Total", ...t },
                 ]} />
               </DrawerSection>
@@ -199,13 +201,13 @@ export function CombinedDrawer({ d, w, meta, filters, asOf, open, initialTab, on
         {
           key: "trend", label: "Trend", render: () => (
             <DrawerSection title="Every month" note="Every published month, whatever the Month filter says; the months in your selection are shaded.">
-              <LossByMonth d={d} meta={meta} />
+              <LossByMonth d={d} w={w} meta={meta} />
               <div className="mt-5">
                 <MonthTable rows={months} selected={new Set(d.scope.months)} cols={[
                   { label: "Total margin earned", render: (r) => rx(r.actual) },
                   { label: "Total margin possible", render: (r) => rx(r.proposed) },
                   { label: "Cash & TPA missed", render: (r) => rx(r.cash_loss) },
-                  { label: "Out of formulary missed", render: (r) => rx(r.oof_loss) },
+                  { label: "Out of formulary missed", render: (r) => (r.has_oof ? rx(r.oof_loss) : "no purchases") },
                   { label: "Total margin missed", render: (r) => <b>{rx(r.loss)}</b> },
                   { label: "% missed", render: (r) => pct(r.pct, 2) },
                 ]} />

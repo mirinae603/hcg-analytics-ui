@@ -436,5 +436,5 @@ export const PORTFOLIOS = [
   // don't exist for formulary.
   { key: "formulary", name: "Formulary Compliance", icon: "💊", desc: "Formulary adherence & scheme brands" },
   // Same shape as formulary: /spend is one page with in-page tabs, no KPIS entries.
-  { key: "spend", name: "Spend Analysis", icon: "💰", desc: "Scheme, cash & out-of-formulary margin missed" },
+  { key: "spend", name: "Spend Analysis", icon: "💰", desc: "Margin missed, purchase prices & generic vs branded" },
 ];

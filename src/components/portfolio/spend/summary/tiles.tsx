@@ -4,8 +4,8 @@
 //   PartsTile        — each part's loss against its own HCG list: one bullet row per part, each
 //                      on its own scale from zero (parts of different sections are never added).
 //   BridgeTile       — margin possible → each part's loss → margin earned: HCG's combined
-//                      CASH(TPA) & OUT OF FORMULARY table as a bridge (cash & TPA alone until the
-//                      out-of-formulary table is built).
+//                      CASH(TPA) & OUT OF FORMULARY table as a bridge (cash & TPA alone where
+//                      the selection has no out-of-formulary purchase data).
 //   MarginMonthsTile — cash & TPA (and out-of-formulary) margin missed by month, the % missed a line.
 //   WhereTile        — where each section's loss sits: material type and patient type.
 //   HospitalsTile    — every hospital's cash & TPA loss; with one hospital selected, where it
@@ -25,7 +25,7 @@ import { fitDomain } from "@/components/portfolio/ledger/scale";
 import { useSelectHospital } from "@/context/RegionContext";
 import { monthBefore, monthLabel } from "../../formulary/api";
 import type { CashOverview, Meta, Overview, WithOof } from "../api";
-import { CASH_COL, HOSPITAL_COL, LOSS_COL, OOF_COL, PROPOSED_COL, RATE_COL, SCHEME_COL, USED_COL, sectionCol } from "../shared";
+import { CASH_COL, HOSPITAL_COL, LOSS_COL, OOF_COL, PROPOSED_COL, RATE_COL, SCHEME_COL, USED_COL, oofSource, salesAndPurchasesSource, sectionCol } from "../shared";
 import { KIND, marginLoss, spendLoss, type Loss, type LossKind, type MonthLoss, type SectionLoss } from "./model";
 import { LossByMonth } from "./drawers";
 import { LossSplit, type SplitColumn, type SplitRow } from "./LossSplit";
@@ -51,7 +51,7 @@ export function PartsTile({ place, cash, scheme, w, groups, oofReady, onShow }: 
   place: Place;
   cash: SectionLoss;
   scheme: SectionLoss;
-  /** HCG's combined table; null until the out-of-formulary table is built. */
+  /** HCG's combined table; null where the selection has no out-of-formulary purchase data. */
   w: WithOof | null;
   groups: Overview["groups"] | null;
   /** The out-of-formulary overview has arrived, so its drawer can open. */
@@ -62,15 +62,17 @@ export function PartsTile({ place, cash, scheme, w, groups, oofReady, onShow }: 
   // between them shaded. A cash & TPA margin falls short of the list, so its bar is the margin
   // made and the loss runs on to the marker; a scheme spend goes above the list, so its bar
   // stops at the marker and the loss runs on to the spend. Hence "margin / spend", not "actual".
-  const part = (kind: LossKind, key: string, label: string, l: Loss, note: string, onClick?: () => void): BulletRow => ({
-    key, label, note, onClick,
+  // An estimate (the app's own brand match, on out of formulary) is hatched.
+  const part = (kind: LossKind, key: string, label: string, l: Loss, note: string, onClick?: () => void, hatched = false): BulletRow => ({
+    key, label, note, onClick, hatched,
     value: l.actual, target: l.proposed, valueLabel: lossLabel(l),
     targetLabel: `${KIND[kind].proposed} ${lakhs(l.proposed)}`,
-    hatched: KIND[kind].source === "estimate",
   });
+  const oofEstimated = !!w && oofSource(w.coverage) === "estimate";
   const rows: BulletRow[] = [
     part("cash", "cash", KIND.cash.short, cash.head, `margin missed, % ${KIND.cash.pctOf}`, () => onShow("cash")),
-    ...(w ? [part("oof", "oof", KIND.oof.short, marginLoss(w.oof), `estimated · margin missed, % ${KIND.oof.pctOf}`, oofReady ? () => onShow("oof") : undefined)] : []),
+    ...(w ? [part("oof", "oof", KIND.oof.short, marginLoss(w.oof), `purchases${oofEstimated ? ", partly estimated" : ""} · margin missed, % ${KIND.oof.pctOf}`,
+      oofReady ? () => onShow("oof") : undefined, oofEstimated)] : []),
     part("scheme", "scheme", KIND.scheme.short, scheme.head, `spent above the suggested brands, % ${KIND.scheme.pctOf}`, () => onShow("scheme")),
     ...(groups ? [
       part("scheme", "attis", "Attis", spendLoss(groups.attis), `${groups.attis.label}: ${pct(groups.attis.share_pct, 1)} of the scheme margin missed`, () => onShow("scheme", "slices")),
@@ -94,21 +96,22 @@ export function PartsTile({ place, cash, scheme, w, groups, oofReady, onShow }: 
 // ─────────────────────────────────────────────────────────────────────────────
 export function BridgeTile({ place, cash, w, onShow }: { place: Place; cash: SectionLoss; w: WithOof | null; onShow: Show }) {
   const t = w ? marginLoss(w.total) : cash.head;
+  const estimated = !!w && oofSource(w.coverage) === "estimate";
   const loss = (key: string, label: string, l: Loss, color: string, note: string, hatched = false): WaterStep =>
     ({ key, label, kind: "delta", value: -l.loss, color, hatched, valueLabel: lakhs(-l.loss), note });
   const steps: WaterStep[] = [
     { key: "proposed", label: KIND.cash.proposed, kind: "total", value: t.proposed, color: PROPOSED_COL, valueLabel: lakhs(t.proposed), note: "had the suggested brands been used" },
     ...(w ? [
       loss("cash", `− ${KIND.cash.short}`, marginLoss(w.cash), LOSS_COL, `missed, ${pct(w.cash.loss_pct, 2)} of its possible`),
-      loss("oof", `− ${KIND.oof.short}`, marginLoss(w.oof), OOF_COL, `missed (estimated), ${pct(w.oof.loss_pct, 2)} of its possible`, true),
+      loss("oof", `− ${KIND.oof.short}`, marginLoss(w.oof), OOF_COL, `missed${estimated ? " (partly estimated)" : ""}, ${pct(w.oof.loss_pct, 2)} of its possible`, estimated),
     ] : [loss("cash", `− ${KIND.cash.loss}`, t, LOSS_COL, `${pct(t.pct, 2)} ${KIND.cash.pctOf}`)]),
     { key: "actual", label: KIND.cash.actual, kind: "total", value: t.actual, color: USED_COL, valueLabel: lakhs(t.actual), note: `${pct(t.pct, 2)} of the possible was missed` },
   ];
-  const what = w ? "cash & TPA patients, incl. out-of-formulary brands" : "cash & TPA patients";
+  const what = w ? "cash & TPA patients + out-of-formulary purchases" : "cash & TPA patients";
   const key: DrawerKey = w ? "combined" : "cash";
   const label = `Margin possible to margin earned, ${what}: ${steps.map((s) => `${s.label} ${s.valueLabel}`).join(", ")}; the margin missed is ${pct(t.pct, 2)} of the margin possible`;
   return (
-    <ChartPanel id="bridge" title="Margin possible vs earned" context={what} accent={CASH_COL} place={place} source={w ? "estimate" : undefined}
+    <ChartPanel id="bridge" title="Margin possible vs earned" context={what} accent={CASH_COL} place={place} source={estimated ? salesAndPurchasesSource(KIND.cash.short, true) : undefined}
       label={label} onOpen={() => onShow(key)} onInfo={() => onShow(key, "method")}>
       <Waterfall ariaLabel={`Margin possible, less each part's margin missed, to the margin earned, ${what}`} steps={steps} format={lakhs} />
     </ChartPanel>
@@ -118,21 +121,23 @@ export function BridgeTile({ place, cash, w, onShow }: { place: Place; cash: Sec
 // ─────────────────────────────────────────────────────────────────────────────
 // Margin missed by month
 // ─────────────────────────────────────────────────────────────────────────────
-export function MarginMonthsTile({ place, d, meta, cash, when, onShow }: {
-  place: Place; d: CashOverview; meta: Meta; cash: SectionLoss; when: string; onShow: Show;
+export function MarginMonthsTile({ place, d, w, meta, cash, when, onShow }: {
+  place: Place; d: CashOverview;
+  /** HCG's combined table; null where the selection has no out-of-formulary purchase data. */
+  w: WithOof | null;
+  meta: Meta; cash: SectionLoss; when: string; onShow: Show;
 }) {
-  const w = d.with_oof ?? null;
   const t = w ? marginLoss(w.total) : cash.head;
   const prev = w
     ? monthBefore((w.trend || []).map((r) => ({ period: r.period, label: r.label || monthLabel(meta, r.period), ...marginLoss(r) })), d.scope.months)
     : monthBefore(cash.trend, cash.scope.months);
-  const what = w ? "cash & TPA patients, incl. out-of-formulary brands" : "cash & TPA patients";
+  const what = w ? "cash & TPA patients + out-of-formulary purchases" : "cash & TPA patients";
   const key: DrawerKey = w ? "combined" : "cash";
   const label = sentences(`Margin missed by month, ${what}`, `${when}: ${lakhs(t.loss)}, ${pct(t.pct, 2)} of the margin possible`, before(prev));
   return (
-    <ChartPanel id="margin-months" title="Margin missed by month" context={what} accent={CASH_COL} place={place} source={w ? "estimate" : undefined}
+    <ChartPanel id="margin-months" title="Margin missed by month" context={what} accent={CASH_COL} place={place} source={w && oofSource(w.coverage) === "estimate" ? salesAndPurchasesSource(KIND.cash.short, true) : undefined}
       label={label} onOpen={() => onShow(key, "trend")} onInfo={() => onShow(key, "method")}>
-      <LossByMonth d={d} meta={meta} />
+      <LossByMonth d={d} w={w} meta={meta} />
     </ChartPanel>
   );
 }

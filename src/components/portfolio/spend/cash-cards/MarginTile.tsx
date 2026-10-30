@@ -1,9 +1,9 @@
 "use client";
-// Spend Analysis (Cash & TPA / Out of formulary) — the headline tile. HCG's "actual | budget"
-// pair drawn as a bridge: the margin the suggested brands would have made (there is no budget;
-// the suggestion is what the figure is judged against), less the margin missed, is the margin the
-// brands used made. The drawer carries the written summary, the exact figures, every month, the
-// splits, every hospital, HCG's allowance for bifurcated brands (Cash & TPA) and the method.
+// Spend Analysis (Cash & TPA) — the headline tile. HCG's "actual | budget" pair drawn as a
+// bridge: the margin the suggested brands would have made (there is no budget; the suggestion is
+// what the figure is judged against), less the margin missed, is the margin the brands used
+// made. The drawer carries the written summary, the exact figures, every month, the splits,
+// every hospital, HCG's allowance for bifurcated brands and the method.
 import React from "react";
 import { ChartPanel, LinkButton } from "@/components/portfolio/ledger/panel";
 import type { Place } from "@/components/portfolio/ledger/onescreen";
@@ -27,14 +27,10 @@ const were = (n: number) => (n === 1 ? "was" : "were");
 function brief(c: Ctx, prev: Month | null): string[] {
   const h = c.d.headline;
   if (!isNum(h.loss_pct)) return [`${c.w.none} at ${c.where}, ${c.when}.`];
-  const cov = h.coverage;
   return [
     `For ${c.who} at ${c.where}, ${c.when}, the ${c.w.used} made ${rupeesExact(h.actual_margin)} of margin; the ${c.w.sug} would have made ${rupeesExact(h.potential_margin)}. The margin missed is ${rupeesExact(h.margin_loss)}, ${pct(h.loss_pct)} of the margin possible.`,
     ...(prev ? [`In ${prev.label} it was ${rupeesExact(prev.margin_loss)}, ${pct(prev.loss_pct)} of the margin possible.`] : []),
-    c.kind === "cash"
-      ? `${plural(h.brands, "such brand")} ${were(h.brands)} used for ${num(h.cash_qty)} units by ${plural(h.doctors, "doctor")}; ${num(h.qty)} units count after HCG's allowance for bifurcated brands.`
-      : `${plural(h.brands, "matched brand")} ${were(h.brands)} used for ${num(h.qty)} units by ${plural(h.doctors, "doctor")}.`,
-    ...(cov ? [`${num(cov.matched_brands)} of ${num(cov.brands)} out-of-formulary brands found a formulary match (${pct(cov.matched_cost_pct, 1)} of their bill cost); the rest are listed in the Brands tab but add nothing.`] : []),
+    `${plural(h.brands, "such brand")} ${were(h.brands)} used for ${num(h.cash_qty)} units by ${plural(h.doctors, "doctor")}; ${num(h.qty)} units count after HCG's allowance for bifurcated brands.`,
     `With the ${c.w.sug}, revenue at MRP (excl GST) would also rise by ${rupeesExact(h.topline_increase)}.`,
   ];
 }
@@ -51,13 +47,13 @@ function figures(c: Ctx): KeyFigure[] {
     { label: `MRP · ${c.w.used}`, value: rupeesExact(h.used_mrp_value), note: "MRP excl GST × qty" },
     { label: `MRP · ${c.w.sug}`, value: rupeesExact(h.suggested_mrp_value), note: "MRP excl GST × the same qty" },
     { label: "MRP increase", value: rupeesExact(h.topline_increase), note: c.w.increaseNote },
-    { label: "Qty counted", value: num(h.qty), note: c.kind === "cash" ? `of ${num(h.cash_qty)} units used, after HCG's allowance` : "units" },
+    { label: "Qty counted", value: num(h.qty), note: `of ${num(h.cash_qty)} units used, after HCG's allowance` },
     { label: "Bill cost", value: rupeesExact(h.bill_cost), note: `${num(h.lines)} sales lines` },
     { label: "Brands · doctors · hospitals", value: `${num(h.brands)} · ${num(h.doctors)} · ${num(h.hospitals)}`, note: "with any use in the selection" },
   ];
 }
 
-/** HCG's allowance for bifurcated brands (Cash & TPA only). For these brands HCG allows a share
+/** HCG's allowance for bifurcated brands. For these brands HCG allows a share
  *  (SHARING) of the molecule's volume at the hospital each month, and only the use above it
  *  counts towards the margin missed. Quantities, not rupees. Allowed and counted are worked out
  *  per brand, hospital and month, so used − allowed is not counted wherever a brand stayed
@@ -95,7 +91,7 @@ function MarginDrawer({ c, dr }: { c: Ctx; dr: DrawerCtl }) {
   const has = isNum(h.loss_pct);
   const goTo = (v: View) => { dr.close(); c.onOpen(v); };
   // The words the Summary's drawer for this section uses too.
-  const method = lossMethod(c.kind, c.meta.cash_list?.financial_year);
+  const method = lossMethod("cash", c.meta.cash_list?.financial_year);
   return (
     <DetailDrawer open={dr.open} onClose={dr.close} initialTab={dr.tab} size="wide"
       eyebrow={`${c.w.section} · Overview`} title={`${c.w.title} · ${c.where}`}
@@ -144,11 +140,11 @@ export function MarginTile({ c, place }: { c: Ctx; place: Place }) {
   const h = c.d.headline;
   const prev = prevMonth(c.d);
   const has = isNum(h.loss_pct);
-  const title = "Margin: proposed → actual";
+  const title = "Margin: possible → earned";
   const steps: WaterStep[] = [
     { key: "proposed", label: "Margin possible", value: h.potential_margin, kind: "total", color: PROPOSED_COL, valueLabel: lakhs(h.potential_margin), note: c.w.sugShort.toLowerCase() },
     // Actual − proposed is minus the loss: the API's loss, never a recomputed one.
-    { key: "loss", label: "Margin missed", value: -h.margin_loss, kind: "delta", color: LOSS_COL, valueLabel: lakhs(-h.margin_loss), note: `${pct(h.loss_pct)} of proposed` },
+    { key: "loss", label: "Margin missed", value: -h.margin_loss, kind: "delta", color: LOSS_COL, valueLabel: lakhs(-h.margin_loss), note: `${pct(h.loss_pct)} of possible` },
     { key: "actual", label: "Margin earned", value: h.actual_margin, kind: "total", color: USED_COL, valueLabel: lakhs(h.actual_margin), note: c.w.usedShort.toLowerCase() },
   ];
   return (

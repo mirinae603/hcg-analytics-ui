@@ -6,8 +6,8 @@
 import React from "react";
 import { SUB, BRASS } from "./kit";
 import {
-  DELTA_THRESHOLD, SOURCE_LABEL, SOURCE_NOTE, STATUS_COLOR, STATUS_LABEL, TONE_COLOR, TONE_WORD, deltaTone,
-  type DeltaUnit, type GoodWhen, type Source, type Status,
+  DELTA_THRESHOLD, SOURCE_LABEL, STATUS_COLOR, STATUS_LABEL, TONE_COLOR, TONE_WORD, deltaTone, sourceKind, sourceNote,
+  type DeltaUnit, type GoodWhen, type SourceOf, type Status,
 } from "./status";
 import { lakhs } from "./format";
 
@@ -62,15 +62,17 @@ export function StatusChip({ status, label }: { status: Status; label?: string }
 }
 
 /** Where a figure comes from. Computed is the default; figures from HCG's MIS and the app's
- *  estimates are marked so they are never mistaken for recomputed ones. */
-export function SourceBadge({ source, asOf }: { source: Source; asOf?: string | null }) {
-  const c = source === "estimate" ? BRASS : SUB;
+ *  estimates are marked so they are never mistaken for recomputed ones. A SourceSpec gives the
+ *  tooltip its section's own words (purchases, an estimated definition). */
+export function SourceBadge({ source, asOf }: { source: SourceOf; asOf?: string | null }) {
+  const kind = sourceKind(source);
+  const c = kind === "estimate" ? BRASS : SUB;
   return (
-    <span className="inline-flex items-center gap-1.5 text-[10.5px] font-semibold uppercase whitespace-nowrap" title={SOURCE_NOTE[source]}
+    <span className="inline-flex items-center gap-1.5 text-[10.5px] font-semibold uppercase whitespace-nowrap" title={sourceNote(source)}
       style={{ color: c, letterSpacing: ".08em" }}>
       <span aria-hidden="true" className="inline-block w-[7px] h-[7px] rounded-full"
-        style={{ border: `1px ${source === "computed" ? "solid" : "dashed"} ${c}`, background: source === "computed" ? c : "transparent" }} />
-      {SOURCE_LABEL[source]}
+        style={{ border: `1px ${kind === "computed" ? "solid" : "dashed"} ${c}`, background: kind === "computed" ? c : "transparent" }} />
+      {SOURCE_LABEL[kind]}
       {asOf && <span className="normal-case font-medium" style={{ letterSpacing: 0 }}>· data as of {asOf}</span>}
     </span>
   );

@@ -10,7 +10,7 @@ import { LinkButton } from "@/components/portfolio/ledger/panel";
 import { lakhs, pct, rupeesExact } from "@/components/portfolio/ledger/format";
 import { useSelectHospital } from "@/context/RegionContext";
 import { MonthTable } from "../Trend";
-import type { Section, View } from "../api";
+import { VIEWS, type Section, type View } from "../api";
 import { LOSS_COL, PROPOSED_COL, RATE_COL, USED_COL } from "../shared";
 import { KIND, type HospitalLoss, type KindWords, type LossKind, type LossRow, type MonthLoss } from "./model";
 
@@ -106,14 +106,11 @@ export function GoLinks({ links, onGo }: { links: GoLink[]; onGo: Go }) {
   );
 }
 
-/** A section's three links: its overview, its brands and its doctors. */
+/** A link to each of a section's tabs: its overview, its brands, its doctors (vendors, for
+ *  out of formulary's purchases). */
 export const sectionLinks = (kind: LossKind): GoLink[] => {
   const w = KIND[kind];
-  return [
-    { label: `${w.short} overview`, section: w.section, view: "overview" },
-    { label: `${w.short} brands`, section: w.section, view: "items" },
-    { label: `${w.short} doctors`, section: w.section, view: "doctors" },
-  ];
+  return VIEWS[w.section].map((v) => ({ label: `${w.short} ${v.label.toLowerCase()}`, section: w.section, view: v.key }));
 };
 
 /** A drawer's Method tab: a few paragraphs, then the section's own notes as a list. */

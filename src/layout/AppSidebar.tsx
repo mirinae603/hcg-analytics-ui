@@ -13,7 +13,7 @@ import {
   TbPill, TbBuildingHospital,
   TbTargetArrow, TbRadar2, TbChartDots3, TbChartLine, TbCashBanknote, TbReload,
   TbLogin2, TbUserPlus, TbHome, TbLogout2, TbMessage2, TbShieldCheck,
-  TbClipboardList, TbStethoscope, TbBuildingBank, TbCoinRupee, TbReplace, TbListCheck,
+  TbClipboardList, TbStethoscope, TbBuildingBank, TbCoinRupee, TbReplace, TbListCheck, TbTags, TbPills,
 } from "react-icons/tb";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -73,10 +73,13 @@ const FORMULARY_EXTRA: PanelItem[] = [
 
 // Spend Analysis — the same one-page shape as Formulary Compliance: sections in ?section=.
 // The panel's Overview link (/spend) opens the Summary; any one brand is the page's Brand filter.
+// Prices and Generic vs branded are the purchase analyses beside the three margin sections.
 const SPEND_EXTRA: PanelItem[] = [
   { name: "Scheme brands", title: "Margin missed on scheme patients: cheaper suggested brands", path: "/spend?section=scheme", Icon: TbBuildingBank },
   { name: "Cash & TPA margin", title: "Margin missed on cash and insurance patients", path: "/spend?section=cash", Icon: TbCoinRupee },
   { name: "Out of formulary", title: "Margin missed on brands outside the formulary", path: "/spend?section=oof", Icon: TbReplace },
+  { name: "Prices", title: "The same product bought at different prices, by supplier and hospital", path: "/spend?section=prices", Icon: TbTags },
+  { name: "Generic vs branded", title: "What originator brands cost above generics, and where they sit in the formulary", path: "/spend?section=generic", Icon: TbPills },
 ];
 
 // Revenue & Margin — real IP+OP billing page, lives under Consumption & Revenue.

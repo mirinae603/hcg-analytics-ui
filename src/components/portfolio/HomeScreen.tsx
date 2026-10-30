@@ -170,8 +170,9 @@ export default function HomeScreen() {
               note={formularyWindow ? `HIS sales · ${formularyWindow}` : null} />
           </div>
           <div className="md:col-span-2">
-            <KpiBlock title="Spend" subtitle="Scheme · Cash & TPA · Out of formulary" href="/spend" accent={SP_ACCENT} delay={570}
-              note={formularyWindow ? `HIS sales · ${formularyWindow}` : null} />
+            {/* Spend reads two sources with months of their own (bills, and purchases from Dec-25): the page names them. */}
+            <KpiBlock title="Spend" subtitle="Margin missed · Prices · Generic" href="/spend" accent={SP_ACCENT} delay={570}
+              note="HIS sales + GRN purchases" />
           </div>
         </div>
 

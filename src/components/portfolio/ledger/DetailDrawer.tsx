@@ -15,7 +15,7 @@ import { TbX } from "react-icons/tb";
 import { INK, SUB, LINE, RULE } from "./kit";
 import { DeltaChip, SourceBadge, StatusChip, type DeltaProps } from "./KpiCard";
 import { Swatch } from "./charts";
-import type { Source, Status } from "./status";
+import type { SourceOf, Status } from "./status";
 
 export type DrawerTab = { key: string; label: string; render: () => React.ReactNode; hidden?: boolean };
 export type DrawerFilter = { label: string; value: string };
@@ -47,7 +47,8 @@ export default function DetailDrawer({
   eyebrow: string;
   title: React.ReactNode;
   kpi?: DrawerKpi;
-  source?: Source;
+  /** Where the figure comes from; a SourceSpec gives its badge the section's own words. */
+  source?: SourceOf;
   asOf?: string | null;
   /** The filters the figure was computed under, shown read-only. */
   filters?: DrawerFilter[];

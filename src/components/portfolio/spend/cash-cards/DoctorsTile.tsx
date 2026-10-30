@@ -1,5 +1,5 @@
 "use client";
-// Spend Analysis (Cash & TPA / Out of formulary) — the five treating doctors with the most margin
+// Spend Analysis (Cash & TPA) — the five treating doctors with the most margin
 // loss, the consultants HCG's spend email asks units to follow up with. The tile asks the very
 // endpoint the Doctors tab pages through, for one page of five sorted by margin missed (the
 // ledger's useTopRows), so every figure matches that tab row for row. The drawer lists the five
@@ -16,7 +16,7 @@ import type { View } from "../api";
 import { DOCTOR_COL, type Ctx } from "./context";
 import { Method } from "./parts";
 
-/** A row of /spend/{cash|oof}/doctors (the Doctors tab's columns). */
+/** A row of /spend/cash/doctors (the Doctors tab's columns). */
 type DoctorRow = {
   doctor_id: string; doctor_name: string | null; plant: string; hospital_name: string | null;
   brands: number; qty: number; actual_margin: number; potential_margin: number;
@@ -28,12 +28,12 @@ const shareText = (r: DoctorRow) => (isNum(r.share_pct) ? `${pct(r.share_pct, 1)
 
 export function DoctorsTile({ c, place }: { c: Ctx; place: Place }) {
   const dr = useDrawer();
-  const { page, error } = useTopRows<DoctorRow>(`/spend/${c.kind}/doctors`, c.params, "margin_loss");
+  const { page, error } = useTopRows<DoctorRow>("/spend/cash/doctors", c.params, "margin_loss");
   const rows = page?.data ?? [];
   const all = page?.sums?.margin_loss;
   const title = `Top ${TOP_N} doctors by margin missed`;
   const go = (v: View) => { dr.close(); c.onOpen(v); };
-  const none = `No doctor in this selection has ${c.kind === "oof" ? "an out-of-formulary" : "a"} margin missed.`;
+  const none = "No doctor in this selection has a margin missed.";
   const empty = error ? `Couldn't load the doctors: ${error}` : page ? none : "Loading the doctors…";
   return (
     <>
@@ -76,7 +76,7 @@ export function DoctorsTile({ c, place }: { c: Ctx; place: Place }) {
         linkLabel="All doctors" onOpenTab={() => go("doctors")}
         method={(
           <Method c={c}>
-            <p>Doctors are the treating doctor on each HIS sales line, keyed by their HIS ID within a hospital. Each doctor&apos;s margin missed is summed over the selection; the five with the most are shown, the same first page the Doctors tab opens on.{c.kind === "cash" ? " For a bifurcated brand, HCG's allowance is shared across its doctors in proportion to their quantity." : ""}</p>
+            <p>Doctors are the treating doctor on each HIS sales line, keyed by their HIS ID within a hospital. Each doctor&apos;s margin missed is summed over the selection; the five with the most are shown, the same first page the Doctors tab opens on. For a bifurcated brand, HCG&apos;s allowance is shared across its doctors in proportion to their quantity.</p>
             <p>On the chart each doctor&apos;s margin missed is a bar from zero on one scale.</p>
           </Method>
         )} />
