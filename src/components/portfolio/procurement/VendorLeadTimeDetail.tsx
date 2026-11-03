@@ -7,6 +7,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { useRegion, displayRegion } from "@/context/RegionContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
+import { useWindows, windowLabel } from "@/lib/useWindows";
 import { countAbbr, useMount, CountUp, smoothPath } from "@/components/portfolio/kit";
 import { TbTruckDelivery, TbRocket, TbAlertTriangle } from "react-icons/tb";
 import { DetailSkeleton } from "./parts";
@@ -23,6 +24,7 @@ const vName = (s: string, n = 16) => (s && s.length > n ? s.slice(0, n - 1) + "�
 const speedByDays = (d: number) => (d <= 2 ? SPEED[0] : d <= 5 ? SPEED[1] : d <= 10 ? SPEED[2] : d <= 20 ? SPEED[3] : SPEED[4]);
 
 function Shell({ region, children }: any) {
+  const grn = useWindows()?.windows.grn;   // every receipt held: the goods-receipt months
   return (
     <div className="-m-4 md:-m-6 p-4 md:p-6 space-y-5 min-w-0" style={{ background: PAGE, minHeight: "calc(100vh - 64px)" }}>
       <style jsx global>{`
@@ -34,7 +36,7 @@ function Shell({ region, children }: any) {
           <h1 className="text-[24px] font-bold leading-tight" style={{ color: INK }}>Vendor lead time</h1>
           <p className="text-[13px] mt-1" style={{ color: SUB }}>how reliably suppliers turn a purchase order into delivered goods · {displayRegion(region)}</p>
         </div>
-        <span className="text-[12px] font-medium px-3.5 py-2 rounded-full bg-white" style={{ color: "#6a6486", boxShadow: "0 4px 14px -8px rgba(58,44,110,0.22)" }} title="Average PO→GR turnaround across all recorded goods receipts (not limited to a 6-month window).">PO→GR · all deliveries</span>
+        <span className="text-[12px] font-medium px-3.5 py-2 rounded-full bg-white" style={{ color: "#6a6486", boxShadow: "0 4px 14px -8px rgba(58,44,110,0.22)" }} title={`Average PO→GR turnaround across every recorded goods receipt${grn ? ` (${windowLabel(grn)})` : ""}.`}>PO→GR · all deliveries</span>
       </div>
       {children}
     </div>

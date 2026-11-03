@@ -15,8 +15,11 @@
 //   PanelSkeleton  — a panel's loading placeholder, in the panel's own place, so nothing jumps
 //                    when the answer arrives.
 //
-// Fit mode is the `fit:` variant in globals.css: at least 1280px wide and 760px tall. Below it
-// (1366×768 laptops, tablets, phones) the same panels stack in DOM order, which is therefore
+// Fit mode is the `fit:` variant in globals.css: at least 1280px wide and 760px tall. A grid that
+// scrolls instead (fixed row heights) marks itself data-scroll-grid and places its panels from
+// the width alone (the `scrollgrid:` variant), since it never has to fit the height. Below
+// either (1366×768 laptops on a one-screen page, tablets, phones) the same panels stack in DOM
+// order, which is therefore
 // the priority order: the key figure, the trend, the composition, the split, where the unit
 // stands, then the lists. Two abreast, a half-width panel moves up into a cell a full-width one
 // would leave empty (a key figure followed by its trend), rather than leave a hole in the page.
@@ -35,12 +38,16 @@ export const GRID_COLS = 12;
 const isBig = (p: Place) => p.span >= GRID_COLS / 2 || (p.rows ?? 1) > 1;
 
 // Whole class names only (no class glued to an interpolation), so Tailwind's scanner sees each.
-const PLACED = "min-w-0 min-h-[var(--panel-min,240px)] fit:min-h-0 fit:[grid-column:var(--c)] fit:[grid-row:var(--r)]";
+// The `scrollgrid:` copies place a panel inside a data-scroll-grid grid at the fit width whatever
+// the height; anywhere else they never match, so the one-screen pages are unchanged.
+const PLACED = "min-w-0 min-h-[var(--panel-min,240px)] fit:min-h-0 fit:[grid-column:var(--c)] fit:[grid-row:var(--r)]"
+  + " scrollgrid:min-h-0 scrollgrid:[grid-column:var(--c)] scrollgrid:[grid-row:var(--r)]";
 const PLACED_BIG = `${PLACED} md:col-span-2`;
 
-/** The class names and CSS variables that put an element in `p`'s place. In fit mode the
- *  placement comes from --c / --r; in the stack it is ignored and --panel-min sets the height.
- *  (The `fit:` rules are emitted after the `md:` ones, so they win where both match.) */
+/** The class names and CSS variables that put an element in `p`'s place. In fit mode (or in a
+ *  scroll grid at the fit width) the placement comes from --c / --r; in the stack it is ignored
+ *  and --panel-min sets the height. (The `fit:` and `scrollgrid:` rules are emitted after the
+ *  `md:` ones, so they win where both match.) */
 export function placeProps(p: Place): { className: string; style: React.CSSProperties } {
   return {
     className: isBig(p) ? PLACED_BIG : PLACED,
@@ -90,7 +97,7 @@ export function OneScreenShell({ fit, bar, filters, children }: {
 
 export function PanelSkeleton({ place }: { place: Place }) {
   const p = placeProps(place);
-  return <div aria-hidden="true" className={`${p.className} rounded-[14px] animate-pulse`} style={{ ...p.style, background: SKELETON }} />;
+  return <div aria-hidden="true" className={`${p.className} rounded-[20px] animate-pulse`} style={{ ...p.style, background: SKELETON }} />;
 }
 
 export function OneScreenGrid({ ariaLabel, loading = false, stale = false, skeleton = [], children }: {

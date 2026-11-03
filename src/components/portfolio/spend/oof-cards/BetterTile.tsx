@@ -30,12 +30,12 @@ function BetterDrawer({ c, dr, title }: { c: Ctx; dr: DrawerCtl; title: string }
                 <KeyFigures figures={[
                   { label: "Missed where the suggestion earns more", value: rupeesExact(h.gain_loss), color: LOSS_COL, note: "the receipts where switching gains" },
                   { label: "Where the brand bought earns more", value: rupeesExact(h.better_loss), color: USED_COL, note: "the receipts where switching loses" },
-                  { label: "Margin missed, net", value: rupeesExact(h.margin_loss), note: "the two together: HCG's figure" },
+                  { label: "Margin missed, net", value: rupeesExact(h.margin_loss), note: "the two together: the headline figure" },
                 ]} />
               </DrawerSection>
               <DrawerSection title={rows.length > 1 ? `The ${rows.length} switches that would cost the most` : "Switches that would cost margin"}
                 note="Margin missed is negative here: the brand bought earns that much more than the suggested brand would on the same units.">
-                <SwitchTable rows={rows} caption="Out-of-formulary brands that earn more than their suggestion" empty="In this selection every brand bought earns less than its suggested brand." />
+                <SwitchTable rows={rows} caption="Out-of-formulary brands that earn more than their suggestion" context={c.context} empty="In this selection every brand bought earns less than its suggested brand." />
               </DrawerSection>
             </>
           ),
@@ -43,7 +43,7 @@ function BetterDrawer({ c, dr, title }: { c: Ctx; dr: DrawerCtl; title: string }
         {
           key: "method", label: "Method", render: () => (
             <Method c={c}>
-              <p>Per receipt, margin missed = the suggested brand&apos;s margin − the brand bought&apos;s, on the same units. Where the brand bought earns more, that is negative, and HCG&apos;s sheet adds it in: its figure is net. The app shows the net figure as the margin missed, as HCG does, and its two parts here.</p>
+              <p>Per receipt, margin missed = the suggested brand&apos;s margin − the brand bought&apos;s, on the same units. Where the brand bought earns more, that is negative, and HCG&apos;s method adds it in, so the figure is net. The app shows the net figure as the margin missed, and its two parts here.</p>
               <p>On the chart each switch is a bar from zero of what keeping the brand bought earns more, in the margin-earned colour.</p>
             </Method>
           ),

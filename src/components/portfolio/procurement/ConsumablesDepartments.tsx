@@ -133,7 +133,7 @@ export default function ConsumablesDepartments({ region }: { region: string }) {
           <p className="text-[12px] mt-0.5" style={{ color: SUB }}>{data?.note ?? "Consumables (HCG 3-series) issued to each department's cost centre."}</p>
         </div>
         {namesPending && !busy && (
-          <span className="text-[11px] font-medium px-2.5 py-1 rounded-full whitespace-nowrap" style={{ background: `${PLUM}14`, color: PLUM_DEEP }}>cost-centre codes · department names pending from HCG</span>
+          <span className="text-[11px] font-medium px-2.5 py-1 rounded-full whitespace-nowrap" style={{ background: `${PLUM}14`, color: PLUM_DEEP }}>cost-centre codes · no department names in the data</span>
         )}
       </div>
 

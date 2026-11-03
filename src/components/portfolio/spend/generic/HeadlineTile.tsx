@@ -1,10 +1,12 @@
 "use client";
 // Spend Analysis (Generic vs branded) — the headline tile: what was bought, as one 100% bar of
 // generic and branded value, and the cost of branded: what branded purchases cost above the
-// cheapest generic of the same product, as a share of the branded value that had a generic to
-// compare with. The drawer has the written summary, the exact figures, how each purchase got its
-// class, and the method.
+// usual cheapest generic of the same product, as a share of the branded value that had a generic to
+// compare with. Its last line states the usual cheapest generic's rule in short, so the benchmark
+// is read on screen, not only in a Method tab. The drawer has the written summary, the exact
+// figures, how each purchase got its class, and the method.
 import React from "react";
+import { TbScale } from "react-icons/tb";
 import { ChartPanel, PanelPart } from "@/components/portfolio/ledger/panel";
 import type { Place } from "@/components/portfolio/ledger/onescreen";
 import { PartBar } from "@/components/portfolio/ledger/bars";
@@ -14,7 +16,7 @@ import { lakhs, pct, rupeesExact } from "@/components/portfolio/ledger/format";
 import { num } from "@/lib/kpiFormat";
 import type { GenericOverview } from "../api";
 import { DataTable, type Col } from "../DataTable";
-import { plural } from "../insights";
+import { plural, usualCheapestShort } from "../insights";
 import { BRANDED_COL, GENERIC_COL, GENERIC_SOURCE, Method, type Ctx } from "./context";
 
 type Source = GenericOverview["by_source"][number];
@@ -24,7 +26,7 @@ function brief(c: Ctx): string[] {
   if (!h.lines) return [`${c.w.none} at ${c.where}, ${c.when}.`];
   return [
     `At ${c.where}, ${c.when}, HCG bought ${rupeesExact(h.value)} of drugs: ${rupeesExact(h.generic_value)} generic (${pct(h.generic_pct)}, ${plural(h.generic_brands, "brand")}) and ${rupeesExact(h.branded_value)} branded (${pct(h.branded_pct)}, ${plural(h.branded_brands, "brand")}).`,
-    `${rupeesExact(h.compared_value)} of the branded purchases were of products also bought as a generic that month; they cost ${rupeesExact(h.extra_vs_generic)} above the cheapest generic, ${pct(h.extra_vs_generic_pct)} of their value.`,
+    `${rupeesExact(h.compared_value)} of the branded purchases were of products also bought as a generic that month; they cost ${rupeesExact(h.extra_vs_generic)} above the usual cheapest generic, ${pct(h.extra_vs_generic_pct)} of their value.`,
     `The other ${rupeesExact(h.branded_not_compared)} of branded purchases had no generic bought that month to compare with.`,
     c.w.plain,
   ];
@@ -45,8 +47,8 @@ function figures(c: Ctx): KeyFigure[] {
 
 const SOURCE_COLS: Col<Source>[] = [
   { label: "How the class was set", align: "left", wrap: true, render: (s) => s.label },
-  { label: "Value", render: (s) => rupeesExact(s.value) },
-  { label: "Receipts", render: (s) => num(s.lines) },
+  { label: "Value", render: (s) => rupeesExact(s.value), raw: (s) => s.value, unit: "₹" },
+  { label: "Receipts", render: (s) => num(s.lines), raw: (s) => s.lines },
 ];
 
 function HeadlineDrawer({ c, dr, title }: { c: Ctx; dr: DrawerCtl; title: string }) {
@@ -74,7 +76,7 @@ function HeadlineDrawer({ c, dr, title }: { c: Ctx; dr: DrawerCtl; title: string
         {
           key: "source", label: "How classed", render: () => (
             <DrawerSection title="How each purchase got its class" note={`The build reads the GRN's manufacturer against ${c.d.definition?.files?.originators ?? "the originator list"}; ${c.d.definition?.files?.overrides ?? "the override list"} names brands that list cannot see (an originator's brand sold by an Indian firm). Both are HCG-editable reference files.`}>
-              <DataTable rows={c.d.by_source || []} rowKey={(s) => s.key} cols={SOURCE_COLS} caption="Purchase value by how its generic or branded class was set" />
+              <DataTable context={c.context} rows={c.d.by_source || []} rowKey={(s) => s.key} cols={SOURCE_COLS} caption="Purchase value by how its generic or branded class was set" />
             </DrawerSection>
           ),
         },
@@ -96,11 +98,11 @@ export function HeadlineTile({ c, place }: { c: Ctx; place: Place }) {
   const title = "Generic vs branded bought";
   return (
     <>
-      <ChartPanel id="headline" title={title} context={c.context} accent={GENERIC_COL} place={place} source={GENERIC_SOURCE}
+      <ChartPanel id="headline" title={title} context={c.context} icon={TbScale} place={place} source={GENERIC_SOURCE}
         label={h.lines ? [
           `${title}, ${c.context}`,
           `generic ${lakhs(h.generic_value)} (${pct(h.generic_pct, 1)}), branded ${lakhs(h.branded_value)} (${pct(h.branded_pct, 1)})`,
-          `branded cost ${lakhs(h.extra_vs_generic)} above the cheapest generic, ${pct(h.extra_vs_generic_pct, 1)} of the ${lakhs(h.compared_value)} branded value that had one`,
+          `branded cost ${lakhs(h.extra_vs_generic)} above the usual cheapest generic, ${pct(h.extra_vs_generic_pct, 1)} of the ${lakhs(h.compared_value)} branded value that had one`,
         ].join(". ") : `${title}, ${c.context}. ${c.w.none}`}
         onOpen={() => dr.show("summary")} onInfo={() => dr.show("method")}>
         {h.lines ? (
@@ -113,8 +115,11 @@ export function HeadlineTile({ c, place }: { c: Ctx; place: Place }) {
             </PanelPart>
             <p className="flex-shrink-0 text-[12px] leading-snug pt-1.5" style={{ color: SUB }}>
               <span className="inline-block w-2 h-2 rounded-full mr-1.5 align-middle" aria-hidden="true" style={{ background: BRANDED_COL }} />
-              Branded cost <b className="tabular-nums" style={{ color: INK }}>{lakhs(h.extra_vs_generic)}</b> above the cheapest generic
+              Branded cost <b className="tabular-nums" style={{ color: INK }}>{lakhs(h.extra_vs_generic)}</b> above the usual cheapest generic
               {" "}<span className="tabular-nums">({pct(h.extra_vs_generic_pct, 1)} of the {lakhs(h.compared_value)} that had one)</span>
+            </p>
+            <p className="flex-shrink-0 truncate text-[11px] pt-1" style={{ color: SUB }} title={c.rule}>
+              {usualCheapestShort(c.d.rule, { what: "usual cheapest generic", units: "the month's generic units" })}
             </p>
           </div>
         ) : (

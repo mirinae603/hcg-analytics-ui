@@ -40,14 +40,15 @@ function VendorsDrawer({ c, dr, title }: { c: Ctx; dr: DrawerCtl; title: string 
           <span className="block text-[11px]" style={{ color: SUB }}>{codesText(v.vendor_codes)} · {plural(v.brands, "brand")} · {plural(v.hospitals, "hospital")}</span>
         </span>
       ),
+      raw: ({ v }) => `${vendorOf(v)} (${codesText(v.vendor_codes)})`,
     },
-    { label: "Spent", render: ({ v }) => rupeesExact(v.purchase_value) },
-    { label: "Margin earned", render: ({ v }) => rupeesExact(v.actual_margin) },
-    { label: "Margin possible", render: ({ v }) => rupeesExact(v.potential_margin) },
-    { label: "Margin missed", render: ({ v }) => <b>{rupeesExact(v.margin_loss)}</b> },
-    { label: "% missed", render: ({ v }) => pct(v.loss_pct) },
-    { label: "Share", render: ({ v }) => pct(v.share_of_total_pct, 1) },
-    { label: "No alternative", render: ({ v }) => rupeesExact(v.no_alternative_value) },
+    { label: "Spent", render: ({ v }) => rupeesExact(v.purchase_value), raw: ({ v }) => v.purchase_value, unit: "₹" },
+    { label: "Margin earned", render: ({ v }) => rupeesExact(v.actual_margin), raw: ({ v }) => v.actual_margin, unit: "₹" },
+    { label: "Margin possible", render: ({ v }) => rupeesExact(v.potential_margin), raw: ({ v }) => v.potential_margin, unit: "₹" },
+    { label: "Margin missed", render: ({ v }) => <b>{rupeesExact(v.margin_loss)}</b>, raw: ({ v }) => v.margin_loss, unit: "₹" },
+    { label: "% missed", render: ({ v }) => pct(v.loss_pct), raw: ({ v }) => v.loss_pct, unit: "%" },
+    { label: "Share", render: ({ v }) => pct(v.share_of_total_pct, 1), raw: ({ v }) => v.share_of_total_pct, unit: "%" },
+    { label: "No alternative", render: ({ v }) => rupeesExact(v.no_alternative_value), raw: ({ v }) => v.no_alternative_value, unit: "₹" },
   ];
   return (
     <DetailDrawer open={dr.open} onClose={dr.close} initialTab={dr.tab} size="wide"
@@ -60,8 +61,8 @@ function VendorsDrawer({ c, dr, title }: { c: Ctx; dr: DrawerCtl; title: string 
             <>
               <DrawerSection title={all.length > 1 ? `The ${all.length} vendors with the most margin missed` : "Vendors with a margin missed"}
                 note={`${GAIN_SHARE_NOTE} The net margin missed is ${rupeesExact(h.margin_loss)}. No alternative = what was bought from the vendor of brands with no suggested brand (shown, not counted).`}>
-                <DataTable rows={all.map((v, i) => ({ n: i + 1, v }))} rowKey={(x) => x.v.vendor} cols={cols}
-                  caption={`${title} by margin missed`} minWidth={900} />
+                <DataTable context={c.context} rows={all.map((v, i) => ({ n: i + 1, v }))} rowKey={(x) => x.v.vendor} cols={cols}
+                  caption={title} minWidth={900} />
               </DrawerSection>
               <DrawerSection title="Every vendor" note="The Vendors tab lists them all, searchable; click a vendor there to see the brands bought from it.">
                 <LinkButton onClick={() => goTo("vendors")}>All vendors</LinkButton>

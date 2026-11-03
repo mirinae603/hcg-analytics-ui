@@ -2,8 +2,8 @@
 // Spend Analysis (Generic vs branded) — the months, on two tiles that share one drawer:
 //   MonthTile — what was bought each month, generic and branded stacked into one bar, with the %
 //               branded as a line riding the bar tops.
-//   ExtraTile — the cost of branded each month: what branded purchases cost above the cheapest
-//               generic of the same product that month, with that as a % of the branded value
+//   ExtraTile — the cost of branded each month: what branded purchases cost above the usual
+//               cheapest generic of the same product that month, with that as a % of the branded value
 //               that had a generic to compare with, as the line.
 // Every purchase month is drawn; the Month filter only shades its months. The drawer has both
 // charts and the month table (with which months have an Item Master).
@@ -20,7 +20,7 @@ const PARTS: ComboSeries[] = [
   { key: "generic", label: "Generic", color: GENERIC_COL },
   { key: "branded", label: "Branded", color: BRANDED_COL },
 ];
-const EXTRA: ComboSeries[] = [{ key: "extra", label: "Branded above the cheapest generic", color: BRANDED_COL }];
+const EXTRA: ComboSeries[] = [{ key: "extra", label: "Branded above the usual cheapest generic", color: BRANDED_COL }];
 const BRANDED_LINE = { label: "% branded", color: RATE_COL, decimals: 1 };
 const EXTRA_LINE = { label: "% above generic", color: RATE_COL, decimals: 1 };
 
@@ -41,17 +41,17 @@ function extraMonths(c: Ctx): ComboMonth[] {
 }
 
 const TABLE_COLS: MonthCol<Month>[] = [
-  { label: "Generic", render: (r) => rupeesExact(r.generic_value) },
-  { label: "Branded", render: (r) => rupeesExact(r.branded_value) },
-  { label: "% branded", render: (r) => pct(r.branded_pct) },
-  { label: "Branded compared", render: (r) => rupeesExact(r.compared_value) },
-  { label: "Above the cheapest generic", render: (r) => <b>{rupeesExact(r.extra_vs_generic)}</b> },
-  { label: "% above", render: (r) => pct(r.extra_vs_generic_pct) },
+  { label: "Generic", render: (r) => rupeesExact(r.generic_value), raw: (r) => r.generic_value, unit: "₹" },
+  { label: "Branded", render: (r) => rupeesExact(r.branded_value), raw: (r) => r.branded_value, unit: "₹" },
+  { label: "% branded", render: (r) => pct(r.branded_pct), raw: (r) => r.branded_pct, unit: "%" },
+  { label: "Branded compared", render: (r) => rupeesExact(r.compared_value), raw: (r) => r.compared_value, unit: "₹" },
+  { label: "Above the usual cheapest generic", render: (r) => <b>{rupeesExact(r.extra_vs_generic)}</b>, raw: (r) => r.extra_vs_generic, unit: "₹" },
+  { label: "% above", render: (r) => pct(r.extra_vs_generic_pct), raw: (r) => r.extra_vs_generic_pct, unit: "%" },
   { label: "Item Master", render: (r) => (r.item_master ? "yes" : "none") },
 ];
 
 const partsAria = (c: Ctx) => `Generic and branded purchases by month, ${c.where}, stacked, with the % branded as a line on the bar tops`;
-const extraAria = (c: Ctx) => `What branded purchases cost above the cheapest generic by month, ${c.where}, with that % as a line on the bar tops`;
+const extraAria = (c: Ctx) => `What branded purchases cost above the usual cheapest generic by month, ${c.where}, with that % as a line on the bar tops`;
 
 function MonthsDrawer({ c, dr, title }: { c: Ctx; dr: DrawerCtl; title: string }) {
   const h = c.d.headline;
@@ -59,7 +59,7 @@ function MonthsDrawer({ c, dr, title }: { c: Ctx; dr: DrawerCtl; title: string }
   return (
     <DetailDrawer open={dr.open} onClose={dr.close} initialTab={dr.tab} size="wide"
       eyebrow={`${c.w.section} · Overview`} title={`${title} · ${c.where}`}
-      kpi={{ value: rupeesExact(h.extra_vs_generic), comparator: `branded above the cheapest generic, ${pct(h.extra_vs_generic_pct)} of the branded value compared, ${c.when}` }}
+      kpi={{ value: rupeesExact(h.extra_vs_generic), comparator: `branded above the usual cheapest generic, ${pct(h.extra_vs_generic_pct)} of the branded value compared, ${c.when}` }}
       source={GENERIC_SOURCE} asOf={c.asOf} filters={c.chips}
       tabs={[
         {
@@ -69,14 +69,14 @@ function MonthsDrawer({ c, dr, title }: { c: Ctx; dr: DrawerCtl; title: string }
                 <MonthCombo months={partsMonths(c)} series={PARTS} line={BRANDED_LINE} format={lakhs} ariaLabel={partsAria(c)} />
               </DrawerSection>
               <DrawerSection title="Month by month" note={`${c.w.extraNote} Item Master: whether the month has its own (the formulary split needs one).`}>
-                <MonthTable rows={c.d.by_month || []} cols={TABLE_COLS} selected={sel} />
+                <MonthTable rows={c.d.by_month || []} cols={TABLE_COLS} selected={sel} caption={`${c.w.title} by month, ${c.where}`} />
               </DrawerSection>
             </>
           ),
         },
         {
           key: "extra", label: "Above generic", render: () => (
-            <DrawerSection title="Branded above the cheapest generic, by month" note="Bars from zero; the line joins the bar tops, each point labelled with that month's % above (of the branded value that had a generic). Months in your selection are shaded.">
+            <DrawerSection title="Branded above the usual cheapest generic, by month" note="Bars from zero; the line joins the bar tops, each point labelled with that month's % above (of the branded value that had a generic). Months in your selection are shaded.">
               <MonthCombo months={extraMonths(c)} series={EXTRA} line={EXTRA_LINE} format={lakhs} ariaLabel={extraAria(c)} />
             </DrawerSection>
           ),
@@ -85,7 +85,7 @@ function MonthsDrawer({ c, dr, title }: { c: Ctx; dr: DrawerCtl; title: string }
           key: "method", label: "Method", render: () => (
             <Method c={c}>
               <p>Every month with a GRN file is drawn; the Month filter only shades its months, the other filters apply. Bars start from zero on one scale; a % is read from the labels on its line, never from a second scale.</p>
-              <p>{c.w.extraNote} A month&apos;s cheapest generic is that month&apos;s, at any hospital.</p>
+              <p>{c.w.extraNote} A month&apos;s usual cheapest generic is that month&apos;s, at any hospital.</p>
             </Method>
           ),
         },

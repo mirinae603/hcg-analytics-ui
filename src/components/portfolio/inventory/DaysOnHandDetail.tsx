@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { useRegion, displayRegion } from "@/context/RegionContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
+import { useWindows, monthsLabel } from "@/lib/useWindows";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import { useCardCategory } from "@/components/common/CardCategoryFilter";
 import { useDrillBind } from "@/components/portfolio/useDrillBind";
@@ -177,6 +178,8 @@ function OverstockCard({ value, count, totalMovingValue }: { value: number; coun
 // CARD 4 — Idle capital (non-moving), the dominant reality, with a 89% ring
 function IdleCapitalCard({ value, count, totalValue, totalSkus }: { value: number; count: number; totalValue: number; totalSkus: number }) {
   const on = useMount(360); const C = 2 * Math.PI * 32; const pct = totalValue ? value / totalValue : 0;
+  // "no movement" is judged over the issues up to the stock count (and the billing months beside it)
+  const months = monthsLabel(useWindows()?.windows.consumption_to_snapshot);
   return (
     <Card>
       <Head icon={TbZzz} label="Idle capital" badge="no movement" color="#8a93a6" />
@@ -197,7 +200,7 @@ function IdleCapitalCard({ value, count, totalValue, totalSkus }: { value: numbe
       </div>
       <div className="mt-auto pt-4 border-t border-gray-50">
         <div className="pt-2.5 text-[11px] text-gray-400 leading-snug">
-          <b style={{ color: INK }}>{count.toLocaleString("en-IN")}</b> of {totalSkus.toLocaleString("en-IN")} SKUs had no consumption in 6 months
+          <b style={{ color: INK }}>{count.toLocaleString("en-IN")}</b> of {totalSkus.toLocaleString("en-IN")} SKUs had no consumption{months ? ` in ${months}` : ""}
         </div>
       </div>
     </Card>

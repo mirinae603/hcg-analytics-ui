@@ -4,7 +4,7 @@
 // method; the full brand and doctor tables stay in the sections, one link away.
 //
 //   SectionDrawer  — Cash & TPA, out of formulary or scheme, from the section's own overview.
-//   CombinedDrawer — HCG's 'CASH(TPA) & OUT OF FORMULARY' table and its months.
+//   CombinedDrawer — cash & TPA and out of formulary together: its months and method.
 //   LossByMonth    — the month chart the margin-loss panel and the combined drawer share.
 import React from "react";
 import { INK } from "@/components/portfolio/ledger/kit";
@@ -46,7 +46,7 @@ const count = (n: number, one: string, many: string) => `${num(n)} ${n === 1 ? o
 function brief(sec: SectionLoss, where: string, when: string, prev: MonthLoss | null): string[] {
   const h = sec.head, w = KIND[sec.kind];
   if (h.pct == null && h.loss === 0) return [`${where}, ${when}: ${NONE[sec.kind]}`];
-  const out = [`${where}, ${when}: ${LEAD[sec.kind](h)} The margin missed is ${rx(h.loss)}, ${pct(h.pct, 2)} ${w.pctOf}.`];
+  const out = [`${where}, ${when}: ${LEAD[sec.kind](h)} The ${w.loss.toLowerCase()} is ${rx(h.loss)}, ${pct(h.pct, 2)} ${w.pctOf}.`];
   if (prev) {
     const d = h.loss - prev.loss;
     out.push(Math.abs(d) < DELTA_THRESHOLD.rs
@@ -127,7 +127,7 @@ export function SectionDrawer({ sec, meta, filters, open, initialTab, onClose, o
         {
           key: "breakdown", label: "Breakdown", render: () => (
             <>{sec.splits.map((s) => (
-              <DrawerSection key={s.key} title={s.title} note={s.note}><LossTable rows={s.rows} words={w} /></DrawerSection>
+              <DrawerSection key={s.key} title={s.title} note={s.note}><LossTable rows={s.rows} words={w} caption={`${w.title}, ${s.title.toLowerCase()}, ${where} · ${when}`} /></DrawerSection>
             ))}</>
           ),
         },
@@ -179,15 +179,20 @@ export function CombinedDrawer({ d, w, meta, filters, asOf, open, initialTab, on
       filters={filterChips(meta, filters, d.scope, KIND.cash.payer)}
       tabs={[
         {
-          key: "mail", label: "As in HCG mail", render: () => (
+          key: "trend", label: "Trend", render: () => (
             <>
-              <DrawerSection title="CASH(TPA) & OUT OF FORMULARY"
-                note={`HCG's table: each margin added up over the two rows and the % taken on the totals. The out-of-formulary row is HCG's purchase (GRN) method for the same hospitals and months${sources ? `; its suggested brands, by money spent: ${sources}` : ""}.`}>
-                <LossTable words={KIND.cash} strong={["total"]} rows={[
-                  { key: "cash", label: KIND.cash.short, ...marginLoss(w.cash) },
-                  { key: "oof", label: "Out of formulary (purchases)", ...marginLoss(w.oof) },
-                  { key: "total", label: "Total", ...t },
-                ]} />
+              <DrawerSection title="Every month" note="Every published month, whatever the Month filter says; the months in your selection are shaded.">
+                <LossByMonth d={d} w={w} meta={meta} />
+                <div className="mt-5">
+                  <MonthTable rows={months} selected={new Set(d.scope.months)} caption={`Cash & TPA + out of formulary: margin missed by month, ${where}`} cols={[
+                    { label: "Total margin earned", render: (r) => rx(r.actual), raw: (r) => r.actual, unit: "₹" },
+                    { label: "Total margin possible", render: (r) => rx(r.proposed), raw: (r) => r.proposed, unit: "₹" },
+                    { label: "Cash & TPA missed", render: (r) => rx(r.cash_loss), raw: (r) => r.cash_loss, unit: "₹" },
+                    { label: "Out of formulary missed", render: (r) => (r.has_oof ? rx(r.oof_loss) : "no purchases"), raw: (r) => (r.has_oof ? r.oof_loss : null), unit: "₹" },
+                    { label: "Total margin missed", render: (r) => <b>{rx(r.loss)}</b>, raw: (r) => r.loss, unit: "₹" },
+                    { label: "% missed", render: (r) => pct(r.pct, 2), raw: (r) => r.pct, unit: "%" },
+                  ]} />
+                </div>
               </DrawerSection>
               <DrawerSection title="Full tables">
                 <GoLinks onGo={onGo} links={[
@@ -199,28 +204,12 @@ export function CombinedDrawer({ d, w, meta, filters, asOf, open, initialTab, on
           ),
         },
         {
-          key: "trend", label: "Trend", render: () => (
-            <DrawerSection title="Every month" note="Every published month, whatever the Month filter says; the months in your selection are shaded.">
-              <LossByMonth d={d} w={w} meta={meta} />
-              <div className="mt-5">
-                <MonthTable rows={months} selected={new Set(d.scope.months)} cols={[
-                  { label: "Total margin earned", render: (r) => rx(r.actual) },
-                  { label: "Total margin possible", render: (r) => rx(r.proposed) },
-                  { label: "Cash & TPA missed", render: (r) => rx(r.cash_loss) },
-                  { label: "Out of formulary missed", render: (r) => (r.has_oof ? rx(r.oof_loss) : "no purchases") },
-                  { label: "Total margin missed", render: (r) => <b>{rx(r.loss)}</b> },
-                  { label: "% missed", render: (r) => pct(r.pct, 2) },
-                ]} />
-              </div>
-            </DrawerSection>
-          ),
-        },
-        {
           key: "method", label: "Method", render: () => (
             <MethodText lines={[
-              w.note ?? "Cash & TPA and out of formulary together, as HCG's table shows them: each margin added up and the % taken on the totals.",
+              w.note ?? "Cash & TPA and out of formulary together: each margin added up and the % taken on the totals.",
               `Cash & TPA: ${methodOf("cash", meta).formula}`,
               `Out of formulary: ${methodOf("oof", meta).basis} ${methodOf("oof", meta).formula}`,
+              ...(sources ? [`Where the out-of-formulary suggested brands came from, by money spent: ${sources}.`] : []),
               EVERY_FIGURE,
             ]} />
           ),

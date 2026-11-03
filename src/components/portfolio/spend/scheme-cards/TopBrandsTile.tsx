@@ -16,6 +16,8 @@ import { LinkButton } from "../../formulary/parts";
 import type { Filters, Meta, Overview, View } from "../api";
 import { topTitle } from "../shared";
 import { BRAND_COL, PROPOSED_COL, WORDS, MethodTab, filterChips, type Scope } from "./context";
+import { SPEND_PAGE } from "../DataTable";
+import { DownloadCsv, type CsvColumn } from "@/components/portfolio/table/DownloadCsv";
 
 const WHAT = "brands to switch";
 
@@ -61,7 +63,7 @@ export function TopBrandsTile({ d, meta, filters, scope, place, onOpen }: {
         kpi={{ value: rupeesExact(d.headline.saving_missed), comparator: `${w.loss.toLowerCase()} on ${num(d.headline.brands)} brands` }}
         source="computed" asOf={scope.asOf} filters={filterChips(filters, scope, meta)}
         tabs={[
-          { key: "top", label: "Brands", render: () => <TopTable d={d} onAll={() => goTo("items")} /> },
+          { key: "top", label: "Brands", render: () => <TopTable d={d} context={scope.context} onAll={() => goTo("items")} /> },
           {
             key: "method", label: "Method", render: () => (
               <MethodTab d={d} meta={meta} lines={[
@@ -75,14 +77,29 @@ export function TopBrandsTile({ d, meta, filters, scope, place, onOpen }: {
   );
 }
 
-/** HCG's "Top 10 materials list contribution in margin missed", in exact rupees. */
-function TopTable({ d, onAll }: { d: Overview; onAll: () => void }) {
+/** HCG's "Top 10 materials list contribution in margin missed", in exact rupees; it downloads as
+ *  CSV, named with `context` (the selection the figures are for). */
+function TopTable({ d, context, onAll }: { d: Overview; context: string; onAll: () => void }) {
   const w = WORDS;
   const rows = d.top_items || [];
   const cols = "24px minmax(0,2.2fr) 64px 124px 124px 124px 64px 60px";
+  const ranked = rows.map((r, i) => ({ n: i + 1, r }));
+  const csv: CsvColumn<(typeof ranked)[number]>[] = [
+    { label: "#", value: ({ n }) => n },
+    { label: "Material", value: ({ r }) => r.material, text: true },
+    { label: "Brand used", value: ({ r }) => brandOf(r), text: true },
+    { label: `${w.sug.charAt(0).toUpperCase()}${w.sug.slice(1)} brand`, value: ({ r }) => suggestedOf(r) ?? "", text: true },
+    { label: "Qty", value: ({ r }) => num(r.qty), raw: ({ r }) => r.qty },
+    { label: w.actual, value: ({ r }) => rupeesExact(r.used_value), raw: ({ r }) => r.used_value, unit: "₹" },
+    { label: w.proposed, value: ({ r }) => rupeesExact(r.suggested_value), raw: ({ r }) => r.suggested_value, unit: "₹" },
+    { label: w.loss, value: ({ r }) => rupeesExact(r.saving_missed), raw: ({ r }) => r.saving_missed, unit: "₹" },
+    { label: w.pct, value: ({ r }) => pct(r.saving_pct), raw: ({ r }) => r.saving_pct, unit: "%" },
+    { label: "Share", value: ({ r }) => pct(r.share_of_total_pct, 1), raw: ({ r }) => r.share_of_total_pct, unit: "%" },
+  ];
   return (
     <DrawerSection title={topTitle(rows.length, WHAT)}
       note={`Brand used → the brand HCG's list suggests. Share = the brand's part of the ${rupeesExact(d.headline.saving_missed)} ${w.loss.toLowerCase()} in this selection.`}>
+      <DownloadCsv rows={ranked} columns={csv} page={SPEND_PAGE} caption={`${topTitle(rows.length, WHAT)}, ${context}`} />
       {!rows.length ? <p className="text-[12px]" style={{ color: SUB }}>Nothing in this selection.</p> : (
         <div className="overflow-x-auto -mx-1"><div className="flex flex-col" style={{ minWidth: 820 }}>
           <div className="grid gap-3 px-2 pb-2 text-[10px] font-semibold uppercase" style={{ gridTemplateColumns: cols, color: SUB, letterSpacing: ".06em", borderBottom: `1px solid ${RULE}` }}>

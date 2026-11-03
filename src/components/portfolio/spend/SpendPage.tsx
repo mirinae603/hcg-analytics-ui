@@ -5,6 +5,9 @@
 // TPA, Out of formulary — and two purchase analyses — Prices, Generic vs branded — each with
 // its own views; both live in the URL (?section=&view=) and are synced with
 // history.replaceState. Any one brand is the Brand filter, on every tab with a brand switch.
+// A link can open the page on a month, patient type and material type too (?month=&type=
+// &segment=, lib/linkSelection: the Executive overview's drill links do); they are written
+// back beside the section and view, so the address bar says what is on screen.
 //
 // Scheme and Cash & TPA are read from HIS sales (patients' bills: doctors, payers, patient
 // types); Out of formulary from HCG's purchases (GRN), HCG's own method: it has vendors instead
@@ -20,14 +23,16 @@
 // chips; then the content. An overview (the Summary, or a section's Overview) fills the screen
 // on a desktop; the brand, doctor and vendor tables scroll as pages do, under the same bar and
 // strip.
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useRegion, displayRegion } from "@/context/RegionContext";
+import { useBasis } from "@/context/BasisContext";
 import { useAiPageContext } from "@/context/AiChatContext";
 import { Skeleton } from "@/components/portfolio/ledger/kit";
 import { OneScreenShell } from "@/components/portfolio/ledger/onescreen";
 import { PageBar } from "@/components/portfolio/ledger/pagebar";
 import { dayLabel } from "@/components/portfolio/ledger/format";
 import { Notice } from "../formulary/parts";
+import { hasLinkSelection, readLinkSelection, writeLinkSelection } from "@/lib/linkSelection";
 import { errText, monthLabel, monthsLabel, plantParam } from "../formulary/api";
 import FilterBar, { type PayerMode } from "./FilterBar";
 import Overview, { OverviewSkeleton } from "./Overview";
@@ -40,10 +45,11 @@ import { OofBrands, OofVendors } from "./OofTables";
 import SpendSummary, { SummarySkeleton } from "./summary/SpendSummary";
 import PricesOverview, { PricesOverviewSkeleton } from "./prices/PricesOverview";
 import { PricesProducts } from "./prices/ProductsTable";
+import { PricesCheck } from "./prices/CheckList";
 import GenericOverview, { GenericOverviewSkeleton } from "./generic/GenericOverview";
 import {
-  DEFAULT_FILTERS, PAGE_SECTIONS, getMeta, insightFilters, isInsight, oofFilters, oofMonths, pageViews,
-  purchaseMonthLabel, purchaseMonthsLabel, purchaseMonthsOf, readLocation, salesFilters, writeLocation,
+  DEFAULT_FILTERS, LINK_SEGMENTS, PAGE_SECTIONS, getMeta, insightFilters, isInsight, oofFilters, oofMonths, pageHolds,
+  pageViews, purchaseMonthLabel, purchaseMonthsLabel, purchaseMonthsOf, readLocation, salesFilters, writeLocation,
   type Filters, type InsightSection, type Meta, type PageSection, type Section, type View,
 } from "./api";
 
@@ -57,12 +63,25 @@ const PURCHASE_SOURCE = "HCG purchases (GRN)";
  *  out of formulary purchases; the Summary each section's own. */
 const PAYER_MODE: Record<Section, PayerMode> = { scheme: "gov", cash: "cash", oof: "purchases" };
 
+/** Said on the bar when the header's switch is on Quantity: every Spend figure is money. The margin
+ *  sections (and the Summary of them) count margin missed; the purchase analyses count what was
+ *  paid above a benchmark, so each says its own measure. */
+const MARGIN_RUPEES = "Spend is in rupees: margin missed has no quantity version.";
+const INSIGHT_RUPEES: Record<InsightSection, string> = {
+  prices: "Prices are in rupees: the extra paid has no quantity version.",
+  generic: "Generic vs branded is in rupees: the extra over generics has no quantity version.",
+};
+const rupeesOnly = (s: PageSection) => (isInsight(s) ? INSIGHT_RUPEES[s] : MARGIN_RUPEES);
+
 export default function SpendPage() {
   const { selectedRegion } = useRegion();
+  const { basis } = useBasis();
   const plant = plantParam(selectedRegion);
   const [section, setSection] = useState<PageSection>("summary");
   const [view, setView] = useState<View | null>(null);
   const [meta, setMeta] = useState<Meta | null>(null);
+  // The same answer for the link handlers below, which are set up once when the page opens.
+  const metaRef = useRef<Meta | null>(null);
   const [metaErr, setMetaErr] = useState<string | null>(null);
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
   // The product Prices shows in detail (a molecule key); null: the one with the most extra paid.
@@ -73,33 +92,51 @@ export default function SpendPage() {
     getMeta()
       .then((m) => {
         if (dead) return;
+        metaRef.current = m;
         setMeta(m);
-        setFilters((f) => ({ ...f, month: f.month || m.latest || m.months?.[m.months.length - 1] || "ALL" }));
+        // The page opens on the latest sales month, or on the month a link asked for when a tab
+        // holds it.
+        setFilters((f) => ({ ...f, month: f.month && pageHolds(m, f.month) ? f.month : m.latest || m.months?.[m.months.length - 1] || "ALL" }));
       })
       .catch((e) => { if (!dead) setMetaErr(errText(e)); });
     return () => { dead = true; };
   }, []);
 
   const go = (loc: { section: PageSection; view: View }) => { setSection(loc.section); setView(loc.view); };
-  useEffect(() => { go(readLocation(window.location.search)); }, []);
+  // The tab and the selection a link asked for: the month (a month no tab holds opens the latest;
+  // before the months are known the answer to getMeta fits it), the patient type and the
+  // material type. A link without them leaves the page's own as they are.
+  const follow = (search: string) => {
+    go(readLocation(search));
+    const sel = readLinkSelection(search, LINK_SEGMENTS);
+    if (!hasLinkSelection(sel)) return;
+    const m = metaRef.current;
+    if (m && sel.month && !pageHolds(m, sel.month)) sel.month = m.latest || m.months?.[m.months.length - 1] || "ALL";
+    setFilters((f) => ({ ...f, ...sel }));
+  };
+  useEffect(() => { follow(window.location.search); }, []);
 
+  // Keep ?section=&view= and the selection in step with the page (the latest month, both patient
+  // types and every material leave theirs out). Until the months are known the selection a link
+  // brought stays as it came.
   useEffect(() => {
     if (view == null) return;
     const url = new URL(window.location.href);
     writeLocation(url, { section, view });
+    if (meta && filters.month) writeLinkSelection(url, { month: filters.month === meta.latest ? null : filters.month, type: filters.type, segment: filters.segment });
     if (url.search !== window.location.search) window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
-  }, [section, view]);
+  }, [section, view, meta, filters.month, filters.type, filters.segment]);
 
-  // Follow sidebar links to this same page while it is open, and back/forward.
+  // Follow sidebar and drill links to this same page while it is open, and back/forward.
   useEffect(() => {
     const here = () => window.location.pathname.replace(/\/+$/, "");
-    const onPop = () => go(readLocation(window.location.search));
+    const onPop = () => follow(window.location.search);
     const onClick = (e: MouseEvent) => {
       if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
       const a = (e.target as Element | null)?.closest?.("a[href]") as HTMLAnchorElement | null;
       if (!a || (a.target && a.target !== "_self") || a.origin !== window.location.origin) return;
       if (a.pathname.replace(/\/+$/, "") !== here()) return;
-      go(readLocation(a.search));
+      follow(a.search);
     };
     window.addEventListener("popstate", onPop);
     document.addEventListener("click", onClick);
@@ -165,7 +202,7 @@ export default function SpendPage() {
     <PageBar title={TITLE} about={SUBTITLE} tabs={PAGE_SECTIONS} active={section}
       onTab={(s) => go({ section: s, view: pageViews(s).some((v) => v.key === view) ? (view as View) : "overview" })}
       subTabs={section !== "summary" && view && views.length > 1 ? { tabs: views, active: view, onTab: setView } : undefined}
-      right={asOf ? `${source} · data as of ${asOf}` : source} />
+      right={[asOf ? `${source} · data as of ${asOf}` : source, basis === "qty" ? rupeesOnly(section) : null].filter(Boolean).join(" · ")} />
   );
 
   if (metaErr) {
@@ -229,6 +266,9 @@ export default function SpendPage() {
       {insight === "prices" && overview && <PricesOverview meta={meta} filters={shown} plant={plant} molecule={molecule} onMolecule={setMolecule} onOpen={setView} />}
       {insight === "prices" && view === "products" && (
         <PricesProducts filters={shown} plant={plant} onPick={(key) => { setMolecule(key); setView("overview"); }} />
+      )}
+      {insight === "prices" && view === "check" && (
+        <PricesCheck filters={shown} plant={plant} onPick={(key) => { setMolecule(key); setView("overview"); }} />
       )}
       {insight === "generic" && overview && <GenericOverview meta={meta} filters={shown} plant={plant} />}
     </OneScreenShell>

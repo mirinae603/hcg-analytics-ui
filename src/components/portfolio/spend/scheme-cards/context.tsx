@@ -2,7 +2,7 @@
 // Spend Analysis — what every tile on the Scheme overview shares: its words, the selection a
 // tile is computed under, and the Method tab every drawer ends with. The colours are the Spend
 // pages' own (../shared): the spend on the brand used (USED_COL), the same quantity at the
-// suggested brand's price (PROPOSED_COL), the margin missed in rupees (LOSS_COL) and its %
+// suggested brand's price (PROPOSED_COL), the saving missed in rupees (LOSS_COL) and its %
 // (RATE_COL). The strip on top of a tile says its topic.
 import React from "react";
 import { SUB, num } from "@/components/portfolio/ledger/kit";
@@ -14,8 +14,9 @@ import type { Filters, Meta, Overview } from "../api";
 
 export { USED_COL, PROPOSED_COL, LOSS_COL, RATE_COL, SCHEME_COL, HOSPITAL_COL, BRAND_COL, DOCTOR_COL } from "../shared";
 
-// The tiles' words, in plain terms (spent, with suggested brands, margin missed); HCG's own
-// report calls them Actual, Proposed, Margin loss and Loss %.
+// The tiles' words, in plain terms (spent, with suggested brands, saving missed: what the
+// suggested brands would have saved, the one name the app gives this figure, the Executive
+// overview's too); HCG's own report calls them Actual, Proposed, Margin loss and Loss %.
 type Words = {
   section: string;
   title: string;
@@ -36,8 +37,8 @@ type Words = {
 };
 
 export const WORDS: Words = {
-  section: "Scheme", title: "Scheme patients: margin missed", bridge: "Spent vs with suggested brands",
-  actual: "Spent", proposed: "With suggested brands", loss: "Margin missed", pct: "% missed", pctWord: "missed",
+  section: "Scheme", title: "Scheme patients: saving missed", bridge: "Spent vs with suggested brands",
+  actual: "Spent", proposed: "With suggested brands", loss: "Saving missed", pct: "% missed", pctWord: "missed",
   sug: "suggested", aSug: "a",
 };
 

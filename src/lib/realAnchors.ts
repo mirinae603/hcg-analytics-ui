@@ -4,11 +4,18 @@
 // totals and the real monthly demand series. Only the genuinely-missing metric
 // (billing flag, returns, patient-type, SLA target, selling price) is modelled on top.
 // Regenerate when the ETL changes. Window: Dec 2025 → May 2026.
+//
+// FROZEN on purpose: these numbers ground the "Simulated" preview KPIs (lib/simulatedKpi.ts) and
+// are never refreshed. A live page must not print them as today's figures — read the stock count's
+// SKUs, stock value, date and every source's months from GET /meta/windows (lib/useWindows.ts:
+// skus_total, stock_value, inventory_snapshot, windows), which follow the data.
 
 export const REAL = {
   totalConsumptionCost: 671016030,   // ₹ cost of internal goods-issue, 6 mo
   totalMrpConsumption: 1876111197,    // ₹ MRP-valued consumption (revenue proxy)
+  /** @deprecated frozen at the 31-May-26 count; live pages use useWindows().stock_value */
   totalInventoryCost: 604679341,     // ₹ current stock value (cost)
+  /** @deprecated frozen at the 31-May-26 count; live pages use useWindows().skus_total */
   skusTotal: 24931, skusConsumed: 11225, skusNeedReplen: 14989, skusZeroStock: 15878,
   months: [
     {"m": "Dec", "cost": 109103525, "qty": 3677597},

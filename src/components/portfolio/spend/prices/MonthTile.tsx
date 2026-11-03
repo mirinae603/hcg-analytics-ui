@@ -1,6 +1,6 @@
 "use client";
-// Spend Analysis (Prices) — what was paid above the cheapest price, month by month, each month
-// set against its own cheapest (so a month's figure is the build report's for that month), with
+// Spend Analysis (Prices) — what was paid above the usual cheapest price, month by month, each
+// month set against its own usual cheapest (so a month's figure is the build report's), with
 // that as a % of what the products compared cost as a line riding the bar tops. Every purchase
 // month is drawn; the Month filter only shades its months. The drawer has the month table.
 import React from "react";
@@ -14,7 +14,7 @@ import type { PriceMonthRow } from "../api";
 import { MonthTable, type MonthCol } from "../Trend";
 import { PRODUCT_COL, RATE_COL, PRICES_SOURCE, Method, type Ctx } from "./context";
 
-const SERIES: ComboSeries[] = [{ key: "extra", label: "Paid above the cheapest", color: PRODUCT_COL }];
+const SERIES: ComboSeries[] = [{ key: "extra", label: "Paid above the usual cheapest", color: PRODUCT_COL }];
 const PCT_LINE = { label: "% above", color: RATE_COL, decimals: 1 };
 
 /** Every purchase month; a month with nothing compared has no bar (rather than a bar at zero). */
@@ -27,16 +27,16 @@ function comboMonths(c: Ctx): ComboMonth[] {
 }
 
 const TABLE_COLS: MonthCol<PriceMonthRow>[] = [
-  { label: "Bought", render: (r) => rupeesExact(r.value) },
-  { label: "Compared", render: (r) => rupeesExact(r.compared_value) },
-  { label: "Paid above the cheapest", render: (r) => <b>{rupeesExact(r.extra_paid)}</b> },
-  { label: "% above", render: (r) => pct(r.extra_pct) },
-  { label: "Products", render: (r) => num(r.molecules) },
-  { label: "At more than one price", render: (r) => num(r.molecules_with_spread) },
-  { label: "Receipts", render: (r) => num(r.lines) },
+  { label: "Bought", render: (r) => rupeesExact(r.value), raw: (r) => r.value, unit: "₹" },
+  { label: "Compared", render: (r) => rupeesExact(r.compared_value), raw: (r) => r.compared_value, unit: "₹" },
+  { label: "Paid above the usual cheapest", render: (r) => <b>{rupeesExact(r.extra_paid)}</b>, raw: (r) => r.extra_paid, unit: "₹" },
+  { label: "% above", render: (r) => pct(r.extra_pct), raw: (r) => r.extra_pct, unit: "%" },
+  { label: "Products", render: (r) => num(r.molecules), raw: (r) => r.molecules },
+  { label: "Bought above the usual cheapest", render: (r) => num(r.molecules_with_spread), raw: (r) => r.molecules_with_spread },
+  { label: "Receipts", render: (r) => num(r.lines), raw: (r) => r.lines },
 ];
 
-const aria = (c: Ctx) => `What was paid above the cheapest price by month, ${c.where}, each month against its own cheapest, with the % above as a line on the bar tops`;
+const aria = (c: Ctx) => `What was paid above the usual cheapest price by month, ${c.where}, each month against its own usual cheapest, with the % above as a line on the bar tops`;
 
 function MonthDrawer({ c, dr, title }: { c: Ctx; dr: DrawerCtl; title: string }) {
   const h = c.d.headline;
@@ -44,17 +44,17 @@ function MonthDrawer({ c, dr, title }: { c: Ctx; dr: DrawerCtl; title: string })
   return (
     <DetailDrawer open={dr.open} onClose={dr.close} initialTab={dr.tab} size="wide"
       eyebrow={`${c.w.section} · Overview`} title={`${title} · ${c.where}`}
-      kpi={{ value: rupeesExact(h.extra_paid_vs_cheapest), comparator: `paid above the cheapest, ${pct(h.extra_pct)} of the value compared, ${c.when}` }}
+      kpi={{ value: rupeesExact(h.extra_paid_vs_cheapest), comparator: `paid above the usual cheapest, ${pct(h.extra_pct)} of the value compared, ${c.when}` }}
       source={PRICES_SOURCE} asOf={c.asOf} filters={c.chips}
       tabs={[
         {
           key: "months", label: "Every month", render: () => (
             <>
-              <DrawerSection title="Paid above the cheapest, by month" note="Bars from zero; the line joins the bar tops, each point labelled with that month's % above the cheapest. Months in your selection are shaded.">
+              <DrawerSection title="Paid above the usual cheapest, by month" note="Bars from zero; the line joins the bar tops, each point labelled with that month's % above the usual cheapest. Months in your selection are shaded.">
                 <MonthCombo months={comboMonths(c)} series={SERIES} line={PCT_LINE} format={lakhs} ariaLabel={aria(c)} />
               </DrawerSection>
-              <DrawerSection title="Month by month" note="Each month against its own cheapest unit price. Selected together, months share one cheapest (the lowest of any of them), so the selection's figure can be more than its months added up.">
-                <MonthTable rows={c.d.by_month || []} cols={TABLE_COLS} selected={sel} />
+              <DrawerSection title="Month by month" note="Each month against its own usual cheapest unit price. Selected together, months share one usual cheapest, worked out over all of their purchases, so the selection's figure differs from its months added up (it can be more or less).">
+                <MonthTable rows={c.d.by_month || []} cols={TABLE_COLS} selected={sel} caption={`${c.w.extra} by month, ${c.where}`} />
               </DrawerSection>
             </>
           ),
@@ -62,7 +62,7 @@ function MonthDrawer({ c, dr, title }: { c: Ctx; dr: DrawerCtl; title: string })
         {
           key: "method", label: "Method", render: () => (
             <Method c={c}>
-              <p>Every month with a GRN file is drawn, each set against its own cheapest unit price; the Month filter only shades its months, the other filters apply. Bars start from zero on one scale; the % above the cheapest (of what the products compared cost) is read from the labels on the line, never from a second scale.</p>
+              <p>Every month with a GRN file is drawn, each set against its own usual cheapest unit price; the Month filter only shades its months, the other filters apply. Bars start from zero on one scale; the % above the usual cheapest (of what the products compared cost) is read from the labels on the line, never from a second scale.</p>
             </Method>
           ),
         },
@@ -72,12 +72,12 @@ function MonthDrawer({ c, dr, title }: { c: Ctx; dr: DrawerCtl; title: string })
 
 export function MonthTile({ c, place }: { c: Ctx; place: Place }) {
   const dr = useDrawer();
-  const title = "Paid above the cheapest, by month";
+  const title = "Paid above the usual cheapest, by month";
   const last = (c.d.by_month || []).filter((r) => r.lines > 0).slice(-1)[0];
   return (
     <>
       <ChartPanel id="months" title={title} context={c.where} accent={PRODUCT_COL} place={place}
-        label={[aria(c), last ? `${last.label}: ${lakhs(last.extra_paid)} above the cheapest, ${pct(last.extra_pct)}` : null].filter(Boolean).join(". ")}
+        label={[aria(c), last ? `${last.label}: ${lakhs(last.extra_paid)} above the usual cheapest, ${pct(last.extra_pct)}` : null].filter(Boolean).join(". ")}
         onOpen={() => dr.show("months")} onInfo={() => dr.show("method")}>
         <MonthCombo months={comboMonths(c)} series={SERIES} line={PCT_LINE} format={lakhs} ariaLabel={aria(c)} />
       </ChartPanel>

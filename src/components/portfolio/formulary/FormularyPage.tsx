@@ -10,10 +10,17 @@
 // title and the tabs, one strip of filters, then the content. The Overview fills exactly one
 // desktop screen with charts; the table tabs scroll as pages do under the same bar and strip.
 //
+// A link can open the page on a month, patient type and material type (?month=&type=&segment=,
+// lib/linkSelection: the Executive overview's drill links do): read with ?view=, fitted to the
+// months published, and written back beside it, so the address bar says what is on screen.
+//
 // Filters are local to this page: they change what "compliance" means, so they must not
-// leak into other pages as silent filters. The hospital is the global header selector.
+// leak into other pages as silent filters. The hospital is the global header selector, and so
+// is Value ↔ Quantity (BasisContext): a view choice, not a filter, carried into every tab except
+// Brand rules, whose measures are rupees only.
 import React, { useEffect, useState } from "react";
 import { useRegion, displayRegion } from "@/context/RegionContext";
+import { useBasis } from "@/context/BasisContext";
 import { useAiPageContext } from "@/context/AiChatContext";
 import { Skeleton } from "@/components/portfolio/ledger/kit";
 import { OneScreenShell } from "@/components/portfolio/ledger/onescreen";
@@ -26,16 +33,21 @@ import Items from "./Items";
 import Scheme from "./Scheme";
 import Rules from "./Rules";
 import { Notice } from "./parts";
+import { hasLinkSelection, readLinkSelection, writeLinkSelection } from "@/lib/linkSelection";
 import {
   DEFAULT_FILTERS, VIEWS, effectiveMethod, errText, getMeta, monthFor, monthLabel, monthsLabel, plantParam, readView,
-  type Filters, type Meta, type View,
+  type Filters, type Meta, type Segment, type View,
 } from "./api";
 
 const TITLE = "Formulary compliance";
 const ABOUT = "Share of drug spend on formulary items: HIS IP + OP pharmacy sales, classified with HCG's monthly Item Master.";
 
+/** The material types a link can narrow the page to: drugs only (no consumables filter here). */
+const LINK_SEGMENTS: readonly Exclude<Segment, "ALL">[] = ["onco", "non-onco"];
+
 export default function FormularyPage() {
   const { selectedRegion } = useRegion();
+  const { basis } = useBasis();
   const plant = plantParam(selectedRegion);
   // The tab the URL or a click asked for: undefined until the URL has been read, null when
   // none was asked for (the page then opens on the Overview). Read in an effect, never during
@@ -55,35 +67,48 @@ export default function FormularyPage() {
     return () => { dead = true; };
   }, []);
 
-  useEffect(() => { setPicked(readView(window.location.search)); }, []);
+  // The tab and the selection a link asked for: the month as asked (fitted to the published
+  // months below), the patient type and the material type.
+  const follow = (search: string) => {
+    setPicked(readView(search));
+    const sel = readLinkSelection(search, LINK_SEGMENTS);
+    if (hasLinkSelection(sel)) setFilters((f) => ({ ...f, ...sel }));
+  };
+  useEffect(() => { follow(window.location.search); }, []);
 
-  // Keep ?view= in step with the tab asked for. replaceState, not pushState: switching tabs is
-  // not navigation, and a null state lets Next's router adopt the new URL as its own.
+  // The month picked, fitted to the published ones while rendering: until one is picked (or for
+  // a month a link asked for that is not published) the page opens on the latest. The header's
+  // basis rides in the filters every tab reads.
+  const month = meta ? monthFor(meta, filters.month) : filters.month;
+  const latest = meta?.months?.[meta.months.length - 1] ?? null;
+  const shown: Filters = month === filters.month && filters.basis === basis ? filters : { ...filters, month, basis };
+
+  // Keep ?view= and the selection in step with the page. replaceState, not pushState: switching
+  // tabs or filters is not navigation, and a null state lets Next's router adopt the new URL as
+  // its own. Until the months are known the selection a link brought stays as it came.
   useEffect(() => {
     if (picked === undefined) return;
     const url = new URL(window.location.href);
     if (picked == null) url.searchParams.delete("view"); else url.searchParams.set("view", picked);
+    if (meta) writeLinkSelection(url, { month: month === latest ? null : month, type: filters.type, segment: filters.segment });
     if (url.search !== window.location.search) window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
-  }, [picked]);
+  }, [picked, meta, month, latest, filters.type, filters.segment]);
 
   const view: View | null = picked === undefined ? null : picked ?? "overview";
-  // The month picked, fitted to the published ones while rendering: until one is picked the
-  // page opens on the latest.
-  const month = meta ? monthFor(meta, filters.month) : filters.month;
-  const shown: Filters = month === filters.month ? filters : { ...filters, month };
 
   // Follow links to this same page while it is open (the sidebar's Doctors / Items / Scheme
-  // brands entries): Next keeps the page mounted for a query-only change, so nothing else
-  // would tell it. Back/forward arrive as popstate.
+  // brands entries, a drill link carrying a month): Next keeps the page mounted for a query-only
+  // change, so nothing else would tell it. Back/forward arrive as popstate. A link without a
+  // month or filter leaves the page's own as they are.
   useEffect(() => {
     const here = () => window.location.pathname.replace(/\/+$/, "");
-    const onPop = () => setPicked(readView(window.location.search));
+    const onPop = () => follow(window.location.search);
     const onClick = (e: MouseEvent) => {
       if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
       const a = (e.target as Element | null)?.closest?.("a[href]") as HTMLAnchorElement | null;
       if (!a || (a.target && a.target !== "_self") || a.origin !== window.location.origin) return;
       if (a.pathname.replace(/\/+$/, "") !== here()) return;
-      setPicked(readView(a.search));
+      follow(a.search);
     };
     window.addEventListener("popstate", onPop);
     document.addEventListener("click", onClick);
@@ -93,21 +118,25 @@ export default function FormularyPage() {
   // Tell the AI Analyst what is on screen (tab, month, hospital, filters), so "why is this
   // low?" asked from here is read against it. A soft hint the user can remove from the chat.
   // It must run before anything returns early: it is a hook.
+  // The units view is named in the label (Brand rules are rupees whatever the switch says).
+  const inUnits = basis === "qty" && view !== "rules";
   useAiPageContext(meta && view && month ? {
     page: "formulary",
-    label: `Formulary compliance · ${VIEWS.find((v) => v.key === view)?.label ?? view}`,
+    label: `Formulary compliance · ${VIEWS.find((v) => v.key === view)?.label ?? view}${inUnits ? " · by quantity" : ""}`,
     view,
     month,
     monthLabel: month === "ALL" ? monthsLabel(meta, meta.months) : monthLabel(meta, month),
     plant,
     hospital: displayRegion(selectedRegion.name),
     // What the tab actually applies, not the raw filter state: Scheme brands is GOV-only
-    // whatever Payer says, each brand rule sets its own payers, and rules have no method.
+    // whatever Payer says, each brand rule sets its own payers, rules have no method, and
+    // they count rupees whatever the switch says.
     filters: {
       type: filters.type,
       segment: filters.segment,
       payer: view === "rules" ? "per rule" : view === "scheme" ? "GOV" : filters.payer,
       ...(view === "rules" ? {} : { method: effectiveMethod(filters) }),
+      basis: inUnits ? "qty" : "value",
     },
   } : null);
 

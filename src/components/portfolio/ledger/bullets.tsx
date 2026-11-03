@@ -23,6 +23,8 @@ import { isNum, pct } from "./format";
 import { clamp, niceCeil, niceMax, textW } from "./scale";
 
 const LABEL_FS = 12, VALUE_FS = 11.5, NOTE_FS = 10.5, ANN_FS = 10;
+/** The card-white ring a thin mark wears over a bar. */
+const HALO = "0 0 0 1px #fff";
 /** Below this width the rows drop their notes. */
 const NARROW_W = 320;
 
@@ -214,8 +216,10 @@ export function BulletRows({ rows, scale, ariaLabel, legend = "status", onMore, 
   const track = (r: BulletRow, i: number) => {
     const dom = domainOf(r);
     const delay = `${100 + i * 40}ms`;
+    // The budget mark and the month-before tick carry a 1px card-white halo, so they read on a
+    // bar drawn in ink (a rate) as well as on the pale track beyond its end.
     const marker = isNum(r.target) && (
-      <span className="absolute top-0 bottom-0 w-[2px]" style={{ left: `calc(${at(r.target, dom)}% - 1px)`, background: scale.kind === "pct" ? INK : scale.marker.color }} />
+      <span className="absolute top-0 bottom-0 w-[2px]" style={{ left: `calc(${at(r.target, dom)}% - 1px)`, background: scale.kind === "pct" ? INK : scale.marker.color, boxShadow: HALO }} />
     );
     if (scale.kind === "pct" && scale.bars) {
       const c = r.status && r.status !== "none" ? STATUS_COLOR[r.status] : scale.color ?? INK;
@@ -229,7 +233,7 @@ export function BulletRows({ rows, scale, ariaLabel, legend = "status", onMore, 
             )}
           </span>
           {r.prior && isNum(r.prior.value) && (
-            <span className="absolute w-[1.5px]" style={{ left: `calc(${at(r.prior.value, dom)}% - 0.75px)`, top: 1, bottom: 1, background: SUB }} />
+            <span className="absolute w-[1.5px]" style={{ left: `calc(${at(r.prior.value, dom)}% - 0.75px)`, top: 1, bottom: 1, background: SUB, boxShadow: HALO }} />
           )}
           {marker}
         </span>

@@ -2,9 +2,9 @@
 // Spend Analysis — the Generic vs branded overview tab, on HCG's purchases (GRN).
 //
 // Branded = made by the company that invented the medicine (an originator); everything else is
-// generic. The app's own definition until HCG confirms it, so every tile is marked Estimated and
+// generic. The app's own definition, so every tile is marked Estimated and
 // one tile says it in plain words. Two questions run the page: what branded costs (what branded
-// purchases cost above the cheapest generic of the same product) and where each class sits in
+// purchases cost above the usual cheapest generic of the same product) and where each class sits in
 // the formulary (the Item Master's flag, for the months that have one).
 //
 // One screen of charts (OneScreenGrid, 12 columns × 3 rows on a desktop):

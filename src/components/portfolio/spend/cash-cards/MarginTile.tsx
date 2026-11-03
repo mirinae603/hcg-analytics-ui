@@ -5,6 +5,7 @@
 // made. The drawer carries the written summary, the exact figures, every month, the splits,
 // every hospital, HCG's allowance for bifurcated brands and the method.
 import React from "react";
+import { TbCash } from "react-icons/tb";
 import { ChartPanel, LinkButton } from "@/components/portfolio/ledger/panel";
 import type { Place } from "@/components/portfolio/ledger/onescreen";
 import { Waterfall, type WaterStep } from "@/components/portfolio/ledger/bars";
@@ -75,7 +76,7 @@ function Allowance({ c, onOpen }: { c: Ctx; onOpen: (v: View) => void }) {
       <DrawerSection title="How the allowance works">
         <div className="space-y-2 text-[12.5px] leading-relaxed" style={{ color: SUB }}>
           <p>For these brands HCG allows a share (SHARING) of the molecule&apos;s volume at the hospital each month; only the use above that counts towards the margin missed. It is worked out per hospital and month on the whole brand (IP + OP, cash + TPA together, as HCG does), so it follows the hospital, month and material type filters only.</p>
-          <p>Which brands are bifurcated{listed ? ` (${num(listed)} so far)` : ""}, and their molecule groups, come from HCG&apos;s KR spend report until HCG sends the full rules.</p>
+          <p>Which brands are bifurcated{listed ? ` (${num(listed)} so far)` : ""}, and their molecule groups, come from HCG&apos;s KR spend report.</p>
         </div>
       </DrawerSection>
       <DrawerSection title="Per brand" note="The Brands tab carries HCG's SHARING, Group qty, Allowed qty and Excess qty for each bifurcated brand.">
@@ -149,7 +150,7 @@ export function MarginTile({ c, place }: { c: Ctx; place: Place }) {
   ];
   return (
     <>
-      <ChartPanel id="margin" title={title} context={c.context} accent={USED_COL} place={place} source={c.source}
+      <ChartPanel id="margin" title={title} context={c.context} icon={TbCash} place={place} source={c.source}
         label={has ? [
           `${c.w.section} margin, ${c.context}`,
           `proposed ${lakhs(h.potential_margin)}, margin missed ${lakhs(h.margin_loss)} (${pct(h.loss_pct)} of proposed), actual ${lakhs(h.actual_margin)}`,

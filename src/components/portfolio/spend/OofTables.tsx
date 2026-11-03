@@ -11,7 +11,7 @@
 // row named after the filters. The header states the net total; the "Share" column is of what
 // switching would gain (the "missed where switching gains" column's total), never negative. A
 // Total is the sum of the rows as shown, each to the paisa, so it can differ from the overview's
-// headline (HCG's figure) by a few paise; the headline is the figure of record.
+// headline by a few paise; the headline is the figure of record.
 import React, { useCallback, useState } from "react";
 import dynamic from "next/dynamic";
 import type { Col } from "@/lib/kpiRegistry";

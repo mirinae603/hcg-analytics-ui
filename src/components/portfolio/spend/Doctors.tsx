@@ -25,7 +25,7 @@ const schemeCols = (suggested: string): Col[] => [
   { field: "qty", label: "Qty", kind: "num" },
   { field: "used_value", label: "Spent", kind: "inr" },
   { field: "suggested_value", label: `With ${suggested}`, kind: "inr" },
-  { field: "saving_missed", label: "Margin missed", kind: "inr" },
+  { field: "saving_missed", label: "Saving missed", kind: "inr" },
   { field: "saving_pct", label: "% missed", kind: "pct2" },
   { field: "share_pct", label: "Share of total", kind: "pct2" },
   { field: "lines", label: "Lines", kind: "num" },
@@ -68,9 +68,9 @@ export default function Doctors({ section, filters, plant }: { section: PatientS
   return (
     <>
       <Card delay={80}>
-        <Head label={section === "cash" ? "Doctors by margin missed" : "Doctors by margin missed on scheme patients"}
+        <Head label={section === "cash" ? "Doctors by margin missed" : "Doctors by saving missed on scheme patients"}
           note={`${NOTE[section]} ${SHARES_NOTE}`}
-          badge={`${section === "cash" ? "cash + TPA" : "scheme patients"} · list prices${total != null ? ` · ${inr(total)} margin missed in total` : ""}`} />
+          badge={`${section === "cash" ? "cash + TPA" : "scheme patients"} · list prices${total != null ? ` · ${inr(total)} ${section === "cash" ? "margin" : "saving"} missed in total` : ""}`} />
         <KpiTable key={section} kpiKey={`spend-${section}-doctors`} endpoint={`${base}/doctors`} plant={plant}
           columns={doctorCols(section)} extraParams={params}
           onRowClick={(r: DoctorRow) => { setDoc(r); setOpen(true); }} />

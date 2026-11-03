@@ -35,10 +35,10 @@ function comboMonths(c: Ctx): ComboMonth[] {
 }
 
 const TABLE_COLS: MonthCol<Month>[] = [
-  { label: "Margin earned", render: (r) => rupeesExact(r.actual_margin) },
-  { label: "Margin possible", render: (r) => rupeesExact(r.potential_margin) },
-  { label: "Margin missed", render: (r) => <b>{rupeesExact(r.margin_loss)}</b> },
-  { label: "% missed", render: (r) => pct(r.loss_pct ?? r.pct) },
+  { label: "Margin earned", render: (r) => rupeesExact(r.actual_margin), raw: (r) => r.actual_margin, unit: "₹" },
+  { label: "Margin possible", render: (r) => rupeesExact(r.potential_margin), raw: (r) => r.potential_margin, unit: "₹" },
+  { label: "Margin missed", render: (r) => <b>{rupeesExact(r.margin_loss)}</b>, raw: (r) => r.margin_loss, unit: "₹" },
+  { label: "% missed", render: (r) => pct(r.loss_pct ?? r.pct), raw: (r) => r.loss_pct ?? r.pct, unit: "%" },
 ];
 
 const lossAria = (c: Ctx) => `${c.w.title} by month, ${c.where}, with the % missed as a line`;
@@ -52,7 +52,7 @@ export function MonthPanel({ c }: { c: Ctx }) {
         <MonthCombo months={comboMonths(c)} series={lossSeries(c)} line={PCT_LINE} ariaLabel={lossAria(c)} />
       </DrawerSection>
       <DrawerSection title="Month by month" note={c.w.monthNote}>
-        <MonthTable rows={c.d.trend || []} cols={TABLE_COLS} selected={sel} />
+        <MonthTable rows={c.d.trend || []} cols={TABLE_COLS} selected={sel} caption={`${c.w.section}: ${c.w.title.toLowerCase()} by month, ${c.where}`} />
       </DrawerSection>
     </>
   );

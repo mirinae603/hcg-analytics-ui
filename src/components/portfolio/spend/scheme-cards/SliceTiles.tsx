@@ -45,7 +45,7 @@ const TITLE = "Attis & Healthium slices";
  *  Endo follow it as "of which" rows. A row opens its slice's tab of the drawer. */
 export function SlicesTile({ groups, total, scope, place, drawer }: {
   groups: Groups;
-  /** The scheme margin missed the slices are parts of. */
+  /** The scheme saving missed the slices are parts of. */
   total: number;
   scope: Scope; place: Place; drawer: DrawerCtl;
 }) {

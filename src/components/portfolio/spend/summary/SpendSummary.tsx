@@ -5,9 +5,9 @@
 // the written summary, exact rupees, every month, every hospital, the splits and the method,
 // and from there a link leads to the section with the full brand and doctor tables.
 //
-//   r1  Margin missed, by part                 | Margin missed by month (cash & insurance patients + out-of-formulary purchases)
+//   r1  Margin and saving missed, by part      | Cash & TPA + out of formulary: margin missed by month
 //   r2  Margin possible vs earned     | Where margin was missed | Margin missed by hospital / where it stands
-//   r3  Top brand switches                                 | Scheme: margin missed by month
+//   r3  Top brand switches                                 | Scheme saving missed by month
 //
 // It reads the sections' own overviews (cash & TPA, which carries HCG's combined cash and
 // out-of-formulary table; scheme, which carries the Attis and Healthium slices; out of
@@ -90,7 +90,7 @@ export default function SpendSummary({ meta, filters, plant, onGo }: { meta: Met
     : oof.error ? `${KIND.oof.short} could not be loaded: ${oof.error}`
     : !oofHere ? `${KIND.oof.short} is still loading.` : null;
 
-  // HCG's two slices of the scheme margin missed, as a tab of the scheme drawer.
+  // HCG's two slices of the scheme saving missed, as a tab of the scheme drawer.
   const healthiumParts: LossRow[] = groups
     ? ([["sutures", "Sutures", groups.healthium.sutures], ["endo", "Endo", groups.healthium.endo]] as const)
         .flatMap(([key, name, b]) => (b ? [{ key, label: b.label ?? name, ...subLoss(b) }] : []))
@@ -98,15 +98,15 @@ export default function SpendSummary({ meta, filters, plant, onGo }: { meta: Met
   const slicesTab: DrawerTab[] = groups ? [{
     key: "slices", label: "Attis & Healthium", render: () => (
       <>
-        <DrawerSection title="HCG's two slices of the scheme margin missed" note="Parts of the scheme margin missed, not added to it; each label says its share of the scheme margin missed.">
-          <LossTable words={KIND.scheme} rows={[
+        <DrawerSection title="HCG's two slices of the scheme saving missed" note="Parts of the scheme saving missed, not added to it; each label says its share of the scheme saving missed.">
+          <LossTable words={KIND.scheme} caption={`HCG's slices of the scheme saving missed, ${where} · ${when}`} rows={[
             { key: "attis", label: `${groups.attis.label} (${pct(groups.attis.share_pct, 1)})`, ...spendLoss(groups.attis) },
             { key: "healthium", label: `${groups.healthium.label} (${pct(groups.healthium.share_pct, 1)})`, ...spendLoss(groups.healthium) },
           ]} />
         </DrawerSection>
         {healthiumParts.length > 0 && (
           <DrawerSection title={`${groups.healthium.label}, by group`} note="As HCG's S6 Summary splits the Healthium line.">
-            <LossTable words={KIND.scheme} rows={healthiumParts} />
+            <LossTable words={KIND.scheme} rows={healthiumParts} caption={`${groups.healthium.label} by group, ${where} · ${when}`} />
           </DrawerSection>
         )}
         <DrawerSection title="Full tables">

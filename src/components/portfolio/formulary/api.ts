@@ -4,9 +4,14 @@
 // percentages), so nothing here recomputes a compliance figure — it only shapes the query
 // and carries the answer. Percentages arrive as null when their denominator is 0 and must
 // render as "—", never 0% or 100%.
+//
+// Every amount is cost in rupees, or units sold when the header's Value ↔ Quantity switch asks for
+// units (Basis=qty): the field names stay the same, and the answer's scope says which it is
+// (measure.ts prints it accordingly).
 import { useEffect, useState } from "react";
 import { apiFetch } from "@/utils/api";
 import type { Region } from "@/context/RegionContext";
+import { basisParam, type Basis } from "@/context/BasisContext";
 
 export type View = "overview" | "doctors" | "items" | "scheme" | "rules";
 export type PatientType = "ALL" | "IP" | "OP";
@@ -32,8 +37,10 @@ export function readView(search: string): View | null {
   return VIEWS.some((x) => x.key === v) ? (v as View) : null;
 }
 
-/** Page-level filters. `month` is a period ('2026-08') or 'ALL'. */
-export type Filters = { month: string; type: PatientType; segment: Segment; payer: Payer; method: Method };
+/** Page-level filters. `month` is a period ('2026-08') or 'ALL'. `basis` is the header's
+ *  Value ↔ Quantity switch, copied in by the page (never set from the filter strip): value when
+ *  absent, so a caller that predates the switch asks for what it always did. */
+export type Filters = { month: string; type: PatientType; segment: Segment; payer: Payer; method: Method; basis?: Basis };
 
 export type Meta = {
   months: string[];
@@ -50,10 +57,14 @@ export type Meta = {
   hcg_mis?: { file: string | null; period: string | null; built_at: string | null } | null;
   built_at?: string | null;
   sources?: Record<string, unknown>;
+  /** The page's general notes, worded for drug cost; /formulary/meta?Basis=qty words the same
+   *  notes for units (and adds the units note). The overview's ratio and method notes are these
+   *  same strings for its basis, so a list of both drops the repeats. */
   notes?: string[];
 };
 
-/** Formulary (A) / Out of Formulary (B) / Non Formulary (C) cost for one slice. */
+/** Formulary (A) / Out of Formulary (B) / Non Formulary (C) for one slice: cost, or units on
+ *  the units view. */
 export type Split = {
   compliance_pct: number | null;
   formulary: number;
@@ -88,6 +99,19 @@ export type ConsumptionRow = {
   restricted_cash_tpa_pct: number | null;
 };
 
+/** The unit split over every hospital together (by_hospital's own rows and filters, on the
+ *  basis): the Total row under each unit's split. Its shares are the server's, a ratio of the
+ *  summed amounts; null when the sum is 0. */
+export type UnitMixTotal = {
+  formulary: number;
+  out_of_formulary: number;
+  non_formulary: number;
+  total: number;
+  formulary_share_pct: number | null;
+  oof_share_pct: number | null;
+  nf_share_pct: number | null;
+};
+
 /** One payer's consumption (the spend email's payer-wise view; HCG's S5 'Summary' sheet). */
 export type PayerRow = {
   payer: "CASH" | "CASH(TPA)" | "GOV" | "ALL" | string;
@@ -108,18 +132,32 @@ export type TrendRow = Split & {
   budget_pct?: number | null; in_ratio?: number; total?: number;
 };
 
-/** Where a hospital's budget comes from: HCG's PAN MIS, or the default before it is read. */
-export type BudgetSource = "hcg_mis" | "default";
+/** Where a hospital's budget comes from: HCG's PAN MIS, or the default before it is read.
+ *  "differs": the MIS sets the hospital a budget, but not one budget for the months selected (a
+ *  mid-year change, or a span across the April financial-year boundary), so budget_pct is null
+ *  and the answer's notes name each month's budget. Not the same as "no budget for this unit". */
+export type BudgetSource = "hcg_mis" | "default" | "differs";
 
 export type Overview = {
-  scope: { plant: string | null; plant_name: string | null; his_name: string | null; months: string[]; type: string; segment: string; payer: string; method: string };
+  /** `basis` is what every amount counts; `budget_judged` is false on units (no budget then,
+   *  anywhere). Both are absent from an API that predates the switch: value, judged. */
+  scope: {
+    plant: string | null; plant_name: string | null; his_name: string | null; months: string[]; type: string; segment: string; payer: string; method: string;
+    basis?: Basis; budget_judged?: boolean;
+  };
   /** budget_pct is null for all hospitals together (HCG budgets each unit) and for a unit
    *  HCG sets no budget for. */
   headline: Split & { pooled_pct: number | null; mean_pct: number | null; onco_pct: number | null; non_onco_pct: number | null; total: number; in_ratio?: number; budget_pct?: number | null; budget_source?: BudgetSource | null };
   trend: TrendRow[];
   segments: (Split & { key: string; label: string })[];
   by_type: (Split & { type: string })[];
-  by_hospital: (Split & { plant: string; name: string; his_code: string; his_name: string; rank: number; selected: boolean; budget_pct?: number | null })[];
+  /** Every unit for the same filters, whatever the hospital selector says. `total` and the three
+   *  shares are the unit split: formulary, out of formulary and non formulary as parts of their
+   *  sum (A + B + C), on the basis; null shares when that sum is 0. Absent from an older API. */
+  by_hospital: (Split & {
+    plant: string; name: string; his_code: string; his_name: string; rank: number; selected: boolean; budget_pct?: number | null;
+    total?: number; formulary_share_pct?: number | null; oof_share_pct?: number | null; nf_share_pct?: number | null;
+  })[];
   by_class: { formulary_class: string; formulary_group: string; cost: number; lines: number; share_pct: number | null }[];
   scheme: {
     restricted: SchemeBlock; preferred: SchemeBlock; restricted_cash_tpa?: SchemeBlock; gov_total: number;
@@ -133,11 +171,14 @@ export type Overview = {
    *  headline is): the reference line where one unit is drawn among all of them. Absent from an
    *  API that does not send it, and the line is then not drawn. */
   network?: { compliance_pct: number | null } | null;
+  /** Every unit together, for the Mix by unit table's Total row. Absent from an older API: no
+   *  Total row then (it is never worked out here). */
+  unit_mix_total?: UnitMixTotal | null;
   notes?: string[];
   data_as_of?: string | null;
 };
 
-export const DEFAULT_FILTERS: Filters = { month: "", type: "ALL", segment: "ALL", payer: "ALL", method: "pooled" };
+export const DEFAULT_FILTERS: Filters = { month: "", type: "ALL", segment: "ALL", payer: "ALL", method: "pooled", basis: "value" };
 
 /** The global hospital selector as a `Plant=` value: the SAP code when there is one (HIS and
  *  SAP names differ for most sites), and 'ALL' for "All Plants". */
@@ -156,7 +197,9 @@ export function monthFor(meta: Meta, month: string): string {
 /** Mean-of-ratios only exists across both segments; with one segment chosen it IS pooled. */
 export const effectiveMethod = (f: Filters): Method => (f.segment === "ALL" ? f.method : "pooled");
 
-/** Query params for the current filters. Plant travels separately (KpiTable's `plant`). */
+/** Query params for the current filters. Plant travels separately (KpiTable's `plant`). The
+ *  basis rides along only when it is units, so a value request is the same URL (and the same
+ *  cache entry) it always was. */
 export function filterParams(f: Filters, opts: { method?: boolean; payer?: boolean } = {}): Record<string, string> {
   const p: Record<string, string> = {};
   if (f.month) p.Month = f.month;
@@ -164,8 +207,13 @@ export function filterParams(f: Filters, opts: { method?: boolean; payer?: boole
   if (f.segment !== "ALL") p.Segment = f.segment;
   if (opts.payer !== false && f.payer !== "ALL") p.Payer = f.payer;
   if (opts.method) p.Method = effectiveMethod(f);
-  return p;
+  return { ...p, ...basisParam(f.basis ?? "value") };
 }
+
+/** The filters in value, whatever the header switch says. Brand rules are rupee measures (HCG
+ *  sets them on spend, and their endpoints have no quantity version), so the Brand rules tab and
+ *  its guidelines card always ask in rupees. */
+export const valueOnly = (f: Filters): Filters => (f.basis && f.basis !== "value" ? { ...f, basis: "value" } : f);
 
 export function toQuery(params: Record<string, string>): string {
   const q = new URLSearchParams();

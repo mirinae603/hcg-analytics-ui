@@ -2,7 +2,7 @@
 // Spend Analysis, Scheme overview — the month tile, drawn the way HCG's monthly spend
 // email draws it: bars = the margin missed in rupees (from zero), a line = its % (its own
 // fitted, labelled axis). In the panel it shows the year ending at the selected month, which
-// is shaded; its exact figures (HCG's month table) and method open in the headline drawer.
+// is shaded; its exact figures (the Trend tab's month table) and method open in the headline drawer.
 import React from "react";
 import { ChartPanel } from "@/components/portfolio/ledger/panel";
 import { MonthCombo } from "@/components/portfolio/ledger/charts";
@@ -13,7 +13,7 @@ import { RATE_COL, SCHEME_COL, WORDS, monthRows, type Scope } from "./context";
 
 export function MonthTile({ d, meta, scope, place, onOpen, onInfo }: {
   d: Overview; meta: Meta; scope: Scope; place: Place;
-  /** Opens HCG's month table (the headline drawer's "As in HCG mail" tab). */
+  /** Opens the headline drawer's Trend tab (every month, in exact rupees). */
   onOpen: () => void;
   onInfo: () => void;
 }) {

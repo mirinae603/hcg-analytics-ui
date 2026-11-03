@@ -5,21 +5,21 @@
 //               loss by hospital, where the loss sits. Optional month-before ticks; groups of
 //               rows a hairline apart. Shows the rows that fit, then "+N more".
 //   Waterfall — a bridge read top to bottom: totals from zero, each change floating from where
-//               the step before ended (proposed − loss = actual). A gain is drawn in JADE.
+//               the step before ended (proposed − loss = actual). A gain is drawn in SAGE.
 //   PartBar   — one whole as a 100% bar of labelled parts, the shares as the API sends them.
 // All three are panel-aware (usePanel): in a one-screen panel they fill its body, in a drawer
 // they take their natural height. Bars never start anywhere but zero. A negative value draws no
 // bar and keeps its minus in the label, unless a ranking is `signed` (a margin missed that is a
 // gain): then the scale runs below zero and its bar runs left from the zero line.
 import React from "react";
-import { RowStyles, hatchFill, useArmed, tint, inkOn, INK, SUB, LINE, TRACK, EASE, SEL_BG, JADE } from "./kit";
+import { RowStyles, hatchFill, useArmed, tint, inkOn, INK, SUB, LINE, TRACK, EASE, SEL_BG, SAGE } from "./kit";
 import { Swatch } from "./legend";
 import { useWidth } from "./minis";
 import { GroupCaption, MoreRows, fitRows, groupHeads, headH, usePanel } from "./panel";
 import { isNum, pct } from "./format";
 import { clamp, niceCeil, textW } from "./scale";
 
-const LABEL_FS = 12, VALUE_FS = 11.5, SUB_FS = 10.5;
+const LABEL_FS = 12, VALUE_FS = 11.5, SUB_FS = 11;
 /** The least height RankBars gives a row, in px; below it a row goes to "+N more". A chart
  *  that decides what to hand RankBars from the room it has (SplitTile) reads it from here. */
 export const RANK_ROW_MIN = 18;
@@ -30,6 +30,12 @@ const NARROW_W = 320;
 const fillOf = (color: string, hatched?: boolean): React.CSSProperties => (hatched
   ? { background: hatchFill(color), boxShadow: `inset 0 0 0 1px ${tint(color, 0.7)}` }
   : { background: color });
+
+/** A ranking's bar: its colour fading in from the zero line, as the stock-value page draws its
+ *  breakdown (the soft end at the axis, the full colour at the figure); a hatch stays a hatch. */
+const rankFill = (color: string, hatched: boolean | undefined, below: boolean): React.CSSProperties => (hatched
+  ? fillOf(color, true)
+  : { background: `linear-gradient(${below ? 270 : 90}deg, ${tint(color, 0.55)}, ${color})` });
 
 /** A row's words for a screen reader. */
 const said = (...parts: (string | null | undefined | false)[]) => parts.filter(Boolean).join(", ");
@@ -123,7 +129,7 @@ export function RankBars({ rows, format, color, ariaLabel, onMore, signed = fals
               </span>
               <span aria-hidden="true" className="relative block rounded-[3px]" style={{ height: barH, background: TRACK }}>
                 <span className="absolute top-0 bottom-0 rounded-[3px]" style={{
-                  ...fillOf(c, r.hatched), ...anchor, width: on ? `${w}%` : "0%", transition: `width 620ms ${EASE} ${80 + i * 40}ms`,
+                  ...rankFill(c, r.hatched, below), ...anchor, width: on ? `${w}%` : "0%", transition: `width 620ms ${EASE} ${80 + i * 40}ms`,
                 }} />
                 {min < 0 && <span className="absolute w-px -top-[2px] -bottom-[2px]" style={{ left: `${zeroX}%`, background: INK, opacity: 0.55 }} />}
                 {isNum(r.tick) && r.tick >= min && (
@@ -231,7 +237,7 @@ export function Waterfall({ steps, format, ariaLabel }: {
           const sp = spans[i];
           const lo = Math.min(sp.from, sp.to), hi = Math.max(sp.from, sp.to);
           // A change that adds is a gain, whatever the step's own colour says.
-          const c = s.kind === "delta" && s.value > 0 ? JADE : s.color;
+          const c = s.kind === "delta" && s.value > 0 ? SAGE : s.color;
           const name = said(s.label, s.valueLabel, s.note);
           const cells = (
             <>
@@ -264,7 +270,7 @@ export function Waterfall({ steps, format, ariaLabel }: {
         })}
         <div aria-hidden="true" className="grid gap-x-2.5 px-2" style={{ gridTemplateColumns: cols, height: WATER_AXIS_H }}>
           <span />
-          <span className="relative block text-[10px] tabular-nums" style={{ color: SUB, borderTop: `1px solid ${LINE}` }}>
+          <span className="relative block text-[11px] tabular-nums" style={{ color: SUB, borderTop: `1px solid ${LINE}` }}>
             {bottom < 0 && <span className="absolute left-0 top-[2px]">{format(bottom)}</span>}
             {bottom === 0 ? <span className="absolute left-0 top-[2px]">{format(0)}</span>
               : zeroX > 15 && zeroX < 85 && <span className="absolute top-[2px] -translate-x-1/2" style={{ left: `${zeroX}%` }}>{format(0)}</span>}
@@ -317,7 +323,7 @@ export function PartBar({ parts, whole, ariaLabel }: {
     <div ref={ref} role="img" aria-label={`${ariaLabel}: ${parts.map((p) => `${p.label} ${pct(p.share, 1)}, ${p.valueLabel}`).join("; ")}. The whole bar is ${whole}.`}>
       <div aria-hidden="true" className="relative h-[18px] rounded-[4px] overflow-hidden" style={{ background: TRACK }}>
         {laid.map((p, i) => p.share > 0 && (
-          <span key={p.key} className="absolute top-0 bottom-0 flex items-center justify-center text-[10.5px] font-semibold tabular-nums overflow-hidden"
+          <span key={p.key} className="absolute top-0 bottom-0 flex items-center justify-center text-[11px] font-semibold tabular-nums overflow-hidden"
             style={{
               ...fillOf(p.color, p.hatched), left: `${p.left}%`, width: on ? `${p.share}%` : "0%",
               color: p.hatched ? INK : inkOn(p.color),
@@ -339,7 +345,7 @@ export function PartBar({ parts, whole, ariaLabel }: {
           </span>
         ))}
       </div>
-      <div aria-hidden="true" className="text-[10.5px] mt-1" style={{ color: SUB }}>whole bar = {whole}</div>
+      <div aria-hidden="true" className="text-[11px] mt-1" style={{ color: SUB }}>whole bar = {whole}</div>
     </div>
   );
 }

@@ -1,7 +1,7 @@
 // The one status rule every KPI card uses: where a figure stands against its budget, and
 // whether a change since the last period is good or bad. HCG has not written its rule down,
 // so the band lives here as one constant; changing it changes every card at once.
-import { JADE, BRASS, RUST, SUB } from "./kit";
+import { SAGE, HONEY, CORAL_MARK, SAGE_INK, HONEY_INK, CORAL_INK, SUB } from "./kit";
 
 export type Status = "met" | "within" | "below" | "none";
 export type Source = "computed" | "hcg" | "estimate";
@@ -31,7 +31,12 @@ export const STATUS_LABEL: Record<Status, string> = {
   none: "No budget comparison",
 };
 
-export const STATUS_COLOR: Record<Status, string> = { met: JADE, within: BRASS, below: RUST, none: SUB };
+/** The status hues (kit WARM: sage, honey, coral — the stock-value page's healthy, watch and stale),
+ *  for a mark: a dot, a band, a bullet. Validated as a set with every pair apart for colour-blind
+ *  readers; honey sits under 3:1 on white, so a status never goes without its words. */
+export const STATUS_COLOR: Record<Status, string> = { met: SAGE, within: HONEY, below: CORAL_MARK, none: SUB };
+/** The same, for words: each status's text in a shade that clears 4.5:1 on white and cream. */
+export const STATUS_INK: Record<Status, string> = { met: SAGE_INK, within: HONEY_INK, below: CORAL_INK, none: SUB };
 
 /** Status bands on a min–max axis, for a bullet bar behind its budget tick. */
 export function statusBands(budget: number, min: number, max: number, withinPts = WITHIN_PTS): { from: number; to: number; status: Status }[] {
@@ -53,7 +58,9 @@ export function deltaTone(delta: number, goodWhen: GoodWhen, threshold: number):
   return (delta > 0) === (goodWhen === "up") ? "good" : "bad";
 }
 
-export const TONE_COLOR: Record<Tone, string> = { good: JADE, bad: RUST, flat: SUB, neutral: SUB };
+/** A change's colour, for its words (a chip's arrow and figure): good in sage, bad in the coral's
+ *  text shade. */
+export const TONE_COLOR: Record<Tone, string> = { good: SAGE_INK, bad: CORAL_INK, flat: SUB, neutral: SUB };
 export const TONE_WORD: Record<Tone, string> = { good: "better", bad: "worse", flat: "no change", neutral: "change" };
 
 // "hcg" figures are pooled by the app from the rupees in HCG's MIS workbook (the app has no

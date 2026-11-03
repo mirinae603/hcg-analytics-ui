@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 import { useRegion, displayRegion } from "@/context/RegionContext";
 import { useDrillBind } from "@/components/portfolio/useDrillBind";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
+import { useWindows, windowLabel, windowPill } from "@/lib/useWindows";
 import { inrAbbr, countAbbr, useMount, CountUp, smoothPath } from "@/components/portfolio/kit";
 import { TbBuildingHospital, TbChartTreemap, TbStack2, TbCoin, TbUsersGroup, TbCrown, TbChartHistogram, TbArrowUpRight, TbArrowDownRight } from "react-icons/tb";
 
@@ -36,6 +37,7 @@ function squarify(items: { value: number; it: any }[], W: number, H: number) {
 }
 
 function Shell({ region, children }: any) {
+  const consumption = useWindows()?.windows.consumption;   // every month of internal issues received
   return (
     <div className="-m-4 md:-m-6 p-4 md:p-6 space-y-5 min-w-0" style={{ background: PAGE, minHeight: "calc(100vh - 64px)" }}>
       <style jsx global>{`@keyframes cdIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}.cd-card{animation:cdIn .55s cubic-bezier(.22,1,.36,1) both;min-width:0}`}</style>
@@ -44,7 +46,7 @@ function Shell({ region, children }: any) {
           <h1 className="text-[24px] font-bold leading-tight" style={{ color: INK }}>Consumption by department</h1>
           <p className="text-[13px] mt-1" style={{ color: SUB }}>which cost-centers drive internal consumption · {displayRegion(region)}</p>
         </div>
-        <span className="text-[12px] font-medium px-3.5 py-2 rounded-full bg-white" style={{ color: "#6c6084", boxShadow: "0 4px 14px -8px rgba(70,44,96,0.22)" }}>6-month window</span>
+        {consumption && <span className="text-[12px] font-medium px-3.5 py-2 rounded-full bg-white" style={{ color: "#6c6084", boxShadow: "0 4px 14px -8px rgba(70,44,96,0.22)" }} title={windowLabel(consumption)}>{windowPill(consumption)}</span>}
       </div>
       {children}
     </div>
@@ -229,11 +231,12 @@ export default function ConsumptionByDeptDetail() {
   const momC = cVals.length >= 2 && cVals[cVals.length - 2] ? ((cVals[cVals.length - 1] - cVals[cVals.length - 2]) / cVals[cVals.length - 2]) * 100 : 0;
   const top1 = Number(t.top1 ?? 0), top5 = Number(t.top5 ?? 0), n80 = Number(t.n80 ?? 0), nDept = Number(t.departments ?? 0);
   const cumVals = departments.map((d: any) => d.cum);
+  const months = useWindows()?.windows.consumption?.months;
   return (
     <Shell region={region}>
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
         <Card delay={0}>
-          <Head icon={TbCoin} label="Consumption" badge="6 mo" />
+          <Head icon={TbCoin} label="Consumption" badge={months ? `${months} mo` : undefined} />
           <div className="mt-3 text-[30px] leading-none font-bold tabular-nums tracking-tight" style={{ color: INK }}><CountUp value={Number(t.cost ?? 0)} format={inrAbbr} /></div>
           <div className="mt-1 text-[12px]" style={{ color: SUB }}>internal usage cost</div>
           <div className="mt-auto pt-4"><MiniBars vals={cVals} /><div className="mt-2 flex items-center justify-between"><span className="text-[11px]" style={{ color: "#a99cb2" }}>latest MoM</span><Chip text={pctSign(momC)} color={momC >= 0 ? PLUM : "#5aa97e"} icon={momC >= 0 ? TbArrowUpRight : TbArrowDownRight} /></div></div>
@@ -266,7 +269,7 @@ export default function ConsumptionByDeptDetail() {
       </div>
       <div className="cd-card inline-flex items-center gap-2 text-[11px] font-medium px-3.5 py-2 rounded-full" style={{ background: `${PLUM}12`, color: DEEP, border: `1px solid ${PLUM}2c`, animationDelay: "420ms" }}>
         <span className="w-1.5 h-1.5 rounded-full" style={{ background: PLUM }} />
-        Department = SAP cost-center code. Human-readable department names are pending from HCG's master data.
+        Department = SAP cost-center code. The data carries no department names.
       </div>
       <div className="cd-card rounded-3xl bg-white overflow-hidden" style={{ boxShadow: SH, animationDelay: "460ms" }}>
         <div className="px-6 py-4 border-b border-gray-50">

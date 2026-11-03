@@ -5,6 +5,7 @@ import { useRegion } from "@/context/RegionContext";
 import { useDrillBind } from "@/components/portfolio/useDrillBind";
 import { useCardScope } from "@/components/common/CardCategoryFilter";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
+import { useWindows, windowPill } from "@/lib/useWindows";
 import { inrAbbr, countAbbr, catName, useMount } from "@/components/portfolio/kit";
 import { ProcShell, TableCard, Panel, DetailSkeleton, INK, SUBTLE, EMER, TEAL, INDIGO } from "./parts";
 import { WaveHero, DonutCard } from "./ExecCards";
@@ -152,7 +153,8 @@ export default function PurchaseValueDetail() {
   // "who did we buy Rs 236.73 Cr of onco from" is one supplier, 94.9% of it.
   const vendCat = useCardScope(url, data, { accent: INDIGO, domain: "procurement", label: "Top vendors" });
   const plantCat = useCardScope(url, data, { accent: TEAL, domain: "procurement", label: "Spend by hospital" });
-  if (!data) return <ProcShell title="Purchase value" subtitle="what you spend, on what, and with whom" region={region}><DetailSkeleton /></ProcShell>;
+  const po = useWindows()?.windows.po;   // the purchase-order months the spend covers
+  if (!data) return <ProcShell title="Purchase value" subtitle="what you spend, on what, and with whom" region={region} source="po"><DetailSkeleton /></ProcShell>;
   const t = data?.totals || {};
   const spend = Number(t.spend ?? 0), lines = Number(t.lines ?? 0), avgPo = Number(t.avg_po ?? 0), vendors = Number(t.vendors ?? 0);
   const allCats = data?.categories || [];
@@ -170,9 +172,9 @@ export default function PurchaseValueDetail() {
   const classifiedPct = spend ? (1 - (allCats.find((c: any) => c.uncat)?.value ?? 0) / spend) * 100 : 0;
 
   return (
-    <ProcShell title="Purchase value" subtitle="what you spend, on what, and with whom" region={region}>
+    <ProcShell title="Purchase value" subtitle="what you spend, on what, and with whom" region={region} source="po">
       <WaveHero eyebrow="Total procurement spend" icon={TbCoin} value={spend} format={inrAbbr}
-        sub={`${countAbbr(lines)} PO lines · ${countAbbr(vendors)} vendors · 6-month window`}
+        sub={`${countAbbr(lines)} PO lines · ${countAbbr(vendors)} vendors${po ? ` · ${windowPill(po)}` : ""}`}
         pills={[{ label: "Avg PO value", value: inrAbbr(avgPo) }, { label: "PO lines", value: countAbbr(lines) }, { label: "Vendors", value: countAbbr(vendors) }]}
         timeline={data?.timeline || []} peakFmt={inrAbbr} />
 

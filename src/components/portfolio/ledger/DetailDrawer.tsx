@@ -2,8 +2,10 @@
 // The detail drawer a KPI card opens: HCG's "click a card, see the detailed summary". A
 // right-hand sheet on a desktop, a full-screen sheet on a phone. Its header repeats the card's
 // figure, what it is compared with, its source and the filters it was computed under; below
-// it, the same tabs on every card (Summary · Trend · Breakdown · As in HCG mail · Method).
-// Only the open tab renders, so a tab that fetches does so when first viewed.
+// it, the same tabs on every card (Summary · Trend · Breakdown · Method).
+// Only the open tab renders, so a tab that fetches does so when first viewed. It wears the
+// "Current stock value" page's type: a big bold charcoal figure, the open tab in the coral, the
+// filters as warm pills.
 //
 // Dialog behaviour: it renders in a portal on <body> (a card's entrance animation leaves a
 // transform on its ancestors, which would trap a fixed panel inside them); the page behind
@@ -12,7 +14,7 @@
 import React, { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { TbX } from "react-icons/tb";
-import { INK, SUB, LINE, RULE } from "./kit";
+import { INK, SUB, LINE, RULE, LEDGER_2, CORAL, CORAL_INK } from "./kit";
 import { DeltaChip, SourceBadge, StatusChip, type DeltaProps } from "./KpiCard";
 import { Swatch } from "./charts";
 import type { SourceOf, Status } from "./status";
@@ -146,11 +148,11 @@ export default function DetailDrawer({
   return createPortal(
     <>
       <div aria-hidden="true" onClick={onClose} className="fixed inset-0"
-        style={{ zIndex: 60, background: "rgba(18,20,32,0.34)", backdropFilter: "blur(2px)", opacity: shown ? 1 : 0, transition: "opacity .3s ease" }} />
+        style={{ zIndex: 60, background: "rgba(40,30,24,0.32)", backdropFilter: "blur(2px)", opacity: shown ? 1 : 0, transition: "opacity .3s ease" }} />
       <div ref={panelRef} role="dialog" aria-modal="true" aria-labelledby={`${uid}-title`} tabIndex={-1}
         className={[
           "fixed inset-0 flex flex-col bg-white outline-none",
-          "sm:inset-y-0 sm:left-auto sm:right-0 sm:shadow-[-26px_0_64px_-22px_rgba(20,24,40,0.34)]",
+          "sm:inset-y-0 sm:left-auto sm:right-0 sm:shadow-[-26px_0_64px_-22px_rgba(60,40,30,0.34)]",
           size === "wide" ? "sm:w-[min(1120px,96vw)]" : "sm:w-[min(880px,96vw)]",
           "transition-transform duration-[340ms] ease-[cubic-bezier(.22,1,.36,1)] motion-reduce:transition-none",
           shown ? "translate-y-0 sm:translate-x-0" : "translate-y-full sm:translate-y-0 sm:translate-x-full",
@@ -160,17 +162,17 @@ export default function DetailDrawer({
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
               <div className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: SUB }}>{eyebrow}</div>
-              <h2 id={`${uid}-title`} className="text-[19px] font-extrabold leading-tight mt-0.5" style={{ color: INK }}>{title}</h2>
+              <h2 id={`${uid}-title`} className="text-[20px] font-bold leading-tight mt-0.5" style={{ color: INK, letterSpacing: "-.02em" }}>{title}</h2>
             </div>
             <button type="button" onClick={onClose} aria-label="Close details"
-              className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors hover:bg-[#f2f3f6] focus-visible:outline focus-visible:outline-2"
+              className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors hover:bg-[#F4EFE8] focus-visible:outline focus-visible:outline-2"
               style={{ color: SUB }}>
               <TbX size={19} />
             </button>
           </div>
           {kpi && (
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2 mt-3">
-              <span className="text-[26px] font-light tabular-nums leading-none" style={{ color: INK }}>{kpi.value}</span>
+              <span className="text-[30px] font-bold tabular-nums leading-none" style={{ color: INK, letterSpacing: "-.025em" }}>{kpi.value}</span>
               {kpi.comparator && <span className="text-[12.5px] tabular-nums" style={{ color: SUB }}>{kpi.comparator}</span>}
               {kpi.status && <StatusChip status={kpi.status} />}
               {kpi.delta && <DeltaChip {...kpi.delta} />}
@@ -180,7 +182,7 @@ export default function DetailDrawer({
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2 mt-3">
               {source && <SourceBadge source={source} asOf={asOf} />}
               {filters?.map((f) => (
-                <span key={f.label} className="text-[11px] rounded-full px-2.5 py-[3px] whitespace-nowrap" style={{ color: SUB, border: `1px solid ${RULE}` }}>
+                <span key={f.label} className="text-[11px] rounded-full px-2.5 py-[3px] whitespace-nowrap" style={{ color: SUB, background: LEDGER_2 }}>
                   {f.label}: <b style={{ color: INK, fontWeight: 600 }}>{f.value}</b>
                 </span>
               ))}
@@ -197,9 +199,9 @@ export default function DetailDrawer({
                   id={`${uid}-tab-${t.key}`} aria-selected={on} aria-controls={`${uid}-panel`} tabIndex={on ? 0 : -1}
                   onClick={() => setPicked(t.key)}
                   className="relative px-3 py-2.5 text-[13px] whitespace-nowrap transition-colors"
-                  style={{ color: on ? INK : SUB, fontWeight: on ? 700 : 500 }}>
+                  style={{ color: on ? CORAL_INK : SUB, fontWeight: on ? 700 : 500 }}>
                   {t.label}
-                  <span className="absolute left-2 right-2 -bottom-px rounded-full" style={{ height: 2, background: on ? INK : "transparent" }} />
+                  <span className="absolute left-2 right-2 -bottom-px rounded-full" style={{ height: 2, background: on ? CORAL : "transparent" }} />
                 </button>
               );
             })}
@@ -239,9 +241,9 @@ export function KeyFigures({ figures }: { figures: KeyFigure[] }) {
         <div key={f.label} className="min-w-0 pl-3" style={{ borderLeft: `1px solid ${RULE}` }}>
           <dt className="flex items-center gap-1.5">
             {f.color && <Swatch color={f.color} hatched={f.hatched} />}
-            <span className="text-[10.5px] font-semibold uppercase" style={{ color: SUB, letterSpacing: ".08em" }}>{f.label}</span>
+            <span className="text-[11px] font-semibold uppercase" style={{ color: SUB, letterSpacing: ".06em" }}>{f.label}</span>
           </dt>
-          <dd className="text-[17px] font-bold tabular-nums mt-1" style={{ color: INK }}>{f.value}</dd>
+          <dd className="text-[18px] font-bold tabular-nums mt-1" style={{ color: INK, letterSpacing: "-.015em" }}>{f.value}</dd>
           {f.note && <dd className="text-[11px] leading-snug" style={{ color: SUB }}>{f.note}</dd>}
         </div>
       ))}

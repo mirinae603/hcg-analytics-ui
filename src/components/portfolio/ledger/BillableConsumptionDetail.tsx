@@ -13,6 +13,7 @@
 import React, { useEffect, useMemo, useState, useId } from "react";
 import dynamic from "next/dynamic";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
+import { useWindows, monthsLabel, windowPill } from "@/lib/useWindows";
 import { byKey } from "@/lib/kpiRegistry";
 import { useCardCategory } from "@/components/common/CardCategoryFilter";
 import { useDrillBind } from "@/components/portfolio/useDrillBind";
@@ -35,6 +36,12 @@ export default function BillableConsumptionDetail() {
   const on = useArmed();
   const [scope, setScope] = useState<any[] | null>(null);
   const [rows, setRows] = useState<any[]>([]);
+  // materials per bucket, counted by the table itself (null while loading); `countsFailed` when
+  // that request failed, so the page leaves the counts out rather than print 0 materials
+  const [counts, setCounts] = useState<Record<string, number> | null>(null);
+  const [countsFailed, setCountsFailed] = useState(false);
+  // the billing months this table sets internal issues beside (GET /meta/windows)
+  const billing = useWindows()?.windows.legacy_sales;
   const [hi, setHi] = useState<number | null>(null);
   const kpi = byKey("billable-consumption");
   const cat = useCardCategory({ accent: CLAY, label: "Billable split", allLabel: "All categories" });
@@ -48,6 +55,22 @@ export default function BillableConsumptionDetail() {
     fetch(`${DASHBOARD_API_BASE_URL}/kpi/billable-consumption?group_by=scope&measures=billed_cost,internal_cost,total_material_cost`
           + (cat.category ? `&Category=${encodeURIComponent(cat.category)}` : ""))
       .then((r) => r.json()).then((d) => setScope(Array.isArray(d) ? d : [])).catch(() => setScope([]));
+    // How many materials sit in each bucket: the counts of the table's own "Billed or internal"
+    // filter over the WHOLE table (facets=only sends counts, no rows), cut to the same category as
+    // the money above. They used to be fixed numbers measured once at build time.
+    // fetch resolves on an HTTP error too, so a 4xx/5xx body, or an answer without the scope
+    // facet, counts as a failure: no count is known, and none is shown.
+    fetch(`${DASHBOARD_API_BASE_URL}/kpi/billable-consumption/table?facets=only`
+          + (cat.category ? `&Category=${encodeURIComponent(cat.category)}` : ""))
+      .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
+      .then((d) => {
+        const f = (d?.facets || []).find((x: any) => x.field === "scope");
+        if (!f || !Array.isArray(f.values)) throw new Error("no scope facet");
+        const out: Record<string, number> = {};
+        f.values.forEach((v: any) => { out[String(v.value)] = Number(v.count) || 0; });
+        setCounts(out); setCountsFailed(false);
+      })
+      .catch(() => { setCounts(null); setCountsFailed(true); });
     // material grain, for the two ladders. 400 is plenty to rank the tail honestly.
     fetch(`${DASHBOARD_API_BASE_URL}/kpi/billable-consumption/table?page=0&page_size=400&sort_field=total_material_cost&sort_order=desc`)
       .then((r) => r.json()).then((d) => setRows(d?.data || [])).catch(() => setRows([]));
@@ -55,26 +78,29 @@ export default function BillableConsumptionDetail() {
 
   const buckets = useMemo(() => {
     if (!scope) return null;
-    const counts: Record<string, number> = {};
-    rows.forEach((r) => { counts[r.scope] = (counts[r.scope] || 0) + 1; });
     return SCOPES.map((s) => {
       const f = scope.find((x) => x.scope === s.key) || {};
       return { ...s, money: Number(f.total_material_cost || 0), billed: Number(f.billed_cost || 0), internal: Number(f.internal_cost || 0) };
     });
-  }, [scope, rows]);
+  }, [scope]);
 
-  // Material counts come from the KPI's own registry note (measured at build time on the
-  // full 25,166-row table) — the 400-row sample above cannot count the tail.
-  const COUNTS: Record<string, number> = { "Billed only": 13921, "Both": 1229, "Internal only": 10016 };
+  // Counted over the whole table by the endpoint (the 400-row sample above cannot count the tail).
+  // Without them (the request failed) every count is unknown, never 0.
+  const known = counts != null;
+  const COUNTS: Record<string, number> = counts ?? {};
+  const countOf = (key: string) => COUNTS[key] ?? 0;
+  /** A bucket's count for a badge: "top 8 of 1,230", or "top 8" when the counts are unknown. */
+  const topOf = (key: string) => (known ? `top 8 of ${num(countOf(key))}` : "top 8");
 
   const totalMoney = buckets ? buckets.reduce((s, b) => s + b.money, 0) : 0;
   const totalCount = Object.values(COUNTS).reduce((a, b) => a + b, 0);
+  const ofCount = (n: number) => (totalCount ? pct1((n / totalCount) * 100) : "—");
 
   // ladders — computed off the material-grain sample
   const bothTop = useMemo(() => rows.filter((r) => r.scope === "Both").sort((a, b) => b.internal_cost - a.internal_cost).slice(0, 8), [rows]);
   const intTop = useMemo(() => rows.filter((r) => r.scope === "Internal only").sort((a, b) => b.internal_cost - a.internal_cost).slice(0, 8), [rows]);
 
-  if (!buckets) return <PageShell title="Billable vs non-billable consumption" sub="what the hospitals recover from patients, and what they absorb" pill="material grain"><Skeleton /></PageShell>;
+  if (!buckets || (!counts && !countsFailed)) return <PageShell title="Billable vs non-billable consumption" sub="what the hospitals recover from patients, and what they absorb" pill="material grain"><Skeleton /></PageShell>;
 
   const W = 900, BW = 852, X0 = 24;
   const H = 250, yMoney = 44, yCount = 150, barH = 46;
@@ -82,8 +108,8 @@ export default function BillableConsumptionDetail() {
   let cm = X0, cc = X0;
   const laid = buckets.map((b) => {
     const wm = totalMoney ? (b.money / totalMoney) * BW : 0;
-    const wc = totalCount ? (COUNTS[b.key] / totalCount) * BW : 0;
-    const o = { ...b, xm: cm, wm, xc: cc, wc, count: COUNTS[b.key] };
+    const wc = totalCount ? (countOf(b.key) / totalCount) * BW : 0;
+    const o = { ...b, xm: cm, wm, xc: cc, wc, count: countOf(b.key) };
     cm += wm; cc += wc; return o;
   });
   const a = hi != null ? laid[hi] : null;
@@ -91,7 +117,7 @@ export default function BillableConsumptionDetail() {
   return (
     <PageShell title="Billable vs non-billable consumption"
       sub="what the hospitals recover from patients, and what they absorb — by material"
-      pill="6-month window">
+      pill={windowPill(billing)}>
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 md:gap-6">
 
         {/* ── HERO — the two catalogues, same buckets, two disagreeing axes ── */}
@@ -100,21 +126,30 @@ export default function BillableConsumptionDetail() {
             <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
               <div className="lg:w-[30%] flex-shrink-0">
                 <div className="flex items-start justify-between gap-3">
-                  <div className="text-[10px] font-semibold uppercase" style={{ color: SUB, letterSpacing: ".14em" }}>Material cost, 6 months</div>
+                  <div className="text-[10px] font-semibold uppercase" style={{ color: SUB, letterSpacing: ".14em" }}>Material cost{billing ? `, ${monthsLabel(billing)}` : ""}</div>
                   {cat.chip}
                 </div>
                 <div className="mt-3 text-[44px] font-light tabular-nums leading-none" style={{ color: INK, letterSpacing: "-.03em" }}>{inr(totalMoney)}</div>
-                <div className="text-[10.5px] font-semibold uppercase mt-2" style={{ color: SUB, letterSpacing: ".12em" }}>across {num(totalCount)} materials</div>
-                <p className="text-[11.5px] mt-5 leading-relaxed" style={{ color: SUB }}>
-                  The two bars below carry the <b style={{ color: INK }}>same three buckets</b> — top by rupees,
-                  bottom by how many materials. They disagree sharply, and that disagreement is the finding:
-                  <b style={{ color: INK }}> {pct1((COUNTS["Internal only"] / totalCount) * 100)} of materials are never billed at all</b>,
-                  but they account for only {pct1((laid[2].money / totalMoney) * 100)} of the money.
-                </p>
-                <p className="text-[11.5px] mt-3 leading-relaxed" style={{ color: SUB }}>
-                  Only <b style={{ color: JADE_DEEP }}>{num(COUNTS.Both)}</b> materials appear on both sides.
-                  Billed and internal are, in practice, two different catalogues.
-                </p>
+                {known && <div className="text-[10.5px] font-semibold uppercase mt-2" style={{ color: SUB, letterSpacing: ".12em" }}>across {num(totalCount)} materials</div>}
+                {known ? (
+                  <>
+                    <p className="text-[11.5px] mt-5 leading-relaxed" style={{ color: SUB }}>
+                      The two bars below carry the <b style={{ color: INK }}>same three buckets</b> — top by rupees,
+                      bottom by how many materials. They disagree sharply, and that disagreement is the finding:
+                      <b style={{ color: INK }}> {ofCount(countOf("Internal only"))} of materials are never billed at all</b>,
+                      but they account for only {pct1((laid[2].money / totalMoney) * 100)} of the money.
+                    </p>
+                    <p className="text-[11.5px] mt-3 leading-relaxed" style={{ color: SUB }}>
+                      Only <b style={{ color: JADE_DEEP }}>{num(countOf("Both"))}</b> materials appear on both sides.
+                      Billed and internal are, in practice, two different catalogues.
+                    </p>
+                  </>
+                ) : (
+                  <p className="text-[11.5px] mt-5 leading-relaxed" style={{ color: SUB }}>
+                    The bar below splits the material cost into the three buckets. How many materials sit in
+                    each could not be loaded, so the counts are left out rather than shown as zero.
+                  </p>
+                )}
               </div>
 
               <div className="flex-1 min-w-0">
@@ -123,6 +158,7 @@ export default function BillableConsumptionDetail() {
                   <defs><Hatch id={`h-${uid}`} /></defs>
                   <text x={X0} y={26} style={{ fontSize: 10.5, fontWeight: 600, fill: SUB, letterSpacing: ".06em" }}>BY RUPEES — material cost</text>
                   <text x={X0} y={yCount - 18} style={{ fontSize: 10.5, fontWeight: 600, fill: SUB, letterSpacing: ".06em" }}>BY COUNT — number of materials</text>
+                  {!known && <text x={X0} y={yCount + 28} style={{ fontSize: 11.5, fill: SUB }}>Material counts could not be loaded.</text>}
                   {laid.map((b, i) => (
                     <g key={`m${i}`} style={{ opacity: hi == null || hi === i ? 1 : 0.42, transition: "opacity 180ms", cursor: "pointer" }}
                       {...drill.bind(b.key, { onMouseEnter: () => setHi(i) })}>
@@ -134,12 +170,12 @@ export default function BillableConsumptionDetail() {
                     </g>
                   ))}
                   {/* connectors: same bucket, two positions — the visual proof they disagree */}
-                  {laid.map((b, i) => (
+                  {known && laid.map((b, i) => (
                     <path key={`c${i}`} d={`M${b.xm + b.wm / 2},${yMoney + barH + 4} L${b.xc + b.wc / 2},${yCount - 6}`}
                       stroke={b.hatch ? CLAY : JADE} strokeWidth="1" strokeDasharray="3 3"
                       style={{ opacity: on ? (hi == null || hi === i ? 0.5 : 0.15) : 0, transition: "opacity 400ms ease 1000ms" }} />
                   ))}
-                  {laid.map((b, i) => (
+                  {known && laid.map((b, i) => (
                     <g key={`n${i}`} onMouseEnter={() => setHi(i)} style={{ opacity: hi == null || hi === i ? 1 : 0.42, transition: "opacity 180ms" }}>
                       <rect x={b.xc} y={yCount} width={on ? b.wc : 0} height={barH} fill={NEUTRAL}
                         style={{ transition: `width 720ms ${EASE_OUT} ${360 + i * 90}ms` }} />
@@ -152,10 +188,10 @@ export default function BillableConsumptionDetail() {
                 </svg>
                 <Readout k={hi} dark>
                   {a ? (
-                    <span><b>{a.label}</b> — {num(a.count)} materials ({pct1((a.count / totalCount) * 100)} of the catalogue) ·
+                    <span><b>{a.label}</b> — {known ? `${num(a.count)} materials (${ofCount(a.count)} of the catalogue) ·` : ""}
                       <b style={{ color: a.hatch ? CLAY : JADE_DEEP }}> {inr(a.money)}</b> ({pct1((a.money / totalMoney) * 100)} of material cost)
                       <span style={{ color: SUB }}> — {a.blurb}</span></span>
-                  ) : <span style={{ color: SUB }}>hover a bucket — dashed lines link it across both axes, and the items inside appear</span>}
+                  ) : <span style={{ color: SUB }}>{known ? "hover a bucket — dashed lines link it across both axes, and the items inside appear" : "hover a bucket — the items inside appear"}</span>}
                 </Readout>
                 {drill.panel}
               </div>
@@ -168,7 +204,7 @@ export default function BillableConsumptionDetail() {
           <Card delay={180}>
             <Head label="The overlap — where recovery is partial"
               note="Materials issued internally AND billed. Bar length is internal (unrecovered) cost; the brass tick is the share of that material's cost that IS billed."
-              badge={`top 8 of ${num(COUNTS.Both)}`} />
+              badge={topOf("Both")} />
             <Ladder rows={bothTop} on={on} metric="internal_cost" showShare />
           </Card>
         </div>
@@ -178,14 +214,14 @@ export default function BillableConsumptionDetail() {
           <Card delay={260}>
             <Head label="Never billed — pure absorption"
               note="Materials issued to cost centres with no patient bill anywhere in the window. Hatched because none of this is recovered."
-              badge={`top 8 of ${num(COUNTS["Internal only"])}`} />
+              badge={topOf("Internal only")} />
             <Ladder rows={intTop} on={on} metric="internal_cost" hatch uid={uid} />
           </Card>
         </div>
 
         <div className="xl:col-span-12">
           <Card delay={340} className="!p-0">
-            <div className="p-5 md:p-6 pb-0"><Head label="Every material" note="Paginated · sortable · filterable · export CSV" badge={`${num(totalCount)} rows`} /></div>
+            <div className="p-5 md:p-6 pb-0"><Head label="Every material" note="Paginated · sortable · filterable · export CSV" badge={known ? `${num(totalCount)} rows` : undefined} /></div>
             <div className="-mt-2">{kpi && <KpiTable kpiKey="billable-consumption" columns={kpi.columns} />}</div>
           </Card>
         </div>

@@ -17,6 +17,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
+import { useWindows, monthsText } from "@/lib/useWindows";
 import { byKey } from "@/lib/kpiRegistry";
 import { useRegion, displayRegion } from "@/context/RegionContext";
 import { useCardCategory, useCardScopedData } from "@/components/common/CardCategoryFilter";
@@ -29,12 +30,21 @@ import {
 
 const KpiTable = dynamic(() => import("../KpiTable"), { ssr: false, loading: () => <div className="p-6">{Array.from({ length: 6 }).map((_, i) => <div key={i} className="h-10 rounded-lg bg-gray-50 animate-pulse mb-2" />)}</div> });
 
+/** The months of consumption this page ranks by: the issues up to the stock count (GET
+ *  /meta/windows), e.g. 6. undefined while it loads. */
+function useUsageMonths(): number | undefined {
+  return useWindows()?.windows.consumption_to_snapshot?.months;
+}
+/** "6-month consumption", or plain "consumption" while the window loads. */
+const usedOver = (months?: number) => (months ? `${months}-month consumption` : "consumption");
+
 export default function StockOutRateDetail() {
   const { selectedRegion } = useRegion();
   const region = selectedRegion?.name ?? "All Plants";
   const on = useArmed();
   const [d, setD] = useState<any>(null);
   const kpi = byKey("stock-out-rate");
+  const months = useUsageMonths();
 
   useEffect(() => {
     setD(null);
@@ -49,7 +59,7 @@ export default function StockOutRateDetail() {
         <div className="text-[14px] font-semibold" style={{ color: INK }}>No inventory coverage for {displayRegion(region)}</div>
         <div className="text-[12.5px] mt-1.5 max-w-md mx-auto leading-relaxed" style={{ color: SUB }}>
           This hospital appears in consumption but not in the inventory snapshot, so &ldquo;absent from stock&rdquo;
-          here would mean <b style={{ color: INK }}>not measured</b>, not out of stock. Only the 25 hospitals in both sources are reported.
+          here would mean <b style={{ color: INK }}>not measured</b>, not out of stock. Only the hospitals in both sources are reported.
         </div>
       </div></Card>
     </PageShell>
@@ -64,7 +74,7 @@ export default function StockOutRateDetail() {
         <div className="xl:col-span-12"><Hero page={d} region={region} on={on} /></div>
         <div className="xl:col-span-7"><Card delay={180}>
           <Head label="Order these first" badge={`top 12 of ${num(t.out)} gaps`}
-            note="Stocked-out items ranked by what the network actually consumed over six months — the largest proven demand now sitting at zero." />
+            note={`Stocked-out items ranked by what the network actually consumed${months ? ` over ${monthsText(months)}` : ""} — the largest proven demand now sitting at zero.`} />
           <Reorder page={d} region={region} on={on} />
         </Card></div>
         <div className="xl:col-span-5"><Card delay={260}>
@@ -93,9 +103,10 @@ function Hero({ page, region, on }: any) {
   const src = scoped.data ?? page;
   const t = src?.totals ?? {}, byPlant = src?.by_plant ?? [];
   // hover a hospital bar -> the top materials inside that hospital's stocked-out value
+  const months = useUsageMonths();
   const drill = useDrillBind({
     kpi: "stock-out-rate", dim: "plant", by: "material", measure: "cost_6mo",
-    label: "items", dimLabel: "Hospital · 6-month consumption", format: inr, category: cat.drill,
+    label: "items", dimLabel: `Hospital · ${usedOver(months)}`, format: inr, category: cat.drill,
   });
   const W = 900, H = 300, PL = 58, PR = 116, PT = 30, PB = 34;
   const PW = W - PL - PR, PH = H - PT - PB;
@@ -202,6 +213,7 @@ function Reorder({ page, region, on }: any) {
   const rows = (scoped.data ?? page)?.top_out ?? [];
   const max = Math.max(...(rows || []).map((r: any) => r.cost_6mo), 1);
   const a = hi != null ? rows[hi] : null;
+  const months = useUsageMonths();
   return (
     <>
       <div className="flex justify-end -mt-1 mb-2">{cat.chip}</div>
@@ -227,7 +239,7 @@ function Reorder({ page, region, on }: any) {
       </div>
       <Readout k={hi} minH={34}>
         {a ? <span><b>{nm(a.desc, 30)}</b> <span style={{ color: SUB }}>({a.group})</span> at <b>{a.plant}</b> — {inr(a.cost_6mo)} consumed over {a.months_consumed} months, last used {a.last_month} · <b style={{ color: CLAY }}>zero stock now</b></span>
-          : <span style={{ color: SUB }}>ranked by six-month consumption — proven demand, currently unavailable</span>}
+          : <span style={{ color: SUB }}>ranked by {usedOver(months)} — proven demand, currently unavailable</span>}
       </Readout>
     </>
   );
@@ -237,9 +249,10 @@ function Groups({ rows, on }: any) {
   const [hi, setHi] = useState<number | null>(null);
   // NO category chip here on purpose: this card IS the category breakdown, so
   // filtering it by category would collapse it to a single row.
+  const months = useUsageMonths();
   const drill = useDrillBind({
     kpi: "stock-out-rate", dim: "material_group", by: "material", measure: "cost_6mo",
-    label: "items", dimLabel: "Category · 6-month consumption", format: inr,
+    label: "items", dimLabel: `Category · ${usedOver(months)}`, format: inr,
   });
   const max = Math.max(...(rows || []).map((r: any) => r.value_out), 1);
   const a = hi != null ? rows[hi] : null;

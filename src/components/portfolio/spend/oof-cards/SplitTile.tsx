@@ -22,16 +22,16 @@ const IGNORES = "Every material type, whatever the Material type filter says: th
 export function SliceTable({ c }: { c: Ctx }) {
   const cols: Col<Slice>[] = [
     { label: "Material type", render: (r) => r.label, align: "left" },
-    { label: "Spent", render: (r) => rupeesExact(r.purchase_value) },
-    { label: "Margin earned", render: (r) => rupeesExact(r.actual_margin) },
-    { label: "Margin possible", render: (r) => rupeesExact(r.potential_margin) },
-    { label: "Margin missed", render: (r) => <b>{rupeesExact(r.margin_loss)}</b> },
-    { label: "% missed", render: (r) => pct(r.loss_pct) },
-    { label: "Units", render: (r) => num(r.qty) },
+    { label: "Spent", render: (r) => rupeesExact(r.purchase_value), raw: (r) => r.purchase_value, unit: "₹" },
+    { label: "Margin earned", render: (r) => rupeesExact(r.actual_margin), raw: (r) => r.actual_margin, unit: "₹" },
+    { label: "Margin possible", render: (r) => rupeesExact(r.potential_margin), raw: (r) => r.potential_margin, unit: "₹" },
+    { label: "Margin missed", render: (r) => <b>{rupeesExact(r.margin_loss)}</b>, raw: (r) => r.margin_loss, unit: "₹" },
+    { label: "% missed", render: (r) => pct(r.loss_pct), raw: (r) => r.loss_pct, unit: "%" },
+    { label: "Units", render: (r) => num(r.qty), raw: (r) => r.qty },
   ];
   return (
     <DrawerSection title="Onco and non-onco" note={IGNORES}>
-      <DataTable rows={c.d.by_category || []} rowKey={(r) => r.key} cols={cols} caption="Out-of-formulary margin missed by material type" minWidth={680} />
+      <DataTable context={c.context} rows={c.d.by_category || []} rowKey={(r) => r.key} cols={cols} caption="Out-of-formulary margin missed by material type" minWidth={680} />
     </DrawerSection>
   );
 }

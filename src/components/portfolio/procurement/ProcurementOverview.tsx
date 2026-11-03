@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRegion, displayRegion } from "@/context/RegionContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
+import { useWindows, windowLabel, windowPill } from "@/lib/useWindows";
 import { CARD_SH, inrAbbr, countAbbr, catName, useMount, smoothPath } from "@/components/portfolio/kit";
 import { useCardCategory, useCardScope } from "@/components/common/CardCategoryFilter";
 import { GaugeCard, DonutCard, BrandPanel, Tab } from "./ExecCards";
@@ -25,6 +26,7 @@ const pctSign = (n: number) => `${n >= 0 ? "+" : "−"}${Math.abs(n).toFixed(1)}
 
 function SpendFlow({ timeline, cat, empty }: { timeline: any[]; cat: any; empty: boolean }) {
   const on = useMount(140); const [hov, setHov] = useState<number | null>(null);
+  const po = useWindows()?.windows.po;   // the purchase-order months the spend covers
   const data = timeline || [];
   const W = 760, H = 248, PADX = 26, PADT = 50, PADB = 34;
   const innerW = W - PADX * 2, innerH = H - PADT - PADB;
@@ -41,7 +43,7 @@ function SpendFlow({ timeline, cat, empty }: { timeline: any[]; cat: any; empty:
     <div className="rounded-[26px] bg-white p-6" style={{ boxShadow: CARD_SH }}>
       <div className="flex items-start justify-between flex-wrap gap-2">
         <div><h3 className="text-[16px] font-semibold" style={{ color: INK }}>Spend flow</h3>
-          <p className="text-[12px] mt-0.5" style={{ color: SUBTLE }}>monthly purchase value · 6-month window</p></div>
+          <p className="text-[12px] mt-0.5" style={{ color: SUBTLE }}>monthly purchase value{po ? ` · ${windowPill(po)}` : ""}</p></div>
         <div className="flex items-center gap-3">
           {cat.chip}
           <div className="text-right"><div className="text-[20px] font-bold leading-none tabular-nums" style={{ color: EMER }}>{inrAbbr(avg)}</div>
@@ -156,6 +158,7 @@ function OpenPOCard({ openPo }: { openPo: any }) {
 function SavingsCard({ region }: { region: string }) {
   const on = useMount(160);
   const [d, setD] = useState<any>(null);
+  const grn = useWindows()?.windows.grn;   // the headroom is priced on goods receipts, not orders
   // Every step of this computation is per material — an item's own median price, its
   // >=4-purchase gate and its headroom are identical whether or not its bucket is
   // selected — so the flagged items simply partition across the six buckets.
@@ -185,7 +188,7 @@ function SavingsCard({ region }: { region: string }) {
             <span className="cursor-help text-[11px] w-4 h-4 rounded-full inline-flex items-center justify-center" style={{ background: "#eef0fb", color: INDIGO }}
               title="For each item bought ≥4 times at a consistent unit price (max ≤2.5× min, so mixed pack sizes are excluded), we sum the spend above that item's own median achieved price. A conservative 'paid above your own median' figure — negotiation headroom, not a guaranteed saving.">i</span>
           </div>
-          <p className="text-[12px] mt-0.5" style={{ color: SUBTLE }}>same item priced above its own median across the 6-month window</p>
+          <p className="text-[12px] mt-0.5" style={{ color: SUBTLE }} title={windowLabel(grn) || undefined}>same item priced above its own median{grn ? ` across the ${grn.months}-month receipt window` : ""}</p>
         </div>
         <div className="flex items-center gap-3">
           {cat.chip}
@@ -219,6 +222,10 @@ export default function ProcurementOverview() {
   const { selectedRegion } = useRegion();
   const region = selectedRegion?.name ?? "All Plants";
   const [data, setData] = useState<any>(null);
+  // Spend, orders, vendors and locations are purchase orders; the MRP margin, the price headroom and
+  // the cycle time are goods receipts, whose months can differ. The pill names the orders and its
+  // tooltip both windows.
+  const win = useWindows()?.windows;
   // "loading" covers BOTH "fetch still in flight" and "fetch failed" -- either way there is
   // no real data yet, so the executive cards must show a neutral skeleton, never a
   // confident-looking 0/0%/"Watch fill" as if it were a genuine result (the original bug).
@@ -325,7 +332,8 @@ export default function ProcurementOverview() {
             <span className="w-1.5 h-1.5 rounded-full" style={{ background: "#0e7a54" }} />{Number(t.margin_pct ?? 0).toFixed(1)}% MRP margin
             <span className="font-normal" style={{ color: "#4a8f72" }}>· {inrAbbr(Number(t.margin_value ?? 0))}</span>
           </span>
-          <span className="text-[12px] font-medium px-3.5 py-2 rounded-full bg-white" style={{ color: "#5b6478", boxShadow: "0 4px 14px -8px rgba(40,52,86,0.2)" }}>6-month window</span>
+          {win?.po && <span className="text-[12px] font-medium px-3.5 py-2 rounded-full bg-white" style={{ color: "#5b6478", boxShadow: "0 4px 14px -8px rgba(40,52,86,0.2)" }}
+            title={`Purchase orders: ${windowLabel(win.po)}${win.grn ? ` · goods receipts: ${windowLabel(win.grn)}` : ""}`}>{windowPill(win.po)}</span>}
         </div>
       </div>
 
@@ -414,7 +422,7 @@ export default function ProcurementOverview() {
 
       <div className="mt-5 inline-flex items-center gap-2 text-[11px] font-medium px-3 py-1.5 rounded-full"
         style={{ background: "rgba(14,159,110,0.08)", color: EMER, border: "1px solid rgba(14,159,110,0.2)" }}>
-        Spend = PO value (excl. tax) over the 6-month window. Order completion clamped ≤100% (proxy — some lines over-receive).
+        Spend = PO value (excl. tax){win?.po ? ` over ${windowLabel(win.po)}` : ""}. Order completion clamped ≤100% (proxy — some lines over-receive).
       </div>
     </div>
   );

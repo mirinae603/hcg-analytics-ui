@@ -8,6 +8,7 @@ import React, { useEffect, useState, useId } from "react";
 import { useRegion, displayRegion } from "@/context/RegionContext";
 import { useCardCategory, useCardScopedData } from "@/components/common/CardCategoryFilter";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
+import { monthsText } from "@/lib/useWindows";
 import { countAbbr, useMount, CountUp } from "@/components/portfolio/kit";
 import { TbBox, TbSearch, TbArrowUpRight, TbArrowDownRight, TbChevronRight, TbChevronDown, TbCalendarEvent, TbFileText, TbDroplet, TbVaccine, TbClipboardList } from "react-icons/tb";
 
@@ -341,6 +342,8 @@ export default function DemandForecastDetail() {
   const scoped = useCardScopedData(data, cat.category, (c, signal) =>
     fetch(`${DASHBOARD_API_BASE_URL}/forecast/demand-insights?Plant=${encodeURIComponent(region)}&Category=${encodeURIComponent(c)}`, { signal }).then((r) => r.json()));
   const t = data?.totals || {};
+  // the months of real usage the forecast is built from: the actual points of its own timeline
+  const history = (data?.timeline || []).filter((d: any) => !d.is_forecast).length;
 
   if (!data) return (
     <div className="-m-4 md:-m-6 p-5 md:p-8" style={{ minHeight: "calc(100vh - 64px)", background: BG }}>
@@ -375,7 +378,7 @@ export default function DemandForecastDetail() {
             <p className="text-[13px] mt-2" style={{ color: MUT }}>Plan purchasing around how much you'll actually use · {displayRegion(region)}</p>
           </div>
           <div className="flex items-center gap-2.5">
-            <span title="6-month back-test accuracy measured at the aggregate/category level — reliable for planning totals, not a per-item guarantee." className="inline-flex items-center gap-2 text-[12.5px] font-semibold px-3.5 py-2 rounded-xl cursor-help" style={{ color: INK2, background: CARD, border: `1px solid ${BORDER}` }}><span className="w-2 h-2 rounded-full" style={{ background: GREEN }} />{Number(t.accuracy ?? 0).toFixed(0)}% reliable for planning</span>
+            <span title="Back-test accuracy (each of the latest past months forecast from only the months before it), measured at the aggregate/category level — reliable for planning totals, not a per-item guarantee." className="inline-flex items-center gap-2 text-[12.5px] font-semibold px-3.5 py-2 rounded-xl cursor-help" style={{ color: INK2, background: CARD, border: `1px solid ${BORDER}` }}><span className="w-2 h-2 rounded-full" style={{ background: GREEN }} />{Number(t.accuracy ?? 0).toFixed(0)}% reliable for planning</span>
           </div>
         </div>
 
@@ -392,7 +395,7 @@ export default function DemandForecastDetail() {
         <div className="mt-5"><ItemExplorer region={region} /></div>
 
         <div className="mt-5 rounded-2xl px-5 py-4 text-[12px] leading-relaxed" style={{ background: CARD, border: `1px solid ${BORDER}`, color: MUT }}>
-          <b style={{ color: INK2 }}>How to read this:</b> forecasts use your last 6 months of actual usage. Category and monthly totals are reliable for planning — the range shows the best/worst case to budget for. For a single item, treat it as a guide and confirm critical medicines with your team.
+          <b style={{ color: INK2 }}>How to read this:</b> forecasts use your last {monthsText(history) || "months"} of actual usage. Category and monthly totals are reliable for planning — the range shows the best/worst case to budget for. For a single item, treat it as a guide and confirm critical medicines with your team.
         </div>
       </div>
     </div>

@@ -188,7 +188,7 @@ export default function VendorMarginDetail() {
 
   if (!chart || !agg) {
     return (
-      <ProcShell title="Vendor Volume vs Margin" subtitle="MRP-proxy margin, value-weighted, on outlier-clean GRN lines" region={region}>
+      <ProcShell title="Vendor Volume vs Margin" subtitle="MRP-proxy margin, value-weighted, on outlier-clean GRN lines" region={region} source="grn">
         <DetailSkeleton />
       </ProcShell>
     );
@@ -216,7 +216,7 @@ export default function VendorMarginDetail() {
   }));
 
   return (
-    <ProcShell title="Vendor Volume vs Margin" subtitle="MRP-proxy margin, value-weighted, on outlier-clean GRN lines" region={region}>
+    <ProcShell title="Vendor Volume vs Margin" subtitle="MRP-proxy margin, value-weighted, on outlier-clean GRN lines" region={region} source="grn">
       <ProcHero
         eyebrow="Overall margin — value-weighted" icon={TbPercentage} value={overallMarginPct}
         format={(n: number) => `${n.toFixed(1)}%`}

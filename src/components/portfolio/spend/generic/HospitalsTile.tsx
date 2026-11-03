@@ -1,6 +1,6 @@
 "use client";
 // Spend Analysis (Generic vs branded) — every hospital ranked by what its branded purchases cost
-// above the cheapest generic of the same product, as bars from zero; its % branded under each
+// above the usual cheapest generic of the same product, as bars from zero; its % branded under each
 // figure. With one hospital selected the ranking shows it highlighted. A hospital's bar selects
 // it (the selected one again: all hospitals). The drawer has the ranking with exact rupees.
 import React from "react";
@@ -15,7 +15,7 @@ import { HOSPITAL_COL, GENERIC_SOURCE, Method, type Ctx, type Data } from "./con
 
 type Hospital = Data["by_hospital"][number];
 const byRank = (rows: Hospital[]) => [...rows].sort((a, b) => a.rank - b.rank);
-const NOTE = "Every hospital for the same months and material type: this list ignores the hospital selector. Each hospital's branded purchases are set against the cheapest generic of the same product that month, bought at any hospital.";
+const NOTE = "Every hospital for the same months and material type: this list ignores the hospital selector. Each hospital's branded purchases are set against the usual cheapest generic of the same product that month, bought at any hospital.";
 
 function RankingTable({ c, onPicked }: { c: Ctx; onPicked?: () => void }) {
   const selectHospital = useSelectHospital();
@@ -29,18 +29,19 @@ function RankingTable({ c, onPicked }: { c: Ctx; onPicked?: () => void }) {
           aria-label={h.selected ? `${h.name}, selected. Show all hospitals` : `Select ${h.name}`}
           className="text-left underline decoration-dotted underline-offset-2">{h.name}</button>
       ),
+      raw: (h) => h.name,
     },
-    { label: "Generic", render: (h) => rupeesExact(h.generic_value) },
-    { label: "Branded", render: (h) => rupeesExact(h.branded_value) },
-    { label: "% branded", render: (h) => pct(h.branded_pct) },
-    { label: "Above the cheapest generic", render: (h) => <b>{rupeesExact(h.extra_vs_generic)}</b> },
-    { label: "% above", render: (h) => pct(h.extra_vs_generic_pct) },
+    { label: "Generic", render: (h) => rupeesExact(h.generic_value), raw: (h) => h.generic_value, unit: "₹" },
+    { label: "Branded", render: (h) => rupeesExact(h.branded_value), raw: (h) => h.branded_value, unit: "₹" },
+    { label: "% branded", render: (h) => pct(h.branded_pct), raw: (h) => h.branded_pct, unit: "%" },
+    { label: "Above the usual cheapest generic", render: (h) => <b>{rupeesExact(h.extra_vs_generic)}</b>, raw: (h) => h.extra_vs_generic, unit: "₹" },
+    { label: "% above", render: (h) => pct(h.extra_vs_generic_pct), raw: (h) => h.extra_vs_generic_pct, unit: "%" },
   ];
   return (
     <DrawerSection title="Hospitals, most branded cost above generic first"
       note={<>{here ? <><b>{here.name}</b> is number {here.rank} of {rows.length}. </> : null}{NOTE} Click a hospital to select it; click the selected one again for all hospitals.</>}>
-      <DataTable rows={rows} rowKey={(h) => h.plant} cols={cols} strong={(h) => h.selected} minWidth={860}
-        caption="Hospitals ranked by what branded purchases cost above the cheapest generic" empty={`${c.w.none}.`} />
+      <DataTable context={c.context} rows={rows} rowKey={(h) => h.plant} cols={cols} strong={(h) => h.selected} minWidth={860}
+        caption="Hospitals ranked by what branded purchases cost above the usual cheapest generic" empty={`${c.w.none}.`} />
     </DrawerSection>
   );
 }
@@ -52,7 +53,7 @@ function HospitalsDrawer({ c, dr, title }: { c: Ctx; dr: DrawerCtl; title: strin
   return (
     <DetailDrawer open={dr.open} onClose={dr.close} initialTab={dr.tab} size="wide"
       eyebrow={`${c.w.section} · Overview`} title={`${title} · ${c.when}`}
-      kpi={{ value: rupeesExact(b.extra_vs_generic), comparator: `branded above the cheapest generic, ${who}: ${pct(b.extra_vs_generic_pct)} of the ${rupeesExact(b.compared_value)} branded value compared, ${c.when}` }}
+      kpi={{ value: rupeesExact(b.extra_vs_generic), comparator: `branded above the usual cheapest generic, ${who}: ${pct(b.extra_vs_generic_pct)} of the ${rupeesExact(b.compared_value)} branded value compared, ${c.when}` }}
       source={GENERIC_SOURCE} asOf={c.asOf} filters={c.chips}
       tabs={[
         { key: "ranking", label: "Ranking", render: () => <RankingTable c={c} onPicked={dr.close} /> },
@@ -81,7 +82,7 @@ export function HospitalsTile({ c, place }: { c: Ctx; place: Place }) {
           ...rows.slice(0, 5).map((h) => `${h.rank}. ${h.name} ${lakhs(h.extra_vs_generic)}, ${pct(h.branded_pct, 1)} branded`)].filter(Boolean).join(". ")}
         interactive onOpen={() => dr.show("ranking")} onInfo={() => dr.show("method")}>
         <RankBars format={lakhs} color={HOSPITAL_COL} onMore={() => dr.show("ranking")}
-          ariaLabel={`What branded purchases cost above the cheapest generic, by hospital, ${c.when}, most first`} empty={`${c.w.none}.`}
+          ariaLabel={`What branded purchases cost above the usual cheapest generic, by hospital, ${c.when}, most first`} empty={`${c.w.none}.`}
           rows={rows.map((h) => ({
             key: h.plant, label: h.name, value: h.extra_vs_generic, valueLabel: lakhs(h.extra_vs_generic),
             aside: `${pct(h.branded_pct, 1)} branded`, selected: h.selected, onClick: () => selectHospital(h),

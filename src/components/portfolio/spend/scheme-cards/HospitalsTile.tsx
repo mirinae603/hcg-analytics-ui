@@ -22,6 +22,8 @@ import { fitDomain, niceMax } from "@/components/portfolio/ledger/scale";
 import { useSelectHospital } from "@/context/RegionContext";
 import type { Filters, Meta, Overview } from "../api";
 import { HOSPITAL_COL, LOSS_COL, PROPOSED_COL, MethodTab, WORDS, filterChips, type Scope } from "./context";
+import { SPEND_PAGE } from "../DataTable";
+import { DownloadCsv, type CsvColumn } from "@/components/portfolio/table/DownloadCsv";
 
 type HospitalRow = Overview["by_hospital"][number];
 
@@ -87,7 +89,7 @@ export function HospitalsTile({ d, meta, filters, scope, place }: {
         eyebrow={`${w.section} · Overview`} title={`${w.loss} by hospital`}
         source="computed" asOf={scope.asOf} filters={filterChips(filters, { ...scope, where: "Every hospital" }, meta)}
         tabs={[
-          { key: "table", label: "Hospitals", render: () => <HospitalTable d={d} onPicked={drawer.close} /> },
+          { key: "table", label: "Hospitals", render: () => <HospitalTable d={d} context={scope.context} onPicked={drawer.close} /> },
           {
             key: "split", label: "Spend split", render: () => (
               <DrawerSection title="Spend on these brands, hospital by hospital"
@@ -106,8 +108,9 @@ export function HospitalsTile({ d, meta, filters, scope, place }: {
 }
 
 /** Every hospital with its exact figures, most missed first; a row selects the hospital
- *  (`onPicked` runs first, so the drawer it sits in closes before the page reloads). */
-export function HospitalTable({ d, onPicked }: { d: Overview; onPicked: () => void }) {
+ *  (`onPicked` runs first, so the drawer it sits in closes before the page reloads). It
+ *  downloads as CSV, named with `context` (the selection the figures are for). */
+export function HospitalTable({ d, context, onPicked }: { d: Overview; context: string; onPicked: () => void }) {
   const on = useArmed();
   const selectHospital = useSelectHospital();
   const w = WORDS;
@@ -115,8 +118,19 @@ export function HospitalTable({ d, onPicked }: { d: Overview; onPicked: () => vo
   const vmax = niceMax(Math.max(1, ...rows.map((r) => Math.max(0, r.saving_missed))));
   const cols = "28px minmax(0,1.3fr) minmax(0,.7fr) 128px 128px 64px 128px";
   if (!rows.length) return <p className="text-[12px]" style={{ color: SUB }}>No scheme patient got a brand with {w.aSug} suggestion in this selection.</p>;
+  type Row = (typeof rows)[number];
+  const csv: CsvColumn<Row>[] = [
+    { label: "#", value: (r) => r.rank },
+    { label: "Hospital", value: (r) => r.his_name || r.name, text: true },
+    { label: "Plant", value: (r) => r.plant, text: true },
+    { label: w.actual, value: (r) => rupeesExact(r.used_value), raw: (r) => r.used_value, unit: "₹" },
+    { label: w.proposed, value: (r) => rupeesExact(r.suggested_value), raw: (r) => r.suggested_value, unit: "₹" },
+    { label: w.pct, value: (r) => pct(r.saving_pct), raw: (r) => r.saving_pct, unit: "%" },
+    { label: w.loss, value: (r) => rupeesExact(r.saving_missed), raw: (r) => r.saving_missed, unit: "₹" },
+  ];
   return (
     <DrawerSection title="Every hospital" note={`Exact rupees at HCG's FY list prices. The bar is the ${w.loss.toLowerCase()}, on one scale from 0 to ${lakhs(vmax)}.`}>
+      <DownloadCsv rows={rows} columns={csv} page={SPEND_PAGE} caption={`${w.title} by hospital, ${context}`} />
       <div className="overflow-x-auto -mx-1"><div className="flex flex-col" style={{ minWidth: 760 }}>
         <div className="grid gap-3 px-2 pb-2 text-[10px] font-semibold uppercase" style={{ gridTemplateColumns: cols, color: SUB, letterSpacing: ".08em" }}>
           <span>#</span><span>Hospital</span><span>{w.loss}</span><span className="text-right">{w.actual}</span>
@@ -125,7 +139,7 @@ export function HospitalTable({ d, onPicked }: { d: Overview; onPicked: () => vo
         {rows.map((r, i) => (
           <button key={r.plant} type="button" onClick={() => { onPicked(); selectHospital(r); }} title={`${r.name} (${r.plant})`}
             aria-label={`${r.his_name || r.name}: ${w.loss.toLowerCase()} ${rupeesExact(r.saving_missed)}, ${pct(r.saving_pct)}. ${r.selected ? "Selected; click for all hospitals" : "Select this hospital"}`}
-            className="grid items-center gap-3 px-2 py-[7px] rounded-lg text-left transition-colors hover:bg-[#F5F1E7]"
+            className="grid items-center gap-3 px-2 py-[7px] rounded-lg text-left transition-colors hover:bg-[#F4EFE8]"
             style={{ gridTemplateColumns: cols, background: r.selected ? SEL_BG : undefined }}>
             <span className="text-[11px] tabular-nums" style={{ color: SUB }}>{r.rank}</span>
             <span className="text-[12.5px] truncate" style={{ color: INK, fontWeight: r.selected ? 700 : 500 }}>{r.his_name || r.name}</span>

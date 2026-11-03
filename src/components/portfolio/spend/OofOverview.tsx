@@ -4,17 +4,19 @@
 // HCG's own out-of-formulary method (decision D1): every goods receipt (GRN) of a drug that the
 // month's Item Master flags OUT OF FORMULARY, set against the brand HCG suggests for it. One
 // number runs the page: the margin missed, HCG's NET figure (a brand that earns more than its
-// suggestion lowers it), shown beside HCG's own sheet for the same hospitals and months.
+// suggestion lowers it).
 // Purchases have no payer, patient type or doctor: the vendor is who the brand came from.
 //
 // One screen of charts (OneScreenGrid, 12 columns × 3 rows on a desktop):
-//   r1  the figure as a bridge, with what was spent and HCG's figure | earned vs possible by
+//   r1  the figure as a bridge, with what was spent | earned vs possible by
 //       month | onco vs non-onco
 //   r2  the brands to switch (wide: both names on a row) | where the brand bought earns more |
 //       every hospital ranked, negative ones below zero (this panel runs down rows 2 and 3)
 //   r3  where the suggested brands came from | the vendors
-// Every panel opens its drawer, where the exact rupees, HCG's sheet and the method live. The
-// tiles are in ./oof-cards. Below the fit size the same panels stack in DOM order.
+// Every panel opens its drawer, where the exact rupees and the method live. The
+// tiles are in ./oof-cards. Below the fit size the same panels stack in DOM order. A month built
+// without HCG's own working is an "Estimated month" on every tile; a GRN month still waiting for
+// its Item Master is named on the trend tile (or here, while no month has been built at all).
 import React from "react";
 import { OneScreenGrid, type Place } from "@/components/portfolio/ledger/onescreen";
 import { Notice } from "../formulary/parts";
@@ -59,6 +61,10 @@ export default function OofOverview({ meta, filters, plant, onOpen }: {
   const params = { Plant: plant, ...sectionParams("oof", filters) };
   const { data, error, loading } = useOverview<Data>(params, "oof", !!meta.oof_built);
   if (!meta.oof_built) {
+    const waiting = meta.oof_waiting ?? [];
+    if (waiting.length) {
+      return <Notice title="Out of formulary waits for the Item Master">{waiting.map((w) => `${w.note}.`).join(" ")}</Notice>;
+    }
     return <Notice title="Out-of-formulary purchases aren't published yet">The build step reads HCG&apos;s GRN extracts, each month&apos;s Item Master and HCG&apos;s out-of-formulary workbooks: run python -m app.etl.purchase.</Notice>;
   }
   if (error) return <Notice title="Couldn't load the out-of-formulary analysis">{error}</Notice>;

@@ -4,26 +4,23 @@
 // margin earned; the % is taken on the totals. The out-of-formulary row is HCG's purchase (GRN)
 // method for the same hospitals and months (purchases have no payer or patient type); it is
 // hatched and the tile marked Estimated only where part of it rests on the app's own brand
-// match. The drawer keeps HCG's table as it prints it, the month chart of the two losses and
-// their total, and the month-by-month table.
+// match. The drawer has the month chart of the two losses and their total, the month-by-month
+// table and the method.
 import React from "react";
-import { ChartPanel } from "@/components/portfolio/ledger/panel";
+import { ChartPanel, LinkButton } from "@/components/portfolio/ledger/panel";
 import type { Place } from "@/components/portfolio/ledger/onescreen";
 import { Waterfall } from "@/components/portfolio/ledger/bars";
 import { MonthCombo } from "@/components/portfolio/ledger/charts";
 import DetailDrawer, { DrawerSection, useDrawer, type DrawerCtl } from "@/components/portfolio/ledger/DetailDrawer";
-import { INK } from "@/components/portfolio/ledger/kit";
 import { isNum, lakhs, pct, rupeesExact } from "@/components/portfolio/ledger/format";
 import { OOF_COL } from "../../formulary/parts";
 import { CASH_COL, coverageWords, oofSource, salesAndPurchasesSource } from "../shared";
 import { monthLabel } from "../../formulary/api";
 import { MonthTable, type MonthCol } from "../Trend";
 import type { Margins, Section, WithOof } from "../api";
-import { DataTable, type Col } from "../DataTable";
 import { LOSS_COL, PROPOSED_COL, RATE_COL, USED_COL, type Ctx } from "./context";
 import { Method } from "./parts";
 
-type Row = { key: "cash" | "oof" | "total"; label: string; b: Margins };
 type WithOofMonth = WithOof["trend"][number];
 
 const lossNote = (b: Margins) => (isNum(b.loss_pct) ? `${pct(b.loss_pct)} of ${lakhs(b.potential_margin)} possible` : "no use");
@@ -31,30 +28,13 @@ const lossNote = (b: Margins) => (isNum(b.loss_pct) ? `${pct(b.loss_pct)} of ${l
 function CombinedDrawer({ c, w, dr, title, onSection }: { c: Ctx; w: WithOof; dr: DrawerCtl; title: string; onSection?: (s: Section) => void }) {
   const sel = new Set(c.d.scope?.months || []);
   const estimated = oofSource(w.coverage) === "estimate";
-  const rows: Row[] = [
-    { key: "cash", label: "Cash & TPA", b: w.cash },
-    { key: "oof", label: "Out of formulary", b: w.oof },
-    { key: "total", label: "Total", b: w.total },
-  ];
-  const tableCols: Col<Row>[] = [
-    {
-      label: "", align: "left", render: (r) => r.key === "oof" && onSection ? (
-        <button type="button" onClick={() => { dr.close(); onSection("oof"); }} className="underline decoration-dotted underline-offset-2"
-          style={{ color: INK }} aria-label="Out of formulary: open its section">{r.label}</button>
-      ) : r.label,
-    },
-    { label: "Margin earned", render: (r) => rupeesExact(r.b.actual_margin) },
-    { label: "Margin possible", render: (r) => rupeesExact(r.b.potential_margin) },
-    { label: "Margin missed", render: (r) => <b>{rupeesExact(r.b.margin_loss)}</b> },
-    { label: "% missed", render: (r) => pct(r.b.loss_pct) },
-  ];
   const monthCols: MonthCol<WithOofMonth>[] = [
-    { label: "Total margin earned", render: (r) => rupeesExact(r.actual_margin) },
-    { label: "Total margin possible", render: (r) => rupeesExact(r.potential_margin) },
-    { label: "Cash & TPA missed", render: (r) => rupeesExact(r.cash_loss) },
-    { label: "Out of formulary missed", render: (r) => (r.has_oof ? rupeesExact(r.oof_loss) : "no purchases") },
-    { label: "Total margin missed", render: (r) => <b>{rupeesExact(r.margin_loss)}</b> },
-    { label: "% missed", render: (r) => pct(r.loss_pct ?? r.pct) },
+    { label: "Total margin earned", render: (r) => rupeesExact(r.actual_margin), raw: (r) => r.actual_margin, unit: "₹" },
+    { label: "Total margin possible", render: (r) => rupeesExact(r.potential_margin), raw: (r) => r.potential_margin, unit: "₹" },
+    { label: "Cash & TPA missed", render: (r) => rupeesExact(r.cash_loss), raw: (r) => r.cash_loss, unit: "₹" },
+    { label: "Out of formulary missed", render: (r) => (r.has_oof ? rupeesExact(r.oof_loss) : "no purchases"), raw: (r) => (r.has_oof ? r.oof_loss : null), unit: "₹" },
+    { label: "Total margin missed", render: (r) => <b>{rupeesExact(r.margin_loss)}</b>, raw: (r) => r.margin_loss, unit: "₹" },
+    { label: "% missed", render: (r) => pct(r.loss_pct ?? r.pct), raw: (r) => r.loss_pct ?? r.pct, unit: "%" },
   ];
   const sources = coverageWords(w.coverage);
   return (
@@ -63,14 +43,6 @@ function CombinedDrawer({ c, w, dr, title, onSection }: { c: Ctx; w: WithOof; dr
       kpi={{ value: rupeesExact(w.total.margin_loss), comparator: `total margin missed, ${pct(w.total.loss_pct)} of the total margin possible` }}
       source={salesAndPurchasesSource("Cash & TPA", estimated)} asOf={c.asOf} filters={c.chips}
       tabs={[
-        {
-          key: "mail", label: "As in HCG mail", render: () => (
-            <DrawerSection title="CASH(TPA) & OUT OF FORMULARY" note={`${c.when}. Each margin added up; the % taken on the totals (margin missed ÷ margin possible).`}>
-              <DataTable rows={rows} rowKey={(r) => r.key} cols={tableCols} strong={(r) => r.key === "total"}
-                caption="Cash and TPA and out of formulary: margin earned, possible and missed" />
-            </DrawerSection>
-          ),
-        },
         {
           key: "trend", label: "Trend", render: () => (
             <>
@@ -86,8 +58,15 @@ function CombinedDrawer({ c, w, dr, title, onSection }: { c: Ctx; w: WithOof; dr
                   }))} />
               </DrawerSection>
               <DrawerSection title="Month by month">
-                <MonthTable rows={w.trend || []} cols={monthCols} selected={sel} />
+                <MonthTable rows={w.trend || []} cols={monthCols} selected={sel} caption={`Cash & TPA + out of formulary: margin missed by month, ${c.where}`} />
               </DrawerSection>
+              {onSection && (
+                <DrawerSection title="Behind the figures">
+                  <div className="flex flex-wrap gap-2">
+                    <LinkButton onClick={() => { dr.close(); onSection("oof"); }}>Out-of-formulary section</LinkButton>
+                  </div>
+                </DrawerSection>
+              )}
             </>
           ),
         },
@@ -125,7 +104,7 @@ export function CombinedTile({ c, w, place, onSection }: { c: Ctx; w: WithOof; p
           `out-of-formulary purchases loss ${lakhs(w.oof.margin_loss)}, ${lossNote(w.oof)}${estimated ? ", partly estimated" : ""}${partly ? `, ${partly}` : ""}`,
           `total margin earned ${lakhs(w.total.actual_margin)}; total loss ${pct(w.total.loss_pct)}`,
         ].join(". ")}
-        onOpen={() => dr.show("mail")} onInfo={() => dr.show("method")}>
+        onOpen={() => dr.show("trend")} onInfo={() => dr.show("method")}>
         <Waterfall format={lakhs} ariaLabel={`${title}: the total margin possible, less each part's loss, is the total margin earned`}
           steps={[
             { key: "proposed", label: "Margin possible", value: w.total.potential_margin, kind: "total", color: PROPOSED_COL, valueLabel: lakhs(w.total.potential_margin), note: "both parts" },

@@ -3,6 +3,7 @@ import { ThemeToggleButton } from "@/components/common/ThemeToggleButton";
 import NotificationDropdown from "@/components/header/NotificationDropdown";
 import UserDropdown from "@/components/header/UserDropdown";
 import RegionFilter from "@/components/header/RegionFilter";
+import BasisToggle from "@/components/header/BasisToggle";
 import { useSidebar } from "@/context/SidebarContext";
 import Image from "next/image";
 import Link from "next/link";
@@ -170,6 +171,10 @@ const AppHeader: React.FC = () => {
               </Link>
             )}
             <RegionFilter />
+            {/* Value ↔ Quantity, beside the hospital: both choose what the pages show. The switch
+                shows itself only on the pages that read it (BASIS_PAGES in BasisToggle). On a
+                phone the row has no room, so it moves into the menu below. */}
+            <BasisToggle className="hidden sm:block" />
             {/* <!-- Dark Mode Toggler --> */}
 
            {/* <NotificationDropdown />  */}
@@ -236,6 +241,7 @@ const AppHeader: React.FC = () => {
           } items-center justify-end w-full gap-4 px-5 py-4 lg:flex shadow-theme-md lg:px-0 lg:shadow-none`}
         >
           
+          <BasisToggle className="sm:hidden" />
           <div className="pl-4">
           {/* <!-- User Area --> */}
           <UserDropdown /> 

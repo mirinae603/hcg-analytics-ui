@@ -5,6 +5,7 @@ import { useRegion } from "@/context/RegionContext";
 import { useCardCategory, useCardScope, useCardScopedData } from "@/components/common/CardCategoryFilter";
 import { useDrillBind } from "@/components/portfolio/useDrillBind";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
+import { useWindows, windowLabel, windowPill } from "@/lib/useWindows";
 import { inrAbbr, countAbbr, catName, useMount, smoothPath, CountUp } from "@/components/portfolio/kit";
 import { ProcShell, TableCard, Panel, DetailSkeleton, INK, SUBTLE } from "./parts";
 import { TbReceipt, TbPill, TbGridDots, TbCalendarStats, TbCrown, TbChevronUp, TbChevronDown, TbChevronRight } from "react-icons/tb";
@@ -40,6 +41,7 @@ function PastelCard({ label, value, format, sub, grad, icon: Icon, ring, delay }
 const FOCUS_COLORS = ["#fb7185", "#a5b4fc"]; // coral, periwinkle (reference palette)
 function TrendLines({ matrix, metric, metricLabel }: { matrix: any; metric: number; metricLabel: string }) {
   const on = useMount(160); const [hov, setHov] = useState<number | null>(null);
+  const po = useWindows()?.windows.po;   // the purchase-order months the matrix is cut from
   const labels: string[] = matrix?.labels || []; const rows = (matrix?.rows || []).slice(0, 2);
   if (!labels.length || rows.length < 2) return null;
   const W = 780, H = 300, PADX = 18, PADT = 26, PADB = 22;
@@ -55,9 +57,9 @@ function TrendLines({ matrix, metric, metricLabel }: { matrix: any; metric: numb
       <div className="flex items-start justify-between gap-2">
         <div><h3 className="text-[18px] font-bold tracking-tight" style={{ color: INK }}>Purchase trend</h3>
           <p className="text-[12.5px] mt-0.5" style={{ color: SUBTLE }}>monthly rhythm by category</p></div>
-        <button className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-[12.5px] font-medium bg-white" style={{ color: "#4b5468", boxShadow: "0 4px 14px -8px rgba(60,60,110,0.35)", border: "1px solid #eef0f8" }}>
-          <span style={{ color: "#9aa1b3" }}>Range:</span> 6-month window <TbChevronDown size={14} style={{ color: "#9aa1b3" }} />
-        </button>
+        {po && <button className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-[12.5px] font-medium bg-white" style={{ color: "#4b5468", boxShadow: "0 4px 14px -8px rgba(60,60,110,0.35)", border: "1px solid #eef0f8" }} title={windowLabel(po)}>
+          <span style={{ color: "#9aa1b3" }}>Range:</span> {windowPill(po)} <TbChevronDown size={14} style={{ color: "#9aa1b3" }} />
+        </button>}
       </div>
 
       <div className="flex mt-3" style={{ height: H }}>
@@ -165,13 +167,14 @@ function CategoryRankPanel({ groups, matrix, total, cat }: { groups: any[]; matr
 function Heatmap({ matrix, marginMatrix, cat }: { matrix: any; marginMatrix?: any; cat: any }) {
   const on = useMount(180); const [hov, setHov] = useState<[number, number] | null>(null);
   const [mode, setMode] = useState<"spend" | "margin">("spend");
+  const months = useWindows()?.windows.po?.months;
   // kpi_monthly_purchase_value is the ONE procurement aggregate that kept its material
   // column, so "what did we actually buy in this category" is answerable here and
   // nowhere else in procurement. Off in margin mode: margin % is a ratio and a top-10
   // list under it would imply the parts sum to the whole.
   const drill = useDrillBind(mode === "margin" ? null : {
     kpi: "monthly-purchase-value", dim: "material_group", by: "material",
-    measure: "monthly_purchase_value", label: "items", dimLabel: "Category · 6-month spend",
+    measure: "monthly_purchase_value", label: "items", dimLabel: `Category · ${months ? `${months}-month ` : ""}spend`,
     format: inrAbbr, category: cat.drill,
   });
   const hasMargin = !!(marginMatrix && marginMatrix.rows && marginMatrix.rows.length);
@@ -284,16 +287,17 @@ export default function MonthlyPurchaseDetail() {
     fetch(`${DASHBOARD_API_BASE_URL}${url}&Category=${encodeURIComponent(c)}`, { signal }).then((r) => r.json()));
   const rankCat = useCardScope(url, data, { accent: "#fb7185", domain: "procurement", label: "Category breakdown" });
   const skuCat = useCardScope(url, data, { accent: "#2dd4bf", domain: "procurement", label: "Top SKUs by spend" });
-  if (!data) return <ProcShell title="Monthly SKU purchase" subtitle="what you buy each month, by category & SKU" region={region} bg={PAGE}><DetailSkeleton /></ProcShell>;
+  const po = useWindows()?.windows.po;
+  if (!data) return <ProcShell title="Monthly SKU purchase" subtitle="what you buy each month, by category & SKU" region={region} bg={PAGE} source="po"><DetailSkeleton /></ProcShell>;
   const t = data?.totals || {};
   const total = Number(t.total ?? 0), avg = Number(t.avg ?? 0), skus = Number(t.skus ?? 0);
   const groups = data?.groups || [];
   const topGroupVal = Number(groups[0]?.value ?? 0);
 
   return (
-    <ProcShell title="Monthly SKU purchase" subtitle="what you buy each month, by category & SKU" region={region} bg={PAGE}>
+    <ProcShell title="Monthly SKU purchase" subtitle="what you buy each month, by category & SKU" region={region} bg={PAGE} source="po">
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <PastelCard label="Total purchased" value={total} format={inrAbbr} sub="across the 6-month window" delay={0}
+        <PastelCard label="Total purchased" value={total} format={inrAbbr} sub={po ? `across the ${windowPill(po)}` : "across the months loaded"} delay={0}
           grad="linear-gradient(135deg,#c9d2ff 0%,#e0d4fb 52%,#fbd0e8 100%)" icon={TbReceipt} ring="#6d5ef0" />
         <PastelCard label="Avg / month" value={avg} format={inrAbbr} sub="mean monthly purchasing" delay={80}
           grad="linear-gradient(135deg,#b9e6fd 0%,#a8f0e7 100%)" icon={TbCalendarStats} ring="#0e9ad6" />

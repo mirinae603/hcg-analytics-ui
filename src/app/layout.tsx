@@ -4,6 +4,7 @@ import type { Metadata } from 'next';
 import { SidebarProvider } from '@/context/SidebarContext';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { RegionProvider } from '@/context/RegionContext'; // ✅ import your new RegionProvider
+import { BasisProvider } from '@/context/BasisContext';
 import GlobalLoader from '@/components/common/GlobalLoader';
 
 // Every route in the product shipped with NO browser tab title — browsers fell back to
@@ -45,7 +46,9 @@ export default function RootLayout({
         <ThemeProvider>
           <SidebarProvider>
             <RegionProvider>
-              {children}
+              <BasisProvider>
+                {children}
+              </BasisProvider>
             </RegionProvider>
           </SidebarProvider>
         </ThemeProvider>

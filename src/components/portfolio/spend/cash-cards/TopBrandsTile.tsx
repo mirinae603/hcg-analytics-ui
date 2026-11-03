@@ -41,13 +41,14 @@ function TopBrandsDrawer({ c, dr }: { c: Ctx; dr: DrawerCtl }) {
           </span>
         </span>
       ),
+      raw: ({ r }) => `${brandOf(r)} (${r.material}) → ${switchOf(r) ?? "—"}${r.bifurcated ? " · bifurcated" : ""}${r.molecule ? ` · ${r.molecule}` : ""}`,
     },
-    { label: "Qty counted", render: ({ r }) => num(r.qty) },
-    { label: "Margin earned", render: ({ r }) => rupeesExact(r.actual_margin) },
-    { label: "Margin possible", render: ({ r }) => rupeesExact(r.potential_margin) },
-    { label: "Margin missed", render: ({ r }) => <b>{rupeesExact(r.margin_loss)}</b> },
-    { label: "% missed", render: ({ r }) => pct(r.loss_pct) },
-    { label: "Share", render: ({ r }) => pct(r.share_of_total_pct, 1) },
+    { label: "Qty counted", render: ({ r }) => num(r.qty), raw: ({ r }) => r.qty },
+    { label: "Margin earned", render: ({ r }) => rupeesExact(r.actual_margin), raw: ({ r }) => r.actual_margin, unit: "₹" },
+    { label: "Margin possible", render: ({ r }) => rupeesExact(r.potential_margin), raw: ({ r }) => r.potential_margin, unit: "₹" },
+    { label: "Margin missed", render: ({ r }) => <b>{rupeesExact(r.margin_loss)}</b>, raw: ({ r }) => r.margin_loss, unit: "₹" },
+    { label: "% missed", render: ({ r }) => pct(r.loss_pct), raw: ({ r }) => r.loss_pct, unit: "%" },
+    { label: "Share", render: ({ r }) => pct(r.share_of_total_pct, 1), raw: ({ r }) => r.share_of_total_pct, unit: "%" },
   ];
   return (
     <DetailDrawer open={dr.open} onClose={dr.close} initialTab={dr.tab} size="wide"
@@ -60,7 +61,7 @@ function TopBrandsDrawer({ c, dr }: { c: Ctx; dr: DrawerCtl }) {
             <>
               <DrawerSection title={all.length > 1 ? `The ${all.length} brands with the most margin missed` : "Brands with a margin missed"}
                 note={`Share = the brand's part of the ${rupeesExact(h.margin_loss)} margin missed in this selection.`}>
-                <DataTable rows={all.map((r, i) => ({ n: i + 1, r }))} rowKey={(x) => x.r.material} cols={cols}
+                <DataTable context={c.context} rows={all.map((r, i) => ({ n: i + 1, r }))} rowKey={(x) => x.r.material} cols={cols}
                   caption={`${topTitle(all.length, c.w.topTitle)} by margin missed`} minWidth={860} />
               </DrawerSection>
               <DrawerSection title="Every brand and doctor">
