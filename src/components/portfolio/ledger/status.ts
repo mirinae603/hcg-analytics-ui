@@ -65,11 +65,11 @@ export const TONE_WORD: Record<Tone, string> = { good: "better", bad: "worse", f
 
 // "hcg" figures are pooled by the app from the rupees in HCG's MIS workbook (the app has no
 // sales lines for them), so they can differ from the % HCG printed, which travels beside them.
-export const SOURCE_LABEL: Record<Source, string> = { computed: "Computed", hcg: "HCG MIS", estimate: "Estimated" };
+export const SOURCE_LABEL: Record<Source, string> = { computed: "Computed", hcg: "MIS", estimate: "Estimated" };
 export const SOURCE_NOTE: Record<Source, string> = {
-  computed: "Recomputed by the app from HCG's HIS sales lines and masters",
-  hcg: "Pooled by the app from the rupees in HCG's MIS workbook (no HIS sales lines for it); HCG's printed % is shown beside it",
-  estimate: "Partly estimated by the app, where HCG has not shared its own basis yet. The (i) says how it is worked out.",
+  computed: "Recomputed by the app from the HIS sales lines and masters",
+  hcg: "Pooled by the app from the rupees in the MIS workbook (no HIS sales lines for it); the printed MIS % is shown beside it",
+  estimate: "Partly estimated by the app, where the basis has not been shared yet. The (i) says how it is worked out.",
 };
 
 /** A source with the words its badge's tooltip gives, for figures SOURCE_NOTE does not describe:

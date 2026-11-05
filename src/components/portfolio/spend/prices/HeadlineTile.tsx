@@ -31,7 +31,7 @@ function brief(c: Ctx): string[] {
   const h = c.d.headline;
   if (!h.molecules) return [`${c.w.none} at ${c.where}, ${c.when}.`];
   return [
-    `At ${c.where}, ${c.when}, HCG bought ${rupeesExact(h.value)} of drugs from ${plural(h.vendors, "supplier")}${c.network ? ` for ${plural(h.hospitals, "hospital")}` : ""}. ${rupeesExact(h.compared_value)} of it (${pct(h.compared_pct)}) is ${plural(h.molecules, "product")} whose unit prices can be compared.`,
+    `At ${c.where}, ${c.when}, the group bought ${rupeesExact(h.value)} of drugs from ${plural(h.vendors, "supplier")}${c.network ? ` for ${plural(h.hospitals, "hospital")}` : ""}. ${rupeesExact(h.compared_value)} of it (${pct(h.compared_pct)}) is ${plural(h.molecules, "product")} whose unit prices can be compared.`,
     `${plural(h.molecules_with_spread, "product was", "products were")} bought above the usual cheapest price.`,
     `Against each product's usual cheapest unit price${c.network ? " across the hospitals" : ` at ${c.where}`} in the selection, ${rupeesExact(h.extra_paid_vs_cheapest)} was paid above it: ${pct(h.extra_pct)} of what the products compared cost.`,
     ...(isNum(h.extra_paid_vs_network_cheapest) ? [`Against the usual cheapest of every hospital's purchases together, ${c.where} paid ${rupeesExact(h.extra_paid_vs_network_cheapest)} above it.`] : []),

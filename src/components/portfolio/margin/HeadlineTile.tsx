@@ -140,7 +140,7 @@ function brief(s: RevScope): string[] {
     lines.push(`In ${p.label} sales were ${rupeesExact(p.block.mrp)} with a margin of ${pct(p.block.margin_pct)}: revenue is ${dm >= 0 ? "up" : "down"} ${rupeesExact(Math.abs(dm))}${dp != null ? ` and the margin % ${dp >= 0 ? "up" : "down"} ${pts(Math.abs(dp))}` : ""}.`);
   }
   const blank = blankCostWords(h);
-  if (blank) lines.push(`${blank}, as HCG's sheet does, so that MRP shows in full as margin.`);
+  if (blank) lines.push(`${blank}, as the group's sheet does, so that MRP shows in full as margin.`);
   return lines;
 }
 
@@ -188,7 +188,7 @@ function HeadlineDrawer({ s, dr }: { s: RevScope; dr: DrawerCtl }) {
                   {brief(s).map((t) => <p key={t}>{t}</p>)}
                 </div>
               </DrawerSection>
-              <DrawerSection title="Key figures" note="Exact rupees for the selection, as HCG's sheets carry them.">
+              <DrawerSection title="Key figures" note="Exact rupees for the selection, as the group's sheets carry them.">
                 <KeyFigures figures={keyFigures(s)} />
               </DrawerSection>
               <DrawerSection title="Behind the figures">

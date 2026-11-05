@@ -54,10 +54,10 @@ import {
 } from "./api";
 
 const TITLE = "Spend analysis";
-const SUBTITLE = "Money HCG misses when a brand is used (or bought) instead of the one its lists suggest — HCG's Spend Margin Loss report, from HIS IP + OP pharmacy sales and, for out of formulary, HCG's purchases (GRN) — and, from the same purchases, the prices paid for one product and what branded medicines cost against generics.";
+const SUBTITLE = "Money the group misses when a brand is used (or bought) instead of the one its lists suggest — the Spend Margin Loss report, from HIS IP + OP pharmacy sales and, for out of formulary, the purchases (GRN) — and, from the same purchases, the prices paid for one product and what branded medicines cost against generics.";
 const SOURCE = "HIS IP + OP sales";
 /** Out of formulary and the purchase analyses. */
-const PURCHASE_SOURCE = "HCG purchases (GRN)";
+const PURCHASE_SOURCE = "Purchases (GRN)";
 
 /** What each section's filters count: scheme GOV patients, cash & TPA cash and TPA patients,
  *  out of formulary purchases; the Summary each section's own. */
@@ -231,7 +231,7 @@ export default function SpendPage() {
   if (!meta.months?.length && !purchases && !insight) {
     return (
       <OneScreenShell fit={false} bar={bar} filters={null}>
-        <Notice title="No spend months have been published yet">The build step reads the formulary line cache and HCG&apos;s scheme list: run python -m app.etl.spend.</Notice>
+        <Notice title="No spend months have been published yet">The build step reads the formulary line cache and the scheme list: run python -m app.etl.spend.</Notice>
       </OneScreenShell>
     );
   }
@@ -240,7 +240,7 @@ export default function SpendPage() {
   if (insight && !bought?.length) {
     return (
       <OneScreenShell fit={false} bar={bar} filters={null}>
-        <Notice title="Price variation and generic vs branded aren't published yet">The build step reads HCG&apos;s GRN extracts and each month&apos;s Item Master: run python -m app.etl.purchase.</Notice>
+        <Notice title="Price variation and generic vs branded aren't published yet">The build step reads the GRN extracts and each month&apos;s Item Master: run python -m app.etl.purchase.</Notice>
       </OneScreenShell>
     );
   }

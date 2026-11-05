@@ -95,7 +95,7 @@ export function PayerDrawer({ s, open, first, onClose }: { s: OverviewScope; ope
           key: "method", label: "Method", render: () => (
             <>
               <MethodText>
-                <p>Payers are bucketed with HCG&apos;s Payer Master into cash, cash (TPA) and GOV schemes.</p>
+                <p>Payers are bucketed with the Payer Master into cash, cash (TPA) and GOV schemes.</p>
                 <p>On the Overview each payer is one bar of its drug consumption split into formulary, out of formulary and non formulary; the figure after it is that drug consumption{s.m.units ? " in units sold" : ""}; consumables are left out.</p>
                 <p>Compliance = Formulary ÷ (Formulary + Out of formulary) on that payer&apos;s drugs, by the selected method. These figures show every payer and both material types whatever the Payer and Material type filters say.</p>
               </MethodText>

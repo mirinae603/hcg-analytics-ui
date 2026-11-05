@@ -58,18 +58,18 @@ export function lossMethod(kind: LossKind, fy?: string | null): LossMethod {
   switch (kind) {
     case "cash":
       return {
-        basis: `Margin per unit = MRP excl GST − HCG Pharma price, both from HCG's ${list} cash & TPA price list, for the brand used and the brand HCG's cash list suggests.`,
-        formula: "Margin earned = units counted × the used brand's unit margin; margin possible = the same units × the suggested brand's; margin missed = margin possible − margin earned; % missed = margin missed ÷ margin possible (HCG's denominator, unlike the scheme %, which divides by spend). For a bifurcated brand only the units above HCG's allowance count.",
+        basis: `Margin per unit = MRP excl GST − Pharma price, both from the ${list} cash & TPA price list, for the brand used and the brand the cash list suggests.`,
+        formula: "Margin earned = units counted × the used brand's unit margin; margin possible = the same units × the suggested brand's; margin missed = margin possible − margin earned; % missed = margin missed ÷ margin possible (the report's denominator, unlike the scheme %, which divides by spend). For a bifurcated brand only the units above the allowance count.",
       };
     case "oof":
       return {
-        basis: "HCG's own method, on purchases: every goods receipt (GRN) of a drug that the month's Item Master flags OUT OF FORMULARY, set against the brand HCG suggests for it: HCG's own worksheet for the month; for a month without one, HCG's pair from another month, then HCG's out-of-formulary list, then the app's match on molecule, strength and form (marked Estimated).",
-        formula: "Margin earned = units × (MRP excl GST − the price paid) of the brand bought; margin possible = the same units × (MRP excl GST − HCG Pharma price) of the suggested brand; margin missed = margin possible − margin earned, added up over every receipt as HCG does, so a brand that earns more than its suggestion lowers it; % missed = margin missed ÷ margin possible. Receipts HCG parked and brands with no suggested brand are listed but add nothing.",
+        basis: "The group's own method, on purchases: every goods receipt (GRN) of a drug that the month's Item Master flags OUT OF FORMULARY, set against the brand the group suggests for it: the group's own worksheet for the month; for a month without one, its pair from another month, then its out-of-formulary list, then the app's match on molecule, strength and form (marked Estimated).",
+        formula: "Margin earned = units × (MRP excl GST − the price paid) of the brand bought; margin possible = the same units × (MRP excl GST − Pharma price) of the suggested brand; margin missed = margin possible − margin earned, added up over every receipt as the group does, so a brand that earns more than its suggestion lowers it; % missed = margin missed ÷ margin possible. Receipts the group parked and brands with no suggested brand are listed but add nothing.",
       };
     case "scheme":
       return {
-        basis: `For scheme (GOV) patients HCG's ${list} scheme list names a cheaper brand for each brand on it. Both sides are valued at HCG's FY list prices, as HCG's report is.`,
-        formula: "Spent = units × the used brand's list price; suggested spend = the same units × the suggested brand's list price; saving missed = spent − suggested spend; % missed = saving missed ÷ spend, as in HCG's 'Scheme Margin Loss' table. Attis and J&J & Covidien → Healthium are HCG's two slices of this loss: parts of it, not added to it.",
+        basis: `For scheme (GOV) patients the ${list} scheme list names a cheaper brand for each brand on it. Both sides are valued at the FY list prices, as the report is.`,
+        formula: "Spent = units × the used brand's list price; suggested spend = the same units × the suggested brand's list price; saving missed = spent − suggested spend; % missed = saving missed ÷ spend, as in the 'Scheme Margin Loss' table. Attis and J&J & Covidien → Healthium are the two slices of this loss: parts of it, not added to it.",
       };
   }
 }
@@ -101,10 +101,10 @@ export const oofSource = (cov: OofCoverage | null | undefined): Source =>
 
 /** Out of formulary's source in words, for its badge: read from purchases, not sales lines. */
 export const OOF_SOURCE: Record<"computed" | "estimate", SourceSpec> = {
-  computed: { kind: "computed", note: "Worked out by the app from HCG's purchases (GRN), HCG's own method, with the brands HCG's worksheets suggest" },
+  computed: { kind: "computed", note: "Worked out by the app from the purchases (GRN), the group's own method, with the brands its worksheets suggest" },
   estimate: {
     kind: "estimate",
-    note: "HCG's purchase (GRN) method with the brands HCG's worksheets suggest; Estimated only where the app matched a brand itself. The (i) says how.",
+    note: "The group's purchase (GRN) method with the brands its worksheets suggest; Estimated only where the app matched a brand itself. The (i) says how.",
   },
 };
 export const oofSourceOf = (cov: OofCoverage | null | undefined): SourceSpec => OOF_SOURCE[oofSource(cov) === "estimate" ? "estimate" : "computed"];
@@ -113,7 +113,7 @@ export const oofSourceOf = (cov: OofCoverage | null | undefined): SourceSpec => 
  *  formulary, read from purchases: the badge says where each part comes from. */
 export const salesAndPurchasesSource = (sales: string, estimated: boolean): SourceSpec => ({
   kind: estimated ? "estimate" : "computed",
-  note: `${sales} recomputed by the app from HCG's HIS sales lines; out of formulary from HCG's purchases (GRN), HCG's own method${estimated ? ", Estimated only where the app matched a brand itself" : ""}`,
+  note: `${sales} recomputed by the app from the HIS sales lines; out of formulary from the purchases (GRN), the group's own method${estimated ? ", Estimated only where the app matched a brand itself" : ""}`,
 });
 
 /** "HCG's worksheet ₹16,88,305.41 (99.83%); No alternative mapped ₹2,865.00 (0.17%)": the

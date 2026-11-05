@@ -8,6 +8,7 @@
 // page refresh reopens the same conversation instead of always landing on the newest.
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { apiFetch, streamFetch, ApiError } from "@/utils/api";
+import { unbrand } from "@/utils/brand";
 import { getUser } from "@/utils/auth";
 import { BASIS_OPTIONS, type Basis } from "@/context/BasisContext";
 
@@ -236,6 +237,9 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
 
   /** Buffer + frame handle for the paced token stream (see the `answer_delta` branch). */
   const pendingRef = useRef("");
+  /** The streamed text so far, as it came: shown through the build's brand as a whole,
+   *  since a delta can end partway through a name. */
+  const streamedRef = useRef("");
   const rafRef = useRef<number | null>(null);
   useEffect(() => () => { if (rafRef.current != null) cancelAnimationFrame(rafRef.current); }, []);
   const [activeId, setActiveId] = useState<string>("");
@@ -400,7 +404,7 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
   const send = useCallback(async (q: string): Promise<boolean> => {
     const query = q.trim();
     if (!query || busyRef.current) return false;
-    busyRef.current = true; setBusy(true); setStep("Consulting HCG data");
+    busyRef.current = true; setBusy(true); setStep("Consulting your data");
     // Captured now: the user may navigate away from the page while the answer streams.
     const ctx = pageCtxRef.current;
     // Captured now too: flipping Deep mid-turn must not change how this turn is sent or watched.
@@ -500,22 +504,25 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
         pendingRef.current += ev.text || "";
         if (!turnMsgIds.has(id)) {
           turnMsgIds.add(id);
+          streamedRef.current = "";
           setStep("");
           writeMsgs(sid, (m) => [...m, { id, role: "bot", kind: "text", text: "", streaming: true, at: Date.now() }]);
         }
         // Nobody is watching a hidden tab, and rAF does not run in one — pacing there
         // would just stall the text until the tab came back. Write it straight through.
         if (typeof document !== "undefined" && document.hidden) {
-          const all = pendingRef.current; pendingRef.current = "";
-          writeMsgs(sid, (m) => m.map((x) => (x.id === id ? { ...x, text: (x.text || "") + all } : x)), undefined, false);
+          streamedRef.current += pendingRef.current; pendingRef.current = "";
+          const shown = unbrand(streamedRef.current);
+          writeMsgs(sid, (m) => m.map((x) => (x.id === id ? { ...x, text: shown } : x)), undefined, false);
         } else if (rafRef.current == null) {
           const drain = () => {
             const buf = pendingRef.current;
             if (!buf) { rafRef.current = null; return; }
             const take = Math.max(2, Math.ceil(buf.length / 8));
-            const slice = buf.slice(0, take);
+            streamedRef.current += buf.slice(0, take);
             pendingRef.current = buf.slice(take);
-            writeMsgs(sid, (m) => m.map((x) => (x.id === id ? { ...x, text: (x.text || "") + slice } : x)), undefined, false);
+            const shown = unbrand(streamedRef.current);
+            writeMsgs(sid, (m) => m.map((x) => (x.id === id ? { ...x, text: shown } : x)), undefined, false);
             rafRef.current = requestAnimationFrame(drain);
           };
           rafRef.current = requestAnimationFrame(drain);
@@ -618,10 +625,10 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
       // after tokens started. Whatever is still marked streaming is finished now. Flush
       // the paced buffer into it and clear the flag, or the caret blinks forever and the
       // footer (Copy, Export, Try again) never appears for exactly the turn that needs it.
-      const rest = pendingRef.current;
+      const full = unbrand(streamedRef.current + pendingRef.current);
       stopDrain();
       if (sessionsRef.current.find((s) => s.id === sid)?.messages.some((x) => x.streaming)) {
-        writeMsgs(sid, (m) => m.map((x) => (x.streaming ? { ...x, text: (x.text || "") + (x.id === textId ? rest : ""), streaming: false } : x)), undefined, false);
+        writeMsgs(sid, (m) => m.map((x) => (x.streaming ? { ...x, text: x.id === textId ? full : x.text, streaming: false } : x)), undefined, false);
       }
       busyRef.current = false; setBusy(false); setStep("");
       abortRef.current = null;

@@ -94,7 +94,7 @@ function partShort(v: number | null, total: number | null): string {
 const STATUS_SHORT = { met: "Met budget", within: `Within ${WITHIN_PTS} pts`, below: "Below budget" } as const;
 
 /** Figures read from purchases say so on their badge's tooltip and in the drawer. */
-const PURCHASES: SourceSpec = { kind: "computed", note: "Worked out by the app from HCG's purchases (goods receipts), not from sales lines" };
+const PURCHASES: SourceSpec = { kind: "computed", note: "Worked out by the app from the purchases (goods receipts), not from sales lines" };
 /** The total missed's part names in a sentence, by the bridge step's key. */
 const PART_WORDS: Record<string, string> = { cash: "cash & TPA", scheme: "the scheme saving", oof: "out of formulary" };
 const andList = (xs: string[]) => (xs.length < 2 ? xs.join("") : `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}`);
@@ -110,8 +110,8 @@ function sourceOf(c: ExecCtx, k: Kpi): SourceOf {
   return {
     kind: "computed",
     note: sales && bought
-      ? `Worked out by the app: ${sales} from HCG's HIS sales lines, ${bought} from HCG's purchases (goods receipts)`
-      : `Worked out by the app from HCG's HIS sales lines and purchases (goods receipts)`,
+      ? `Worked out by the app: ${sales} from the HIS sales lines, ${bought} from the purchases (goods receipts)`
+      : `Worked out by the app from the HIS sales lines and purchases (goods receipts)`,
   };
 }
 
@@ -289,7 +289,7 @@ function KpiDrawer({ c, k, dr }: { c: ExecCtx; k: Kpi; dr: DrawerCtl }) {
     })),
     ...(c.prevLabel ? [{ label: c.prevLabel, value: kpiExact(k, k.prev), note: "the previous month with sales" }] : []),
     ...(isNum(k.delta) ? [{ label: "Change", value: k.delta_unit === "pts" ? withSign(k.delta, (v) => pts(v)) : withSign(k.delta, (v) => pct(v)), note: k.delta_unit === "pts" ? "in points" : `as a % of ${c.prevLabel ?? "the month before"}` }] : []),
-    ...(isNum(k.target) ? [{ label: "Budget", value: pct(k.target), note: k.status ? STATUS_LABEL[k.status] : "HCG's budget for this unit" }] : []),
+    ...(isNum(k.target) ? [{ label: "Budget", value: pct(k.target), note: k.status ? STATUS_LABEL[k.status] : "the budget for this unit" }] : []),
   ];
   const changeUnit = isPct ? "pts" : k.unit === "qty" ? "units" : "₹";
   // On All months the purchases figure is worked out over the page's months together, against
@@ -327,10 +327,10 @@ function KpiDrawer({ c, k, dr }: { c: ExecCtx; k: Kpi; dr: DrawerCtl }) {
               <MethodText>
                 <p>{k.note}</p>
                 <p>The change is against {c.prevLabel ?? "the previous month with sales"}, the previous month with sales, for every KPI alike: {isPct ? "a % changes in points" : "an amount changes as a % of the month before"}. Its colour says whether the move is good news for this figure ({k.good_when === "up" ? "up is better" : "down is better"}); a move smaller than the chip&apos;s threshold reads as no change.</p>
-                {isNum(k.target) && <p>The budget is HCG&apos;s for this unit (its PAN MIS). Met when the figure prints at or above it (HCG&apos;s MIS prints whole %), within when up to {WITHIN_PTS} pts below that, below beyond it.</p>}
+                {isNum(k.target) && <p>The budget is this unit&apos;s own (its PAN MIS). Met when the figure prints at or above it (the MIS prints whole %), within when up to {WITHIN_PTS} pts below that, below beyond it.</p>}
                 <p>The sparkline is every month the figure&apos;s own section holds ({rows.length} {rows.length === 1 ? "month" : "months"} here), on a range fitted to them: it shows the shape, not the size. The dot is the month selected.</p>
-                {k.key === "losses" && <p>The total missed is the three parts HCG reads separately — the cash &amp; TPA margin missed, the scheme saving missed and the out-of-formulary margin missed — each its own section&apos;s headline, added up; the tile and the key figures list them. The first two are counted on HIS sales lines and out of formulary on purchases (goods receipts), so the tile says the total includes purchases. The Spend summary&apos;s &quot;margin missed&quot; leaves the scheme saving out, so it is smaller.</p>}
-                {k.tag && <p>&quot;{k.tag}&quot;: {k.key === "margin_pct" ? "sales lines whose cost price is blank in the HIS file count as cost 0, as HCG's sheet does, so their MRP is margin in full; the note above gives their MRP." : "as the note above says."}</p>}
+                {k.key === "losses" && <p>The total missed is the three parts read separately — the cash &amp; TPA margin missed, the scheme saving missed and the out-of-formulary margin missed — each its own section&apos;s headline, added up; the tile and the key figures list them. The first two are counted on HIS sales lines and out of formulary on purchases (goods receipts), so the tile says the total includes purchases. The Spend summary&apos;s &quot;margin missed&quot; leaves the scheme saving out, so it is smaller.</p>}
+                {k.tag && <p>&quot;{k.tag}&quot;: {k.key === "margin_pct" ? "sales lines whose cost price is blank in the HIS file count as cost 0, as the group's sheet does, so their MRP is margin in full; the note above gives their MRP." : "as the note above says."}</p>}
                 {inRupees(k) && c.units && <p>This is {k.unit === "inr" ? "a money figure" : "a rupee ratio"}, so it stays in rupees on the {QUANTITY} basis ({RUPEES_ONLY}).</p>}
                 {onQuantity(c, k) && <p>On the {QUANTITY} basis this is worked out on units sold (tablets, vials and bottles added together) instead of drug cost, so it is not the rupee figure and is never judged against the budget.</p>}
               </MethodText>

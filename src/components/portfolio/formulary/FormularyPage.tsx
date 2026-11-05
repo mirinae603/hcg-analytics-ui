@@ -40,7 +40,7 @@ import {
 } from "./api";
 
 const TITLE = "Formulary compliance";
-const ABOUT = "Share of drug spend on formulary items: HIS IP + OP pharmacy sales, classified with HCG's monthly Item Master.";
+const ABOUT = "Share of drug spend on formulary items: HIS IP + OP pharmacy sales, classified with the monthly Item Master.";
 
 /** The material types a link can narrow the page to: drugs only (no consumables filter here). */
 const LINK_SEGMENTS: readonly Exclude<Segment, "ALL">[] = ["onco", "non-onco"];

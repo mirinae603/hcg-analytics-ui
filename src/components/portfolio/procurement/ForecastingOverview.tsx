@@ -863,7 +863,7 @@ export default function ForecastingOverview() {
                 key={s.kpi.key}
                 className="relative flex justify-center items-center p-6 transition duration-300"
                 style={{ background: "rgba(255,255,255,0.9)", opacity: 0.6, filter: "saturate(0.72)" }}
-                title="Simulated preview — activates the moment HCG shares the source"
+                title="Simulated preview — activates the moment the source data is shared"
                 onMouseEnter={(e) => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.filter = "none"; }}
                 onMouseLeave={(e) => { e.currentTarget.style.opacity = "0.6"; e.currentTarget.style.filter = "saturate(0.72)"; }}
               >

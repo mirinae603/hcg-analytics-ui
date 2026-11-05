@@ -25,7 +25,7 @@ function brief(c: Ctx): string[] {
   const h = c.d.headline;
   if (!h.lines) return [`${c.w.none} at ${c.where}, ${c.when}.`];
   return [
-    `At ${c.where}, ${c.when}, HCG bought ${rupeesExact(h.value)} of drugs: ${rupeesExact(h.generic_value)} generic (${pct(h.generic_pct)}, ${plural(h.generic_brands, "brand")}) and ${rupeesExact(h.branded_value)} branded (${pct(h.branded_pct)}, ${plural(h.branded_brands, "brand")}).`,
+    `At ${c.where}, ${c.when}, the group bought ${rupeesExact(h.value)} of drugs: ${rupeesExact(h.generic_value)} generic (${pct(h.generic_pct)}, ${plural(h.generic_brands, "brand")}) and ${rupeesExact(h.branded_value)} branded (${pct(h.branded_pct)}, ${plural(h.branded_brands, "brand")}).`,
     `${rupeesExact(h.compared_value)} of the branded purchases were of products also bought as a generic that month; they cost ${rupeesExact(h.extra_vs_generic)} above the usual cheapest generic, ${pct(h.extra_vs_generic_pct)} of their value.`,
     `The other ${rupeesExact(h.branded_not_compared)} of branded purchases had no generic bought that month to compare with.`,
     c.w.plain,
@@ -75,7 +75,7 @@ function HeadlineDrawer({ c, dr, title }: { c: Ctx; dr: DrawerCtl; title: string
         },
         {
           key: "source", label: "How classed", render: () => (
-            <DrawerSection title="How each purchase got its class" note={`The build reads the GRN's manufacturer against ${c.d.definition?.files?.originators ?? "the originator list"}; ${c.d.definition?.files?.overrides ?? "the override list"} names brands that list cannot see (an originator's brand sold by an Indian firm). Both are HCG-editable reference files.`}>
+            <DrawerSection title="How each purchase got its class" note={`The build reads the GRN's manufacturer against ${c.d.definition?.files?.originators ?? "the originator list"}; ${c.d.definition?.files?.overrides ?? "the override list"} names brands that list cannot see (an originator's brand sold by an Indian firm). Both are editable reference files.`}>
               <DataTable context={c.context} rows={c.d.by_source || []} rowKey={(s) => s.key} cols={SOURCE_COLS} caption="Purchase value by how its generic or branded class was set" />
             </DrawerSection>
           ),

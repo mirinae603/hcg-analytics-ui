@@ -83,13 +83,13 @@ export function PartsTile({ place, cash, scheme, w, groups, oofReady, onShow }: 
     ] : []),
   ];
   const title = "Margin and saving missed, by part";
-  const label = `${title}, each against its own HCG list and never added: ${rows.map((r) => `${r.label} ${r.valueLabel}, ${r.note}`).join("; ")}`;
+  const label = `${title}, each against its own list and never added: ${rows.map((r) => `${r.label} ${r.valueLabel}, ${r.note}`).join("; ")}`;
   return (
     <ChartPanel id="parts" title={title} icon={TbTrendingDown} place={place} label={label} interactive onOpen={() => onShow("cash")}>
-      <BulletRows ariaLabel="Each part's loss against its own HCG list" rows={rows}
+      <BulletRows ariaLabel="Each part's loss against its own list" rows={rows}
         scale={{
           kind: "rupee", perRow: true, format: lakhs,
-          bar: { label: "Earned / spent", color: USED_COL }, marker: { label: "Possible (HCG's list)", color: INK }, gap: { label: "Missed", color: LOSS_COL },
+          bar: { label: "Earned / spent", color: USED_COL }, marker: { label: "Possible (list)", color: INK }, gap: { label: "Missed", color: LOSS_COL },
         }} />
     </ChartPanel>
   );

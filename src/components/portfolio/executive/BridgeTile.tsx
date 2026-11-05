@@ -130,10 +130,10 @@ function BridgeDrawer({ c, dr }: { c: ExecCtx; dr: DrawerCtl }) {
           key: "method", label: "Method", render: () => (
             <>
               <MethodText>
-                <p>Read top to bottom: the margin there would have been with every switch HCG suggests, less the cash &amp; TPA margin missed, the scheme saving missed and the out-of-formulary margin missed, is the margin earned on sales (MRP − cost). Each total bar starts at zero; each part floats from where the bar above ended.</p>
+                <p>Read top to bottom: the margin there would have been with every suggested switch, less the cash &amp; TPA margin missed, the scheme saving missed and the out-of-formulary margin missed, is the margin earned on sales (MRP − cost). Each total bar starts at zero; each part floats from where the bar above ended.</p>
                 <p>A part can be below zero: at some units the out-of-formulary brands bought earned more margin than the suggested ones. That part adds to the margin earned instead of taking from it, so it is labelled with a plus and drawn as a gain, and its amount keeps its minus sign in the table.</p>
                 <p>This bridge is the selection&apos;s whole sales (every payer under the Patients and Material filters). The Spend summary&apos;s bridge covers the cash &amp; TPA patients&apos; margin (with out of formulary) alone and leaves the scheme saving out, so its ends are smaller.</p>
-                <p>Cash &amp; TPA and scheme are worked out on the same sales lines at HCG&apos;s FY list prices, out of formulary on purchases (goods receipts) of the same months, drawn in its own colour. So the top bar is an indication, not one ledger. A part with no figures for this selection is left out and named below the table.</p>
+                <p>Cash &amp; TPA and scheme are worked out on the same sales lines at the FY list prices, out of formulary on purchases (goods receipts) of the same months, drawn in its own colour. So the top bar is an indication, not one ledger. A part with no figures for this selection is left out and named below the table.</p>
                 <p>The bridge is in rupees whatever the Value ↔ {QUANTITY} switch says.</p>
               </MethodText>
               <HowBuilt c={c} />

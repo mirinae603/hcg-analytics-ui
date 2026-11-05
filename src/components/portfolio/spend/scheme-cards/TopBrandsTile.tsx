@@ -98,7 +98,7 @@ function TopTable({ d, context, onAll }: { d: Overview; context: string; onAll: 
   ];
   return (
     <DrawerSection title={topTitle(rows.length, WHAT)}
-      note={`Brand used → the brand HCG's list suggests. Share = the brand's part of the ${rupeesExact(d.headline.saving_missed)} ${w.loss.toLowerCase()} in this selection.`}>
+      note={`Brand used → the brand the list suggests. Share = the brand's part of the ${rupeesExact(d.headline.saving_missed)} ${w.loss.toLowerCase()} in this selection.`}>
       <DownloadCsv rows={ranked} columns={csv} page={SPEND_PAGE} caption={`${topTitle(rows.length, WHAT)}, ${context}`} />
       {!rows.length ? <p className="text-[12px]" style={{ color: SUB }}>Nothing in this selection.</p> : (
         <div className="overflow-x-auto -mx-1"><div className="flex flex-col" style={{ minWidth: 820 }}>

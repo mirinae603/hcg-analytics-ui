@@ -65,7 +65,7 @@ export default function OofOverview({ meta, filters, plant, onOpen }: {
     if (waiting.length) {
       return <Notice title="Out of formulary waits for the Item Master">{waiting.map((w) => `${w.note}.`).join(" ")}</Notice>;
     }
-    return <Notice title="Out-of-formulary purchases aren't published yet">The build step reads HCG&apos;s GRN extracts, each month&apos;s Item Master and HCG&apos;s out-of-formulary workbooks: run python -m app.etl.purchase.</Notice>;
+    return <Notice title="Out-of-formulary purchases aren't published yet">The build step reads the GRN extracts, each month&apos;s Item Master and the out-of-formulary workbooks: run python -m app.etl.purchase.</Notice>;
   }
   if (error) return <Notice title="Couldn't load the out-of-formulary analysis">{error}</Notice>;
   if (!data) return <OofOverviewSkeleton />;

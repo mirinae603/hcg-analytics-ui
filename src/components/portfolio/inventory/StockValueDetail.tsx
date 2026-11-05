@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { useRegion, displayRegion } from "@/context/RegionContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
+import { readJson } from "@/utils/brand";
 import { useWindows, snapshotLabel } from "@/lib/useWindows";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import { useDrillBind } from "@/components/portfolio/useDrillBind";
@@ -363,7 +364,7 @@ export default function StockValueDetail() {
   useEffect(() => { const t = setTimeout(() => setAnimate(true), 80); return () => clearTimeout(t); }, []);
 
   useEffect(() => {
-    fetch(`${DASHBOARD_API_BASE_URL}/meta/plants`).then((r) => r.json())
+    fetch(`${DASHBOARD_API_BASE_URL}/meta/plants`).then(readJson)
       .then((d) => { const m: Record<string, string> = {}; (d?.plants || []).forEach((p: any) => { m[p.code] = p.name; }); setPlantMap(m); }).catch(() => {});
   }, []);
 

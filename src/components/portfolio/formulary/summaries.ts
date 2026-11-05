@@ -46,16 +46,16 @@ export function complianceSummary(f: ComplianceFacts): string[] {
   const out: string[] = [];
   if (f.units) {
     out.push(`${f.where}'s formulary compliance on units sold for ${f.when} stood at ${p2(f.pct)}. `
-      + "HCG's budget is set on drug cost, so a quantity figure is not compared with it.");
+      + "The budget is set on drug cost, so a quantity figure is not compared with it.");
   } else if (!f.noBudget && isNum(f.budget)) {
     const gap = f.pct - f.budget;
     out.push(`${f.where}'s formulary compliance for ${f.when} stood at ${p2(f.pct)} against a budget of ${f.budget}%`
-      + (Math.abs(gap) < 0.005 ? ", on budget." : ` (${gap > 0 ? "+" : "−"}${gapPts(gap)}). HCG's MIS would print it as ${Math.round(f.pct)}%.`));
+      + (Math.abs(gap) < 0.005 ? ", on budget." : ` (${gap > 0 ? "+" : "−"}${gapPts(gap)}). The MIS would print it as ${Math.round(f.pct)}%.`));
   } else {
-    const why = f.noBudget === "network" ? "HCG sets compliance budgets per hospital, so all hospitals together have none."
-      : f.noBudget === "unit" ? "HCG's MIS sets no budget for this hospital."
-      : f.noBudget === "differs" ? "HCG's MIS sets this hospital different budgets in the months selected, so they are not set against one budget; pick one month to see it against its own."
-      : "HCG's budget is set for all patients pooled, so it is not compared here.";
+    const why = f.noBudget === "network" ? "Compliance budgets are set per hospital, so all hospitals together have none."
+      : f.noBudget === "unit" ? "The MIS sets no budget for this hospital."
+      : f.noBudget === "differs" ? "The MIS sets this hospital different budgets in the months selected, so they are not set against one budget; pick one month to see it against its own."
+      : "The budget is set for all patients pooled, so it is not compared here.";
     out.push(`${f.where}'s formulary compliance for ${f.when} stood at ${p2(f.pct)}${f.noBudget === "filters" ? " for the filters shown" : ""}. ${why}`);
   }
 
