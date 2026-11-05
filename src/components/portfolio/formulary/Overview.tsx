@@ -20,14 +20,15 @@
 // One number runs the page: the share of drug spend that went to FORMULARY items, out of
 // formulary + out-of-formulary spend. Non formulary spend (group C) is real money but sits
 // outside HCG's ratio, so it is drawn beside the number (hatched) and never inside it.
-// Consumables are outside the ratio too.
+// Consumables are outside the ratio too. The header's Value ↔ Quantity switch takes every panel to
+// units sold (the same ratio on counts, never judged against the budget) and back.
 import React from "react";
 import { OneScreenGrid, type Place } from "@/components/portfolio/ledger/onescreen";
 import { Notice } from "./parts";
 import ComplianceTile from "./ComplianceCard";
 import { ClassesTile, DrugSpendTile, MonthTrendTile } from "./overview-cards/DrugSpend";
 import { MixTile } from "./overview-cards/Consumption";
-import { PositionTile, UnitRankTile } from "./overview-cards/UnitsCard";
+import { MIX_LINK_H, PositionTile, UnitRankTile } from "./overview-cards/UnitsCard";
 import { TopDoctorsTile, TopItemsTile } from "./overview-cards/TopLists";
 import { overviewScope, useMonthBefore } from "./overview-cards/shared";
 import { filterParams, useOverview, type Filters, type Meta, type View } from "./api";
@@ -58,9 +59,9 @@ const NETWORK = {
 const placesOf = (network: boolean): Place[] => Object.values(network ? NETWORK : ONE_UNIT);
 
 /** The unit ranking's height when the page stacks: a 22px row per unit under the panel's header
- *  (50px), a legend line and the axis (36px), so every unit shows as HCG adds units; never less
- *  than the grid plans for. */
-const unitsMinH = (units: number) => Math.max(NETWORK.units.minH, 86 + units * 22);
+ *  (50px), a legend line and the axis (36px) and the "Mix by unit" line, so every unit shows as
+ *  HCG adds units; never less than the grid plans for. */
+const unitsMinH = (units: number) => Math.max(NETWORK.units.minH, 86 + MIX_LINK_H + units * 22);
 
 /** The grid's panels as placeholders, in their places, while the first answer loads. */
 export function OverviewSkeleton({ network }: { network: boolean }) {
@@ -73,7 +74,11 @@ export default function Overview({ meta, filters, plant, onOpen }: { meta: Meta;
   if (error) return <Notice title="Couldn't load formulary compliance">{error}</Notice>;
   if (!data) return <OverviewSkeleton network={plant === "ALL"} />;
   const s = overviewScope(data, meta, filters, plant, before, onOpen);
-  const ariaLabel = `Formulary compliance, ${s.context}`;
+  const ariaLabel = `Formulary compliance${s.m.units ? " on quantity" : ""}, ${s.context}`;
+  // The top-five panels ask their own list in the unit on screen (s.filters.basis). Keyed on it,
+  // they start afresh when the answer changes unit, so a list in the old unit is never printed
+  // in the new one while the next page loads.
+  const top = s.m.basis;
 
   if (s.network) {
     const P = NETWORK;
@@ -84,8 +89,8 @@ export default function Overview({ meta, filters, plant, onOpen }: { meta: Meta;
         <UnitRankTile s={s} place={{ ...P.units, minH: unitsMinH(s.d.by_hospital?.length ?? 0) }} />
         <DrugSpendTile s={s} place={P.spend} />
         <MixTile s={s} place={P.mix} />
-        <TopItemsTile s={s} place={P.brands} />
-        <TopDoctorsTile s={s} place={P.doctors} />
+        <TopItemsTile key={`brands-${top}`} s={s} place={P.brands} />
+        <TopDoctorsTile key={`doctors-${top}`} s={s} place={P.doctors} />
       </OneScreenGrid>
     );
   }
@@ -97,8 +102,8 @@ export default function Overview({ meta, filters, plant, onOpen }: { meta: Meta;
       <MonthTrendTile s={s} place={P.trend} />
       <MixTile s={s} place={P.mix} />
       <PositionTile s={s} place={P.position} />
-      <TopItemsTile s={s} place={P.brands} />
-      <TopDoctorsTile s={s} place={P.doctors} />
+      <TopItemsTile key={`brands-${top}`} s={s} place={P.brands} />
+      <TopDoctorsTile key={`doctors-${top}`} s={s} place={P.doctors} />
       <ClassesTile s={s} place={P.classes} />
     </OneScreenGrid>
   );

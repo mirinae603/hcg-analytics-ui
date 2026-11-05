@@ -59,18 +59,18 @@ function SplitBars({ cuts, color, ariaLabel }: { cuts: Cut[]; color: string; ari
 
 const sliceCols = (first: string): Col<Slice>[] => [
   { label: first, render: (r) => r.label, align: "left" },
-  { label: "Margin earned", render: (r) => rupeesExact(r.b.actual_margin) },
-  { label: "Margin possible", render: (r) => rupeesExact(r.b.potential_margin) },
-  { label: "Margin missed", render: (r) => <b>{rupeesExact(r.b.margin_loss)}</b> },
-  { label: "% missed", render: (r) => pct(r.b.loss_pct) },
-  { label: "MRP increase", render: (r) => rupeesExact(r.b.topline_increase) },
-  { label: "Qty counted", render: (r) => num(r.b.qty) },
+  { label: "Margin earned", render: (r) => rupeesExact(r.b.actual_margin), raw: (r) => r.b.actual_margin, unit: "₹" },
+  { label: "Margin possible", render: (r) => rupeesExact(r.b.potential_margin), raw: (r) => r.b.potential_margin, unit: "₹" },
+  { label: "Margin missed", render: (r) => <b>{rupeesExact(r.b.margin_loss)}</b>, raw: (r) => r.b.margin_loss, unit: "₹" },
+  { label: "% missed", render: (r) => pct(r.b.loss_pct), raw: (r) => r.b.loss_pct, unit: "%" },
+  { label: "MRP increase", render: (r) => rupeesExact(r.b.topline_increase), raw: (r) => r.b.topline_increase, unit: "₹" },
+  { label: "Qty counted", render: (r) => num(r.b.qty), raw: (r) => r.b.qty },
 ];
 
-function SliceTable({ title, first, note, rows }: { title: string; first: string; note: string; rows: Slice[] }) {
+function SliceTable({ title, first, note, rows, context }: { title: string; first: string; note: string; rows: Slice[]; context: string }) {
   return (
     <DrawerSection title={title} note={note}>
-      <DataTable rows={rows} rowKey={(r) => r.key} cols={sliceCols(first)} caption={`${title}: margin earned, possible and missed`} minWidth={680} />
+      <DataTable context={context} rows={rows} rowKey={(r) => r.key} cols={sliceCols(first)} caption={`${title}: margin earned, possible and missed`} minWidth={680} />
     </DrawerSection>
   );
 }
@@ -79,9 +79,9 @@ function SliceTable({ title, first, note, rows }: { title: string; first: string
 export function SliceTables({ c }: { c: Ctx }) {
   return (
     <>
-      <SliceTable title="Cash vs TPA" first="Payer" note={IGNORES.payer} rows={payerSlices(c)} />
-      <SliceTable title="Onco, non-onco and consumables" first="Material type" note={IGNORES.category} rows={categorySlices(c)} />
-      <SliceTable title="Inpatient vs outpatient" first="Patient type" note={IGNORES.type} rows={typeSlices(c)} />
+      <SliceTable title="Cash vs TPA" first="Payer" note={IGNORES.payer} rows={payerSlices(c)} context={c.context} />
+      <SliceTable title="Onco, non-onco and consumables" first="Material type" note={IGNORES.category} rows={categorySlices(c)} context={c.context} />
+      <SliceTable title="Inpatient vs outpatient" first="Patient type" note={IGNORES.type} rows={typeSlices(c)} context={c.context} />
     </>
   );
 }

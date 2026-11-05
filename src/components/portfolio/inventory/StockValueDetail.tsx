@@ -3,6 +3,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { useRegion, displayRegion } from "@/context/RegionContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
+import { readJson } from "@/utils/brand";
+import { useWindows, snapshotLabel } from "@/lib/useWindows";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import { useDrillBind } from "@/components/portfolio/useDrillBind";
 import { useCardCategory } from "@/components/common/CardCategoryFilter";
@@ -255,6 +257,7 @@ function RiskTile({ label, value, sub, color, soft }: { label: string; value: nu
 }
 function ValueAtRiskPanel({ risk, animate, region, cat, empty }: { risk: any; animate: boolean; region: string; cat: any; empty: boolean }) {
   const pct = (v: number) => (risk.total ? `${Math.round((v / risk.total) * 100)}%` : "—");
+  const asOf = snapshotLabel(useWindows()?.inventory_snapshot);   // the stock count's date, from the data
   // The aging ladder is cut from fact_inventory, so it really does split by material
   // category — /kpi/aging-distribution serves a filtered request from the fact grain
   // the parquet was built from, and the buckets still sum to the category's own total.
@@ -271,7 +274,7 @@ function ValueAtRiskPanel({ risk, animate, region, cat, empty }: { risk: any; an
         </div>
         <div className="flex items-center gap-2.5">
           {cat.chip}
-          <span className="text-[11px] font-medium text-gray-400 inline-flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-gray-300" />snapshot · 31 May 2026</span>
+          <span className="text-[11px] font-medium text-gray-400 inline-flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-gray-300" />snapshot{asOf ? ` · ${asOf}` : ""}</span>
         </div>
       </div>
       {cat.note(empty) && <div className="mt-3">{cat.note(empty)}</div>}
@@ -361,7 +364,7 @@ export default function StockValueDetail() {
   useEffect(() => { const t = setTimeout(() => setAnimate(true), 80); return () => clearTimeout(t); }, []);
 
   useEffect(() => {
-    fetch(`${DASHBOARD_API_BASE_URL}/meta/plants`).then((r) => r.json())
+    fetch(`${DASHBOARD_API_BASE_URL}/meta/plants`).then(readJson)
       .then((d) => { const m: Record<string, string> = {}; (d?.plants || []).forEach((p: any) => { m[p.code] = p.name; }); setPlantMap(m); }).catch(() => {});
   }, []);
 

@@ -4,12 +4,19 @@
 import React from "react";
 import { CountUp, useMount } from "@/components/portfolio/kit";
 import { displayRegion } from "@/context/RegionContext";
+import { useWindows, windowLabel, windowPill, type WindowKey } from "@/lib/useWindows";
 
 export const PAGE = "#ECF3F1", INK = "#1f2333", SUBTLE = "#8a91a0";
 export const EMER = "#0e9f6e", TEAL = "#0d9488", INDIGO = "#4f46e5", SKY = "#0ea5e9", AMBER = "#e0992f", ROSE = "#e8604a", GREY = "#aab2c2";
 export const PANEL_SHADOW = "0 12px 34px -22px rgba(20,40,35,0.18), 0 2px 7px -4px rgba(20,40,35,0.05)";
 
-export function ProcShell({ title, subtitle, region, pill = "6-month window", bg = PAGE, children }: any) {
+// `source`: the data the page is cut from, a GET /meta/windows key ("po" for the purchase-order
+// pages, "grn" for the goods-receipt ones). The pill then reads that window's months ("10-month
+// window", the full span as its tooltip) instead of a fixed "6-month window", and stays hidden
+// while the windows load. `pill` puts fixed words there instead.
+export function ProcShell({ title, subtitle, region, source, pill, bg = PAGE, children }: any) {
+  const win = useWindows()?.windows[source as WindowKey] ?? null;
+  const label = pill ?? windowPill(win);
   return (
     <div className="-m-4 md:-m-6 p-4 md:p-6 space-y-4 min-w-0" style={{ background: bg, minHeight: "calc(100vh - 64px)" }}>
       <style jsx global>{`
@@ -21,7 +28,7 @@ export function ProcShell({ title, subtitle, region, pill = "6-month window", bg
           <h1 className="text-[24px] font-bold leading-tight" style={{ color: INK }}>{title}</h1>
           <p className="text-[13px] mt-1" style={{ color: SUBTLE }}>{subtitle} · {displayRegion(region)}</p>
         </div>
-        <span className="text-[12px] font-medium px-3.5 py-2 rounded-full bg-white" style={{ color: "#5b6478", boxShadow: "0 4px 14px -8px rgba(40,52,86,0.2)" }}>{pill}</span>
+        {label && <span className="text-[12px] font-medium px-3.5 py-2 rounded-full bg-white" style={{ color: "#5b6478", boxShadow: "0 4px 14px -8px rgba(40,52,86,0.2)" }} title={windowLabel(win) || undefined}>{label}</span>}
       </div>
       {children}
     </div>

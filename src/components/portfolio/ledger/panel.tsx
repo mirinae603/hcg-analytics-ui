@@ -19,12 +19,19 @@
 //   fitRows, MoreRows — a list shows the rows that fit and ends on "+N more" (the drawer has all).
 //   InfoButton, LinkButton — the (i), and the pill that moves to another tab of the page.
 //
+// The tile is the "Current stock value" page's card (HCG chose its look for these screens): white,
+// rounded, lifted by a warm shadow on the cream canvas, no outline and no coloured strip; the
+// topic colour is a small dot before the title. A screen's headline tiles carry that page's KPI
+// header instead (an icon chip, the title as a grey label, the context as a tinted badge), and a
+// screen's first figure can be its dark hero card.
+//
 // The (i) and ↗ are siblings of the body's button, never inside it: a button may not hold
 // another, and a keyboard or screen-reader user must reach each on its own. The body's
 // accessible name is `label`: the title and the key figures in words.
 import React, { createContext, useContext, useEffect, useId, useMemo, useRef, useState } from "react";
+import type { IconType } from "react-icons";
 import { TbArrowRight, TbArrowUpRight, TbInfoCircle } from "react-icons/tb";
-import { CARD, INK, SUB, LINE, RULE, LEDGER_2, SH_CARD, SH_HOVER, tint } from "./kit";
+import { CARD, INK, SUB, LINE, RULE, LEDGER_2, CORAL, CORAL_SOFT, CORAL_TINT, CORAL_INK, HERO_BG, SH_CARD, SH_DARK, SH_HOVER, SH_KPI } from "./kit";
 import { Legend, legendWidth, type LegendItem } from "./legend";
 import { SourceBadge } from "./KpiCard";
 import { useSize, type Size } from "./minis";
@@ -40,11 +47,16 @@ export type PanelApi = {
   size: Size;
   setReadout: (node: React.ReactNode | null) => void;
   setLegend: (items: LegendItem[] | null) => void;
+  /** The panel is the dark hero card: a chart inside draws its marks and words light. */
+  dark?: boolean;
 };
 
 const PanelContext = createContext<PanelApi | null>(null);
 
 export const usePanel = (): PanelApi | null => useContext(PanelContext);
+
+/** Whether the chart sits on the dark hero card. */
+export const usePanelDark = (): boolean => useContext(PanelContext)?.dark ?? false;
 
 /** Hands `items` to the panel's header; returns whether the chart is inside a panel (outside
  *  one it prints its own legend). Keyed on the items' content, so a chart can build the array
@@ -137,8 +149,8 @@ export const headH = (h: GroupHead | null) => (h ? (h.name ? GROUP_CAPTION_H : 0
 /** A group's name above its rows, a hairline above it unless it is the first group. */
 export function GroupCaption({ head }: { head: GroupHead }) {
   return (
-    <span aria-hidden={head.name ? undefined : true} className="flex items-end px-2 text-[10px] font-semibold uppercase whitespace-nowrap"
-      style={{ height: headH(head), color: SUB, letterSpacing: ".08em", borderTop: head.first ? undefined : `1px solid ${LINE}` }}>
+    <span aria-hidden={head.name ? undefined : true} className="flex items-end px-2 text-[11px] leading-[11px] font-semibold uppercase whitespace-nowrap"
+      style={{ height: headH(head), color: SUB, letterSpacing: ".06em", borderTop: head.first ? undefined : `1px solid ${LINE}` }}>
       {head.name}
     </span>
   );
@@ -166,24 +178,29 @@ function ButtonStyles() {
       .hcg-info{transition:background-color .15s ease,color .15s ease}
       .hcg-info:hover{background:${LEDGER_2};color:${INK}!important}
       .hcg-info:focus-visible{outline:2px solid ${INK};outline-offset:1px}
+      .hcg-info-dark{transition:background-color .15s ease,color .15s ease}
+      .hcg-info-dark:hover{background:rgba(255,255,255,.10);color:#fff!important}
+      .hcg-info-dark:focus-visible{outline:2px solid #fff;outline-offset:1px}
     `}</style>
   );
 }
 
 /** The (i): opens what explains a figure, usually its drawer on the Method tab. `sm` fits a
  *  panel header. */
-export function InfoButton({ topic, onClick, className = "", size = "md" }: {
+export function InfoButton({ topic, onClick, className = "", size = "md", dark = false }: {
   /** What it explains, for its accessible name: "About Formulary compliance %". */
   topic: string;
   onClick: () => void;
   className?: string;
   size?: "md" | "sm";
+  /** On the dark hero card. */
+  dark?: boolean;
 }) {
   return (
     <>
       <button type="button" onClick={onClick} aria-label={`About ${topic}`} aria-haspopup="dialog" title={`About ${topic}`}
-        className={`hcg-info inline-flex items-center justify-center flex-shrink-0 rounded-full ${size === "sm" ? "w-6 h-6" : "w-8 h-8"} ${className}`}
-        style={{ color: SUB }}>
+        className={`${dark ? "hcg-info-dark" : "hcg-info"} inline-flex items-center justify-center flex-shrink-0 rounded-full ${size === "sm" ? "w-6 h-6" : "w-8 h-8"} ${className}`}
+        style={{ color: dark ? ON_DARK_SUB : SUB }}>
         <TbInfoCircle size={size === "sm" ? 15 : 18} aria-hidden="true" />
       </button>
       <ButtonStyles />
@@ -195,7 +212,7 @@ export function InfoButton({ topic, onClick, className = "", size = "md" }: {
 export function LinkButton({ onClick, children }: { onClick: () => void; children: React.ReactNode }) {
   return (
     <button type="button" onClick={onClick}
-      className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-semibold transition-colors hover:bg-[#F5F1E7]"
+      className="hcg-info inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-semibold"
       style={{ border: `1px solid ${RULE}`, color: INK }}>
       {children}<TbArrowRight size={13} />
     </button>
@@ -209,20 +226,37 @@ function PanelStyles() {
   return (
     <style jsx global>{`
       .hcg-panel{transition:box-shadow .2s ease,border-color .2s ease}
-      .hcg-panel:has(.hcg-panel-open:hover),.hcg-panel:has(.hcg-panel-more:hover){box-shadow:${SH_HOVER}!important;border-color:${INK}33!important}
+      .hcg-panel:has(.hcg-panel-open:hover),.hcg-panel:has(.hcg-panel-more:hover){box-shadow:${SH_HOVER}!important;border-color:${CORAL_SOFT}!important}
+      .hcg-panel-dark:has(.hcg-panel-open:hover),.hcg-panel-dark:has(.hcg-panel-more:hover){box-shadow:${SH_DARK}!important;border-color:${CORAL}88!important}
       .hcg-panel-open:focus-visible{outline:2px solid ${INK};outline-offset:2px}
+      .hcg-panel-dark .hcg-panel-open:focus-visible{outline-color:#fff}
       .hcg-panel-more{transition:background-color .15s ease,color .15s ease}
       .hcg-panel-more:hover{background:${LEDGER_2};color:${INK}!important}
       .hcg-panel-more:focus-visible{outline:2px solid ${INK};outline-offset:1px}
+      .hcg-panel-dark .hcg-panel-more:hover{background:rgba(255,255,255,.10);color:#fff!important}
+      .hcg-panel-dark .hcg-panel-more:focus-visible{outline-color:#fff}
     `}</style>
   );
 }
 
-// Header widths the legend has to share the line with: the 24px buttons, 12px of gaps, and
-// the source badge when a figure is not computed ("ESTIMATED" at 10.5px, letter-spaced).
+// Header widths the legend has to share the line with: the 24px buttons, 12px of gaps, the
+// source badge when a figure is not computed (the "Estimated" pill), and what goes before the
+// title: the topic dot, or a headline tile's icon chip.
 const BTN_W = 24;
 const HEAD_GAPS = 12;
-const BADGE_W = 78;
+const BADGE_W = 84;
+const DOT_W = 11;
+/** A headline's icon chip: 24px with its 6px margin where the body is at least CHIP_MIN_W wide, a
+ *  20px chip with none in a narrower tile (a KPI tile on a 1280px screen), so the title keeps its
+ *  words. */
+const CHIP_MIN_W = 170;
+/** A context badge's padding and the gap before it, beside the words' own width. */
+const CONTEXT_PAD = 22;
+/** The muted words on the dark hero card (the stock-value hero's 72% white). */
+export const ON_DARK_SUB = "rgba(255,255,255,.72)";
+/** The hero card's coral glow, laid over its charcoal: one wash at the top right, a fainter one
+ *  at the bottom left, as backgrounds (no element pokes out of the card). */
+const HERO_FILL = `radial-gradient(circle at 92% -8%, rgba(214,128,106,.34) 0, rgba(214,128,106,0) 46%), radial-gradient(circle at -4% 104%, rgba(233,182,166,.14) 0, rgba(233,182,166,0) 38%), ${HERO_BG}`;
 /** The context line is dropped below this width rather than shown as a lone "…". */
 const CONTEXT_MIN = 48;
 
@@ -233,8 +267,14 @@ export type ChartPanelProps = {
   title: string;
   /** Hospital and period, muted after the title: "KR Bangalore · Aug-26". */
   context?: string;
-  /** The topic colour: a 4px strip along the top, washing faintly into the header below it. */
+  /** The topic colour: a small dot before the title. */
   accent?: string;
+  /** A headline tile: the stock-value page's KPI header — this icon in a coral chip, the title as
+   *  a grey label and the context as a tinted badge. */
+  icon?: IconType;
+  /** The screen's first figure, on the dark charcoal hero card (implies the headline header).
+   *  Its chart draws in light colours: usePanelDark() tells it. */
+  hero?: boolean;
   place: Place;
   /** "estimate" (and "hcg") figures carry their badge in the header; computed ones need none. A
    *  SourceSpec gives the badge's tooltip the section's own words. */
@@ -252,21 +292,26 @@ export type ChartPanelProps = {
   children: React.ReactNode;
 };
 
-export function ChartPanel({ id, title, context, accent, place, source, legend, label, interactive = false, onOpen, onInfo, children }: ChartPanelProps) {
+export function ChartPanel({ id, title, context, accent, icon: Icon, hero = false, place, source, legend, label, interactive = false, onOpen, onInfo, children }: ChartPanelProps) {
   const uid = useId().replace(/:/g, "");
   const [bodyRef, size] = useSize<HTMLDivElement>({ w: 0, h: 0 });
   const [readout, setReadout] = useState<React.ReactNode | null>(null);
   const [handed, setLegend] = useState<LegendItem[] | null>(null);
-  const api = useMemo<PanelApi>(() => ({ size, setReadout, setLegend }), [size]);
+  const api = useMemo<PanelApi>(() => ({ size, setReadout, setLegend, dark: hero }), [size, hero]);
   const items = legend ?? handed ?? [];
   const badge = source && sourceKind(source) !== "computed" ? source : null;
+  const headline = hero || Icon != null;
+  const chipPx = !Icon ? 0 : size.w === 0 || size.w >= CHIP_MIN_W ? 24 : 20;
+  const lead = chipPx ? chipPx + (chipPx === 24 ? 6 : 0) : accent && !hero ? DOT_W : 0;
 
   // The legend shares the header line when it fits beside the title and the buttons; otherwise
   // it takes a line of its own at the top of the body, and the chart below gets less height.
-  const free = size.w - textW(title, 13) - BTN_W * (onInfo ? 2 : 1) - (badge ? BADGE_W : 0) - HEAD_GAPS;
+  const free = size.w - lead - textW(title, 13) - BTN_W * (onInfo ? 2 : 1) - (badge ? BADGE_W : 0) - HEAD_GAPS;
   const legendW = items.length ? legendWidth(items) : 0;
   const legendInHead = !items.length || legendW <= free;
   const contextRoom = free - (legendInHead ? legendW : 0);
+  // A headline's context is a badge when the badge fits whole; otherwise muted words, as elsewhere.
+  const contextBadge = headline && context != null && textW(context, 11) + CONTEXT_PAD <= contextRoom;
   const p = placeProps(place);
 
   const onKey = (e: React.KeyboardEvent) => {
@@ -279,30 +324,45 @@ export function ChartPanel({ id, title, context, accent, place, source, legend, 
 
   return (
     <section aria-labelledby={`${uid}-title`} data-panel={id}
-      className={`led-card hcg-panel relative flex flex-col rounded-[14px] overflow-hidden ${p.className}`}
+      className={`led-card hcg-panel ${hero ? "hcg-panel-dark" : ""} relative flex flex-col rounded-[20px] overflow-hidden ${p.className}`}
       style={{
-        ...p.style, border: `1px solid ${LINE}`, boxShadow: SH_CARD, animationDelay: `${entranceDelay(place)}ms`,
-        background: accent ? `linear-gradient(180deg, ${tint(accent, 0.075)} 0, ${CARD} 44px)` : CARD,
+        // A transparent border keeps the body's size what it was with the old hairline; hover
+        // colours it.
+        ...p.style, border: "1px solid transparent", boxShadow: hero ? SH_DARK : headline ? SH_KPI : SH_CARD,
+        animationDelay: `${entranceDelay(place)}ms`, background: hero ? HERO_FILL : CARD,
       }}>
-      {accent && <span aria-hidden="true" className="absolute inset-x-0 top-0 h-[4px] pointer-events-none" style={{ background: accent }} />}
-
-      <div className="flex items-center gap-1 h-[22px] mt-2.5 px-3 flex-shrink-0">
-        <h3 id={`${uid}-title`} title={title} className="text-[13px] font-semibold leading-none truncate flex-shrink-0 max-w-[70%]"
-          style={{ color: INK }}>{title}</h3>
-        <div className="flex-1 min-w-0 flex items-center gap-2 pl-1.5 overflow-hidden">
+      {/* A headline's 24px chip takes 2px of the header's top margin, so the body keeps its size. */}
+      <div className={`flex items-center gap-1 ${chipPx === 24 ? "h-[24px] mt-2" : "h-[22px] mt-2.5"} px-3 flex-shrink-0`}>
+        {Icon ? (
+          <span aria-hidden="true" className={`inline-flex items-center justify-center flex-shrink-0 ${chipPx === 24 ? "rounded-[8px] mr-1.5" : "rounded-[7px]"}`}
+            style={{ width: chipPx, height: chipPx, background: hero ? "rgba(255,255,255,.10)" : CORAL_TINT, color: hero ? "#fff" : CORAL }}>
+            <Icon size={chipPx === 24 ? 14 : 12} />
+          </span>
+        ) : accent && !hero ? (
+          <span aria-hidden="true" className="inline-block w-[7px] h-[7px] rounded-full flex-shrink-0 mr-1" style={{ background: accent }} />
+        ) : null}
+        {/* The title gives way (truncates) before the badge and the buttons do: they always show. */}
+        <h3 id={`${uid}-title`} title={title} className={`text-[13px] leading-none truncate min-w-0 max-w-[70%] ${headline ? "font-medium" : "font-semibold"}`}
+          style={{ color: hero ? ON_DARK_SUB : headline ? SUB : INK, letterSpacing: headline ? undefined : "-.01em" }}>{title}</h3>
+        <div className="flex-1 min-w-0 flex items-center gap-2 overflow-hidden">
           {readout != null ? (
-            <span className="ml-auto truncate text-[11.5px] tabular-nums" style={{ color: INK, animation: "ledFade 140ms ease both" }}>{readout}</span>
+            <span className="ml-auto truncate text-[11.5px] tabular-nums" style={{ color: hero ? "#fff" : INK, animation: "ledFade 140ms ease both" }}>{readout}</span>
           ) : (
             <>
-              {context && contextRoom >= CONTEXT_MIN && <span className="truncate text-[11px] min-w-0" style={{ color: SUB }} title={context}>{context}</span>}
+              {context && contextBadge ? (
+                <span className="ml-auto flex-shrink-0 rounded-full px-2 py-[2px] text-[11px] font-semibold whitespace-nowrap" title={context}
+                  style={{ background: hero ? "rgba(214,128,106,.22)" : CORAL_TINT, color: hero ? "#EDC7BA" : CORAL_INK }}>{context}</span>
+              ) : context && contextRoom >= CONTEXT_MIN && (
+                <span className="truncate text-[11px] min-w-0 pl-1" style={{ color: hero ? ON_DARK_SUB : SUB }} title={context}>{context}</span>
+              )}
               {legendInHead && items.length > 0 && <span className="ml-auto flex-shrink-0"><Legend items={items} dense /></span>}
             </>
           )}
         </div>
         {badge && <span className="flex-shrink-0 ml-1"><SourceBadge source={badge} /></span>}
-        {onInfo && <InfoButton topic={title} onClick={onInfo} size="sm" />}
+        {onInfo && <InfoButton topic={title} onClick={onInfo} size="sm" dark={hero} />}
         <button type="button" onClick={onOpen} aria-haspopup="dialog" aria-label={`${title}: details`} title="Details"
-          className="hcg-panel-more inline-flex items-center justify-center w-6 h-6 rounded-full flex-shrink-0" style={{ color: SUB }}>
+          className="hcg-panel-more inline-flex items-center justify-center w-6 h-6 rounded-full flex-shrink-0" style={{ color: hero ? ON_DARK_SUB : SUB }}>
           <TbArrowUpRight size={15} aria-hidden="true" />
         </button>
       </div>
@@ -316,7 +376,7 @@ export function ChartPanel({ id, title, context, accent, place, source, legend, 
             // A div with the button role, not a <button>: the chart inside is divs and svg, which
             // a <button> may not hold, and its hover readout needs the pointer events.
             <div role="button" tabIndex={0} aria-haspopup="dialog" aria-label={`${label}. Opens details`}
-              onClick={onOpen} onKeyDown={onKey} className="hcg-panel-open absolute inset-0 cursor-pointer rounded-[8px]">{chart}</div>
+              onClick={onOpen} onKeyDown={onKey} className="hcg-panel-open absolute inset-0 cursor-pointer rounded-[10px]">{chart}</div>
           )}
         </div>
       </div>

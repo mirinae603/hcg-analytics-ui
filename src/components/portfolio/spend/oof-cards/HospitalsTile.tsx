@@ -4,7 +4,7 @@
 // has a negative margin missed (HCG's net figure), drawn left of zero in the margin-earned
 // colour and ranked last. With one hospital selected the same ranking shows it highlighted,
 // where it stands among them. A hospital's bar selects it (the selected one again: all
-// hospitals). The drawer has the ranking with exact rupees and HCG's own figure beside ours.
+// hospitals). The drawer has the ranking with exact rupees.
 import React from "react";
 import { ChartPanel } from "@/components/portfolio/ledger/panel";
 import type { Place } from "@/components/portfolio/ledger/onescreen";
@@ -13,20 +13,15 @@ import DetailDrawer, { DrawerSection, useDrawer, type DrawerCtl } from "@/compon
 import { lakhs, pct, rupeesExact } from "@/components/portfolio/ledger/format";
 import { useSelectHospital } from "@/context/RegionContext";
 import { DataTable, type Col } from "../DataTable";
-import { HOSPITAL_COL, USED_COL, Method, ofPossible, type Ctx, type Hospital } from "./context";
+import { HOSPITAL_COL, USED_COL, Method, ofPossible, rankedHospitals, type Ctx, type Hospital } from "./context";
 
 const nameOf = (h: Hospital) => h.his_name || h.name;
-const byRank = (rows: Hospital[]) => [...rows].sort((a, b) => a.rank - b.rank);
-/** A hospital on the ranking: any purchase in the selection, or a figure in HCG's sheet. */
-const ranked = (h: Hospital) => h.lines > 0 || (h.hcg_loss != null && h.hcg_loss !== 0);
 
-/** Every hospital ranked by margin missed, exact rupees, with HCG's own figure where it has
- *  one. A hospital's name selects it. */
+/** Every hospital ranked by margin missed, exact rupees. A hospital's name selects it. */
 export function RankingTable({ c, onPicked }: { c: Ctx; onPicked?: () => void }) {
   const selectHospital = useSelectHospital();
-  const rows = byRank(c.d.by_hospital || []).filter(ranked);
+  const rows = rankedHospitals(c.d.by_hospital || []);
   const here = rows.find((h) => h.selected);
-  const hcg = rows.some((h) => h.hcg_loss != null);
   const cols: Col<Hospital>[] = [
     { label: "#", render: (h) => h.rank, align: "left" },
     {
@@ -35,18 +30,18 @@ export function RankingTable({ c, onPicked }: { c: Ctx; onPicked?: () => void })
           aria-label={h.selected ? `${nameOf(h)}, selected. Show all hospitals` : `Select ${nameOf(h)}`}
           className="text-left underline decoration-dotted underline-offset-2">{nameOf(h)}</button>
       ),
+      raw: (h) => nameOf(h),
     },
-    { label: "Spent", render: (h) => rupeesExact(h.purchase_value) },
-    { label: "Margin earned", render: (h) => rupeesExact(h.actual_margin) },
-    { label: "Margin possible", render: (h) => rupeesExact(h.potential_margin) },
-    { label: "Margin missed", render: (h) => <b>{rupeesExact(h.margin_loss)}</b> },
-    { label: "% missed", render: (h) => pct(h.loss_pct) },
-    ...(hcg ? [{ label: "HCG's sheet", render: (h: Hospital) => rupeesExact(h.hcg_loss) }] : []),
+    { label: "Spent", render: (h) => rupeesExact(h.purchase_value), raw: (h) => h.purchase_value, unit: "₹" },
+    { label: "Margin earned", render: (h) => rupeesExact(h.actual_margin), raw: (h) => h.actual_margin, unit: "₹" },
+    { label: "Margin possible", render: (h) => rupeesExact(h.potential_margin), raw: (h) => h.potential_margin, unit: "₹" },
+    { label: "Margin missed", render: (h) => <b>{rupeesExact(h.margin_loss)}</b>, raw: (h) => h.margin_loss, unit: "₹" },
+    { label: "% missed", render: (h) => pct(h.loss_pct), raw: (h) => h.loss_pct, unit: "%" },
   ];
   return (
     <DrawerSection title="Hospitals, most margin missed first"
-      note={<>{here ? <><b>{nameOf(here)}</b> is number {here.rank} of {rows.length}. </> : null}{c.w.rankNote}{hcg ? " HCG's sheet = the margin missed in HCG's own out-of-formulary Summary for the same months." : ""} Click a hospital to select it; click the selected one again for all hospitals.</>}>
-      <DataTable rows={rows} rowKey={(h) => h.plant} cols={cols} strong={(h) => h.selected} minWidth={hcg ? 820 : 720}
+      note={<>{here ? <><b>{nameOf(here)}</b> is number {here.rank} of {rows.length}. </> : null}{c.w.rankNote} Click a hospital to select it; click the selected one again for all hospitals.</>}>
+      <DataTable context={c.context} rows={rows} rowKey={(h) => h.plant} cols={cols} strong={(h) => h.selected} minWidth={720}
         caption="Hospitals ranked by out-of-formulary margin missed" empty={`${c.w.none}.`} />
     </DrawerSection>
   );
@@ -76,7 +71,7 @@ function HospitalsDrawer({ c, dr, title }: { c: Ctx; dr: DrawerCtl; title: strin
 export function HospitalsTile({ c, place }: { c: Ctx; place: Place }) {
   const dr = useDrawer();
   const selectHospital = useSelectHospital();
-  const rows = byRank(c.d.by_hospital || []).filter(ranked);
+  const rows = rankedHospitals(c.d.by_hospital || []);
   const here = rows.find((h) => h.selected);
   const title = "Margin missed by hospital";
   const context = here ? `${nameOf(here)}: No. ${here.rank} of ${rows.length}` : c.when;

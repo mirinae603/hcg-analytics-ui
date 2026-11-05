@@ -39,7 +39,7 @@ function DeviationChart({ timeline, avg, latestPct, latestDelta, cat }: { timeli
       <div className="flex items-start justify-between flex-wrap gap-3">
         <div>
           <h3 className="text-[18px] font-bold tracking-tight" style={{ color: INK }}>Spend momentum</h3>
-          <p className="text-[12.5px] mt-0.5" style={{ color: SUBTLE }}>month-over-month deviation from the 6-month average</p>
+          <p className="text-[12.5px] mt-0.5" style={{ color: SUBTLE }}>month-over-month deviation from the {data.length ? `${data.length}-month ` : ""}average</p>
         </div>
         <div className="flex items-center gap-3">
           {cat.chip}
@@ -174,19 +174,19 @@ export default function VarianceDetail() {
   // scaled: onco spend fell 2.3% last month while the portfolio fell 4.9%.
   const devCat = useCardScope(url, data, { accent: EMER, domain: "procurement", label: "Spend momentum" });
   const barCat = useCardScope(url, data, { accent: ROSE, domain: "procurement", label: "Month-over-month change" });
-  if (!data) return <ProcShell title="Procurement variance" subtitle="how monthly spend shifts over time" region={region} bg={PAGE}><DetailSkeleton /></ProcShell>;
+  if (!data) return <ProcShell title="Procurement variance" subtitle="how monthly spend shifts over time" region={region} bg={PAGE} source="po"><DetailSkeleton /></ProcShell>;
   const t = data?.totals || {};
   const tl = data?.timeline || [];
   const avg = Number(t.avg_spend ?? 0);
   const dt = devCat.data?.totals || {};
 
   return (
-    <ProcShell title="Procurement variance" subtitle="how monthly spend shifts over time" region={region} bg={PAGE}>
+    <ProcShell title="Procurement variance" subtitle="how monthly spend shifts over time" region={region} bg={PAGE} source="po">
       <DeviationChart timeline={devCat.data?.timeline || []} avg={Number(dt.avg_spend ?? 0)}
         latestPct={Number(dt.latest_pct ?? 0)} latestDelta={Number(dt.latest_delta ?? 0)} cat={devCat} />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Tile icon={TbWaveSine} label="Avg / month" value={inrAbbr(avg)} sub="6-month mean spend" accent={SLATE} delay={0} />
+        <Tile icon={TbWaveSine} label="Avg / month" value={inrAbbr(avg)} sub={tl.length ? `${tl.length}-month mean spend` : "mean monthly spend"} accent={SLATE} delay={0} />
         <Tile icon={TbTrendingUp} label="Biggest rise" value={pctSign(Number(t.up_pct ?? 0))} sub={`in ${t.up_month ?? "—"}`} accent={EMER} delay={80} />
         <Tile icon={TbTrendingDown} label="Biggest drop" value={pctSign(Number(t.down_pct ?? 0))} sub={`in ${t.down_month ?? "—"}`} accent={ROSE} delay={160} />
         <Tile icon={TbActivity} label="Volatility" value={`${Number(t.volatility ?? 0).toFixed(1)}%`} sub="std. dev of MoM swings" accent="#e0992f" delay={240} />

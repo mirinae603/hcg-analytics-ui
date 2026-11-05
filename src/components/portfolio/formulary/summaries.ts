@@ -20,30 +20,42 @@ export type ComplianceFacts = {
   when: string;
   pct: number | null;
   budget: number | null;
-  /** Why the figure is not compared with a budget, when it is not: all hospitals together
-   *  have none (HCG budgets each unit), HCG sets none for this unit, or a filter (IP/OP,
-   *  payer, one segment, mean) narrows the figure below the scope the budget was set for. */
-  noBudget?: "network" | "unit" | "filters" | null;
+  /** Why the figure is not compared with a budget, when it is not: it counts units sold (the
+   *  budget is a drug-cost target), all hospitals together have none (HCG budgets each unit),
+   *  HCG sets none for this unit, HCG sets it different budgets in the months selected, or a
+   *  filter (IP/OP, payer, one segment, mean) narrows the figure below the scope the budget was
+   *  set for. */
+  noBudget?: "units" | "network" | "unit" | "differs" | "filters" | null;
   prev?: { label: string; pct: number | null } | null;
   /** Onco and non-onco, this period and the previous one; empty when not known. */
   segments?: SegmentMove[];
   outOfFormulary: number;
   nonFormulary: number;
+  /** How the two amounts print; exact rupees when not given. */
+  amount?: (v: number) => string;
+  /** The amounts and the % are counts of units sold, not cost. */
+  units?: boolean;
 };
 
 export function complianceSummary(f: ComplianceFacts): string[] {
+  const amount = f.amount ?? rupees;
+  const noun = f.units ? "quantity" : "spend";
   if (!isNum(f.pct)) {
-    return [`${f.where} has no formulary or out-of-formulary drug spend for ${f.when}, so there is no compliance figure.`];
+    return [`${f.where} has no formulary or out-of-formulary drug ${noun} for ${f.when}, so there is no compliance figure.`];
   }
   const out: string[] = [];
-  if (!f.noBudget && isNum(f.budget)) {
+  if (f.units) {
+    out.push(`${f.where}'s formulary compliance on units sold for ${f.when} stood at ${p2(f.pct)}. `
+      + "The budget is set on drug cost, so a quantity figure is not compared with it.");
+  } else if (!f.noBudget && isNum(f.budget)) {
     const gap = f.pct - f.budget;
     out.push(`${f.where}'s formulary compliance for ${f.when} stood at ${p2(f.pct)} against a budget of ${f.budget}%`
-      + (Math.abs(gap) < 0.005 ? ", on budget." : ` (${gap > 0 ? "+" : "−"}${gapPts(gap)}). HCG's MIS would print it as ${Math.round(f.pct)}%.`));
+      + (Math.abs(gap) < 0.005 ? ", on budget." : ` (${gap > 0 ? "+" : "−"}${gapPts(gap)}). The MIS would print it as ${Math.round(f.pct)}%.`));
   } else {
-    const why = f.noBudget === "network" ? "HCG sets compliance budgets per hospital, so all hospitals together have none."
-      : f.noBudget === "unit" ? "HCG's MIS sets no budget for this hospital."
-      : "HCG's budget is set for all patients pooled, so it is not compared here.";
+    const why = f.noBudget === "network" ? "Compliance budgets are set per hospital, so all hospitals together have none."
+      : f.noBudget === "unit" ? "The MIS sets no budget for this hospital."
+      : f.noBudget === "differs" ? "The MIS sets this hospital different budgets in the months selected, so they are not set against one budget; pick one month to see it against its own."
+      : "The budget is set for all patients pooled, so it is not compared here.";
     out.push(`${f.where}'s formulary compliance for ${f.when} stood at ${p2(f.pct)}${f.noBudget === "filters" ? " for the filters shown" : ""}. ${why}`);
   }
 
@@ -65,7 +77,9 @@ export function complianceSummary(f: ComplianceFacts): string[] {
     }
   }
 
-  out.push(`Out-of-formulary spend was ${rupees(f.outOfFormulary)}; non formulary spend of ${rupees(f.nonFormulary)} sits outside the ratio.`);
+  out.push(f.units
+    ? `Out-of-formulary units sold came to ${amount(f.outOfFormulary)}; the ${amount(f.nonFormulary)} non formulary units sit outside the ratio.`
+    : `Out-of-formulary spend was ${amount(f.outOfFormulary)}; non formulary spend of ${amount(f.nonFormulary)} sits outside the ratio.`);
   return out;
 }
 
@@ -86,13 +100,15 @@ export type PositionFacts = {
   /** Units judged against a budget of their own, and how many of them met it. */
   judged: number;
   met: number;
+  /** What the amounts count: "spend" (the default) or "units". */
+  noun?: string;
 };
 
 /** One line on where a hospital stands among the units, in the order the list is drawn. */
 export function positionSummary(f: PositionFacts): string {
   const met = f.judged ? ` ${f.met} of the ${f.judged} units with a budget met it.` : "";
   if (f.where == null) return `${f.ranked} units, lowest compliance first.${met}`;
-  if (f.rank == null) return `${f.where} has no formulary or out-of-formulary spend in this selection, so it is not ranked.${met}`;
+  if (f.rank == null) return `${f.where} has no formulary or out-of-formulary ${f.noun ?? "spend"} in this selection, so it is not ranked.${met}`;
   const place = f.rank === 1 ? "has the lowest compliance" : `is ${ordinal(f.rank)} lowest`;
   return `${f.where} ${place} of ${f.ranked} units.${met}`;
 }

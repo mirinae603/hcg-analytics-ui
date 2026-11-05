@@ -11,7 +11,7 @@
 // row named after the filters. The header states the net total; the "Share" column is of what
 // switching would gain (the "missed where switching gains" column's total), never negative. A
 // Total is the sum of the rows as shown, each to the paisa, so it can differ from the overview's
-// headline (HCG's figure) by a few paise; the headline is the figure of record.
+// headline by a few paise; the headline is the figure of record.
 import React, { useCallback, useState } from "react";
 import dynamic from "next/dynamic";
 import type { Col } from "@/lib/kpiRegistry";
@@ -87,12 +87,12 @@ const VENDOR_COLS: Col[] = [
 ];
 
 const SHARE = "Share of the switching gain = the row's part of what switching would gain (the 'Missed where switching gains' total), never of the net margin missed, which brands that earn more can bring near or below zero.";
-const METHOD = "Out-of-formulary purchases: every goods receipt of a drug the month's Item Master flags OUT OF FORMULARY. Spent = Base Price × units. Margin earned = units × (MRP excl GST − the price paid) of the brand bought; margin possible = the same units × (MRP excl GST − HCG Pharma price) of the suggested brand; margin missed = possible − earned, net as HCG counts it (a brand that earns more than its suggestion is negative); % missed = margin missed ÷ margin possible. Suggested by: HCG's worksheet of the month, else HCG's pair from another month, HCG's list, or the app's match on molecule, strength and form (Estimated). Parked receipts and brands with no alternative are listed, by money spent, and add nothing. Purchases have no payer or patient type.";
+const METHOD = "Out-of-formulary purchases: every goods receipt of a drug the month's Item Master flags OUT OF FORMULARY. Spent = Base Price × units. Margin earned = units × (MRP excl GST − the price paid) of the brand bought; margin possible = the same units × (MRP excl GST − Pharma price) of the suggested brand; margin missed = possible − earned, net as the group counts it (a brand that earns more than its suggestion is negative); % missed = margin missed ÷ margin possible. Suggested by: the group's worksheet of the month, else its pair from another month, its list, or the app's match on molecule, strength and form (Estimated). Parked receipts and brands with no alternative are listed, by money spent, and add nothing. Purchases have no payer or patient type.";
 
 const NOTE_BRANDS = `${METHOD} ${SHARE} One row per brand bought and suggested brand: a brand partly parked, or with another suggestion in another month, has a row for each. Click a brand to see the vendors it was bought from.`;
 const NOTE_VENDORS = `${METHOD} ${SHARE} A vendor is the GRN's goods supplier by name: one supplier can hold several SAP codes (one per region), listed beside it. Click a vendor to see the brands bought from it.`;
 
-const badge = (total: number | undefined) => `purchases · HCG's method${total != null ? ` · ${inr(total)} margin missed in total` : ""}`;
+const badge = (total: number | undefined) => `purchases · the group's method${total != null ? ` · ${inr(total)} margin missed in total` : ""}`;
 
 type BrandRow = { material: string; material_desc: string | null; suggested_desc: string | null; suggested_by_label: string | null };
 type VendorRow = { vendor: string; vendor_codes: string[]; vendor_name: string | null };

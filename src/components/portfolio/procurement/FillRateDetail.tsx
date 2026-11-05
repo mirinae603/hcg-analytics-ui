@@ -10,6 +10,7 @@ import { useRegion, displayRegion } from "@/context/RegionContext";
 import { useDrillBind } from "@/components/portfolio/useDrillBind";
 import { useCardScope } from "@/components/common/CardCategoryFilter";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
+import { useWindows, windowLabel, windowPill } from "@/lib/useWindows";
 import { countAbbr, useMount, CountUp } from "@/components/portfolio/kit";
 import { TbProgressCheck, TbTargetArrow, TbAlertTriangle } from "react-icons/tb";
 import { DetailSkeleton } from "./parts";
@@ -25,6 +26,7 @@ const pName = (s: string, n = 14) => (s && s.length > n ? s.slice(0, n - 1) + "�
 const fillCol = (c: number) => (c >= 97 ? BAND[0] : c >= 85 ? BAND[1] : c >= 70 ? BAND[2] : c >= 45 ? BAND[3] : BAND[4]);
 
 function Shell({ region, children }: any) {
+  const po = useWindows()?.windows.po;   // ordered vs still open over the purchase-order months
   return (
     <div className="-m-4 md:-m-6 p-4 md:p-6 space-y-5 min-w-0" style={{ background: PAGE, minHeight: "calc(100vh - 64px)" }}>
       <style jsx global>{`
@@ -39,7 +41,7 @@ function Shell({ region, children }: any) {
           <h1 className="text-[24px] font-bold leading-tight" style={{ color: INK }}>Fill rate</h1>
           <p className="text-[13px] mt-1" style={{ color: SUB }}>how completely purchase orders are received — delivered vs still open · {displayRegion(region)}</p>
         </div>
-        <span className="text-[12px] font-medium px-3.5 py-2 rounded-full bg-white" style={{ color: "#557066", boxShadow: "0 4px 14px -8px rgba(18,70,50,0.22)" }}>6-month window</span>
+        {po && <span className="text-[12px] font-medium px-3.5 py-2 rounded-full bg-white" style={{ color: "#557066", boxShadow: "0 4px 14px -8px rgba(18,70,50,0.22)" }} title={windowLabel(po)}>{windowPill(po)}</span>}
       </div>
       {children}
     </div>

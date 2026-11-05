@@ -3,7 +3,8 @@
 // purpose (like ScopeToggle, not CardCategoryFilter): each one changes what "compliance" MEANS,
 // so every chart on the Overview must always be answering the same question. Options come from
 // /formulary/meta; the hospital is the global selector in the header, named in the words on the
-// right. A filter the open tab does not apply shows as a locked chip whose title says why.
+// right, and so is what the figures count (the header's Value ↔ Quantity switch). A filter the open
+// tab does not apply shows as a locked chip whose title says why.
 import React from "react";
 import { FilterStrip, type FilterControl } from "@/components/portfolio/ledger/pagebar";
 import { effectiveMethod, monthLabel, monthsLabel, payerLabel, type Filters, type Meta, type Method, type Payer, type PatientType, type Segment, type View } from "./api";
@@ -75,8 +76,13 @@ export default function FilterBar({ meta, filters, onChange, view, where }: {
 
   const when = filters.month === "ALL" ? monthsLabel(meta, meta.months) : monthLabel(meta, filters.month);
   const narrowed = narrowing(filters, view);
-  // Charts print lakhs and drawers exact rupees: said once here instead of under every chart.
-  const selection = [where, when, narrowed, view === "overview" ? "₹ in lakhs, exact rupees in details" : null].filter(Boolean).join(" · ");
+  // Charts print lakhs and drawers exact rupees: said once here instead of under every chart. On
+  // quantity the same place says what it counts; Brand rules stay in rupees and say that instead.
+  const units = filters.basis === "qty";
+  const counted = view === "rules" ? (units ? "Brand rules in ₹ only" : null)
+    : units ? "Quantity: units sold, tablets, vials and bottles added together"
+    : view === "overview" ? "₹ in lakhs, exact rupees in details" : null;
+  const selection = [where, when, narrowed, counted].filter(Boolean).join(" · ");
 
   return <FilterStrip controls={controls} selection={selection} />;
 }

@@ -11,45 +11,114 @@
 //   NEUTRAL  = a COUNT of things, never rupees.
 // The Formulary & Spend pages add one hue:
 //   RUST     = a breach, or a figure below its budget.
-// and chart hues of their own (CHART below), one job each, brighter than the ledger's.
+// The Executive, Formulary, Spend and Revenue screens and Data exports draw in the WARM palette
+// below (HCG chose the Inventory "Current stock value" page's look for them, 31-10-2026).
 import React, { useEffect, useRef, useState } from "react";
 
-export const PAGE = "#EFECE4", CARD = "#FFFFFF", LEDGER = "#FBF9F4", LEDGER_2 = "#F5F1E7";
-export const INK = "#16201C", SUB = "#78827C", LINE = "#E4E0D6", RULE = "#DCD5C4";
-export const NEUTRAL = "#CFC8B6", TRACK = "#EFEBE1";
-/** The wash a selected row or month, or a table's total, sits on. */
-export const SEL_BG = "#EFEADC";
+// ─────────────────────────────────────────────────────────────────────────────
+// Surfaces and ink — the "Current stock value" page's: a cream canvas, white cards, charcoal ink,
+// grey labels, warm hairlines and warm, brown-tinted shadows. Text tokens clear WCAG AA (4.5:1)
+// on white, on the cream canvas and on the coral tint: INK 12.1:1 / 11.1:1, SUB 5.4:1 / 4.9:1 /
+// 4.5:1.
+// ─────────────────────────────────────────────────────────────────────────────
+export const PAGE = "#F7F5F0", CARD = "#FFFFFF", LEDGER = "#FBF9F5", LEDGER_2 = "#F4EFE8";
+export const INK = "#3A352F", SUB = "#646B78", LINE = "#EEE9E2", RULE = "#E6E0D6";
+export const NEUTRAL = "#D6CEC2", TRACK = "#F2EDE6";
+/** The wash a selected row or month, or a table's total, sits on: a whisper of the coral. */
+export const SEL_BG = "#F7ECE6";
 export const GRAPHITE = "#4A555F", JADE = "#047C54", JADE_DEEP = "#015C41", SEA = "#4AB494";
 export const BRASS = "#9A6A16", CLAY = "#B04A2E", RUST = "#B8612A";
-// CHART — the Formulary & Spend charts' hues. Each pair a chart draws side by side was checked
-// with the data-viz palette rules (lightness band, chroma, colour-blind separation, contrast);
-// ORANGE sits under 3:1 on white, so its marks always carry a printed value.
-//   JADE   = the brand used: formulary spend, the margin earned.
-//   BLUE   = what HCG's list proposes: the margin possible, the suggested spend.
-//   ROSE   = money lost: the margin missed, the extra spent.
-//   ORANGE = out-of-formulary spend and its margin.
-//   PLUM   = a rate (compliance %, loss %), and only ever a rate.
-//   PINE   = the scheme topic (beside BLUE for cash & TPA and ORANGE for out of formulary).
-// and one hue for each thing a one-measure ranking is broken down by, so the panels of a page
-// each keep a colour of their own, as HCG's Power BI tiles do (picked by the largest
-// normal-vision distance, ΔE ≥ 16.8, from the hues above and from each other; a ranking's bars
-// always print their figures, so the lighter two need no 3:1 contrast):
-//   LAVENDER = hospitals; BRONZE = brands; LEAF = doctors.
-export const BLUE = "#3970C2", ROSE = "#DD4677", ORANGE = "#E2832D", PLUM = "#8E3B82", PINE = "#036F4F";
-export const LAVENDER = "#B180D4", BRONZE = "#8A4B01", LEAF = "#7DA84C";
-/** The chart hues as a categorical series, for a chart whose bars are things with no hue of
- *  their own (vendors): in this fixed order every neighbouring pair passed the data-viz palette
- *  checks (colour-blind separation ΔE ≥ 14.5, normal vision ≥ 17.5). Taken in order, never
- *  cycled: a ninth thing goes to "+N more" or takes the last hue. ORANGE and LEAF sit under 3:1
- *  on white, so such a chart prints its values. */
-export const SERIES = [BLUE, ORANGE, PLUM, LEAF, JADE, LAVENDER, BRONZE, ROSE] as const;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// WARM — the accent and the chart hues of the Executive, Formulary, Spend and Revenue screens.
+// ─────────────────────────────────────────────────────────────────────────────
+// ONE accent, the stock-value page's coral, for what is not data: the icon chips, the badges, the
+// active tab, a hero card's ring. Its soft and tint steps are its washes; CORAL_INK is the coral
+// that text may wear (5.1:1 on white, 4.7:1 on cream). A one-measure chart runs light to strong in
+// it: a ranking's bars fade in from CORAL_SOFT's step at the axis (bars.tsx), a heat-map's cells
+// deepen with the figure (heatmap.tsx).
+export const CORAL = "#D6806A", CORAL_SOFT = "#E9B6A6", CORAL_TINT = "#F7E9E3", CORAL_INK = "#AC553D";
+/** A segmented switch's warm track, and the lift under its chosen option (a white pill whose words
+ *  wear CORAL_INK), as the stock-value page's breakdown switch draws them. */
+export const PILL_TRACK = "#EFE9DF", PILL_SHADOW = "0 2px 6px rgba(214,128,106,0.22)";
+/** The dark hero card (a screen's first figure): charcoal, lit by a coral glow. */
+export const HERO_BG = "linear-gradient(158deg, #46413B 0%, #322D28 100%)";
+//
+// The chart hues: warm and muted (OKLCH chroma 0.10–0.12, against 0.15–0.20 for the bright CHART
+// hues below), around the coral and the charcoal. One job each, the same on every screen:
+//   CORAL_MARK  = what needs acting on: out-of-formulary spend, money missed or paid extra, a figure
+//                 below budget; and the bars of a one-measure ranking (hospitals, brands, doctors,
+//                 products), as the stock-value page draws its breakdown. The accent one step
+//                 deeper, so a mark clears 3:1 on a white card (3.2:1).
+//   SAGE        = formulary spend, the brand used and the margin it earned, a figure that met its
+//                 budget (a deep sage: it must sit 0.17 lighter or darker than the coral, or the two
+//                 merge for a red-blind reader).
+//   CORAL_SOFT  = what HCG's list proposes: the margin possible, the suggested spend. Drawn as the
+//                 pale whole behind what was earned, so the gap between them is the missed coral.
+//   HONEY       = within budget (a status only, always beside its words).
+//   TEAL        = the cash & TPA topic; generic purchases; inpatients (IP).   OCHRE = outpatients.
+//   MAUVE       = the scheme topic; branded purchases.                        UMBER = consumables.
+//   STONE_LIGHT = non-formulary (hatched wherever it sits outside a ratio); TEAL_LIGHT = not in the
+//                 Item Master, or no alternative; STONE = a pass-through (material types between a
+//                 total and its buckets) and a budget drawn beside an actual.
+//   A rate (compliance %, % missed, margin %) is drawn in INK, a line or a bar, and only ever a
+//   rate: the charcoal clears every hue it rides over (ΔE ≥ 18 normal, ≥ 12 colour-blind).
+//
+// VALIDATION — every set a chart draws side by side, run through the data-viz skill's
+// validate_palette.js (light mode, the white card surface; the cream canvas never holds a mark):
+//   formulary · out of formulary · consumables · not in Item Master
+//                                SAGE CORAL_MARK UMBER TEAL_LIGHT, all pairs   PASS (CVD floor
+//                                7.1 sage/umber: legal as every such bar carries its label;
+//                                normal vision 16.8)
+//   IP · OP                      TEAL OCHRE                                    PASS (CVD 17.8)
+//   cash & TPA · scheme · out of formulary  TEAL MAUVE CORAL_MARK, all pairs   PASS (CVD 10.8,
+//                                normal 20.2)
+//   generic · branded            TEAL MAUVE                                    PASS (CVD 10.8)
+//   SERIES (below), adjacent pairs                                             PASS (CVD 17.4,
+//                                normal 18.4; OCHRE_LIGHT 2.2:1 on white: a series chart prints
+//                                its values)
+//   The sets that hold a pale tone pass separation and fail only the chroma / lightness gates, by
+//   design — the pale tone is told apart by lightness, a hatch or its printed label, never by hue:
+//   + STONE_LIGHT (non-formulary), formulary order SAGE CORAL_MARK STONE_LIGHT TEAL_LIGHT
+//                                adjacent CVD 8.6, normal 17.2
+//   earned · possible · missed   SAGE CORAL_SOFT CORAL_MARK, all pairs         CVD 8.6, normal 16.3
+//   met · within · below         SAGE HONEY CORAL_MARK, all pairs              CVD 8.6, normal 18.4
+//   CORAL_SOFT, STONE_LIGHT and HONEY sit under 3:1 on white: their marks print a value, carry a
+//   label or have the drawer's table beside them.
+export const CORAL_MARK = "#D3775E", SAGE = "#057558", HONEY = "#E2C06D";
+/** A deeper shade of the formulary sage, for the classes inside formulary (restricted and
+ *  preferred for scheme): a part of formulary, so its own family. */
+export const SAGE_DEEP = "#03513D";
+export const TEAL = "#1D83A7", TEAL_LIGHT = "#35A1BE", MAUVE = "#884366";
+export const OCHRE = "#B88938", OCHRE_LIGHT = "#D5AA4F", UMBER = "#915028";
+export const STONE = "#8C847A", STONE_LIGHT = "#C5BCB2";
+/** The ink each status and tone hue's words wear (≥ 4.5:1 on white and cream): sage is dark
+ *  enough itself; honey and coral are not. */
+export const SAGE_INK = SAGE, HONEY_INK = "#8C6420";
+/** The washes behind a status pill or a tinted tile, as on the stock-value page's risk tiles. */
+export const SAGE_TINT = "#E6F1EC", HONEY_TINT = "#F8F0DC";
+/** The warm hues as a categorical series, for a chart whose bars are things with no hue of their
+ *  own (vendors, suppliers): the order that maximises the worst neighbouring pair's colour-blind
+ *  separation (an exhaustive search of the warm hues; ΔE ≥ 17.4, normal vision ≥ 18.4). Taken in
+ *  order, never cycled: a ninth thing goes to "+N more" or takes the last hue. */
+export const SERIES = [TEAL, UMBER, OCHRE_LIGHT, SAGE, TEAL_LIGHT, OCHRE, MAUVE, CORAL_MARK] as const;
 /** The series hue of the `i`-th thing (0-based), the last one past the end. */
 export const seriesCol = (i: number): string => SERIES[Math.min(Math.max(0, i), SERIES.length - 1)];
+
+// CHART — the bright hues the screens drew in before HCG chose the warm look, kept for the AI
+// Analyst's answer charts (ai/plotlyTheme.ts), whose validated order is built from them:
+//   JADE, BLUE, ROSE, ORANGE, PLUM, PINE, LAVENDER, BRONZE, LEAF.
+export const BLUE = "#3970C2", ROSE = "#DD4677", ORANGE = "#E2832D", PLUM = "#8E3B82", PINE = "#036F4F";
+export const LAVENDER = "#B180D4", BRONZE = "#8A4B01", LEAF = "#7DA84C";
 /** The pulse a loading placeholder is drawn in. */
-export const SKELETON = "#E7E3DA";
-export const SH_CARD = "0 18px 44px -28px rgba(30,38,34,0.26), 0 3px 10px -8px rgba(30,38,34,0.07)";
-export const SH_HOVER = "0 22px 48px -26px rgba(30,38,34,.34), 0 4px 12px -8px rgba(30,38,34,.12)";
-export const SH_HERO = "0 22px 54px -34px rgba(60,52,32,0.28), 0 3px 10px -8px rgba(60,52,32,0.10)";
+export const SKELETON = "#ECE7DF";
+// Warm, airy shadows tuned for the cream canvas (brown-tinted, softer than slate), the stock-value
+// page's: a panel's, a KPI card's (a touch deeper), the hover lift, the dark hero card's.
+export const SH_CARD = "0 12px 34px -22px rgba(99,72,56,0.18), 0 2px 7px -4px rgba(99,72,56,0.06)";
+export const SH_KPI = "0 14px 38px -20px rgba(99,72,56,0.22), 0 2px 8px -4px rgba(99,72,56,0.06)";
+export const SH_HOVER = "0 18px 42px -20px rgba(99,72,56,0.28), 0 4px 12px -6px rgba(99,72,56,0.10)";
+export const SH_DARK = "0 18px 44px -20px rgba(28,22,18,0.45), 0 4px 12px -6px rgba(28,22,18,0.30)";
+export const SH_HERO = "0 22px 54px -34px rgba(99,72,56,0.28), 0 3px 10px -8px rgba(99,72,56,0.10)";
 export const EASE = "cubic-bezier(.22,1,.36,1)", EASE_OUT = "cubic-bezier(.16,1,.3,1)";
 
 export const inr = (v: number) => { v = Number(v) || 0; const a = Math.abs(v), s = v < 0 ? "−" : ""; if (a >= 1e7) return `${s}₹${(a / 1e7).toFixed(a / 1e7 >= 100 ? 0 : 1)}Cr`; if (a >= 1e5) return `${s}₹${(a / 1e5).toFixed(1)}L`; if (a >= 1e3) return `${s}₹${(a / 1e3).toFixed(0)}K`; return `${s}₹${Math.round(a)}`; };

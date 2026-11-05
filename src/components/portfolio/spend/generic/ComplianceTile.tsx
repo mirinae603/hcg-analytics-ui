@@ -2,7 +2,7 @@
 // Spend Analysis (Generic vs branded) — where generic and branded purchases sit in the Item
 // Master: each class as one 100% bar split by the month's formulary flag (formulary, non
 // formulary, out of formulary, not in the master), in the Formulary page's colours (out of
-// formulary hatched, as solid ORANGE is branded on this screen; FLAG_STYLE). The split
+// formulary hatched coral, so it never reads as a solid fill of its own; FLAG_STYLE). The split
 // needs each month's own Item Master, so it covers the selected months that have one; a
 // selection with none says so instead. The drawer has the flags and the formulary part by tier
 // (preferred, scheme only, restricted) with exact rupees.
@@ -46,9 +46,10 @@ const shareCols = (kind: "flag" | "tier"): Col<ShareRow>[] => [
     label: kind === "flag" ? "Item Master flag" : "Formulary tier", align: "left", render: (r) => (
       <span className="inline-flex items-center gap-1.5">{kind === "flag" && <Swatch color={FLAG_STYLE[r.key]?.color ?? SUB} hatched={FLAG_STYLE[r.key]?.hatched} />}{r.label}</span>
     ),
+    raw: (r) => r.label,
   },
-  { label: "Value", render: (r) => rupeesExact(r.value) },
-  { label: "Share of the class", render: (r) => <b>{pct(r.share_pct)}</b> },
+  { label: "Value", render: (r) => rupeesExact(r.value), raw: (r) => r.value, unit: "₹" },
+  { label: "Share of the class", render: (r) => <b>{pct(r.share_pct)}</b>, raw: (r) => r.share_pct, unit: "%" },
 ];
 
 /** A class's share on the formulary (the Item Master's FORMULARY flag), as the API gives it. */
@@ -68,7 +69,7 @@ function ComplianceDrawer({ c, dr, title }: { c: Ctx; dr: DrawerCtl; title: stri
         {
           key: "flags", label: "Formulary flag", render: () => (
             <DrawerSection title="Each class by the Item Master's flag" note={coverage(c)}>
-              <DataTable rows={rows((g) => g.flags)} rowKey={(r) => `${r.cls}|${r.key}`} cols={shareCols("flag")}
+              <DataTable context={c.context} rows={rows((g) => g.flags)} rowKey={(r) => `${r.cls}|${r.key}`} cols={shareCols("flag")}
                 caption="Generic and branded purchases by formulary flag" empty="No formulary split for this selection." />
             </DrawerSection>
           ),
@@ -76,7 +77,7 @@ function ComplianceDrawer({ c, dr, title }: { c: Ctx; dr: DrawerCtl; title: stri
         {
           key: "tiers", label: "Formulary tiers", render: () => (
             <DrawerSection title="The formulary part, by tier" note={`Preferred, scheme only, restricted and other formulary, from the Item Master's category; each a share of the class's whole value, so a class's tiers add up to its formulary share. ${coverage(c)}`}>
-              <DataTable rows={rows((g) => g.tiers)} rowKey={(r) => `${r.cls}|${r.key}`} cols={shareCols("tier")}
+              <DataTable context={c.context} rows={rows((g) => g.tiers)} rowKey={(r) => `${r.cls}|${r.key}`} cols={shareCols("tier")}
                 caption="Formulary purchases of each class by tier" empty="No formulary split for this selection." />
             </DrawerSection>
           ),
@@ -84,7 +85,7 @@ function ComplianceDrawer({ c, dr, title }: { c: Ctx; dr: DrawerCtl; title: stri
         {
           key: "method", label: "Method", render: () => (
             <Method c={c}>
-              <p>Each class&apos;s bar is its value in the months with their own Item Master, split by that month&apos;s flag for each brand; the shares are the API&apos;s. Non formulary is hatched: it is outside the Formulary page&apos;s compliance ratio. Out of formulary is hatched orange, because solid orange is branded on this screen. {coverage(c)}</p>
+              <p>Each class&apos;s bar is its value in the months with their own Item Master, split by that month&apos;s flag for each brand; the shares are the API&apos;s. Non formulary is hatched: it is outside the Formulary page&apos;s compliance ratio. Out of formulary is hatched in the Formulary page&apos;s coral. {coverage(c)}</p>
             </Method>
           ),
         },

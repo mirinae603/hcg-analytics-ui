@@ -1,19 +1,22 @@
 "use client";
 // Spend Summary — the panels of its one screen. Each is a chart whose key figures are its
 // labels (lakhs on the face, exact rupees in the drawer it opens):
-//   PartsTile        — each part's loss against its own HCG list: one bullet row per part, each
+//   PartsTile        — each part's loss against its own HCG list (margin missed for cash & TPA and
+//                      out of formulary, saving missed for scheme): one bullet row per part, each
 //                      on its own scale from zero (parts of different sections are never added).
 //   BridgeTile       — margin possible → each part's loss → margin earned: HCG's combined
 //                      CASH(TPA) & OUT OF FORMULARY table as a bridge (cash & TPA alone where
 //                      the selection has no out-of-formulary purchase data).
-//   MarginMonthsTile — cash & TPA (and out-of-formulary) margin missed by month, the % missed a line.
+//   MarginMonthsTile — cash & TPA (and out-of-formulary) margin missed by month, the % missed a
+//                      line; its title names both parts when it adds them (never the scheme).
 //   WhereTile        — where each section's loss sits: material type and patient type.
 //   HospitalsTile    — every hospital's cash & TPA loss; with one hospital selected, where it
 //                      stands among them.
-//   SchemeMonthsTile — the scheme margin missed by month, its % of the spend a line.
+//   SchemeMonthsTile — the scheme saving missed by month, its % of the spend a line.
 // The brand switches panel lives in ./TopSwitches with its drawer. A tile only draws; which
 // drawer opens on which tab is the Summary's (`onShow`).
 import React from "react";
+import { TbTrendingDown } from "react-icons/tb";
 import { INK } from "@/components/portfolio/ledger/kit";
 import { ChartPanel } from "@/components/portfolio/ledger/panel";
 import { BulletRows, DotStrip, type BulletRow } from "@/components/portfolio/ledger/bullets";
@@ -45,7 +48,7 @@ const sentences = (...parts: (string | null)[]) => parts.filter(Boolean).join(".
 const before = (prev: MonthLoss | null) => (prev ? `${prev.label}: ${lakhs(prev.loss)}, ${pct(prev.pct, 2)}` : null);
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Margin missed, by part
+// Margin and saving missed, by part
 // ─────────────────────────────────────────────────────────────────────────────
 export function PartsTile({ place, cash, scheme, w, groups, oofReady, onShow }: {
   place: Place;
@@ -75,17 +78,18 @@ export function PartsTile({ place, cash, scheme, w, groups, oofReady, onShow }: 
       oofReady ? () => onShow("oof") : undefined, oofEstimated)] : []),
     part("scheme", "scheme", KIND.scheme.short, scheme.head, `spent above the suggested brands, % ${KIND.scheme.pctOf}`, () => onShow("scheme")),
     ...(groups ? [
-      part("scheme", "attis", "Attis", spendLoss(groups.attis), `${groups.attis.label}: ${pct(groups.attis.share_pct, 1)} of the scheme margin missed`, () => onShow("scheme", "slices")),
-      part("scheme", "healthium", "Healthium", spendLoss(groups.healthium), `${groups.healthium.label}: ${pct(groups.healthium.share_pct, 1)} of the scheme margin missed`, () => onShow("scheme", "slices")),
+      part("scheme", "attis", "Attis", spendLoss(groups.attis), `${groups.attis.label}: ${pct(groups.attis.share_pct, 1)} of the scheme saving missed`, () => onShow("scheme", "slices")),
+      part("scheme", "healthium", "Healthium", spendLoss(groups.healthium), `${groups.healthium.label}: ${pct(groups.healthium.share_pct, 1)} of the scheme saving missed`, () => onShow("scheme", "slices")),
     ] : []),
   ];
-  const label = `Margin missed, by part, each against its own HCG list and never added: ${rows.map((r) => `${r.label} ${r.valueLabel}, ${r.note}`).join("; ")}`;
+  const title = "Margin and saving missed, by part";
+  const label = `${title}, each against its own list and never added: ${rows.map((r) => `${r.label} ${r.valueLabel}, ${r.note}`).join("; ")}`;
   return (
-    <ChartPanel id="parts" title="Margin missed, by part" accent={USED_COL} place={place} label={label} interactive onOpen={() => onShow("cash")}>
-      <BulletRows ariaLabel="Each part's loss against its own HCG list" rows={rows}
+    <ChartPanel id="parts" title={title} icon={TbTrendingDown} place={place} label={label} interactive onOpen={() => onShow("cash")}>
+      <BulletRows ariaLabel="Each part's loss against its own list" rows={rows}
         scale={{
           kind: "rupee", perRow: true, format: lakhs,
-          bar: { label: "Earned / spent", color: USED_COL }, marker: { label: "Possible (HCG's list)", color: INK }, gap: { label: "Missed", color: LOSS_COL },
+          bar: { label: "Earned / spent", color: USED_COL }, marker: { label: "Possible (list)", color: INK }, gap: { label: "Missed", color: LOSS_COL },
         }} />
     </ChartPanel>
   );
@@ -133,9 +137,12 @@ export function MarginMonthsTile({ place, d, w, meta, cash, when, onShow }: {
     : monthBefore(cash.trend, cash.scope.months);
   const what = w ? "cash & TPA patients + out-of-formulary purchases" : "cash & TPA patients";
   const key: DrawerKey = w ? "combined" : "cash";
-  const label = sentences(`Margin missed by month, ${what}`, `${when}: ${lakhs(t.loss)}, ${pct(t.pct, 2)} of the margin possible`, before(prev));
+  // The bars add the parts HCG's combined table adds: the title names them, so nobody reads the
+  // scheme saving into it (the Executive overview's three-part total has it; this has not).
+  const title = w ? `${KIND.cash.short} + ${KIND.oof.short.toLowerCase()}: margin missed by month` : `${KIND.cash.short}: margin missed by month`;
+  const label = sentences(`${title}, ${what}`, `${when}: ${lakhs(t.loss)}, ${pct(t.pct, 2)} of the margin possible`, before(prev));
   return (
-    <ChartPanel id="margin-months" title="Margin missed by month" context={what} accent={CASH_COL} place={place} source={w && oofSource(w.coverage) === "estimate" ? salesAndPurchasesSource(KIND.cash.short, true) : undefined}
+    <ChartPanel id="margin-months" title={title} context={what} accent={CASH_COL} place={place} source={w && oofSource(w.coverage) === "estimate" ? salesAndPurchasesSource(KIND.cash.short, true) : undefined}
       label={label} onOpen={() => onShow(key, "trend")} onInfo={() => onShow(key, "method")}>
       <LossByMonth d={d} w={w} meta={meta} />
     </ChartPanel>
@@ -235,18 +242,19 @@ export function HospitalsTile({ place, cash, network, onShow }: {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Scheme: margin missed by month
+// Scheme saving missed by month
 // ─────────────────────────────────────────────────────────────────────────────
 export function SchemeMonthsTile({ place, scheme, when, onShow }: { place: Place; scheme: SectionLoss; when: string; onShow: Show }) {
   const sel = new Set(scheme.scope.months);
   const h = scheme.head;
-  const label = sentences("Scheme: margin missed by month, scheme (GOV) patients", `${when}: ${lakhs(h.loss)}, ${pct(h.pct, 2)} ${KIND.scheme.pctOf}`,
+  const title = `${KIND.scheme.title} by month`;
+  const label = sentences(`${title}, scheme (GOV) patients`, `${when}: ${lakhs(h.loss)}, ${pct(h.pct, 2)} ${KIND.scheme.pctOf}`,
     before(monthBefore(scheme.trend, scheme.scope.months)));
   return (
-    <ChartPanel id="scheme-months" title="Scheme: margin missed by month" context="scheme (govt) patients" accent={SCHEME_COL} place={place}
+    <ChartPanel id="scheme-months" title={title} context="scheme (govt) patients" accent={SCHEME_COL} place={place}
       label={label} onOpen={() => onShow("scheme", "trend")} onInfo={() => onShow("scheme", "method")}>
-      <MonthCombo ariaLabel={`Scheme: margin missed by month, with the % missed ${KIND.scheme.pctOf} as a line`}
-        series={[{ key: "loss", label: "Margin missed", color: SCHEME_COL }]}
+      <MonthCombo ariaLabel={`${title}, with the % missed ${KIND.scheme.pctOf} as a line`}
+        series={[{ key: "loss", label: KIND.scheme.loss, color: SCHEME_COL }]}
         line={{ label: "% missed", color: RATE_COL, decimals: 1 }}
         months={scheme.trend.map((m) => ({ key: m.period, label: m.label, pct: m.pct, selected: sel.has(m.period), values: { loss: m.loss } }))} />
     </ChartPanel>

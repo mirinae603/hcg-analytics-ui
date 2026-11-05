@@ -2,13 +2,16 @@
 // Spend Analysis — the Prices overview tab: price variation on HCG's purchases (GRN).
 //
 // The same product (one molecule, strength, form and kind) bought at different unit prices after
-// discount, by supplier and hospital. One number runs the page: what was paid above the cheapest
-// unit price paid in the selection for the same product (the extra paid). With one hospital the
-// cheapest is its own; the hospital ranking sets every hospital against the cheapest any paid.
+// discount, by supplier and hospital. One number runs the page: what was paid above the product's
+// USUAL cheapest unit price in the selection (the extra paid; the usual cheapest is the lowest
+// price at which a set share of its units were bought, so one odd cheap purchase cannot set it).
+// With one hospital the usual cheapest is its own; the hospital ranking sets every hospital
+// against the usual cheapest of all hospitals' purchases together. Purchases far under it are
+// listed to check (the headline's drawer) and marked on the chosen product's chart.
 //
 // One screen of charts (OneScreenGrid, 12 columns × 3 rows on a desktop):
-//   r1  the extra paid | the products as a scatter (cheapest price × dearest ÷ cheapest, area =
-//       spend; rows 1–2) | the extra paid by month
+//   r1  the extra paid | the products as a scatter (usual cheapest price × dearest ÷ usual
+//       cheapest, area = spend; rows 1–2) | the extra paid by month
 //   r2  the products with the most extra paid | (scatter) | every hospital ranked (rows 2–3)
 //   r3  the chosen product's prices by supplier | the suppliers' price index
 // A dot or a product's bar shows that product in detail; every panel opens its drawer, where the

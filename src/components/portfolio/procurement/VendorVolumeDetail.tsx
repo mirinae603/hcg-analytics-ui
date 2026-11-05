@@ -10,9 +10,11 @@ import { useRegion, displayRegion } from "@/context/RegionContext";
 import { useDrillBind } from "@/components/portfolio/useDrillBind";
 import { useCardScope } from "@/components/common/CardCategoryFilter";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
+import { useWindows, windowLabel, windowPill } from "@/lib/useWindows";
 import { inrAbbr, countAbbr, useMount, CountUp, smoothPath } from "@/components/portfolio/kit";
 import { TbChartArcs3, TbBuildingFactory2 } from "react-icons/tb";
 import { DetailSkeleton } from "./parts";
+import { unbrand } from "@/utils/brand";
 
 const KpiTable = dynamic(() => import("../KpiTable"), { ssr: false, loading: () => <div className="p-6">{Array.from({ length: 6 }).map((_, i) => <div key={i} className="h-10 rounded-lg bg-gray-50 animate-pulse mb-2" />)}</div> });
 
@@ -20,9 +22,11 @@ const KpiTable = dynamic(() => import("../KpiTable"), { ssr: false, loading: () 
 const PAGE = "#F1F2FA", INK = "#272c42", SUB = "#8a90a6";
 const DEEP = "#6d6ef0", INDIGO = "#818cf8", PERI = "#a5b4fc", SKY = "#93c5fd", SLATE = "#7a8098";
 const SH = "0 22px 46px -28px rgba(70,70,130,0.34), 0 4px 12px -8px rgba(70,70,130,0.08)";
-const vName = (s: string, n = 16) => (s && s.length > n ? s.slice(0, n - 1) + "…" : s || "—");
+// vendor names are shown under the build's brand (src/utils/brand.ts); drills keep the raw name
+const vName = (raw: string, n = 16) => { const s = unbrand(raw); return s && s.length > n ? s.slice(0, n - 1) + "…" : s || "—"; };
 
 function Shell({ region, children }: any) {
+  const po = useWindows()?.windows.po;   // the purchase-order months this page is cut from
   return (
     <div className="-m-4 md:-m-6 p-4 md:p-6 space-y-5 min-w-0" style={{ background: PAGE, minHeight: "calc(100vh - 64px)" }}>
       <style jsx global>{`
@@ -34,7 +38,7 @@ function Shell({ region, children }: any) {
           <h1 className="text-[24px] font-bold leading-tight" style={{ color: INK }}>Vendor volume contribution</h1>
           <p className="text-[13px] mt-1" style={{ color: SUB }}>who the spend flows to & how concentrated the supplier base is · {displayRegion(region)}</p>
         </div>
-        <span className="text-[12px] font-medium px-3.5 py-2 rounded-full bg-white" style={{ color: "#5b6478", boxShadow: "0 4px 14px -8px rgba(40,52,86,0.2)" }}>6-month window</span>
+        {po && <span className="text-[12px] font-medium px-3.5 py-2 rounded-full bg-white" style={{ color: "#5b6478", boxShadow: "0 4px 14px -8px rgba(40,52,86,0.2)" }} title={windowLabel(po)}>{windowPill(po)}</span>}
       </div>
       {children}
     </div>

@@ -9,7 +9,7 @@ import Link from "next/link";
 import { Card, Head, INK, SUB, RULE } from "@/components/portfolio/ledger/kit";
 import { inr, pct } from "@/lib/kpiFormat";
 import { OOF_COL, VERDICT, RATE_COL } from "./parts";
-import { filterParams, inRatioOf, useOverview, type Filters, type RuleMeasure, type RulesOverview } from "./api";
+import { filterParams, inRatioOf, useOverview, valueOnly, type Filters, type RuleMeasure, type RulesOverview } from "./api";
 
 type Guideline = {
   n: number;
@@ -36,10 +36,10 @@ const GUIDELINES: Guideline[] = [
     note: "Pick either measure: its Doctors table (below the brands) is the consultant-wise view." },
   { n: 7, text: "Increased usage of Out-of-Formulary and Restricted brands appears to be a key contributor to the lower compliance levels.",
     measures: [], oof: true,
-    note: "HCG's own compliance formula counts restricted brands (FORMULARYR, FORMULARYR-OPD) inside Formulary (A) — in its S5 Summary sheet the FORMULARY* rows add up to the A column. So restricted use does not lower the compliance %; only out-of-formulary spend does." },
+    note: "The MIS compliance formula counts restricted brands (FORMULARYR, FORMULARYR-OPD) inside Formulary (A) — in its S5 Summary sheet the FORMULARY* rows add up to the A column. So restricted use does not lower the compliance %; only out-of-formulary spend does." },
   { n: 8, text: "Strengthening adherence to formulary guidelines across all patient categories can help achieve budget targets and improve cost efficiency.",
     measures: [],
-    note: "Commentary — no figure of its own. Compliance against HCG's budget is on the Overview tab (Budget vs Actual)." },
+    note: "Commentary — no figure of its own. Compliance against the budget is on the Overview tab (Budget vs Actual)." },
 ];
 
 export default function Guidelines({ d, filters, plant, selected, onPick }: {
@@ -47,14 +47,15 @@ export default function Guidelines({ d, filters, plant, selected, onPick }: {
 }) {
   // All-payer out-of-formulary spend and compliance for the same selection (guidelines 4 and 7):
   // the Overview's own answer, so the figure is the one the Overview tab shows with Payer = All.
-  const { data: ov } = useOverview({ Plant: plant, ...filterParams({ ...filters, payer: "ALL" }, { method: true }) });
+  // In rupees always, like the rule measures beside it.
+  const { data: ov } = useOverview({ Plant: plant, ...filterParams(valueOnly({ ...filters, payer: "ALL" }), { method: true }) });
   const byKey = new Map(d.measures.map((m) => [m.measure, m]));
   const h = ov?.headline;
 
   return (
     <Card delay={120}>
-      <Head label="HCG guidelines"
-        note="The eight guidelines in every HCG compliance MIS mail (the spend mail repeats 1–6), each with the measure that puts a figure on it for this selection. Shares are of all drug spend in the selection, every payer, as HCG divides them. Click a measure to open its trend, hospitals, brands and doctors below."
+      <Head label="Guidelines"
+        note="The eight guidelines in every compliance MIS mail (the spend mail repeats 1–6), each with the measure that puts a figure on it for this selection. Shares are of all drug spend in the selection, every payer, as the MIS divides them. Click a measure to open its trend, hospitals, brands and doctors below."
         badge={`drug spend ${inr(d.drug_spend.total)}`} />
       <ol className="flex flex-col">
         {GUIDELINES.map((g) => {
@@ -77,7 +78,7 @@ export default function Guidelines({ d, filters, plant, selected, onPick }: {
                       </span>
                     )}
                     {g.link && (
-                      <Link href={g.link.href} className="inline-flex items-center rounded-[10px] px-2.5 py-1.5 text-[11.5px] font-semibold hover:bg-[#F5F1E7]"
+                      <Link href={g.link.href} className="inline-flex items-center rounded-[10px] px-2.5 py-1.5 text-[11.5px] font-semibold hover:bg-[#F4EFE8]"
                         style={{ border: `1px solid ${RULE}`, color: INK }}>
                         {g.link.label} →
                       </Link>
@@ -98,9 +99,9 @@ function MeasureChip({ m, base, active, onClick }: { m: RuleMeasure; base: numbe
   const v = VERDICT[m.verdict] ?? VERDICT.info;
   return (
     <button type="button" onClick={onClick} title={`${m.label} — ${v.label.toLowerCase()} (${v.note})${m.rule_ref ? ` · ${m.rule_ref}` : ""}`}
-      className="inline-flex flex-wrap items-baseline gap-x-1.5 rounded-[10px] px-2.5 py-1.5 text-[11.5px] tabular-nums text-left transition-colors hover:bg-[#F5F1E7]"
+      className="inline-flex flex-wrap items-baseline gap-x-1.5 rounded-[10px] px-2.5 py-1.5 text-[11.5px] tabular-nums text-left transition-colors hover:bg-[#F4EFE8]"
       style={{ border: `1px solid ${active ? INK : RULE}`, color: SUB, background: active ? "#fff" : undefined }}>
-      <span className="text-[9.5px] font-bold uppercase" style={{ color: v.color, letterSpacing: ".06em" }}>{v.label}</span>
+      <span className="text-[9.5px] font-bold uppercase" style={{ color: v.ink, letterSpacing: ".06em" }}>{v.label}</span>
       <span className="font-semibold" style={{ color: INK }}>{m.label}</span>
       <b style={{ color: INK }}>{inr(m.cost)}</b>
       <span>· {pct(m.share_pct, 2)} of {inr(base)}</span>

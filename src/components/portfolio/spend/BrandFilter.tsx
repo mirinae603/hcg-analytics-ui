@@ -168,7 +168,7 @@ export function BrandFilter({ value, params, section, onChange }: {
 
       {at && typeof document !== "undefined" && createPortal(
         <div ref={pop} className="fixed rounded-[12px] overflow-hidden flex flex-col"
-          style={{ top: at.top, left: at.left, width: POP_W, maxHeight: "min(460px, 70vh)", zIndex: 55, background: CARD, border: `1px solid ${RULE}`, boxShadow: "0 18px 44px -24px rgba(30,38,34,.4)" }}>
+          style={{ top: at.top, left: at.left, width: POP_W, maxHeight: "min(460px, 70vh)", zIndex: 55, background: CARD, border: `1px solid ${RULE}`, boxShadow: "0 18px 50px -20px rgba(99,72,56,.34), 0 4px 14px -6px rgba(99,72,56,.12)" }}>
           <label className="flex items-center gap-2 px-3 h-10 flex-shrink-0" style={{ borderBottom: `1px solid ${LINE}` }}>
             <TbSearch size={15} aria-hidden="true" style={{ color: SUB }} />
             <input ref={input} value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={onKey}

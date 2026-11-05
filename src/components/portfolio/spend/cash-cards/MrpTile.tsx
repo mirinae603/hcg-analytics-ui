@@ -43,9 +43,9 @@ function MrpDrawer({ c, dr, title }: { c: Ctx; dr: DrawerCtl; title: string }) {
         {
           key: "method", label: "Method", render: () => (
             <Method c={c}>
-              <p>MRP value = MRP excl GST (MRP ÷ (1 + GST%)) × the qty counted, from HCG&apos;s FY price list: for the brands used, and for the {c.w.sug} on the same qty.</p>
-              <p>MRP increase = {c.w.increaseNote}: the revenue HCG would also gain with the switch, beside the margin.</p>
-              <p>Margin % = margin ÷ MRP value, as in HCG&apos;s S6 Summary: the margin earned on the MRP of the brands used, the margin possible on the MRP of the {c.w.sug}.</p>
+              <p>MRP value = MRP excl GST (MRP ÷ (1 + GST%)) × the qty counted, from the FY price list: for the brands used, and for the {c.w.sug} on the same qty.</p>
+              <p>MRP increase = {c.w.increaseNote}: the revenue the group would also gain with the switch, beside the margin.</p>
+              <p>Margin % = margin ÷ MRP value, as in the S6 Summary: the margin earned on the MRP of the brands used, the margin possible on the MRP of the {c.w.sug}.</p>
               <p>On the chart both bars start from zero on one scale.</p>
             </Method>
           ),

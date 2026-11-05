@@ -125,9 +125,12 @@ export const KPIS: Kpi[] = [
     // the snapshot month — i.e. genuinely live demand. Widening it to "any issue in 6
     // months" would report 57% by counting one-off issues from December as live demand.
     key: "stock-out-rate", title: "Stock-Out Rate", short: "Stock-Out Rate", portfolio: "inventory", icon: "📉",
-    note: "Actively-moving items (used in ≥2 months incl. the snapshot month) currently holding zero stock, at the 25 hospitals with inventory coverage.",
+    // Window-free words: the registry is static, and the covered hospitals and the months of
+    // consumption change with each stock count (the page itself prints them from /meta/windows
+    // and the insights answer).
+    note: "Actively-moving items (used in ≥2 months incl. the snapshot month) currently holding zero stock, at the hospitals in both the inventory snapshot and consumption.",
     chart: { type: "donut", groupBy: "stock_status", measures: "cost_6mo", x: "stock_status",
-      series: [{ field: "cost_6mo", label: "6-mo consumption value" }], valueKind: "inr" },
+      series: [{ field: "cost_6mo", label: "Consumption value" }], valueKind: "inr" },
     card: { field: "out_pct", agg: "mean", kind: "pct", label: "Stock-Out Rate" },
     summary: [{ field: "out_pct", agg: "mean", kind: "pct", label: "Stock-Out Rate" },
               { field: "cost_6mo", agg: "sum", kind: "inr", label: "Consumption at Stake" }],
@@ -135,8 +138,8 @@ export const KPIS: Kpi[] = [
       { field: "material_desc", label: "Description" }, { field: "material_group", label: "Group" },
       { field: "stock_status", label: "Status" }, { field: "qty_now", label: "Qty Now", kind: "num" },
       { field: "months_consumed", label: "Months Used", kind: "num" },
-      { field: "units_6mo", label: "Units (6mo)", kind: "num" },
-      { field: "cost_6mo", label: "Consumption (6mo)", kind: "inr" }],
+      { field: "units_6mo", label: "Units to the stock count", kind: "num" },
+      { field: "cost_6mo", label: "Consumption to the stock count", kind: "inr" }],
   },
   {
     key: "near-expiry", title: "Near-Expiry Inventory", short: "Near Expiry", portfolio: "inventory", icon: "⏰",
@@ -289,7 +292,7 @@ export const KPIS: Kpi[] = [
   },
   {
     key: "consumption-by-department", title: "Consumption by Department", short: "By Department", portfolio: "consumption", icon: "🏥",
-    note: "Department = SAP Cost Center (name master pending from HCG).",
+    note: "Department = SAP Cost Center (no department names in the data).",
     chart: { type: "bar", groupBy: "department_name", measures: "consumption_cost", top: 12, x: "department_name",
       series: [{ field: "consumption_cost", label: "Consumption Cost", color: C.purple }], valueKind: "inr" },
     card: { field: "consumption_cost", agg: "sum", kind: "inr", label: "Total Consumption" },
@@ -378,7 +381,7 @@ export const byPortfolio = (p: string) => KPIS.filter((x) => x.portfolio === p);
 // support (no sales/billing, returns, patient-type, SLA/reorder masters, etc.).
 // They render as fully-built drill-down pages on representative *simulated* data
 // (see simulatedKpi.ts) — clearly badged and subtly faded — so stakeholders see
-// exactly what each looks like once live. `requires` = the data HCG must provide.
+// exactly what each looks like once live. `requires` = the data each one needs to go live.
 export type SimKpiMeta = {
   key: string;
   title: string;
@@ -386,7 +389,7 @@ export type SimKpiMeta = {
   portfolio: "inventory" | "procurement" | "consumption" | "forecasting";
   icon: string;
   why: string;        // one-line business value
-  requires: string;   // the data field(s) HCG must supply to make it live
+  requires: string;   // the data field(s) it needs to go live
   // Set once HCG supplies the data this preview was waiting on: the preview stays
   // (it still shows the intended design) but now points at the page carrying the
   // real numbers, so the two can never be mistaken for each other.

@@ -4,7 +4,7 @@
 // HCG's Item Master gives every formulary brand a letter (P, P-SCH, SCH, R, R-OPD, OPD, P-OPD,
 // SCH-OPD); HCG's emails say which letters are wrong for which patients. brand_rules.csv (backend)
 // turns that into MEASURES — e.g. restricted brands for scheme patients — each with a verdict:
-//   breach = against HCG's guidelines · watch = a figure HCG reports · info = shown until HCG confirms.
+//   breach = against HCG's guidelines · watch = a figure HCG reports · info = shown for information.
 // Two views: "Rule breaches" (the measures, then one measure's trend, hospitals, brands and
 // doctors) and "Rule book" (every formulary brand of the month: its letter, what each payer may
 // get, its block of interchangeable brands and P1/P2 rank from HCG's Main Sheet SHARING).
@@ -12,18 +12,16 @@
 import React, { useCallback, useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import type { Col } from "@/lib/kpiRegistry";
-import { Card, Head, HeroShell, Skeleton, useArmed, INK, SUB, RULE, EASE, SEL_BG } from "@/components/portfolio/ledger/kit";
+import { Card, Head, HeroShell, Skeleton, useArmed, INK, SUB, RULE, EASE, SEL_BG, TRACK } from "@/components/portfolio/ledger/kit";
 import { inr, num, pct } from "@/lib/kpiFormat";
 import { dayLabel } from "@/components/portfolio/ledger/format";
 import { useSelectHospital } from "@/context/RegionContext";
 import { Notice, Pills, SlideOver, F_COL, OOF_COL, NF_COL, VERDICT } from "./parts";
 import Guidelines from "./Guidelines";
 import { SHARES_NOTE } from "../table/query";
-import { filterParams, monthLabel, monthsLabel, niceMax, useRulesOverview, type Filters, type Meta, type RuleMeasure, type RulesOverview } from "./api";
+import { filterParams, monthLabel, monthsLabel, niceMax, useRulesOverview, valueOnly, type Filters, type Meta, type RuleMeasure, type RulesOverview } from "./api";
 
 const KpiTable = dynamic(() => import("../KpiTable"), { ssr: false, loading: () => <div className="p-6">{Array.from({ length: 6 }).map((_, i) => <div key={i} className="h-10 rounded-lg bg-gray-50 animate-pulse mb-2" />)}</div> });
-
-const TRACK = "#EFEBE1";
 
 const ITEM_COLS: Col[] = [
   { field: "material_desc", label: "Brand" },
@@ -80,7 +78,7 @@ export default function Rules({ meta, filters, plant }: { meta: Meta; filters: F
     <div className="grid grid-cols-1 gap-5 md:gap-6">
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <Pills value={sub} onChange={setSub} options={[{ key: "breaches", label: "Rule breaches" }, { key: "book", label: "Rule book" }]} />
-        <span className="text-[11.5px]" style={{ color: SUB }}>HCG&apos;s brand letters per payer · rules in brand_rules.csv until HCG confirms them</span>
+        <span className="text-[11.5px]" style={{ color: SUB }}>Brand letters per payer · rules in brand_rules.csv</span>
       </div>
       {sub === "breaches" ? <Breaches meta={meta} filters={filters} plant={plant} /> : <Book meta={meta} filters={filters} />}
     </div>
@@ -92,7 +90,8 @@ export default function Rules({ meta, filters, plant }: { meta: Meta; filters: F
 // ─────────────────────────────────────────────────────────────────────────────
 function Breaches({ meta, filters, plant }: { meta: Meta; filters: Filters; plant: string }) {
   const [measure, setMeasure] = useState<string>("");
-  const params = filterParams(filters, { payer: false });
+  // Brand rules are rupee measures: asked in value whatever the header's Value ↔ Quantity says.
+  const params = filterParams(valueOnly(filters), { payer: false });
   const { data, error, loading } = useRulesOverview({ Plant: plant, ...params, ...(measure ? { Measure: measure } : {}) });
   useEffect(() => { if (data && !measure) setMeasure(data.selected); }, [data, measure]);
   if (error) return <Notice title="Brand rules aren't available">{error}</Notice>;
@@ -111,7 +110,7 @@ function Breaches({ meta, filters, plant }: { meta: Meta; filters: Filters; plan
             {data.measures.map((m) => <MeasureCard key={m.measure} m={m} spend={data.drug_spend} active={m.measure === sel.measure} onClick={() => setMeasure(m.measure)} />)}
           </div>
           <p className="text-[11px] mt-4 leading-relaxed max-w-4xl" style={{ color: SUB }}>
-            Each share is the measure&apos;s value ÷ all drug spend in the selection (every payer), as HCG&apos;s report divides it.
+            Each share is the measure&apos;s value ÷ all drug spend in the selection (every payer), as the MIS report divides it.
             A sale can count in more than one measure, so they are never added up. Click a measure for its trend, hospitals, brands and doctors.
           </p>
         </HeroShell>
@@ -129,7 +128,7 @@ function Breaches({ meta, filters, plant }: { meta: Meta; filters: Filters; plan
         <Card delay={300}>
           <Head label="How these figures are built" badge={data.data_as_of ? `data as of ${dayLabel(data.data_as_of)}` : undefined} />
           <ul className="space-y-1.5 text-[12px] leading-relaxed list-disc pl-5" style={{ color: SUB }}>
-            <li>Every sale carries its brand&apos;s letter from that month&apos;s Item Master (the same tag as HCG&apos;s own sales sheets) and its payer bucket.</li>
+            <li>Every sale carries its brand&apos;s letter from that month&apos;s Item Master (the same tag as the group&apos;s own sales sheets) and its payer bucket.</li>
             <li>{sel.label}: letters {sel.letters.join(", ")} · payers {sel.payers.join(", ")}{sel.patient_types[0] !== "*" ? ` · ${sel.patient_types.join("/")} only` : ""} · {VERDICT[sel.verdict].label.toLowerCase()} ({VERDICT[sel.verdict].note}){sel.rule_ref ? ` · ${sel.rule_ref}` : ""}.{sel.note ? ` ${sel.note}` : ""}</li>
             {(data.notes || []).map((t, i) => <li key={i}>{t}</li>)}
           </ul>
@@ -148,13 +147,13 @@ function MeasureCard({ m, spend, active, onClick }: { m: RuleMeasure; spend: Rul
     <button type="button" onClick={onClick} className="text-left rounded-[14px] p-4 transition-colors min-w-0"
       style={{ border: `1px solid ${active ? INK : RULE}`, background: active ? "#FFFFFF" : "rgba(255,255,255,.55)" }}>
       <div className="flex items-center justify-between gap-2">
-        <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full" style={{ color: v.color, border: `1px solid ${v.color}66`, letterSpacing: ".08em" }}>{v.label}</span>
+        <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full" style={{ color: v.ink, background: `${v.color}26`, letterSpacing: ".08em" }}>{v.label}</span>
         <span className="text-[10.5px]" style={{ color: SUB }}>{m.letters.join(" · ")} → {m.payers.join(", ")}{m.patient_types[0] !== "*" ? ` (${m.patient_types.join("/")})` : ""}</span>
       </div>
       <div className="text-[12.5px] font-semibold mt-2" style={{ color: INK }}>{m.label}</div>
       <div className="flex items-baseline gap-2 mt-2 flex-wrap">
         <span className="text-[24px] font-light tabular-nums leading-none" style={{ color: INK }}>{inr(m.cost)}</span>
-        <span className="text-[12px] font-semibold tabular-nums" style={{ color: v.color }}>{pct(m.share_pct, 2)}</span>
+        <span className="text-[12px] font-semibold tabular-nums" style={{ color: v.ink }}>{pct(m.share_pct, 2)}</span>
         <span className="text-[11px] tabular-nums" style={{ color: SUB }}>of {inr(spend.total)} · {num(m.lines)} lines</span>
       </div>
       <div className="text-[11px] mt-1.5 tabular-nums" style={{ color: SUB }}>
@@ -230,7 +229,7 @@ function Hospitals({ d, m }: { d: RulesOverview; m: RuleMeasure }) {
           {rows.map((r, i) => (
             <button key={r.plant} type="button" title={`${r.name} (${r.plant})`}
               onClick={() => selectHospital(r)}
-              className="grid items-center gap-3 px-2 py-[6px] rounded-lg text-left transition-colors hover:bg-[#F5F1E7]"
+              className="grid items-center gap-3 px-2 py-[6px] rounded-lg text-left transition-colors hover:bg-[#F4EFE8]"
               style={{ gridTemplateColumns: cols, background: r.selected ? SEL_BG : undefined }}>
               <span className="text-[11px] tabular-nums" style={{ color: SUB }}>{r.rank}</span>
               <span className="text-[12.5px] truncate" style={{ color: INK, fontWeight: r.selected ? 700 : 500 }}>{r.his_name || r.name}</span>
@@ -266,7 +265,7 @@ function Brands({ m, params, plant }: { m: RuleMeasure; params: Record<string, s
     <>
       <Card delay={240}>
         <Head label={`Brands · ${m.label}`}
-          note={`Brands this measure counts, most value first, with their block of interchangeable brands from HCG's Main Sheet (letter and SHARING) and its P1 brand — P1/P2 are proposed until HCG confirms. "Share of measure" = the brand's value ÷ the measure total. ${SHARES_NOTE}${m.by_doctor ? " Click a brand to see the doctors who prescribed it." : ""}`}
+          note={`Brands this measure counts, most value first, with their block of interchangeable brands from the Main Sheet (letter and SHARING) and its P1 brand — P1/P2 are a proposed ranking. "Share of measure" = the brand's value ÷ the measure total. ${SHARES_NOTE}${m.by_doctor ? " Click a brand to see the doctors who prescribed it." : ""}`}
           badge={`measure total ${inr(m.cost)}`} />
         <KpiTable key={m.measure} kpiKey="rules-items" endpoint="/formulary/rules/items" plant={plant} columns={ITEM_COLS}
           extraParams={params} onRowClick={m.by_doctor ? (r: ItemRow) => { setItem(r); setOpen(true); } : undefined} />
@@ -287,7 +286,7 @@ function Doctors({ m, params, plant }: { m: RuleMeasure; params: Record<string, 
   return (
     <>
       <Card delay={280}>
-        <Head label={`Doctors · ${m.label}`} note={`HCG's guideline 6: monitor consultants who prescribe these brands to scheme patients. "Share of measure" = the doctor's value ÷ the measure total. ${SHARES_NOTE} Click a doctor to see the brands.`} badge={`per treating doctor · measure total ${inr(m.cost)}`} />
+        <Head label={`Doctors · ${m.label}`} note={`Guideline 6: monitor consultants who prescribe these brands to scheme patients. "Share of measure" = the doctor's value ÷ the measure total. ${SHARES_NOTE} Click a doctor to see the brands.`} badge={`per treating doctor · measure total ${inr(m.cost)}`} />
         <KpiTable key={m.measure} kpiKey="rules-doctors" endpoint="/formulary/rules/doctors" plant={plant} columns={DOCTOR_COLS}
           extraParams={params} onRowClick={(r: DoctorRow) => { setDoc(r); setOpen(true); }} />
       </Card>
@@ -316,10 +315,10 @@ function Book({ meta, filters }: { meta: Meta; filters: Filters }) {
         <span className="text-[11.5px]" style={{ color: SUB }}>{monthLabel(meta, month)} Item Master{filters.month === "ALL" ? " (latest month — the rule book is per month)" : ""} · all hospitals</span>
       </div>
       <Head label="Rule book"
-        note="Every formulary brand in the month's Item Master: its letter, what the rules say for each payer (breach / watch / info / ok), and its block of interchangeable brands in HCG's FY Main Sheet with SHARING and rank — rank 1 is the proposed P1. 'Main Sheet differs' flags the few brands whose Main Sheet letter disagrees with the month's Item Master. Search by molecule or brand." />
+        note="Every formulary brand in the month's Item Master: its letter, what the rules say for each payer (breach / watch / info / ok), and its block of interchangeable brands in the FY Main Sheet with SHARING and rank — rank 1 is the proposed P1. 'Main Sheet differs' flags the few brands whose Main Sheet letter disagrees with the month's Item Master. Search by molecule or brand." />
       <KpiTable key={`${month}|${letter}|${filters.segment}`} kpiKey="rules-book" endpoint="/formulary/rules/book" columns={BOOK_COLS} extraParams={params} />
       <p className="text-[11px] mt-3" style={{ color: SUB }}>
-        Verdicts come from brand_rules.csv (backend). Letters: P = preferred for cash &amp; TPA · P-SCH = preferred for everyone · SCH = scheme brand · R / R-OPD = restricted · -OPD = outpatient (to confirm with HCG).
+        Verdicts come from brand_rules.csv (backend). Letters: P = preferred for cash &amp; TPA · P-SCH = preferred for everyone · SCH = scheme brand · R / R-OPD = restricted · -OPD = outpatient.
       </p>
     </Card>
   );

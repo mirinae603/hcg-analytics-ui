@@ -77,7 +77,7 @@ function StackBar({ shares, target, targetLabel, barPx, barH, format, on, index 
         }}>
           {shares.map((p) => p.share > 0 && (
             <span key={p.seg.key} title={`${p.seg.label}: ${pct(p.share, 1)} · ${format(p.v)}`}
-              className="absolute top-0 bottom-0 flex items-center justify-center overflow-hidden text-[10.5px] font-semibold tabular-nums"
+              className="absolute top-0 bottom-0 flex items-center justify-center overflow-hidden text-[11px] font-semibold tabular-nums"
               style={{
                 left: `${p.left}%`, width: `${p.share}%`,
                 background: p.seg.hatched ? hatchFill(p.seg.color) : p.seg.color,
@@ -191,7 +191,7 @@ export function StackBars({
         {fit.hidden > 0 && <div className="px-2"><MoreRows n={fit.hidden} onMore={onMore} /></div>}
         <div aria-hidden="true" className={`grid gap-x-3 px-2 ${panel ? "pt-1 pb-0.5" : "pt-1.5 pb-1 sticky bottom-0"}`} style={{ gridTemplateColumns: cols, background: CARD }}>
           <span />
-          <span className="relative block h-[14px] text-[10px] tabular-nums" style={{ color: SUB, borderTop: `1px solid ${LINE}` }}>
+          <span className="relative block h-[14px] text-[11px] tabular-nums" style={{ color: SUB, borderTop: `1px solid ${LINE}` }}>
             <span className="absolute left-0 top-[2px]">0%</span>
             <span className="absolute left-1/2 top-[2px] -translate-x-1/2">50%</span>
             <span className="absolute right-0 top-[2px]">100%</span>
@@ -240,10 +240,11 @@ export type ComboTarget = { value: number; label: string; axis: "bars" | "line" 
  *    group        — side by side. */
 export type ComboLayout = "parts" | "alternatives" | "group";
 
-const PILL_H = 15;
-const BAR_FS = 10;
-const MONTH_FS = 10.5;
-const TICK_FS = 9.5;
+const PILL_H = 16;
+// Every word on the chart at 11px or more: the bars' figures, the months, the axis and the % boxes.
+const BAR_FS = 11;
+const MONTH_FS = 11;
+const TICK_FS = 11;
 /** Months a trend panel shows: a year, ending at the selected month. */
 const PANEL_WINDOW = 12;
 
@@ -437,7 +438,7 @@ export function MonthCombo({ months: every, series, layout = "parts", format = l
           <defs>{series.filter((s) => s.hatched).map((s) => <Hatch key={s.key} id={`mc-${uid}-${s.key}`} color={s.color} opacity={0.85} />)}</defs>
         )}
         {months.map((m, i) => m.selected && (
-          <rect key={`s-${m.key}`} x={PL + i * slotW + 2} y={4} width={slotW - 4} height={PT + PH + (panel ? 18 : tilt ? 14 : 22) - 4} rx={8} fill="rgba(22,32,28,.045)" />
+          <rect key={`s-${m.key}`} x={PL + i * slotW + 2} y={4} width={slotW - 4} height={PT + PH + (panel ? 18 : tilt ? 14 : 22) - 4} rx={8} fill={SEL_BG} />
         ))}
         {ticks.map((t) => (
           <g key={`t-${t}`}>
@@ -487,7 +488,7 @@ export function MonthCombo({ months: every, series, layout = "parts", format = l
         {showTarget && target && (
           <g>
             <line x1={PL} y1={Y(target.value)} x2={W - PR} y2={Y(target.value)} stroke={INK} strokeWidth="1" strokeDasharray="5 4" opacity={0.7} />
-            <text x={W - PR - 2} y={Y(target.value) - 5} textAnchor="end" style={{ fontSize: 10, fill: INK, fontWeight: 600 }}>{target.label}</text>
+            <text x={W - PR - 2} y={Y(target.value) - 5} textAnchor="end" style={{ fontSize: 11, fill: INK, fontWeight: 600 }}>{target.label}</text>
           </g>
         )}
         {hasLine && (

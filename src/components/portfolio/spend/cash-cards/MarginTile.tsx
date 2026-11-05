@@ -5,6 +5,7 @@
 // made. The drawer carries the written summary, the exact figures, every month, the splits,
 // every hospital, HCG's allowance for bifurcated brands and the method.
 import React from "react";
+import { TbCash } from "react-icons/tb";
 import { ChartPanel, LinkButton } from "@/components/portfolio/ledger/panel";
 import type { Place } from "@/components/portfolio/ledger/onescreen";
 import { Waterfall, type WaterStep } from "@/components/portfolio/ledger/bars";
@@ -30,7 +31,7 @@ function brief(c: Ctx, prev: Month | null): string[] {
   return [
     `For ${c.who} at ${c.where}, ${c.when}, the ${c.w.used} made ${rupeesExact(h.actual_margin)} of margin; the ${c.w.sug} would have made ${rupeesExact(h.potential_margin)}. The margin missed is ${rupeesExact(h.margin_loss)}, ${pct(h.loss_pct)} of the margin possible.`,
     ...(prev ? [`In ${prev.label} it was ${rupeesExact(prev.margin_loss)}, ${pct(prev.loss_pct)} of the margin possible.`] : []),
-    `${plural(h.brands, "such brand")} ${were(h.brands)} used for ${num(h.cash_qty)} units by ${plural(h.doctors, "doctor")}; ${num(h.qty)} units count after HCG's allowance for bifurcated brands.`,
+    `${plural(h.brands, "such brand")} ${were(h.brands)} used for ${num(h.cash_qty)} units by ${plural(h.doctors, "doctor")}; ${num(h.qty)} units count after the allowance for bifurcated brands.`,
     `With the ${c.w.sug}, revenue at MRP (excl GST) would also rise by ${rupeesExact(h.topline_increase)}.`,
   ];
 }
@@ -47,7 +48,7 @@ function figures(c: Ctx): KeyFigure[] {
     { label: `MRP · ${c.w.used}`, value: rupeesExact(h.used_mrp_value), note: "MRP excl GST × qty" },
     { label: `MRP · ${c.w.sug}`, value: rupeesExact(h.suggested_mrp_value), note: "MRP excl GST × the same qty" },
     { label: "MRP increase", value: rupeesExact(h.topline_increase), note: c.w.increaseNote },
-    { label: "Qty counted", value: num(h.qty), note: `of ${num(h.cash_qty)} units used, after HCG's allowance` },
+    { label: "Qty counted", value: num(h.qty), note: `of ${num(h.cash_qty)} units used, after the allowance` },
     { label: "Bill cost", value: rupeesExact(h.bill_cost), note: `${num(h.lines)} sales lines` },
     { label: "Brands · doctors · hospitals", value: `${num(h.brands)} · ${num(h.doctors)} · ${num(h.hospitals)}`, note: "with any use in the selection" },
   ];
@@ -74,11 +75,11 @@ function Allowance({ c, onOpen }: { c: Ctx; onOpen: (v: View) => void }) {
       </DrawerSection>
       <DrawerSection title="How the allowance works">
         <div className="space-y-2 text-[12.5px] leading-relaxed" style={{ color: SUB }}>
-          <p>For these brands HCG allows a share (SHARING) of the molecule&apos;s volume at the hospital each month; only the use above that counts towards the margin missed. It is worked out per hospital and month on the whole brand (IP + OP, cash + TPA together, as HCG does), so it follows the hospital, month and material type filters only.</p>
-          <p>Which brands are bifurcated{listed ? ` (${num(listed)} so far)` : ""}, and their molecule groups, come from HCG&apos;s KR spend report until HCG sends the full rules.</p>
+          <p>For these brands the group allows a share (SHARING) of the molecule&apos;s volume at the hospital each month; only the use above that counts towards the margin missed. It is worked out per hospital and month on the whole brand (IP + OP, cash + TPA together, as the group does), so it follows the hospital, month and material type filters only.</p>
+          <p>Which brands are bifurcated{listed ? ` (${num(listed)} so far)` : ""}, and their molecule groups, come from the KR spend report.</p>
         </div>
       </DrawerSection>
-      <DrawerSection title="Per brand" note="The Brands tab carries HCG's SHARING, Group qty, Allowed qty and Excess qty for each bifurcated brand.">
+      <DrawerSection title="Per brand" note="The Brands tab carries the SHARING, Group qty, Allowed qty and Excess qty for each bifurcated brand.">
         <LinkButton onClick={() => onOpen("items")}>Brands behind it</LinkButton>
       </DrawerSection>
     </>
@@ -149,7 +150,7 @@ export function MarginTile({ c, place }: { c: Ctx; place: Place }) {
   ];
   return (
     <>
-      <ChartPanel id="margin" title={title} context={c.context} accent={USED_COL} place={place} source={c.source}
+      <ChartPanel id="margin" title={title} context={c.context} icon={TbCash} place={place} source={c.source}
         label={has ? [
           `${c.w.section} margin, ${c.context}`,
           `proposed ${lakhs(h.potential_margin)}, margin missed ${lakhs(h.margin_loss)} (${pct(h.loss_pct)} of proposed), actual ${lakhs(h.actual_margin)}`,

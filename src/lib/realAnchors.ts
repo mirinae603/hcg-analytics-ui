@@ -4,11 +4,18 @@
 // totals and the real monthly demand series. Only the genuinely-missing metric
 // (billing flag, returns, patient-type, SLA target, selling price) is modelled on top.
 // Regenerate when the ETL changes. Window: Dec 2025 → May 2026.
+//
+// FROZEN on purpose: these numbers ground the "Simulated" preview KPIs (lib/simulatedKpi.ts) and
+// are never refreshed. A live page must not print them as today's figures — read the stock count's
+// SKUs, stock value, date and every source's months from GET /meta/windows (lib/useWindows.ts:
+// skus_total, stock_value, inventory_snapshot, windows), which follow the data.
 
 export const REAL = {
   totalConsumptionCost: 671016030,   // ₹ cost of internal goods-issue, 6 mo
   totalMrpConsumption: 1876111197,    // ₹ MRP-valued consumption (revenue proxy)
+  /** @deprecated frozen at the 31-May-26 count; live pages use useWindows().stock_value */
   totalInventoryCost: 604679341,     // ₹ current stock value (cost)
+  /** @deprecated frozen at the 31-May-26 count; live pages use useWindows().skus_total */
   skusTotal: 24931, skusConsumed: 11225, skusNeedReplen: 14989, skusZeroStock: 15878,
   months: [
     {"m": "Dec", "cost": 109103525, "qty": 3677597},
@@ -19,14 +26,14 @@ export const REAL = {
     {"m": "May", "cost": 78732721, "qty": 3198352},
   ],
   plants: [
-    {"name": "HCG MEDISURGE HOSPITALS SOLA", "revenue": 539779148, "units": 1622392},
-    {"name": "HCG ONCOLOGY HOSPITALS LLP", "revenue": 352962735, "units": 846926},
-    {"name": "HCG-KHUBCHANDANI", "revenue": 236606194, "units": 307219},
-    {"name": "HCG Hospital Jaipur", "revenue": 143477015, "units": 406504},
-    {"name": "HCG KR, Bangalore", "revenue": 123181054, "units": 3122182},
-    {"name": "HCG MANAVATA - UNIT2", "revenue": 66445513, "units": 1221174},
-    {"name": "HCG NCHRI Oncology LLP, Nagpur", "revenue": 50989589, "units": 1289681},
-    {"name": "HCG Oncology LLP, Baroda", "revenue": 48744129, "units": 917258},
+    {"name": "MEDISURGE HOSPITALS SOLA", "revenue": 539779148, "units": 1622392},
+    {"name": "ONCOLOGY HOSPITALS LLP", "revenue": 352962735, "units": 846926},
+    {"name": "KHUBCHANDANI", "revenue": 236606194, "units": 307219},
+    {"name": "Hospital Jaipur", "revenue": 143477015, "units": 406504},
+    {"name": "KR, Bangalore", "revenue": 123181054, "units": 3122182},
+    {"name": "MANAVATA - UNIT2", "revenue": 66445513, "units": 1221174},
+    {"name": "NCHRI Oncology LLP, Nagpur", "revenue": 50989589, "units": 1289681},
+    {"name": "Oncology LLP, Baroda", "revenue": 48744129, "units": 917258},
     {"name": "HMS Multispecility Hospital", "revenue": 46862933, "units": 2066397},
     {"name": "Suchirayu Health Care Solutions", "revenue": 32939622, "units": 1057596},
   ],

@@ -2,7 +2,7 @@
 // Spend Analysis (Generic vs branded) — onco and non-onco drugs, each as one 100% bar of generic
 // and branded value (its whole bought after it), so the two material types' mix reads side by
 // side. The row ignores the material-type filter: both always show. The drawer has the exact
-// rupees and each type's cost of branded above the cheapest generic.
+// rupees and each type's cost of branded above the usual cheapest generic.
 import React from "react";
 import { ChartPanel } from "@/components/portfolio/ledger/panel";
 import type { Place } from "@/components/portfolio/ledger/onescreen";
@@ -22,25 +22,25 @@ const NOTE = "Onco and non-onco drugs for the same hospital and months: this spl
 
 const COLS: Col<Segment>[] = [
   { label: "Material type", align: "left", render: (s) => s.label },
-  { label: "Generic", render: (s) => rupeesExact(s.generic_value) },
-  { label: "Branded", render: (s) => rupeesExact(s.branded_value) },
-  { label: "% branded", render: (s) => pct(s.branded_pct) },
-  { label: "Branded compared", render: (s) => rupeesExact(s.compared_value) },
-  { label: "Above the cheapest generic", render: (s) => <b>{rupeesExact(s.extra_vs_generic)}</b> },
-  { label: "% above", render: (s) => pct(s.extra_vs_generic_pct) },
+  { label: "Generic", render: (s) => rupeesExact(s.generic_value), raw: (s) => s.generic_value, unit: "₹" },
+  { label: "Branded", render: (s) => rupeesExact(s.branded_value), raw: (s) => s.branded_value, unit: "₹" },
+  { label: "% branded", render: (s) => pct(s.branded_pct), raw: (s) => s.branded_pct, unit: "%" },
+  { label: "Branded compared", render: (s) => rupeesExact(s.compared_value), raw: (s) => s.compared_value, unit: "₹" },
+  { label: "Above the usual cheapest generic", render: (s) => <b>{rupeesExact(s.extra_vs_generic)}</b>, raw: (s) => s.extra_vs_generic, unit: "₹" },
+  { label: "% above", render: (s) => pct(s.extra_vs_generic_pct), raw: (s) => s.extra_vs_generic_pct, unit: "%" },
 ];
 
 function SegmentDrawer({ c, dr, title }: { c: Ctx; dr: DrawerCtl; title: string }) {
   return (
     <DetailDrawer open={dr.open} onClose={dr.close} initialTab={dr.tab} size="wide"
       eyebrow={`${c.w.section} · Overview`} title={`${title} · ${c.where}`}
-      kpi={{ value: rupeesExact(c.d.headline.extra_vs_generic), comparator: `branded above the cheapest generic, onco and non-onco together: ${pct(c.d.headline.extra_vs_generic_pct)} of the ${rupeesExact(c.d.headline.compared_value)} branded value compared, ${c.when}` }}
+      kpi={{ value: rupeesExact(c.d.headline.extra_vs_generic), comparator: `branded above the usual cheapest generic, onco and non-onco together: ${pct(c.d.headline.extra_vs_generic_pct)} of the ${rupeesExact(c.d.headline.compared_value)} branded value compared, ${c.when}` }}
       source={GENERIC_SOURCE} asOf={c.asOf} filters={c.chips}
       tabs={[
         {
           key: "split", label: "Breakdown", render: () => (
             <DrawerSection title="Generic and branded, onco and non-onco" note={`${NOTE} ${c.w.extraNote}`}>
-              <DataTable rows={c.d.by_segment || []} rowKey={(s) => s.key} cols={COLS} caption="Generic and branded purchases by material type" minWidth={820} />
+              <DataTable context={c.context} rows={c.d.by_segment || []} rowKey={(s) => s.key} cols={COLS} caption="Generic and branded purchases by material type" minWidth={820} />
             </DrawerSection>
           ),
         },

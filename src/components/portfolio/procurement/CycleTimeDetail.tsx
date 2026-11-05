@@ -8,6 +8,7 @@ import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { useRegion, displayRegion } from "@/context/RegionContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
+import { useWindows, windowLabel, windowPill, monthsText } from "@/lib/useWindows";
 import { countAbbr, useMount, CountUp, smoothPath } from "@/components/portfolio/kit";
 import { useCardScope } from "@/components/common/CardCategoryFilter";
 import { TbClockBolt, TbShoppingCart, TbTruckDelivery, TbBuildingHospital, TbBolt } from "react-icons/tb";
@@ -29,6 +30,7 @@ function lerp(a: string, b: string, t: number) {
 }
 
 function Shell({ region, children }: any) {
+  const grn = useWindows()?.windows.grn;     // the goods-receipt months this page is cut from
   return (
     <div className="-m-4 md:-m-6 p-4 md:p-6 space-y-5 min-w-0" style={{ background: PAGE, minHeight: "calc(100vh - 64px)" }}>
       <style jsx global>{`
@@ -40,7 +42,7 @@ function Shell({ region, children }: any) {
           <h1 className="text-[24px] font-bold leading-tight" style={{ color: INK }}>Procurement cycle time</h1>
           <p className="text-[13px] mt-1" style={{ color: SUB }}>how fast a requisition travels the buying pipeline into received goods · {displayRegion(region)}</p>
         </div>
-        <span className="text-[12px] font-medium px-3.5 py-2 rounded-full bg-white" style={{ color: "#7a6c53", boxShadow: "0 4px 14px -8px rgba(90,66,26,0.22)" }}>6-month window</span>
+        {grn && <span className="text-[12px] font-medium px-3.5 py-2 rounded-full bg-white" style={{ color: "#7a6c53", boxShadow: "0 4px 14px -8px rgba(90,66,26,0.22)" }} title={windowLabel(grn)}>{windowPill(grn)}</span>}
       </div>
       {children}
     </div>
@@ -100,7 +102,8 @@ function PaceHero({ t }: { t: any }) {
 }
 
 // ---------------- Order → receipt pace (PO → GR) ----------------
-function PipelineFlow({ t, cat, empty }: { t: any; cat: any; empty: boolean }) {
+// `months`: how many receipt months the figures come from (the page's own timeline)
+function PipelineFlow({ t, cat, empty, months }: { t: any; cat: any; empty: boolean; months: number }) {
   const on = useMount(160);
   const avgPo = Number(t?.avg_po ?? 0), fast = Number(t?.fast_po ?? 0), slow = Number(t?.slow_po ?? 0);
   const Node = ({ code, name, icon: Icon, c }: any) => (
@@ -112,7 +115,7 @@ function PipelineFlow({ t, cat, empty }: { t: any; cat: any; empty: boolean }) {
   );
   const tiles = [
     { label: "Fastest month", sub: t?.fast_month ?? "—", d: fast, c: "#3d9b6e" },
-    { label: "Typical", sub: "6-mo average", d: avgPo, c: AMBER },
+    { label: "Typical", sub: months ? `${months}-mo average` : "average", d: avgPo, c: AMBER },
     { label: "Slowest month", sub: t?.slow_month ?? "—", d: slow, c: RUST },
   ];
   return (
@@ -135,7 +138,7 @@ function PipelineFlow({ t, cat, empty }: { t: any; cat: any; empty: boolean }) {
             <div className="w-full h-4 rounded-full overflow-hidden mt-3 mb-2.5 relative" style={{ background: `${AMBER}18` }}>
               <div className="h-full rounded-full" style={{ width: on ? "100%" : "0%", background: `linear-gradient(90deg,${GOLD},${AMBER},${DEEP})`, boxShadow: `0 0 16px -3px ${AMBER}`, transition: "width 1.2s cubic-bezier(0.22,1,0.36,1) 0.2s" }} />
             </div>
-            <div className="text-[10.5px] font-medium" style={{ color: SUB }}>ranges {fast.toFixed(1)}–{slow.toFixed(1)} days across the 6 months</div>
+            <div className="text-[10.5px] font-medium" style={{ color: SUB }}>ranges {fast.toFixed(1)}–{slow.toFixed(1)} days across the {monthsText(months) || "months"}</div>
           </div>
           <Node code="GR" name="Goods received" icon={TbTruckDelivery} c={DEEP} />
         </div>
@@ -312,7 +315,7 @@ export default function CycleTimeDetail() {
     <Shell region={region}>
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-stretch">
         <div className="xl:col-span-4 flex flex-col min-w-0"><PaceHero t={t} /></div>
-        <div className="xl:col-span-8 flex flex-col min-w-0"><PipelineFlow t={pipe.data?.totals || {}} cat={pipe} empty={!(pipe.data?.timeline || []).length} /></div>
+        <div className="xl:col-span-8 flex flex-col min-w-0"><PipelineFlow t={pipe.data?.totals || {}} cat={pipe} empty={!(pipe.data?.timeline || []).length} months={(pipe.data?.timeline || []).length} /></div>
       </div>
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-stretch">
         <div className="xl:col-span-7 flex flex-col min-w-0"><TrendChart timeline={trend.data?.timeline || []} cat={trend} /></div>

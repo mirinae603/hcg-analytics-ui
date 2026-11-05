@@ -6,6 +6,8 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRegion, displayRegion } from "@/context/RegionContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
+import { unbrand } from "@/utils/brand";
+import { useWindows, windowLabel, windowPill } from "@/lib/useWindows";
 import { inrAbbr, countAbbr, catName, useMount, smoothPath, CountUp } from "@/components/portfolio/kit";
 import { GaugeCard, DonutCard, BrandPanel, type Tab } from "./ExecCards";
 import { useDrillBind } from "@/components/portfolio/useDrillBind";
@@ -103,6 +105,8 @@ function BillableSplitCard({ cat }: { cat: ReturnType<typeof useCardCategory> })
   const [d, setD] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const on = useMount(180);
+  // the split keeps to the billing months (the internal issues of those months only)
+  const billing = useWindows()?.windows.legacy_sales;
   useEffect(() => {
     setLoading(true);
     const ac = new AbortController();
@@ -130,7 +134,7 @@ function BillableSplitCard({ cat }: { cat: ReturnType<typeof useCardCategory> })
           <span className="flex items-center justify-center rounded-xl flex-shrink-0" style={{ width: 36, height: 36, background: EMERALD_TINT, color: EMERALD }}><TbEye size={18} /></span>
           <div>
             <h3 className="text-[17px] font-bold leading-tight" style={{ color: INK }}>True Material Usage</h3>
-            <p className="text-[12px] mt-0.5" style={{ color: SUB }}>patient-billed (IP+OP) + internal goods-issue, same 6-month window</p>
+            <p className="text-[12px] mt-0.5" style={{ color: SUB }}>patient-billed (IP+OP) + internal goods-issue, {billing ? `same ${windowPill(billing)}` : "the months both cover"}</p>
           </div>
         </div>
         {cat.chip}
@@ -142,7 +146,7 @@ function BillableSplitCard({ cat }: { cat: ReturnType<typeof useCardCategory> })
         <div className="text-[34px] leading-none font-bold tabular-nums tracking-tight" style={{ color: INK }}>
           {loading ? "···" : <CountUp value={total} format={inrAbbr} />}
         </div>
-        <div className="text-[12.5px]" style={{ color: SUB }}>total material usage HCG-wide{cat.active ? ` · ${cat.category}` : ""}</div>
+        <div className="text-[12.5px]" style={{ color: SUB }}>total material usage across all hospitals{cat.active ? ` · ${cat.category}` : ""}</div>
       </div>
 
       <div className="mt-3 h-2.5 rounded-full overflow-hidden flex" style={{ background: "#f0eef0" }}>
@@ -204,9 +208,10 @@ function BillableSplitCard({ cat }: { cat: ReturnType<typeof useCardCategory> })
 function CategoriesCard({ categories, cat, loading }: { categories: any[]; cat: any; loading: boolean }) {
   const on = useMount(220);
   const rows = (categories || []).slice(0, 7);
+  const months = useWindows()?.windows.consumption?.months;
   const drill = useDrillBind({
     kpi: "unit-sold-per-sku", dim: "material_group", by: "material", measure: "consumption_cost",
-    label: "items", dimLabel: "Category · 6-month consumption", format: inrAbbr, category: cat.drill,
+    label: "items", dimLabel: `Category · ${months ? `${months}-month ` : ""}consumption`, format: inrAbbr, category: cat.drill,
   });
   const max = Math.max(...rows.map((r: any) => r.value), 1);
   return (
@@ -251,7 +256,7 @@ function DepartmentsCard({ departments }: { departments: any[] }) {
       {/* HCG hasn't supplied real department NAMES yet -- the code itself stays the
           identity, but the hospital it belongs to is real data (every cost center maps
           to exactly one plant), not a placeholder, so it's worth a line under the code. */}
-      <p className="text-[12px] mt-0.5 mb-1" style={{ color: SUB }}>by consumption cost · cost-center code, department names pending from HCG</p>
+      <p className="text-[12px] mt-0.5 mb-1" style={{ color: SUB }}>by consumption cost · cost-center code (no department names in the data)</p>
       <div className="flex-1 flex flex-col justify-between divide-y divide-gray-50">
         {rows.map((r: any, i: number) => (
           <div key={i} className="flex items-center justify-between py-2.5">
@@ -259,7 +264,7 @@ function DepartmentsCard({ departments }: { departments: any[] }) {
               <span className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: `${PLUM}14`, color: PLUM }}><TbReportMedical size={15} /></span>
               <div className="min-w-0">
                 <div className="text-[12.5px] font-medium tabular-nums" style={{ color: "#3c2f36" }}>{r.code}</div>
-                <div className="text-[11px] truncate" style={{ color: SUB }} title={r.hospital}>{r.hospital || "—"} · {countAbbr(r.qty)} units</div>
+                <div className="text-[11px] truncate" style={{ color: SUB }} title={unbrand(r.hospital)}>{unbrand(r.hospital) || "—"} · {countAbbr(r.qty)} units</div>
               </div>
             </div>
             <span className="text-[12.5px] font-bold tabular-nums flex-shrink-0" style={{ color: INK }}>{inrAbbr(r.value)}</span>
@@ -274,6 +279,8 @@ function DepartmentsCard({ departments }: { departments: any[] }) {
 export default function ConsumptionOverview() {
   const { selectedRegion } = useRegion();
   const region = selectedRegion?.name ?? "All Plants";
+  // every month of internal issues received (GET /meta/windows): this page's own window
+  const consumption = useWindows()?.windows.consumption;
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
@@ -370,7 +377,7 @@ export default function ConsumptionOverview() {
           <h1 className="text-[24px] font-bold leading-tight" style={{ color: INK }}>Consumption &amp; Revenue</h1>
           <p className="text-[13px] mt-1" style={{ color: SUB }}>internal goods-issue — what the hospitals actually use · {displayRegion(region)}</p>
         </div>
-        <span className="text-[12px] font-medium px-3.5 py-2 rounded-full bg-white" style={{ color: "#7a5f6c", boxShadow: "0 4px 14px -8px rgba(90,40,60,0.2)" }}>6-month window</span>
+        {consumption && <span className="text-[12px] font-medium px-3.5 py-2 rounded-full bg-white" style={{ color: "#7a5f6c", boxShadow: "0 4px 14px -8px rgba(90,40,60,0.2)" }} title={windowLabel(consumption)}>{windowPill(consumption)}</span>}
       </div>
 
       <div className="flex flex-wrap lg:flex-nowrap gap-5 items-stretch mb-5">
@@ -443,7 +450,7 @@ export default function ConsumptionOverview() {
                   key={s.kpi.key}
                   className="relative flex justify-center items-center p-6 transition duration-300"
                   style={{ background: "rgba(255,255,255,0.9)", opacity: 0.6, filter: "saturate(0.72)" }}
-                  title="Simulated preview — activates the moment HCG shares the source"
+                  title="Simulated preview — activates the moment the source data is shared"
                   onMouseEnter={(e) => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.filter = "none"; }}
                   onMouseLeave={(e) => { e.currentTarget.style.opacity = "0.6"; e.currentTarget.style.filter = "saturate(0.72)"; }}
                 >
@@ -460,7 +467,7 @@ export default function ConsumptionOverview() {
 
       <div className="mt-5 inline-flex items-center gap-2 text-[11px] font-medium px-3 py-1.5 rounded-full"
         style={{ background: `${ROSE}12`, color: DEEP, border: `1px solid ${ROSE}2c` }}>
-        Consumption = internal goods-issue cost (movement 201) over 6 months. For billed revenue &amp; true margin, see the <Link href="/revenueMargin" className="underline font-semibold">Revenue &amp; Margin</Link>&nbsp;page.
+        Consumption = internal goods-issue cost (movement 201){consumption ? ` over ${windowLabel(consumption)}` : ""}. For billed revenue &amp; true margin, see the <Link href="/revenueMargin" className="underline font-semibold">Revenue &amp; Margin</Link>&nbsp;page.
       </div>
     </div>
   );

@@ -21,7 +21,7 @@ export type Section = PatientSection | "oof";
  *  (originator) purchases cost against generics. Read from purchases too, with months of their
  *  own (every GRN month), and no margin to switch: the Brand filter does not apply. */
 export type InsightSection = "prices" | "generic";
-export type View = "overview" | "items" | "doctors" | "vendors" | "products";
+export type View = "overview" | "items" | "doctors" | "vendors" | "products" | "check";
 export type PatientType = "ALL" | "IP" | "OP";
 export type Segment = "ALL" | "onco" | "non-onco" | "consumables";
 export type Payer = "ALL" | "CASH" | "CASH(TPA)" | "GOV";
@@ -30,7 +30,7 @@ export type Payer = "ALL" | "CASH" | "CASH(TPA)" | "GOV";
 // Attis line is a slice of the scheme section (and an option of its Brands tab); any one brand,
 // Attis or not, is the page's Brand filter.
 export const SECTIONS: { key: Section; label: string; title: string }[] = [
-  { key: "scheme", label: "Scheme", title: "Scheme (govt) patients: margin missed when a costlier brand was used than the one HCG suggests" },
+  { key: "scheme", label: "Scheme", title: "Scheme (govt) patients: saving missed when a costlier brand was used than the one the scheme list suggests" },
   { key: "cash", label: "Cash & TPA", title: "Cash and insurance (TPA) patients: margin missed when a lower-margin brand was used" },
   { key: "oof", label: "Out of formulary", title: "Out of formulary purchases: margin missed by buying brands outside the formulary" },
 ];
@@ -61,9 +61,12 @@ export const INSIGHT_SECTIONS: { key: InsightSection; label: string; title: stri
   { key: "generic", label: "Generic vs branded", title: "Generic vs branded purchases: what originator brands cost, and where they sit in the formulary" },
 ];
 export const INSIGHT_VIEWS: Record<InsightSection, { key: View; label: string }[]> = {
+  // To check: every purchase priced unusually low, paged and exportable (/spend/prices/low); the
+  // headline's drawer previews the furthest under.
   prices: [
     { key: "overview", label: "Overview" },
     { key: "products", label: "Products" },
+    { key: "check", label: "To check" },
   ],
   generic: [{ key: "overview", label: "Overview" }],
 };
@@ -75,7 +78,7 @@ export const isInsight = (s: string | null): s is InsightSection => s === "price
  *  on it need no Summary or purchase-analysis entry. */
 export type PageSection = "summary" | Section | InsightSection;
 export const PAGE_SECTIONS: { key: PageSection; label: string; title: string }[] = [
-  { key: "summary", label: "Summary", title: "Every part of HCG's spend margin missed report, on one screen" },
+  { key: "summary", label: "Summary", title: "Every part of the spend margin missed report, on one screen" },
   ...SECTIONS,
   ...INSIGHT_SECTIONS,
 ];
@@ -84,12 +87,13 @@ export const pageViews = (s: PageSection) => (s === "summary" ? SUMMARY_VIEWS : 
 
 /** `?section=&view=` as the page's state. No section is the Summary. A link written while the
  *  page had an Attis section ('?section=attis', or '?view=consumption' from when it was the
- *  default) opens Scheme, which carries HCG's Attis slice. Anything unknown falls back to the
- *  section's first tab. */
+ *  default) opens Scheme, which carries HCG's Attis slice. `?section=prices&check=1` (the
+ *  Executive overview's "purchases to check" action) opens the Prices To check tab. Anything
+ *  unknown falls back to the section's first tab. */
 export function readLocation(search: string): { section: PageSection; view: View } {
   const q = new URLSearchParams(search);
   const s = q.get("section");
-  const v = q.get("view");
+  const v = q.get("view") ?? (q.get("check") === "1" ? "check" : null);
   const section: PageSection = PAGE_SECTIONS.some((x) => x.key === s) ? (s as PageSection)
     : s === "attis" || v === "consumption" ? "scheme" : "summary";
   const view: View = pageViews(section).some((x) => x.key === v) ? (v as View) : "overview";
@@ -97,10 +101,24 @@ export function readLocation(search: string): { section: PageSection; view: View
 }
 
 /** The page state written back as `?section=&view=`: the Summary and each section's first
- *  tab are the defaults and leave their parameter out. */
+ *  tab are the defaults and leave their parameter out; `check=1` becomes the tab it opened. */
 export function writeLocation(url: URL, loc: { section: PageSection; view: View }): void {
   if (loc.section === "summary") url.searchParams.delete("section"); else url.searchParams.set("section", loc.section);
   if (loc.view === "overview") url.searchParams.delete("view"); else url.searchParams.set("view", loc.view);
+  url.searchParams.delete("check");
+}
+
+/** The material types a link can narrow the page to (Segment less "ALL"). */
+export const LINK_SEGMENTS: readonly Exclude<Segment, "ALL">[] = ["onco", "non-onco", "consumables"];
+
+/** Whether any tab of the page has figures for `month`: the sales months, or the purchase build's
+ *  own (out of formulary, prices, generic vs branded), or ALL. Each tab then fits the month to its
+ *  own (salesFilters, oofFilters, insightFilters); a month a link asks for that no tab holds
+ *  opens the page on its latest instead. */
+export function pageHolds(meta: Meta, month: string): boolean {
+  if (month === "ALL") return true;
+  const purchase = [...(meta.prices_months ?? []), ...(meta.generic_months ?? [])].map((m) => m.period);
+  return meta.months.includes(month) || oofMonths(meta).includes(month) || purchase.includes(month);
 }
 
 /** One brand used, as the Brand filter holds it: the code the API filters on and its name. */
@@ -134,6 +152,9 @@ export type Meta = {
   oof_latest?: string | null;
   oof_built_at?: string | null;
   oof_suggested_by?: { key: SuggestedBy; label: string; counted: boolean; estimated: boolean }[];
+  /** GRN months whose out-of-formulary rows wait for their Item Master (price variation and
+   *  generic vs branded have them), each with the purchase build's note. Absent from an older API. */
+  oof_waiting?: OofWaiting[];
   /** Price variation and generic vs branded, from the same purchase build: each section's months
    *  (every GRN month; `item_master` where the month has its own) and when the build ran. Empty
    *  until the build has run; absent from an API older than these sections. */
@@ -264,9 +285,6 @@ export type OofBucket = { label: string; value: number; lines: number; brands: n
 /** The purchase value by where its suggested brand came from, in the API's order. */
 export type OofCoverage = Partial<Record<SuggestedBy, OofBucket>>;
 
-/** HCG's own Summary sheet for the same hospitals and months, beside ours. */
-export type HcgCheck = Margins & { months: string[]; centres: number; diff: number; matches: boolean };
-
 /** One brand bought out of formulary and the brand suggested for it. `rule` says, in words, how
  *  the app matched an Estimated suggestion (null for HCG's own). */
 export type OofSwitch = {
@@ -289,16 +307,27 @@ export type OofNoAlternative = {
   qty: number; purchase_value: number; hospitals: number; vendors: number; lines: number;
 };
 
+/** A GRN month whose out-of-formulary rows wait for its Item Master, and the build's note. */
+export type OofWaiting = { period: string; label: string; note: string };
+
+/** The API also sends HCG's own Summary figures (`hcg`, `headline.hcg_figure`, each row's
+ *  `hcg_loss`) for its tests' check against HCG's sheet; the page does not show them, so they are
+ *  not typed here. */
 export type OofOverview = {
   /** No patient type: purchases have none. `not_applied` names the filters sent but not used. */
   scope: ScopeEcho & { category: string; material?: string | null; not_applied?: string[] };
-  headline: OofBlock & { brands: number; vendors: number; hospitals: number; coverage: OofCoverage; hcg_figure: number | null };
-  /** Null under a material type or brand filter, or for a month HCG has no Summary for. */
-  hcg: HcgCheck | null;
-  /** Every out-of-formulary month (the Month filter only shades); `hcg_loss` is HCG's figure. */
-  trend: (OofBlock & { period: string; label: string; pct?: number | null; hcg_loss: number | null })[];
+  /** `estimated`: a selected month was built without HCG's own working (its suggestions come from
+   *  HCG's other months and lists, then the app's match), named in `estimated_months`;
+   *  `hcg_working`: every selected month has it. Absent from an older API. */
+  headline: OofBlock & {
+    brands: number; vendors: number; hospitals: number; coverage: OofCoverage;
+    estimated?: boolean; hcg_working?: boolean; estimated_months?: string[];
+  };
+  /** Every out-of-formulary month (the Month filter only shades); `estimated`: the month was
+   *  built without HCG's own working. */
+  trend: (OofBlock & { period: string; label: string; pct?: number | null; estimated?: boolean })[];
   /** Every hospital, most missed first, negative losses last. */
-  by_hospital: (OofBlock & { plant: string; name: string; his_code: string | null; his_name: string | null; hcg_loss: number | null; rank: number; selected: boolean })[];
+  by_hospital: (OofBlock & { plant: string; name: string; his_code: string | null; his_name: string | null; rank: number; selected: boolean })[];
   network?: { loss_pct: number | null } | null;
   by_category: (OofBlock & { key: string; label: string })[];
   top_items: OofSwitch[];
@@ -454,33 +483,67 @@ export type InsightScope = {
   vendor?: string; material?: string; molecule?: string; ignored?: string[];
 };
 
+/** The benchmark's rule, as the build applies it (backend prices.USUAL_SHARE / LOW_RATIO /
+ *  SPREAD_MIN), so the screen states it without a copy of its own: the usual cheapest is the
+ *  lowest unit price at which at least `usual_share_pct`% of a product's units were bought; a
+ *  price under `low_ratio_pct`% of the usual cheapest is unusually low (listed to check); a
+ *  product whose dearest is at least `spread_min_pct`% above the usual cheapest is `varies`.
+ *  Generic vs branded flags nothing as low and has no spread: those two are null there. Absent
+ *  from an API older than the rule block: the words then leave the figures out. */
+export type PriceRule = { usual_share_pct: number; low_ratio_pct: number | null; spread_min_pct?: number | null };
+
 /** One product: a molecule, strength, form and kind (CETUXIMAB 100MG injection), whose brands
- *  are the same medicine. `cheapest_price` is the lowest unit price (after discount) paid in the
- *  selection; `extra_paid` what was paid above the same units at that price; `price_index` paid ÷
- *  the same units at the cheapest (1.00 = always the cheapest); `spread_ratio` dearest ÷ cheapest;
- *  `varies` bought at least 1% apart. `minor_group` is HCG's own name for the molecule: shown. */
+ *  are the same medicine. `cheapest_price` is the USUAL cheapest unit price (after discount) of
+ *  the selection (see PriceRule), not the lowest one paid (that is `min_price`); `extra_paid`
+ *  what each purchase paid above it (a purchase under it adds nothing), `extra_pct` that as a %
+ *  of what was spent on the product; `price_index` paid ÷ the same units at the usual
+ *  cheapest (1.00 = at it on average, under 1 when some purchases were under it); `spread_ratio`
+ *  dearest ÷ usual cheapest; `varies` the dearest above the usual cheapest by the build's
+ *  threshold. `cheapest_brand / _vendor / _plant` the purchase that set the usual cheapest.
+ *  `low_rows` how many hospital × brand × supplier purchases were unusually low, `low_value`
+ *  what they cost (the products list and the chosen product; the overview's chart list carries
+ *  `low_rows` only). `minor_group` is HCG's own name for the molecule: shown. */
 export type PriceProduct = {
   molecule_key: string; minor_group: string | null; molecule: string | null; strength: string | null;
   form: string | null; kind: string | null; category?: string | null;
   cheapest_price: number; min_price: number; max_price: number; wavg_price: number;
   spread_ratio: number; price_index: number; varies: boolean;
   qty: number; value: number; extra_paid: number; extra_pct: number | null; share_pct: number | null;
+  low_rows: number; low_value?: number;
   brands: number; vendors: number; plants: number; lines?: number;
   cheapest_brand?: string | null; cheapest_vendor?: string | null; cheapest_plant?: string | null;
 };
 /** A supplier, by name (one supplier can hold several SAP codes): what it was paid, the same
- *  units at the cheapest price anyone paid, the extra and the price index. */
+ *  units at the usual cheapest, the extra and the price index (under 1.00 when it was paid less
+ *  than the usual cheapest overall). The chosen product's suppliers also carry their units,
+ *  average price and `sets_cheapest` (one of its purchases is priced at the usual cheapest). */
 export type PriceVendor = {
   vendor_name: string; vendor_codes: string[]; value: number; at_cheapest: number; extra_paid: number;
   price_index: number | null; share_pct: number | null; molecules: number; brands: number; plants: number; lines: number;
-  qty?: number; wavg_price?: number;
+  qty?: number; wavg_price?: number; sets_cheapest?: boolean;
 };
 /** The chosen product's purchases at one hospital, of one brand, from one supplier, summed over
- *  the selected months: its unit price (value ÷ units) and the range it was bought at. */
+ *  the selected months: its unit price (value ÷ units) and the range it was bought at.
+ *  `sets_cheapest`: one of its purchases is priced at the usual cheapest (it set the benchmark);
+ *  `unusually_low`: one of its purchases was under PriceRule.low_ratio_pct of the usual cheapest
+ *  (the same purchases `low_prices` lists). */
 export type PricePoint = {
   plant: string; plant_name: string; material: string; material_desc: string; vendor_name: string;
   unit_price: number; unit_price_min: number; unit_price_max: number; qty: number; value: number; lines: number;
+  sets_cheapest: boolean; unusually_low: boolean;
 };
+/** One hospital × brand × supplier purchase of a product priced unusually low, summed over the
+ *  selected months: the unit price paid against the usual cheapest, and `below_cheapest` how
+ *  much less than the same units at the usual cheapest it cost (₹, ≥ 0). Still compared: a
+ *  keying slip or a free / bonus supply for HCG to check, never the benchmark. */
+export type LowPriceItem = {
+  molecule_key: string; minor_group: string | null; strength: string | null; form: string | null;
+  plant: string; plant_name: string; material: string; material_desc: string; vendor_name: string;
+  unit_price: number; cheapest_price: number; qty: number; value: number; below_cheapest: number; lines: number;
+};
+/** The selection's unusually low purchases: how many (hospital × brand × supplier), what they
+ *  cost, of how many products, and the ones furthest under the usual cheapest (`items`). */
+export type LowPrices = { rows: number; value: number; products: number; items: LowPriceItem[] };
 export type PriceHospital = {
   plant: string; name: string; value: number; at_cheapest: number; extra_paid: number; extra_pct: number | null;
   price_index: number | null; molecules: number; lines: number; rank: number; selected: boolean;
@@ -497,10 +560,15 @@ export type PricesOverview = {
     molecules: number; molecules_with_spread: number; extra_paid_vs_cheapest: number; extra_pct: number | null;
     value: number; compared_value: number; compared_pct: number | null; lines: number; brands: number; vendors: number;
     hospitals: number;
-    /** With one hospital: what it paid above the cheapest price ANY hospital paid (its row of
-     *  `by_hospital`); null for all hospitals. */
+    /** The unusually low purchases (hospital × brand × supplier) and what they cost: low_prices'. */
+    low_rows: number; low_value: number;
+    /** With one hospital: what it paid above the usual cheapest of every hospital's purchases
+     *  together (its row of `by_hospital`); null for all hospitals. */
     extra_paid_vs_network_cheapest: number | null;
   };
+  /** The benchmark's rule; null or absent from an older API. */
+  rule?: PriceRule | null;
+  low_prices: LowPrices;
   scope: InsightScope;
   /** The products with the most extra paid (the chart's), of `molecules_total`. */
   molecules: PriceProduct[];
@@ -511,10 +579,10 @@ export type PricesOverview = {
   /** The ten suppliers with the most value compared, of `vendors_total`. */
   vendors: PriceVendor[];
   vendors_total: number;
-  /** Every hospital against the cheapest price any hospital paid (ignores the hospital
-   *  selector; `selected` marks it), most extra first. */
+  /** Every hospital against the usual cheapest of every hospital's purchases together (ignores
+   *  the hospital selector; `selected` marks it), most extra first. */
   by_hospital: PriceHospital[];
-  /** Every month against its own cheapest (ignores the Month filter). */
+  /** Every month against its own usual cheapest (ignores the Month filter). */
   by_month: PriceMonthRow[];
   not_compared: NotCompared[];
   months_available: PurchaseMonth[];
@@ -523,7 +591,7 @@ export type PricesOverview = {
 };
 
 /** One cut of the generic vs branded split. `extra_vs_generic` is what branded purchases cost
- *  above the cheapest generic of the same product that month; `compared_value` the branded value
+ *  above the usual cheapest generic of the same product that month; `compared_value` the branded value
  *  that had a generic to compare with (`extra_vs_generic_pct` is of it); `branded_not_compared`
  *  the branded value with no generic bought that month. */
 export type GenericBlock = {
@@ -563,6 +631,8 @@ export type GenericOverview = {
     overrides: { material: string; class: string; reason: string }[]; files: Record<string, string>; class_sources: Record<string, string>;
   };
   estimated: boolean;
+  /** The usual cheapest generic's rule (the same rule as Prices); null or absent from an older API. */
+  rule?: PriceRule | null;
   months_available: PurchaseMonth[];
   notes: string[];
   data_as_of: string | null;

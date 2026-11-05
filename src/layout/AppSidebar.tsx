@@ -12,15 +12,21 @@ import {
   TbCoin, TbReceipt, TbTrendingDown, TbBuildingFactory2, TbMapPin, TbClockHour4, TbTruckDelivery, TbProgressCheck,
   TbPill, TbBuildingHospital,
   TbTargetArrow, TbRadar2, TbChartDots3, TbChartLine, TbCashBanknote, TbReload,
-  TbLogin2, TbUserPlus, TbHome, TbLogout2, TbMessage2, TbShieldCheck,
+  TbHome, TbLogout2, TbMessage2, TbShieldCheck,
   TbClipboardList, TbStethoscope, TbBuildingBank, TbCoinRupee, TbReplace, TbListCheck, TbTags, TbPills,
+  TbPresentationAnalytics, TbDownload, TbHistory,
 } from "react-icons/tb";
+import type { IconType } from "react-icons";
 import { useAuth } from "@/hooks/useAuth";
+import { monthLabel, useWindows, windowLabel, type Window } from "@/lib/useWindows";
+import { CLIENT, OWNER, PRODUCT } from "@/utils/brand";
 
 // ── Two-level navigation: a slim icon rail + a fluid flyout panel that slides out to the
 //    right with the selected portfolio's KPIs. Custom line icons, per-portfolio overview. ──
 
-type Ico = React.ComponentType<{ size?: number; className?: string }>;
+// The react-icons type itself: the rail and the panel pass `style` (the active colour) as well as
+// `size`, which a narrower hand-written props type did not allow.
+type Ico = IconType;
 // Restrained, professional palette — neutral surfaces, one accent used sparingly.
 const ACCENT = "#4f46e5";        // indigo-600, the single accent
 const ACCENT_SOFT = "#eef0fb";   // active row tint
@@ -68,7 +74,7 @@ const FORMULARY_EXTRA: PanelItem[] = [
   { name: "Doctors", title: "Out-of-formulary spend by doctor", path: "/formulary?view=doctors", Icon: TbStethoscope },
   { name: "Items", title: "Out of / Non / Formulary items", path: "/formulary?view=items", Icon: TbPill },
   { name: "Scheme brands", title: "Restricted & preferred brands billed to GOV schemes", path: "/formulary?view=scheme", Icon: TbBuildingBank },
-  { name: "Brand rules", title: "HCG's brand rules per payer: breaches, doctors and the rule book", path: "/formulary?view=rules", Icon: TbListCheck },
+  { name: "Brand rules", title: "Brand rules per payer: breaches, doctors and the rule book", path: "/formulary?view=rules", Icon: TbListCheck },
 ];
 
 // Spend Analysis — the same one-page shape as Formulary Compliance: sections in ?section=.
@@ -82,8 +88,21 @@ const SPEND_EXTRA: PanelItem[] = [
   { name: "Generic vs branded", title: "What originator brands cost above generics, and where they sit in the formulary", path: "/spend?section=generic", Icon: TbPills },
 ];
 
-// Revenue & Margin — real IP+OP billing page, lives under Consumption & Revenue.
-const REVENUE_EXTRA: PanelItem = { name: "Revenue & Margin", title: "Revenue & Margin (IP + OP billing)", path: "/revenueMargin", Icon: TbReportMoney };
+// Revenue & margin — HIS IP + OP pharmacy sales by month, bucket and unit (/revenue), under
+// Consumption & Revenue beside the older page it follows on from. That older page (/revenueMargin)
+// reads the legacy billed-sales tables, which keep their own months on purpose; its entry names
+// those months from GET /meta/windows (revenueHistoryName), so no month is written in here.
+const REVENUE_ITEM: PanelItem = { name: "Revenue & margin", title: "Revenue & margin: IP and OP pharmacy sales, margin and margin %", path: "/revenue", Icon: TbReportMoney };
+const REVENUE_HISTORY: PanelItem = { name: "Revenue history", title: "Revenue & margin on the older billed-sales tables", path: "/revenueMargin", Icon: TbHistory };
+
+/** "Revenue history (Dec–May)": the legacy page's months, from its window; the name alone while
+ *  the window loads or when it is not built, rather than a guessed month. */
+function revenueHistoryName(w: Window | null | undefined): string {
+  if (!w) return REVENUE_HISTORY.name;
+  const mon = (ym: string) => monthLabel(ym).split(" ")[0];
+  const a = mon(w.from), b = mon(w.to);
+  return `${REVENUE_HISTORY.name} (${a === b ? a : `${a}–${b}`})`;
+}
 
 const PANELS: Panel[] = PORTFOLIOS.map((p) => ({
   key: p.key, name: p.name, desc: p.desc, Icon: PF_ICON[p.key] ?? TbChartDots3,
@@ -94,7 +113,7 @@ const PANELS: Panel[] = PORTFOLIOS.map((p) => ({
     : p.key === "spend"
     ? SPEND_EXTRA
     : p.key === "consumption"
-      ? [...byPortfolio(p.key).map((k) => ({ name: k.short, title: k.title, path: `/kpi/${k.key}`, Icon: KPI_ICON[k.key] ?? TbChartDots3 })), REVENUE_EXTRA]
+      ? [...byPortfolio(p.key).map((k) => ({ name: k.short, title: k.title, path: `/kpi/${k.key}`, Icon: KPI_ICON[k.key] ?? TbChartDots3 })), REVENUE_ITEM, REVENUE_HISTORY]
       : byPortfolio(p.key).map((k) => ({ name: k.short, title: k.title, path: `/kpi/${k.key}`, Icon: KPI_ICON[k.key] ?? TbChartDots3 })),
 }));
 
@@ -113,18 +132,40 @@ const FC_PATHS = new Set(FC_EXTRA.map((i) => i.path));
 function portfolioOf(path: string): string | null {
   if (path.startsWith("/kpi/")) return KPI_PF[path.split("/")[2]] ?? null;
   if (FC_PATHS.has(path)) return "forecasting";
-  if (path === "/revenueMargin") return "consumption";
+  if (path === REVENUE_ITEM.path || path === REVENUE_HISTORY.path) return "consumption";
   if (path === "/signin" || path === "/signup") return "account";
   const seg = "/" + path.split("/")[1];
   const pf = PORTFOLIOS.find((p) => `/${p.key}` === seg);
   return pf ? pf.key : null;
 }
 
+/** A rail link to one page (Home, Executive overview, AI Analyst, Admin, Data exports): tinted
+ *  while it is the page open, with the thin indicator at the rail edge. */
+function RailLink({ href, title, Icon, active, accent = ACCENT, wash = ACCENT_SOFT }: {
+  href: string; title: string; Icon: Ico; active: boolean; accent?: string; wash?: string;
+}) {
+  return (
+    <Link href={href} title={title} aria-label={title} aria-current={active ? "page" : undefined}
+      className="group relative flex items-center justify-center rounded-[12px] transition-colors duration-150"
+      style={{ width: 46, height: 46, background: active ? wash : "transparent" }}
+      onMouseOver={(e) => { if (!active) (e.currentTarget as HTMLElement).style.background = HOVER; }}
+      onMouseOut={(e) => { if (!active) (e.currentTarget as HTMLElement).style.background = "transparent"; }}>
+      <span className="absolute left-[-12px] top-1/2 -translate-y-1/2 rounded-r-full transition-all duration-300" style={{ width: 2.5, height: active ? 20 : 0, background: accent }} />
+      <Icon size={21} style={{ color: active ? accent : MUTED }} />
+    </Link>
+  );
+}
+
+// The AI Analyst's own blue, as its page and launcher use it.
+const AI_ACCENT = "#3b5bdb";
+const AI_WASH = "rgba(59,91,219,0.11)";
+
 const AppSidebar: React.FC = () => {
   const { isMobileOpen, toggleMobileSidebar } = useSidebar();
   const { logout, isAdmin } = useAuth();
   const pathname = usePathname();
   const routePf = useMemo(() => portfolioOf(pathname), [pathname]);
+  const legacySales = useWindows()?.windows.legacy_sales;
 
   const [hoverKey, setHoverKey] = useState<string | null>(null);
   const [pinnedKey, setPinnedKey] = useState<string | null>(null);
@@ -180,32 +221,21 @@ const AppSidebar: React.FC = () => {
         {/* ── RAIL ── */}
         <div className="relative z-10 h-full flex flex-col items-center bg-white dark:bg-gray-900" style={{ width: RAIL_W, borderRight: `1px solid ${BORDER}` }}>
           <Link href="/" className="mt-5 mb-4 flex items-center justify-center rounded-[12px]"
-            style={{ width: 40, height: 40, background: "#f4f6fb", border: `1px solid ${BORDER}` }} title="HCG — Home">
-            <img src="/images/logo/hcg-butterfly.svg" alt="HCG" style={{ width: 26, height: 24 }} />
+            style={{ width: 40, height: 40, background: "#f4f6fb", border: `1px solid ${BORDER}` }} title={`${OWNER} — Home`}>
+            {CLIENT
+              ? <img src={CLIENT.mark} alt={CLIENT.name} style={{ width: 26, height: 24 }} />
+              : <img src={PRODUCT.icon} alt={PRODUCT.vendor} className="rounded-[7px]" style={{ width: 28, height: 28 }} />}
           </Link>
 
-          {/* Home */}
-          <div className="w-full px-3 pb-3 mb-1 flex justify-center" style={{ borderBottom: `1px solid ${BORDER}` }}>
-            <Link href="/" title="Home"
-              className="group relative flex items-center justify-center rounded-[12px] transition-colors duration-150"
-              style={{ width: 46, height: 46, background: pathname === "/" ? ACCENT_SOFT : "transparent" }}
-              onMouseOver={(e) => { if (pathname !== "/") (e.currentTarget as HTMLElement).style.background = HOVER; }}
-              onMouseOut={(e) => { if (pathname !== "/") (e.currentTarget as HTMLElement).style.background = "transparent"; }}>
-              <span className="absolute left-[-12px] top-1/2 -translate-y-1/2 rounded-r-full transition-all duration-300" style={{ width: 2.5, height: pathname === "/" ? 20 : 0, background: ACCENT }} />
-              <TbHome size={21} style={{ color: pathname === "/" ? ACCENT : MUTED }} />
-            </Link>
+          {/* Home, and the Executive overview: HCG's first screen, across every portfolio */}
+          <div className="w-full px-3 pb-3 mb-1 flex flex-col items-center gap-1" style={{ borderBottom: `1px solid ${BORDER}` }}>
+            <RailLink href="/" title="Home" Icon={TbHome} active={pathname === "/"} />
+            <RailLink href="/executive" title="Executive overview" Icon={TbPresentationAnalytics} active={pathname.startsWith("/executive")} />
           </div>
 
           {/* AI Analyst */}
           <div className="w-full px-3 pb-3 mb-1 flex justify-center" style={{ borderBottom: `1px solid ${BORDER}` }}>
-            <Link href="/ai" title="AI Analyst"
-              className="group relative flex items-center justify-center rounded-[12px] transition-colors duration-150"
-              style={{ width: 46, height: 46, background: pathname.startsWith("/ai") ? "rgba(59,91,219,0.11)" : "transparent" }}
-              onMouseOver={(e) => { if (!pathname.startsWith("/ai")) (e.currentTarget as HTMLElement).style.background = HOVER; }}
-              onMouseOut={(e) => { if (!pathname.startsWith("/ai")) (e.currentTarget as HTMLElement).style.background = "transparent"; }}>
-              <span className="absolute left-[-12px] top-1/2 -translate-y-1/2 rounded-r-full transition-all duration-300" style={{ width: 2.5, height: pathname.startsWith("/ai") ? 20 : 0, background: "#3b5bdb" }} />
-              <TbMessage2 size={21} style={{ color: pathname.startsWith("/ai") ? "#3b5bdb" : MUTED }} />
-            </Link>
+            <RailLink href="/ai" title="AI Analyst" Icon={TbMessage2} active={pathname.startsWith("/ai")} accent={AI_ACCENT} wash={AI_WASH} />
           </div>
 
           {/* Admin — only shown to role=admin accounts (server also enforces this on
@@ -213,14 +243,7 @@ const AppSidebar: React.FC = () => {
               dead-end 403). */}
           {isAdmin && (
             <div className="w-full px-3 pb-3 mb-1 flex justify-center" style={{ borderBottom: `1px solid ${BORDER}` }}>
-              <Link href="/admin" title="Admin — Approve accounts"
-                className="group relative flex items-center justify-center rounded-[12px] transition-colors duration-150"
-                style={{ width: 46, height: 46, background: pathname.startsWith("/admin") ? ACCENT_SOFT : "transparent" }}
-                onMouseOver={(e) => { if (!pathname.startsWith("/admin")) (e.currentTarget as HTMLElement).style.background = HOVER; }}
-                onMouseOut={(e) => { if (!pathname.startsWith("/admin")) (e.currentTarget as HTMLElement).style.background = "transparent"; }}>
-                <span className="absolute left-[-12px] top-1/2 -translate-y-1/2 rounded-r-full transition-all duration-300" style={{ width: 2.5, height: pathname.startsWith("/admin") ? 20 : 0, background: ACCENT }} />
-                <TbShieldCheck size={21} style={{ color: pathname.startsWith("/admin") ? ACCENT : MUTED }} />
-              </Link>
+              <RailLink href="/admin" title="Admin — Approve accounts" Icon={TbShieldCheck} active={pathname.startsWith("/admin")} />
             </div>
           )}
 
@@ -228,7 +251,9 @@ const AppSidebar: React.FC = () => {
             {PANELS.map((p) => <Tile key={p.key} p={p} />)}
           </div>
 
-          <div className="w-full px-3 pb-4 pt-2" style={{ borderTop: `1px solid ${BORDER}` }}>
+          {/* Data exports (IP & OP sales by item, GRN purchases), then the account */}
+          <div className="w-full px-3 pb-4 pt-2 flex flex-col items-center gap-1" style={{ borderTop: `1px solid ${BORDER}` }}>
+            <RailLink href="/exports" title="Data exports" Icon={TbDownload} active={pathname.startsWith("/exports")} />
             <Tile p={ACCOUNT} />
           </div>
         </div>
@@ -300,6 +325,8 @@ const AppSidebar: React.FC = () => {
                   );
                 }
                 const active = isActivePath(it.path);
+                const name = it.path === REVENUE_HISTORY.path ? revenueHistoryName(legacySales) : it.name;
+                const title = it.path === REVENUE_HISTORY.path && legacySales ? `${it.title}: ${windowLabel(legacySales)}` : it.title || it.name;
                 return (
                   <li key={it.path}>
                     <Link href={it.path} onClick={pickItem}
@@ -310,7 +337,7 @@ const AppSidebar: React.FC = () => {
                     >
                       <span className="absolute left-0 top-1/2 -translate-y-1/2 rounded-r-full transition-all duration-300" style={{ width: 2.5, height: active ? 18 : 0, background: ACCENT }} />
                       <Icon size={18} style={{ color: active ? ACCENT : MUTED, flexShrink: 0 }} />
-                      <span className="text-[13px] truncate flex-1" style={{ color: active ? ACCENT : LABEL, fontWeight: active ? 600 : 500 }} title={it.title || it.name}>{it.name}</span>
+                      <span className="text-[13px] truncate flex-1" style={{ color: active ? ACCENT : LABEL, fontWeight: active ? 600 : 500 }} title={title}>{name}</span>
                     </Link>
                   </li>
                 );

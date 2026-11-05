@@ -75,7 +75,7 @@ export default function Overview({ meta, filters, plant, onOpen }: {
               parts, where it was missed, the hospitals, then the lists. */}
           <HeadlineTile d={data} scope={scope} place={at.headline} drawer={head} />
           <MonthTile d={data} meta={meta} scope={scope} place={at.month}
-            onOpen={() => head.show("mail")} onInfo={() => head.show("method")} />
+            onOpen={() => head.show("trend")} onInfo={() => head.show("method")} />
           {at.slices && data.groups && (
             <SlicesTile groups={data.groups} total={data.headline.saving_missed} scope={scope} place={at.slices} drawer={slices} />
           )}

@@ -26,16 +26,16 @@ function BetterDrawer({ c, dr, title }: { c: Ctx; dr: DrawerCtl; title: string }
         {
           key: "summary", label: "Summary", render: () => (
             <>
-              <DrawerSection title="How it enters the margin missed" note="HCG adds the margin missed up net over every receipt: these receipts lower it.">
+              <DrawerSection title="How it enters the margin missed" note="The group adds the margin missed up net over every receipt: these receipts lower it.">
                 <KeyFigures figures={[
                   { label: "Missed where the suggestion earns more", value: rupeesExact(h.gain_loss), color: LOSS_COL, note: "the receipts where switching gains" },
                   { label: "Where the brand bought earns more", value: rupeesExact(h.better_loss), color: USED_COL, note: "the receipts where switching loses" },
-                  { label: "Margin missed, net", value: rupeesExact(h.margin_loss), note: "the two together: HCG's figure" },
+                  { label: "Margin missed, net", value: rupeesExact(h.margin_loss), note: "the two together: the headline figure" },
                 ]} />
               </DrawerSection>
               <DrawerSection title={rows.length > 1 ? `The ${rows.length} switches that would cost the most` : "Switches that would cost margin"}
                 note="Margin missed is negative here: the brand bought earns that much more than the suggested brand would on the same units.">
-                <SwitchTable rows={rows} caption="Out-of-formulary brands that earn more than their suggestion" empty="In this selection every brand bought earns less than its suggested brand." />
+                <SwitchTable rows={rows} caption="Out-of-formulary brands that earn more than their suggestion" context={c.context} empty="In this selection every brand bought earns less than its suggested brand." />
               </DrawerSection>
             </>
           ),
@@ -43,7 +43,7 @@ function BetterDrawer({ c, dr, title }: { c: Ctx; dr: DrawerCtl; title: string }
         {
           key: "method", label: "Method", render: () => (
             <Method c={c}>
-              <p>Per receipt, margin missed = the suggested brand&apos;s margin − the brand bought&apos;s, on the same units. Where the brand bought earns more, that is negative, and HCG&apos;s sheet adds it in: its figure is net. The app shows the net figure as the margin missed, as HCG does, and its two parts here.</p>
+              <p>Per receipt, margin missed = the suggested brand&apos;s margin − the brand bought&apos;s, on the same units. Where the brand bought earns more, that is negative, and the group&apos;s method adds it in, so the figure is net. The app shows the net figure as the margin missed, and its two parts here.</p>
               <p>On the chart each switch is a bar from zero of what keeping the brand bought earns more, in the margin-earned colour.</p>
             </Method>
           ),
@@ -66,7 +66,7 @@ export function BetterTile({ c, place }: { c: Ctx; place: Place }) {
         ].join(". ")}
         onOpen={() => dr.show("summary")} onInfo={() => dr.show("method")}>
         <div className="flex flex-col h-full">
-          <p className="flex-shrink-0 truncate text-[12px] pb-1" style={{ color: SUB }} title="Taken off the margin missed, as HCG counts it">
+          <p className="flex-shrink-0 truncate text-[12px] pb-1" style={{ color: SUB }} title="Taken off the margin missed, as the group counts it">
             <b className="tabular-nums" style={{ color: INK }}>{withSign(-h.better_loss, lakhs)}</b> earned more · taken off the margin missed
           </p>
           <PanelPart>

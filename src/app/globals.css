@@ -10,6 +10,19 @@
 @custom-variant fit (@media (min-width: 1280px) and (min-height: 760px));
 @custom-variant onescreen (html[data-onescreen="fit"] &);
 
+/* A 12-column overview that scrolls (fixed row heights, e.g. the Executive overview) needs the
+   fit width but not the fit height: `scrollgrid:` applies at 1280px wide on an element marked
+   data-scroll-grid and inside it, however short the screen, so a 1366x768 laptop or a 1920x1080
+   screen at 125% gets the designed grid instead of the two-column stack. The one-screen pages
+   carry no such mark and keep `fit:`. ledger/onescreen.tsx places panels under both. */
+@custom-variant scrollgrid {
+  @media (min-width: 1280px) {
+    &:where([data-scroll-grid], [data-scroll-grid] *) {
+      @slot;
+    }
+  }
+}
+
 @theme {
   --font-*: initial;
   --font-outfit: Outfit, sans-serif;

@@ -3,18 +3,22 @@
 // Out of Formulary (B, the default — the spend that pulls compliance down), Non Formulary (C)
 // and Formulary (A). Clicking an out-of / non-formulary item opens the doctors who prescribed
 // it; the doctor × item table only holds groups B and C, so formulary items have no drill.
+// Every list keeps both Value and Units; on the quantity view the order and the share of the group
+// follow units sold, and the table starts afresh (its own search and filters) in the new unit.
 import React, { useCallback, useState } from "react";
 import dynamic from "next/dynamic";
 import type { Col } from "@/lib/kpiRegistry";
 import { Card, Head, SUB } from "@/components/portfolio/ledger/kit";
 import { inr } from "@/lib/kpiFormat";
 import { Pills, SlideOver, GROUP_LABEL } from "./parts";
+import { count, measureFor, measureOf, perBasis } from "./measure";
 import { filterParams, useOverview, type Filters, type Group } from "./api";
 import { SHARES_NOTE } from "../table/query";
 
 const KpiTable = dynamic(() => import("../KpiTable"), { ssr: false, loading: () => <div className="p-6">{Array.from({ length: 6 }).map((_, i) => <div key={i} className="h-10 rounded-lg bg-gray-50 animate-pulse mb-2" />)}</div> });
 
-const ITEM_COLS: Col[] = [
+// Value and Units both, whatever the switch says; the share follows it (the server's share_pct).
+const ITEM_COLS = perBasis((m): Col[] => [
   { field: "material", label: "Material" },
   { field: "material_desc", label: "Item" },
   { field: "generic_name", label: "Generic" },
@@ -22,11 +26,11 @@ const ITEM_COLS: Col[] = [
   { field: "category", label: "Category" },
   { field: "formulary_class", label: "Class" },
   { field: "cost", label: "Value", kind: "inr" },
-  { field: "qty", label: "Qty", kind: "num" },
+  { field: "qty", label: "Units", kind: "num" },
   { field: "lines", label: "Lines", kind: "num" },
-  { field: "share_pct", label: "Share of group", kind: "pct2" },
+  { field: "share_pct", label: m.units ? "Share of group's units" : "Share of group", kind: "pct2" },
   { field: "hospitals", label: "Hospitals", kind: "num" },
-];
+]);
 
 const ITEM_DOCTOR_COLS: Col[] = [
   { field: "doctor_name", label: "Doctor" },
@@ -34,7 +38,7 @@ const ITEM_DOCTOR_COLS: Col[] = [
   { field: "hospital_name", label: "Hospital" },
   { field: "formulary_class", label: "Class" },
   { field: "cost", label: "Value", kind: "inr" },
-  { field: "qty", label: "Qty", kind: "num" },
+  { field: "qty", label: "Units", kind: "num" },
   { field: "lines", label: "Lines", kind: "num" },
 ];
 
@@ -56,6 +60,8 @@ const GROUP_NOTE: Record<Group, string> = {
 type ItemRow = { material: string; material_desc: string; formulary_class?: string };
 
 export default function Items({ filters, plant }: { filters: Filters; plant: string }) {
+  const basis = filters.basis ?? "value";
+  const asked = measureFor(basis);
   const params = filterParams(filters);
   // The doctor × item table has no patient-type column, so the drill is IP + OP together.
   const drillParams = filterParams({ ...filters, type: "ALL" });
@@ -65,6 +71,9 @@ export default function Items({ filters, plant }: { filters: Filters; plant: str
   // The table's own Total row underneath follows the search.
   const { data: ov } = useOverview({ Plant: plant, ...filterParams(filters, { method: true }) });
   const h = ov?.headline;
+  // The badge prints in the unit its answer came in (the last one stays up while the next loads).
+  const shown = measureOf(ov);
+  const amount = (v: number | null | undefined) => (shown.units ? `${count(v)} units` : inr(v));
   const [item, setItem] = useState<ItemRow | null>(null);
   const [open, setOpen] = useState(false);
   const close = useCallback(() => setOpen(false), []);
@@ -76,9 +85,12 @@ export default function Items({ filters, plant }: { filters: Filters; plant: str
           <Pills value={group} options={GROUPS} onChange={(g) => { setGroup(g); setOpen(false); }} />
           <span className="text-[11.5px]" style={{ color: SUB }}>drugs only · consumables excluded</span>
         </div>
-        <Head label={`${GROUP_LABEL[group]} items`} note={`${GROUP_NOTE[group]} "Share of group" is each item's value ÷ the group total. ${SHARES_NOTE}`}
-          badge={h ? `${GROUP_LABEL[group]} total ${inr(h[GROUP_FIELD[group]])} · of ${inr(h.total)} drug spend` : undefined} />
-        <KpiTable key={group} kpiKey="formulary-items" endpoint="/formulary/items" plant={plant} columns={ITEM_COLS}
+        <Head label={`${GROUP_LABEL[group]} items`}
+          note={`${GROUP_NOTE[group]} ${asked.units
+            ? `Ranked by units sold. "Share of group's units" is each item's units ÷ the group's units; Value is the same items' cost, for reference.`
+            : `"Share of group" is each item's value ÷ the group total.`} ${SHARES_NOTE}`}
+          badge={h ? `${GROUP_LABEL[group]} total ${amount(h[GROUP_FIELD[group]])} · of ${amount(h.total)} drug ${shown.noun}` : undefined} />
+        <KpiTable key={`${group}|${basis}`} kpiKey="formulary-items" endpoint="/formulary/items" plant={plant} columns={ITEM_COLS[basis]}
           extraParams={{ ...params, Group: group }}
           onRowClick={group === "A" ? undefined : (r: ItemRow) => { setItem(r); setOpen(true); }} />
       </Card>
@@ -87,7 +99,7 @@ export default function Items({ filters, plant }: { filters: Filters; plant: str
         title={item?.material_desc || item?.material || ""}
         sub={item ? `Material ${item.material}${item.formulary_class ? ` · ${item.formulary_class}` : ""} · doctors who prescribed it${filters.type !== "ALL" ? " · IP + OP together" : ""}` : undefined}>
         {item && (
-          <KpiTable key={`${item.material}|${plant}`} kpiKey="formulary-item-doctors"
+          <KpiTable key={`${item.material}|${plant}|${basis}`} kpiKey="formulary-item-doctors"
             endpoint="/formulary/doctors" plant={plant} columns={ITEM_DOCTOR_COLS}
             extraParams={{ ...drillParams, Material: item.material }} />
         )}

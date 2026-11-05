@@ -15,6 +15,7 @@ import {
   type ScopeEcho, type Section, type SubBlock,
 } from "../api";
 import { CASH_COL, OOF_COL, SCHEME_COL, coverageWords, oofSourceOf, payerLabel, typeLabel, type LossKind } from "../shared";
+import { rankedHospitals } from "../oof-cards/context";
 
 export type { LossKind };
 
@@ -57,8 +58,8 @@ export const KIND: Record<LossKind, KindWords> = {
     payer: "Not applied (purchases)", patients: "Not applied (purchases)",
   },
   scheme: {
-    section: "scheme", title: "Scheme: margin missed", short: "Scheme", accent: SCHEME_COL,
-    actual: "Spent", proposed: "With suggested brands", loss: "Margin missed", whole: "actual", pctOf: "of the spend",
+    section: "scheme", title: "Scheme saving missed", short: "Scheme", accent: SCHEME_COL,
+    actual: "Spent", proposed: "With suggested brands", loss: "Saving missed", whole: "actual", pctOf: "of the spend",
     payer: "Scheme (GOV)", patients: null,
   },
 };
@@ -73,8 +74,8 @@ export type SectionLoss = {
   hospitals: HospitalLoss[];
   splits: Split[];
   facts: KeyFigure[];
-  /** Sentences the section adds to its drawer's "In brief" (out of formulary: HCG's own sheet
-   *  beside ours, and the two parts of its net figure). */
+  /** Sentences the section adds to its drawer's "In brief" (out of formulary: where its
+   *  suggested brands came from). */
   remarks: string[];
   notes: string[];
   /** HCG's or the app's own figures, or partly the app's estimate (out of formulary's own match);
@@ -115,8 +116,8 @@ export function cashSection(d: CashOverview, meta: Meta): SectionLoss {
       { label: "MRP value, suggested brands", value: rupeesExact(h.suggested_mrp_value),
         note: h.suggested_margin_pct == null ? "MRP excl GST × qty" : `margin ${pct(h.suggested_margin_pct, 2)} of it` },
       { label: "MRP increase", value: rupeesExact(h.topline_increase), note: "revenue at MRP (excl GST) the switch would add" },
-      { label: "Bill cost", value: rupeesExact(h.bill_cost), note: "what these lines cost HCG" },
-      { label: "Units counted", value: num(h.qty, 3), note: `of ${num(h.cash_qty, 3)} used; the rest is HCG's allowance for bifurcated brands` },
+      { label: "Bill cost", value: rupeesExact(h.bill_cost), note: "what these lines cost the group" },
+      { label: "Units counted", value: num(h.qty, 3), note: `of ${num(h.cash_qty, 3)} used; the rest is the allowance for bifurcated brands` },
       { label: "Brands · doctors · hospitals", value: `${num(h.brands)} · ${num(h.doctors)} · ${num(h.hospitals)}` },
     ],
     remarks: [],
@@ -127,8 +128,8 @@ export function cashSection(d: CashOverview, meta: Meta): SectionLoss {
 }
 
 /** Out of formulary, on purchases: one split (onco / non-onco: purchases have no payer or
- *  patient type), what was spent, the two parts of HCG's net figure, where the suggested brands
- *  came from, and HCG's own sheet beside ours. */
+ *  patient type), what was spent, the two parts of HCG's net figure and where the suggested
+ *  brands came from. */
 export function oofSection(d: OofOverview, meta: Meta): SectionLoss {
   const h = d.headline;
   const sources = coverageWords(h.coverage);
@@ -137,7 +138,7 @@ export function oofSection(d: OofOverview, meta: Meta): SectionLoss {
     scope: d.scope,
     head: { ...marginLoss(h), brands: h.brands, hospitals: h.hospitals, doctors: null, vendors: h.vendors },
     trend: (d.trend || []).map((r) => ({ period: r.period, label: r.label || monthLabel(meta, r.period), ...marginLoss(r) })),
-    hospitals: (d.by_hospital || []).map((r) => ({ plant: r.plant, name: r.name, label: r.his_name || r.name, selected: r.selected, rank: r.rank, ...marginLoss(r) })),
+    hospitals: rankedHospitals(d.by_hospital || []).map((r) => ({ plant: r.plant, name: r.name, label: r.his_name || r.name, selected: r.selected, rank: r.rank, ...marginLoss(r) })),
     splits: [
       { key: "category", title: "Onco and non-onco", note: SPLIT_NOTES.category, rows: (d.by_category || []).map((c) => ({ key: c.key, label: c.label, ...marginLoss(c) })) },
     ],
@@ -147,12 +148,11 @@ export function oofSection(d: OofOverview, meta: Meta): SectionLoss {
       { label: "MRP value, suggested brands", value: rupeesExact(h.suggested_mrp_value),
         note: h.suggested_margin_pct == null ? "MRP excl GST × qty" : `margin ${pct(h.suggested_margin_pct, 2)} of it` },
       { label: "Missed where the suggestion earns more", value: rupeesExact(h.gain_loss) },
-      { label: "Where the brand bought earns more", value: rupeesExact(h.better_loss), note: "lowers the margin missed, as HCG counts it" },
+      { label: "Where the brand bought earns more", value: rupeesExact(h.better_loss), note: "lowers the margin missed, as the group counts it" },
       { label: "Units", value: num(h.qty, 3), note: `${num(h.lines)} receipts` },
       { label: "Brands · vendors · hospitals", value: `${num(h.brands)} · ${num(h.vendors)} · ${num(h.hospitals)}` },
     ],
     remarks: [
-      ...(d.hcg ? [`HCG's own out-of-formulary sheet has ${rupeesExact(d.hcg.margin_loss)} for the same hospitals and months${d.hcg.matches ? ": the same figure." : `; ours differs by ${rupeesExact(d.hcg.diff)}.`}`] : []),
       ...(sources ? [`Where the suggested brands came from, by money spent: ${sources}.`] : []),
     ],
     notes: d.notes || [],

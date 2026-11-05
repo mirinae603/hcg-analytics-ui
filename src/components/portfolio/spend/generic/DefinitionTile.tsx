@@ -43,15 +43,15 @@ function DefinitionDrawer({ c, dr, title }: { c: Ctx; dr: DrawerCtl; title: stri
         {
           key: "definition", label: "Definition", render: () => (
             <>
-              <DrawerSection title={def?.label ?? "Estimated definition"} note="The app's own reading until HCG confirms it: every figure of this section rests on it.">
+              <DrawerSection title={def?.label ?? "Estimated definition"} note="The app's own reading: every figure of this section rests on it.">
                 <div className="space-y-2 text-[13.5px] leading-relaxed" style={{ color: INK }}>
                   <p>{c.w.plain}</p>
                   {def?.text && <p style={{ color: SUB }}>In the build&apos;s words: {def.text}</p>}
                 </div>
               </DrawerSection>
               <DrawerSection title="How it is applied"
-                note={`The GRN's manufacturer is matched against ${num(def?.originator_patterns ?? 0)} name patterns of ${num(def?.originator_companies ?? 0)} originator companies (${def?.files?.originators ?? "the originator list"}); ${def?.files?.overrides ?? "the override list"} names brands that list cannot see. HCG can edit both files; the next build picks the change up.`}>
-                <DataTable rows={def?.overrides || []} rowKey={(o) => o.material} cols={OVERRIDE_COLS} caption="Brands whose class is set by hand" empty="No brand is set by hand." />
+                note={`The GRN's manufacturer is matched against ${num(def?.originator_patterns ?? 0)} name patterns of ${num(def?.originator_companies ?? 0)} originator companies (${def?.files?.originators ?? "the originator list"}); ${def?.files?.overrides ?? "the override list"} names brands that list cannot see. The group can edit both files; the next build picks the change up.`}>
+                <DataTable context={c.context} rows={def?.overrides || []} rowKey={(o) => o.material} cols={OVERRIDE_COLS} caption="Brands whose class is set by hand" empty="No brand is set by hand." />
               </DrawerSection>
             </>
           ),

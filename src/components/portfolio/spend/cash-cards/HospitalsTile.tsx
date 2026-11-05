@@ -40,16 +40,17 @@ export function RankingTable({ c, onPicked }: { c: Ctx; onPicked?: () => void })
           aria-label={h.selected ? `${nameOf(h)}, selected. Show all hospitals` : `Select ${nameOf(h)}`}
           className="text-left underline decoration-dotted underline-offset-2">{nameOf(h)}</button>
       ),
+      raw: (h) => nameOf(h),
     },
-    { label: "Margin earned", render: (h) => rupeesExact(h.actual_margin) },
-    { label: "Margin possible", render: (h) => rupeesExact(h.potential_margin) },
-    { label: "Margin missed", render: (h) => <b>{rupeesExact(h.margin_loss)}</b> },
-    { label: "% missed", render: (h) => pct(h.loss_pct) },
+    { label: "Margin earned", render: (h) => rupeesExact(h.actual_margin), raw: (h) => h.actual_margin, unit: "₹" },
+    { label: "Margin possible", render: (h) => rupeesExact(h.potential_margin), raw: (h) => h.potential_margin, unit: "₹" },
+    { label: "Margin missed", render: (h) => <b>{rupeesExact(h.margin_loss)}</b>, raw: (h) => h.margin_loss, unit: "₹" },
+    { label: "% missed", render: (h) => pct(h.loss_pct), raw: (h) => h.loss_pct, unit: "%" },
   ];
   return (
     <DrawerSection title="Hospitals, most margin missed first"
       note={<>{here ? <><b>{nameOf(here)}</b> is number {here.rank} of {rows.length}. </> : null}{c.w.rankNote} Click a hospital to select it; click the selected one again for all hospitals.</>}>
-      <DataTable rows={rows} rowKey={(h) => h.plant} cols={cols} strong={(h) => h.selected} minWidth={680}
+      <DataTable context={c.context} rows={rows} rowKey={(h) => h.plant} cols={cols} strong={(h) => h.selected} minWidth={680}
         caption="Hospitals ranked by margin missed" empty={c.w.rankEmpty} />
     </DrawerSection>
   );

@@ -6,15 +6,18 @@
 // onco and non-onco on the same axis, in ink (HCG budgets the pooled figure, not the segments).
 // For all hospitals the same panel is the network's compliance, with no budget: HCG budgets each
 // unit. A row opens its drawer: the overall figure the written summary, the month-by-month
-// charts, the onco / non-onco and IP / OP splits, HCG's Budget vs Actual table and the method;
+// charts, the onco / non-onco and IP / OP splits and the method;
 // a segment the onco vs non-onco drawer. The (i) opens the drawer on Method.
+// On the quantity view the same ratio is taken over units sold, with no budget anywhere: the
+// budget is a drug-cost target, so the row says "no budget on quantity" instead.
 //
 // The axis is fitted to the figures (they sit between ~94% and 100%), so they are dots, never
 // bars: a bar's length would claim a zero the axis does not have. In the drawer the Trend tab
 // plots the GAP (points short of 100%, i.e. the out-of-formulary share for pooled) as bars
 // from zero; a 0–100 axis would flatten 98.4 vs 99.2 into one line.
 import React, { useState } from "react";
-import { Readout, useArmed, useSlots, INK, SUB, LINE, EASE } from "@/components/portfolio/ledger/kit";
+import { TbShieldCheck } from "react-icons/tb";
+import { Readout, useArmed, useSlots, INK, SUB, LINE, EASE, SEL_BG } from "@/components/portfolio/ledger/kit";
 import type { DeltaProps } from "@/components/portfolio/ledger/KpiCard";
 import DetailDrawer, { DrawerSection, useDrawer, KeyFigures } from "@/components/portfolio/ledger/DetailDrawer";
 import { ChartPanel } from "@/components/portfolio/ledger/panel";
@@ -24,19 +27,21 @@ import { STATUS_LABEL, WITHIN_PTS, classify } from "@/components/portfolio/ledge
 import { isNum, pct } from "@/components/portfolio/ledger/format";
 import { num } from "@/lib/kpiFormat";
 import { F_COL, OOF_COL, NF_COL, LinkButton, Pills, fmtPts, RATE_COL } from "./parts";
-import { BudgetActualTable, HcgChart } from "./HcgTables";
-import { complianceSummary, rupees, type SegmentMove } from "./summaries";
+import { HcgChart } from "./HcgTables";
+import { complianceSummary, type SegmentMove } from "./summaries";
 import { SegmentsDrawer } from "./overview-cards/SegmentsCard";
 import {
   HowBuilt, MethodText, SplitRows, budgetOf, filterChips, shareOfRatio,
   type BudgetView, type OverviewScope,
 } from "./overview-cards/shared";
-import { effectiveMethod, gapOf, inRatioOf, monthLabel, niceMax, type Overview as OverviewData, type View } from "./api";
+import { effectiveMethod, gapOf, inRatioOf, monthLabel, niceMax, type View } from "./api";
 
 /** Why the overall figure carries no budget marker, beside its label. */
 const NO_BUDGET: Record<NonNullable<BudgetView["why"]>, string> = {
-  network: "HCG budgets each unit",
+  units: "no budget on quantity",
+  network: "budgets are set per unit",
   unit: "no budget set for this unit",
+  differs: "budgets differ across these months",
   filters: "budget is for all patients, pooled",
 };
 
@@ -70,7 +75,9 @@ export default function ComplianceTile({ s, place }: { s: OverviewScope; place: 
   // Each % as a bar on one axis from 0 to 100%, so 98% reads as a bar 98% full: a dot on an axis
   // fitted to 96–100% sat mid-track and read as misplaced. The budget and the month before are
   // ticks on the same axis; the bar takes the row's status colour, or the rate colour unjudged.
-  const title = s.network ? "Network compliance" : "Formulary compliance vs budget";
+  const title = s.m.units
+    ? (s.network ? "Network compliance on quantity" : "Formulary compliance on quantity")
+    : (s.network ? "Network compliance" : "Formulary compliance vs budget");
   const label = [
     `${title}, ${s.context}: ${pct(value)}`,
     budget.applies ? `budget ${budget.value}%, ${STATUS_LABEL[status]}` : budget.why ? NO_BUDGET[budget.why] : null,
@@ -80,10 +87,10 @@ export default function ComplianceTile({ s, place }: { s: OverviewScope; place: 
 
   return (
     <>
-      <ChartPanel id="compliance" title={title} context={s.context} accent={F_COL} place={place} label={label} interactive
+      <ChartPanel id="compliance" title={title} context={s.context} icon={TbShieldCheck} place={place} label={label} interactive
         onOpen={() => dr.show("summary")} onInfo={() => dr.show("method")}>
-        <BulletRows ariaLabel={`Formulary compliance, ${s.context}`} rows={rows}
-          scale={{ kind: "pct", min: 0, max: 100, bars: true, color: RATE_COL }} empty="No formulary or out-of-formulary drug spend in this selection." />
+        <BulletRows ariaLabel={`Formulary compliance${s.m.units ? " on quantity" : ""}, ${s.context}`} rows={rows}
+          scale={{ kind: "pct", min: 0, max: 100, bars: true, color: RATE_COL }} empty={`No formulary or out-of-formulary drug ${s.m.noun} in this selection.`} />
       </ChartPanel>
       <ComplianceDrawer s={s} open={dr.open} first={dr.tab} onClose={dr.close} />
       <SegmentsDrawer s={s} open={seg.open} first={seg.tab} onClose={seg.close} />
@@ -115,22 +122,22 @@ export function ComplianceDrawer({ s, open, first, onClose }: { s: OverviewScope
 
   return (
     <DetailDrawer open={open} onClose={onClose} initialTab={first}
-      eyebrow="Formulary compliance · Overview" title={`Formulary compliance · ${where}`}
-      kpi={{ value: pct(value), comparator: budget.applies ? `Budget ${budget.value}%` : undefined, status, delta }}
+      eyebrow="Formulary compliance · Overview" title={`Formulary compliance${s.m.units ? " on quantity" : ""} · ${where}`}
+      kpi={{ value: pct(value), comparator: budget.applies ? `Budget ${budget.value}%` : budget.why === "units" ? "No budget on quantity" : budget.why === "differs" ? "Budgets differ across these months" : undefined, status, delta }}
       source="computed" asOf={s.asOf} filters={filterChips(s)}
       tabs={[
         {
           key: "summary", label: "Summary", render: () => (
-            <SummaryTab d={d} share={shareOfRatio(s)} lines={complianceSummary({
+            <SummaryTab s={s} share={shareOfRatio(s)} lines={complianceSummary({
               where, when: s.when, pct: value, budget: budget.value, noBudget: budget.why,
               prev: prev ? { label: prev.label, pct: prev.row.compliance_pct } : null,
               segments, outOfFormulary: h.out_of_formulary, nonFormulary: h.non_formulary,
+              amount: s.m.exact, units: s.m.units,
             })} />
           ),
         },
         { key: "trend", label: "Trend", render: () => <TrendPanel s={s} /> },
         { key: "breakdown", label: "Breakdown", render: () => <BreakdownTab s={s} onOpen={goTo} /> },
-        { key: "mail", label: "As in HCG mail", render: () => <BudgetActualTable d={d} meta={s.meta} filters={filters} /> },
         { key: "method", label: "Method", render: () => <MethodTab s={s} budget={budget} /> },
       ]} />
   );
@@ -140,13 +147,14 @@ export function ComplianceDrawer({ s, open, first, onClose }: { s: OverviewScope
 // DRAWER TABS
 // ─────────────────────────────────────────────────────────────────────────────
 
-function SummaryTab({ d, share, lines }: {
-  d: OverviewData;
+function SummaryTab({ s, share, lines }: {
+  s: OverviewScope;
   /** What the in-ratio amount's note says the % is (shareOfRatio). */
   share: string;
   lines: string[];
 }) {
-  const h = d.headline;
+  const h = s.d.headline;
+  const { m } = s;
   return (
     <>
       <DrawerSection title="In brief">
@@ -154,13 +162,13 @@ function SummaryTab({ d, share, lines }: {
           {lines.map((t, i) => <p key={i}>{t}</p>)}
         </div>
       </DrawerSection>
-      <DrawerSection title="Key figures" note={`Exact cost (TOTALCOSTPRICE) · ${num(h.lines)} drug lines in scope`}>
+      <DrawerSection title="Key figures" note={`${m.source} · ${num(h.lines)} drug lines in scope`}>
         <KeyFigures figures={[
-          { label: "Formulary", value: rupees(h.formulary), color: F_COL, note: "in the ratio" },
-          { label: "Out of formulary", value: rupees(h.out_of_formulary), color: OOF_COL, note: "in the ratio" },
-          { label: "Formulary + out of formulary", value: rupees(inRatioOf(h)), note: `${share} of it` },
-          { label: "Non formulary", value: rupees(h.non_formulary), color: NF_COL, hatched: true, note: "outside the ratio" },
-          { label: "All drug spend", value: rupees(h.total), note: "formulary + out of formulary + non formulary" },
+          { label: "Formulary", value: m.exact(h.formulary), color: F_COL, note: "in the ratio" },
+          { label: "Out of formulary", value: m.exact(h.out_of_formulary), color: OOF_COL, note: "in the ratio" },
+          { label: "Formulary + out of formulary", value: m.exact(inRatioOf(h)), note: `${share} of it` },
+          { label: "Non formulary", value: m.exact(h.non_formulary), color: NF_COL, hatched: true, note: "outside the ratio" },
+          { label: `All drug ${m.noun}`, value: m.exact(h.total), note: "formulary + out of formulary + non formulary" },
         ]} />
       </DrawerSection>
     </>
@@ -174,14 +182,14 @@ function BreakdownTab({ s, onOpen }: { s: OverviewScope; onOpen: (v: View) => vo
     <>
       <DrawerSection title="Onco vs non-onco"
         note={filters.segment === "ALL"
-          ? <>Each segment&apos;s own ratio. Pooled {pct(h.pooled_pct)} is HCG&apos;s current method; the mean of the two segments ({pct(h.mean_pct)}) was its earlier one.</>
+          ? <>Each segment&apos;s own ratio. Pooled {pct(h.pooled_pct)} is the current method; the mean of the two segments ({pct(h.mean_pct)}) was the earlier one.</>
           : "Material type is filtered to one segment, so only that segment has spend here."}>
-        <SplitRows rows={(d.segments || []).map((g) => ({ key: g.key, label: g.label, s: g }))} />
+        <SplitRows m={s.m} rows={(d.segments || []).map((g) => ({ key: g.key, label: g.label, s: g }))} />
       </DrawerSection>
       <DrawerSection title="Inpatient vs outpatient" note="The same ratio per patient type. IP and OP lines both come from the HIS consolidated sales file.">
-        <SplitRows rows={(d.by_type || []).map((t) => ({ key: t.type, label: t.type === "IP" ? "Inpatient (IP)" : t.type === "OP" ? "Outpatient (OP)" : t.type, s: t }))} />
+        <SplitRows m={s.m} rows={(d.by_type || []).map((t) => ({ key: t.type, label: t.type === "IP" ? "Inpatient (IP)" : t.type === "OP" ? "Outpatient (OP)" : t.type, s: t }))} />
       </DrawerSection>
-      <DrawerSection title="Where the out-of-formulary spend is">
+      <DrawerSection title={`Where the out-of-formulary ${s.m.noun} is`}>
         <div className="flex flex-wrap gap-2">
           <LinkButton onClick={() => onOpen("doctors")}>Out of formulary by doctor</LinkButton>
           <LinkButton onClick={() => onOpen("items")}>Out of formulary items</LinkButton>
@@ -201,33 +209,50 @@ function MethodTab({ s, budget }: { s: OverviewScope; budget: BudgetView }) {
       <MethodText>
         <p>
           {method === "mean" ? (
-            <>Mean = the average of the onco ratio and the non-onco ratio, each Formulary ÷ (Formulary + Out of formulary): HCG&apos;s earlier method. A segment with nothing in its ratio is skipped.</>
+            <>Mean = the average of the onco ratio and the non-onco ratio, each Formulary ÷ (Formulary + Out of formulary): the earlier method. A segment with nothing in its ratio is skipped.</>
           ) : (
             <>Pooled = Formulary ÷ (Formulary + Out of formulary){s.filters.segment === "ALL"
-              ? <> over onco and non-onco drugs together: HCG&apos;s current method.</>
+              ? <> over onco and non-onco drugs together: the current method.</>
               : <> for the selected material type.</>}
-              {gap != null && <> Of every ₹100 in the ratio, <b style={{ color: INK }}>₹{gap.toFixed(2)}</b> went to out-of-formulary items.</>}</>
+              {gap != null && (s.m.units
+                ? <> Of every 100 units in the ratio, <b style={{ color: INK }}>{gap.toFixed(2)}</b> were out-of-formulary items.</>
+                : <> Of every ₹100 in the ratio, <b style={{ color: INK }}>₹{gap.toFixed(2)}</b> went to out-of-formulary items.</>)}</>
           )}
         </p>
         <p>Non formulary items and consumables are outside the ratio. {num(h.lines)} drug lines in scope.</p>
+        {s.m.units && (
+          <p>
+            Quantity view: the same ratio over units sold instead of cost. Quantity adds tablets, vials and bottles together (the sales
+            files keep no unit of measure), so a cheap tablet weighs as much as a costly vial; it is a second lens, not the budgeted figure.
+          </p>
+        )}
         <p>
-          {budget.value == null
+          {budget.why === "units"
+            ? <>Budget: none on quantity. The compliance budget is set on drug cost, so a quantity figure is never set against it and
+                no status is shown. Switch the header to Value for the budgeted figure.{s.prev && <> The chart compares the figure with {s.prev.label} instead, the grey tick.</>}</>
+            : budget.value == null
             ? <>{budget.why === "network"
-                ? <>Budget: HCG sets a compliance budget for each hospital, so all hospitals together have none.</>
-                : <>Budget: HCG&apos;s PAN MIS sets no budget for this hospital.</>}
+                ? <>Budget: each hospital has its own compliance budget, so all hospitals together have none.</>
+                : budget.why === "differs"
+                ? <>Budget: the PAN MIS sets this hospital different budgets in the months selected (each month&apos;s is named under How these figures are built), so the span is not set against one budget and no status is shown. Pick one month to see it against its own budget.</>
+                : <>Budget: the PAN MIS sets no budget for this hospital.</>}
                 {s.prev && <> The chart compares the figure with {s.prev.label} instead, the grey tick.</>}</>
             : h.budget_source === "hcg_mis"
-              ? <>Budget = {budget.value}%, this hospital&apos;s FY budget in HCG&apos;s PAN MIS{hcgMis ? <> ({hcgMis})</> : null}.</>
-              : <>Budget = {budget.value}%, the default target: HCG&apos;s PAN MIS, which sets each hospital&apos;s own, has not been read yet.</>}
-          {" "}The status compares the whole percentage HCG&apos;s MIS would print with the budget: met when it prints at or above it,
-          within {WITHIN_PTS} pts when it prints up to {WITHIN_PTS} points below, otherwise more than {WITHIN_PTS} pts below. The budget is set for
-          a hospital&apos;s whole drug spend, pooled, so no status is shown under a patient-type, payer, material or mean filter.
+              ? <>Budget = {budget.value}%, this hospital&apos;s FY budget in the PAN MIS{hcgMis ? <> ({hcgMis})</> : null}.</>
+              : <>Budget = {budget.value}%, the default target: the PAN MIS, which sets each hospital&apos;s own, has not been read yet.</>}
+          {budget.why !== "units" && (
+            <>
+              {" "}The status compares the whole percentage the MIS would print with the budget: met when it prints at or above it,
+              within {WITHIN_PTS} pts when it prints up to {WITHIN_PTS} points below, otherwise more than {WITHIN_PTS} pts below. The budget is set for
+              a hospital&apos;s whole drug spend, pooled, so no status is shown under a patient-type, payer, material or mean filter.
+            </>
+          )}
           {budget.why === "filters" && s.prev && <> Under these filters the chart compares the figure with {s.prev.label}, the grey tick.</>}
         </p>
         <p>
-          On the Overview each figure is a dot on one axis fitted to the figures, the months before and the budget: the axis does
-          not start at zero, so the figures are dots, not bars. The grey tick is the month before; when the figure is judged against
-          a budget, the black marker is the budget and the shaded bands behind it are met, within {WITHIN_PTS} pts and below.
+          On the Overview each figure is a bar on one axis from 0 to 100%, so 98% is a bar 98% full. The grey tick is the month
+          before; when the figure is judged against a budget, the black tick is the budget and the bar takes its status colour
+          (met, within {WITHIN_PTS} pts, below), otherwise the rate colour.
         </p>
       </MethodText>
       <HowBuilt s={s} />
@@ -248,10 +273,10 @@ function TrendPanel({ s }: { s: OverviewScope }) {
       <div className="flex items-center justify-end mb-2">
         <Pills value={view} onChange={setView} options={[
           { key: "gap", label: "Gap from 100%", title: "Points short of 100%, on an axis from zero" },
-          { key: "hcg", label: "HCG view", title: "Budget vs Actual bars per month, as in HCG's MIS chart" },
+          { key: "hcg", label: "MIS view", title: s.m.budgetJudged ? "Budget vs Actual bars per month, as in the MIS chart" : "Actual bars per month, as in the MIS chart (no budget on quantity)" },
         ]} />
       </div>
-      {view === "hcg" ? <HcgChart months={s.months} /> : <Trend s={s} />}
+      {view === "hcg" ? <HcgChart months={s.months} m={s.m} /> : <Trend s={s} />}
     </>
   );
 }
@@ -277,7 +302,7 @@ function Trend({ s }: { s: OverviewScope }) {
       <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ height: "auto", marginTop: 6, cursor: "crosshair" }} preserveAspectRatio="xMidYMid meet"
         onMouseMove={onMove} onMouseLeave={onLeave} role="img" aria-label="Out-of-formulary share by month, labelled with each month's compliance">
         {rows.map((r, i) => sel.has(r.period) && (
-          <rect key={`s-${r.period}`} x={PL + i * slotW + 4} y={PT - 28} width={slotW - 8} height={PH + 28 + 30} rx={10} fill="rgba(22,32,28,.045)" />
+          <rect key={`s-${r.period}`} x={PL + i * slotW + 4} y={PT - 28} width={slotW - 8} height={PH + 28 + 30} rx={10} fill={SEL_BG} />
         ))}
         {[0, 0.5, 1].map((f) => (
           <g key={f}>
@@ -306,8 +331,8 @@ function Trend({ s }: { s: OverviewScope }) {
       <Readout k={hi} dark minH={52}>
         {a ? (
           <span><b>{a.label || monthLabel(meta, a.period)}</b> — compliance <b style={{ color: RATE_COL }}>{pct(a.compliance_pct)}</b>
-            {" "}of {rupees(inRatioOf(a))} · formulary {rupees(a.formulary)} · out of formulary <b style={{ color: OOF_COL }}>{rupees(a.out_of_formulary)}</b>
-            <span style={{ color: SUB }}> · non formulary {rupees(a.non_formulary)} (outside the ratio)</span></span>
+            {" "}of {s.m.exact(inRatioOf(a))}{s.m.units ? " units" : ""} · formulary {s.m.exact(a.formulary)} · out of formulary <b style={{ color: OOF_COL }}>{s.m.exact(a.out_of_formulary)}</b>
+            <span style={{ color: SUB }}> · non formulary {s.m.exact(a.non_formulary)} (outside the ratio)</span></span>
         ) : (
           <span style={{ color: SUB }}>bars = points short of 100% · labels = compliance · shaded = months in your selection</span>
         )}

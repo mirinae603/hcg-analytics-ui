@@ -7,6 +7,7 @@ import { useRegion, displayRegion } from "@/context/RegionContext";
 import { useCardCategory } from "@/components/common/CardCategoryFilter";
 import { useDrillBind } from "@/components/portfolio/useDrillBind";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
+import { useWindows, windowLabel, windowPill } from "@/lib/useWindows";
 import { inrAbbr, countAbbr, catName, useMount, CountUp, smoothPath } from "@/components/portfolio/kit";
 import { ScopeToggle, type Scope } from "@/components/portfolio/ScopeToggle";
 import { TbPill, TbCoin, TbCurrencyRupee, TbBoxMultiple, TbLayoutGrid, TbChartDots, TbArrowUpRight, TbArrowDownRight, TbFlame, TbTrophy, TbArrowUp } from "react-icons/tb";
@@ -23,6 +24,8 @@ const rupee = (n: number) => (n >= 1e5 ? `₹${(n / 1e5).toFixed(1)}L` : n >= 1e
 const pctSign = (n: number) => `${n >= 0 ? "+" : ""}${n.toFixed(1)}%`;
 
 function Shell({ region, children }: any) {
+  // the timeline, heatmap and table are internal issues whatever the scope: every month received
+  const consumption = useWindows()?.windows.consumption;
   return (
     <div className="-m-4 md:-m-6 p-4 md:p-6 space-y-5 min-w-0" style={{ background: PAGE, minHeight: "calc(100vh - 64px)" }}>
       <style jsx global>{`@keyframes ucIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}.uc-card{animation:ucIn .55s cubic-bezier(.22,1,.36,1) both;min-width:0}`}</style>
@@ -31,7 +34,7 @@ function Shell({ region, children }: any) {
           <h1 className="text-[24px] font-bold leading-tight" style={{ color: INK }}>Units consumed per SKU</h1>
           <p className="text-[13px] mt-1" style={{ color: SUB }}>what the hospitals actually issue & use, by material · {displayRegion(region)}</p>
         </div>
-        <span className="text-[12px] font-medium px-3.5 py-2 rounded-full bg-white" style={{ color: "#7a5f68", boxShadow: "0 4px 14px -8px rgba(90,40,55,0.22)" }}>6-month window</span>
+        {consumption && <span className="text-[12px] font-medium px-3.5 py-2 rounded-full bg-white" style={{ color: "#7a5f68", boxShadow: "0 4px 14px -8px rgba(90,40,55,0.22)" }} title={windowLabel(consumption)}>{windowPill(consumption)}</span>}
       </div>
       {children}
     </div>
@@ -83,12 +86,13 @@ function Ring({ pct, size = 78, color = ROSE, center }: any) {
 // ── heatmap (units/cost toggle) ──
 function Heatmap({ matrix, cat, loading, scope }: { matrix: any; cat: any; loading: boolean; scope: Scope }) {
   const [metric, setMetric] = useState<"units" | "cost">("units");
+  const months = useWindows()?.windows.consumption?.months;
   // Row = material group, so "what did this row actually consume" is the next question.
   // Ranked by the metric the toggle is showing, so the panel's total is the row's total.
   const drill = useDrillBind({
     kpi: "unit-sold-per-sku", dim: "material_group", by: "material",
     measure: metric === "units" ? "total_units" : "consumption_cost",
-    label: "items", dimLabel: "Category · 6-month consumption",
+    label: "items", dimLabel: `Category · ${months ? `${months}-month ` : ""}consumption`,
     format: metric === "units" ? countAbbr : inrAbbr, category: cat.drill,
   });
   const [hov, setHov] = useState<{ r: number; c: number } | null>(null);
@@ -299,6 +303,14 @@ export default function UnitsConsumedDetail() {
   const avgMo = cVals.length ? cost / cVals.length : 0;
   const deltaUnits = scope !== "nonbillable" && data && baseline ? units - Number(baseline.totals?.units ?? 0) : null;
   const deltaCost = scope !== "nonbillable" && data && baseline ? cost - Number(baseline.totals?.cost ?? 0) : null;
+  // The months each total covers: issues over every consumption month received, billing over the
+  // billed-sales months. Both adds the two, each over its own months; when those differ no one
+  // badge is true, so the badge gives way and the line under the figure names both windows.
+  const win = useWindows()?.windows;
+  const issued = win?.consumption?.months, billed = win?.legacy_sales?.months;
+  const span = scope === "nonbillable" ? issued : scope === "billable" ? billed : issued === billed ? issued : undefined;
+  const badge = span ? `${span} mo` : undefined;
+  const both = scope === "both" && issued && billed && issued !== billed ? ` · billed ${billed} mo, issued ${issued} mo` : "";
   return (
     <Shell region={region}>
       <div className="flex items-center justify-between flex-wrap gap-3">
@@ -310,9 +322,9 @@ export default function UnitsConsumedDetail() {
       </div>
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
         <Card delay={0}>
-          <Head icon={TbPill} label="Units consumed" badge="6 mo" />
+          <Head icon={TbPill} label="Units consumed" badge={badge} />
           <div className="mt-3 text-[30px] leading-none font-bold tabular-nums tracking-tight" style={{ color: INK }}><CountUp value={units} format={countAbbr} /></div>
-          <div className="mt-1 text-[12px]" style={{ color: SUB }}>{scope === "nonbillable" ? "units issued" : "billed + issued"}</div>
+          <div className="mt-1 text-[12px]" style={{ color: SUB }}>{scope === "nonbillable" ? "units issued" : scope === "billable" ? "units billed" : `billed + issued${both}`}</div>
           {deltaUnits != null && deltaUnits >= 1 && (
             <div className="mt-1.5 inline-flex items-center gap-1 self-start px-2 py-0.5 rounded-full" style={{ background: `${ROSE}14` }}>
               <TbArrowUp size={10} style={{ color: ROSE }} />
@@ -322,9 +334,9 @@ export default function UnitsConsumedDetail() {
           <div className="mt-auto pt-4"><MiniBars vals={uVals} /><div className="mt-2 flex items-center justify-between"><span className="text-[11px]" style={{ color: "#b7a7ae" }}>latest MoM</span><Chip text={pctSign(momU)} color={momU >= 0 ? "#5aa97e" : ROSE} icon={momU >= 0 ? TbArrowUpRight : TbArrowDownRight} /></div></div>
         </Card>
         <Card delay={60}>
-          <Head icon={TbCoin} label="Consumption cost" badge="6 mo" />
+          <Head icon={TbCoin} label="Consumption cost" badge={badge} />
           <div className="mt-3 text-[30px] leading-none font-bold tabular-nums tracking-tight" style={{ color: INK }}><CountUp value={cost} format={inrAbbr} /></div>
-          <div className="mt-1 text-[12px]" style={{ color: SUB }}>{scope === "nonbillable" ? "internal usage cost" : "billed + internal cost"}</div>
+          <div className="mt-1 text-[12px]" style={{ color: SUB }}>{scope === "nonbillable" ? "internal usage cost" : scope === "billable" ? "billed cost" : `billed + internal cost${both}`}</div>
           {deltaCost != null && deltaCost >= 1 && (
             <div className="mt-1.5 inline-flex items-center gap-1 self-start px-2 py-0.5 rounded-full" style={{ background: `${CORAL}18` }}>
               <TbArrowUp size={10} style={{ color: DEEP }} />

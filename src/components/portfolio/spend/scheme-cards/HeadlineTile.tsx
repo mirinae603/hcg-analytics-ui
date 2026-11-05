@@ -4,9 +4,11 @@
 // less the margin HCG missed (HCG: scheme margin missed), down to what the suggested
 // brands would have cost for the same quantity, so the loss is the step between the two bars.
 // Both sides use HCG's FY price list, as HCG's own report does. The drawer carries the written
-// summary, actual vs proposed for every month, HCG's month table, the hospitals (once one is
-// selected) and the method; the page lifts it (HeadlineDrawer), as the month tile opens it too.
+// summary, actual vs proposed for every month with the month-by-month figures, the hospitals
+// (once one is selected) and the method; the page lifts it (HeadlineDrawer), as the month tile
+// opens it too.
 import React from "react";
+import { TbBuildingHospital } from "react-icons/tb";
 import { ChartPanel } from "@/components/portfolio/ledger/panel";
 import { Waterfall } from "@/components/portfolio/ledger/bars";
 import { MonthCombo } from "@/components/portfolio/ledger/charts";
@@ -40,7 +42,7 @@ export function HeadlineTile({ d, scope, place, drawer }: {
     : `${w.bridge}, ${scope.context}. ${empty}`;
 
   return (
-    <ChartPanel id="headline" title={w.bridge} context={scope.context} accent={USED_COL} place={place} label={label}
+    <ChartPanel id="headline" title={w.bridge} context={scope.context} icon={TbBuildingHospital} place={place} label={label}
       onOpen={() => drawer.show("summary")} onInfo={() => drawer.show("method")}>
       {any ? (
         <Waterfall ariaLabel={`${w.actual} − ${w.loss} = ${w.proposed}`} format={lakhs}
@@ -56,8 +58,8 @@ export function HeadlineTile({ d, scope, place, drawer }: {
   );
 }
 
-/** The headline figure in full: the written summary, actual vs proposed every month, HCG's
- *  month table, the hospitals (once one is selected) and the method. */
+/** The headline figure in full: the written summary, actual vs proposed every month with the
+ *  month-by-month figures, the hospitals (once one is selected) and the method. */
 export function HeadlineDrawer({ d, meta, filters, scope, drawer, onOpen }: {
   d: Overview; meta: Meta; filters: Filters; scope: Scope; drawer: DrawerCtl;
   onOpen: (v: View) => void;
@@ -82,9 +84,8 @@ export function HeadlineDrawer({ d, meta, filters, scope, drawer, onOpen }: {
       source="computed" asOf={scope.asOf} filters={filterChips(filters, scope, meta)}
       tabs={[
         { key: "summary", label: "Summary", render: () => <SummaryTab d={d} meta={meta} scope={scope} prev={prev} onOpen={goTo} /> },
-        { key: "trend", label: "Trend", render: () => <TrendTab d={d} rows={rows} /> },
-        { key: "mail", label: "As in HCG mail", render: () => <MailTab d={d} rows={rows} /> },
-        { key: "hospitals", label: "Hospitals", hidden: scope.network, render: () => <HospitalTable d={d} onPicked={drawer.close} /> },
+        { key: "trend", label: "Trend", render: () => <TrendTab d={d} rows={rows} where={scope.where} /> },
+        { key: "hospitals", label: "Hospitals", hidden: scope.network, render: () => <HospitalTable d={d} context={scope.context} onPicked={drawer.close} /> },
         { key: "method", label: "Method", render: () => <MethodTab d={d} meta={meta} lines={headlineMethod(meta)} /> },
       ]} />
   );
@@ -112,10 +113,10 @@ function SummaryTab({ d, meta, scope, prev, onOpen }: {
   const fy = d.scheme_list?.financial_year || meta.scheme_list?.financial_year;
   const listed = meta.scheme_list?.switches;
   const lines: React.ReactNode[] = [
-    <>For scheme (GOV) patients HCG&apos;s scheme list names a cheaper brand
+    <>For scheme (GOV) patients the scheme list names a cheaper brand
       {listed != null ? <> for {num(listed)} brands</> : null}. {scope.network ? "Across all hospitals" : `At ${scope.where}`}, {scope.when}, {num(h.brands)} of them were used:
       {" "}{num(h.qty)} units, by {num(h.doctors)} doctor{h.doctors === 1 ? "" : "s"}{scope.network ? <> at {num(h.hospitals)} hospitals</> : null}.</>,
-    <>At HCG&apos;s {fy ? `FY ${fy} ` : ""}list prices they cost {rupeesExact(h.used_value)}; the {w.sug} brands would have cost
+    <>At the {fy ? `FY ${fy} ` : ""}list prices they cost {rupeesExact(h.used_value)}; the {w.sug} brands would have cost
       {" "}{rupeesExact(h.suggested_value)}. {w.loss}: <b style={{ color: INK }}>{rupeesExact(h.saving_missed)}</b>
       {isNum(h.saving_pct) ? <> ({pct(h.saving_pct)} of the spend)</> : null}.</>,
     ...(prev ? [<>{prev.label}, the month before: {w.loss.toLowerCase()} {rupeesExact(prev.loss)}, {pct(prev.pct)} of {rupeesExact(prev.actual)}.</>] : []),
@@ -136,7 +137,7 @@ function SummaryTab({ d, meta, scope, prev, onOpen }: {
           {lines.map((t, i) => <p key={i}>{t}</p>)}
         </div>
       </DrawerSection>
-      <DrawerSection title="Key figures" note="Exact rupees at HCG's FY list prices.">
+      <DrawerSection title="Key figures" note="Exact rupees at the FY list prices.">
         <KeyFigures figures={figures} />
       </DrawerSection>
       <DrawerSection title="Behind this figure">
@@ -149,39 +150,33 @@ function SummaryTab({ d, meta, scope, prev, onOpen }: {
   );
 }
 
-/** HCG's "Actual vs Budget" chart for this figure: the spend on the brands used beside the
- *  same quantity at the suggested brand's price, every month, with the % on its own axis. */
-function TrendTab({ d, rows }: { d: Overview; rows: TrendRow[] }) {
-  const w = WORDS;
-  const sel = new Set(d.scope?.months || []);
-  return (
-    <DrawerSection title={`${w.actual} vs ${w.proposed.toLowerCase()}, every month`}
-      note="Every published month, whatever the Month filter says; the months in your selection are shaded. The two bars stand one over the other from zero, the larger behind; the line joins the bar tops, each point labelled with the month's %.">
-      <MonthCombo ariaLabel={`${w.actual} and ${w.proposed.toLowerCase()} by month, with ${w.pct} as a line`}
-        layout="alternatives" series={[{ key: "used", label: w.actual, color: USED_COL }, { key: "sug", label: w.proposed, color: PROPOSED_COL }]}
-        line={{ label: w.pct, color: RATE_COL, decimals: 2 }}
-        months={rows.map((r) => ({
-          key: r.period, label: r.label, pct: r.pct, selected: sel.has(r.period),
-          values: { used: r.actual, sug: r.proposed },
-        }))} />
-    </DrawerSection>
-  );
-}
-
-/** HCG's table under its chart: Actual, Proposed, Loss and % missed for every month. */
-function MailTab({ d, rows }: { d: Overview; rows: TrendRow[] }) {
+/** The spend on the brands used beside the same quantity at the suggested brand's price, every
+ *  month, with the % as a line; under it the same months in exact rupees. */
+function TrendTab({ d, rows, where }: { d: Overview; rows: TrendRow[]; where: string }) {
   const w = WORDS;
   const sel = new Set(d.scope?.months || []);
   const cols: MonthCol<TrendRow>[] = [
-    { label: w.actual, render: (r) => rupeesExact(r.actual) },
-    { label: w.proposed, render: (r) => rupeesExact(r.proposed) },
-    { label: w.loss, render: (r) => <b>{rupeesExact(r.loss)}</b> },
-    { label: w.pct, render: (r) => pct(r.pct) },
+    { label: w.actual, render: (r) => rupeesExact(r.actual), raw: (r) => r.actual, unit: "₹" },
+    { label: w.proposed, render: (r) => rupeesExact(r.proposed), raw: (r) => r.proposed, unit: "₹" },
+    { label: w.loss, render: (r) => <b>{rupeesExact(r.loss)}</b>, raw: (r) => r.loss, unit: "₹" },
+    { label: w.pct, render: (r) => pct(r.pct), raw: (r) => r.pct, unit: "%" },
   ];
   return (
-    <DrawerSection title="Month by month"
-      note="HCG's 'Scheme Margin Loss' table: spend on the brands used, the same quantity at the suggested brands' price, the loss and % missed (= margin missed ÷ spend), per month.">
-      <MonthTable rows={rows} cols={cols} selected={sel} />
-    </DrawerSection>
+    <>
+      <DrawerSection title={`${w.actual} vs ${w.proposed.toLowerCase()}, every month`}
+        note="Every published month, whatever the Month filter says; the months in your selection are shaded. The two bars stand one over the other from zero, the larger behind; the line joins the bar tops, each point labelled with the month's %.">
+        <MonthCombo ariaLabel={`${w.actual} and ${w.proposed.toLowerCase()} by month, with ${w.pct} as a line`}
+          layout="alternatives" series={[{ key: "used", label: w.actual, color: USED_COL }, { key: "sug", label: w.proposed, color: PROPOSED_COL }]}
+          line={{ label: w.pct, color: RATE_COL, decimals: 2 }}
+          months={rows.map((r) => ({
+            key: r.period, label: r.label, pct: r.pct, selected: sel.has(r.period),
+            values: { used: r.actual, sug: r.proposed },
+          }))} />
+      </DrawerSection>
+      <DrawerSection title="Month by month"
+        note="Spend on the brands used, the same quantity at the suggested brands' price, the loss and % missed (= saving missed ÷ spend), per month.">
+        <MonthTable rows={rows} cols={cols} selected={sel} caption={`${w.title} by month, ${where}`} />
+      </DrawerSection>
+    </>
   );
 }

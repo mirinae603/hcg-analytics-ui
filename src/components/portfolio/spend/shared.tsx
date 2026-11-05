@@ -2,7 +2,7 @@
 // Spend Analysis — what the Summary and every section's tiles share, defined once so a figure
 // reads the same wherever it is drawn: the colour each measure and each topic keeps, the words
 // each section's loss is worked out by, and the small helpers the tile folders print with.
-import { BLUE, BRONZE, JADE, LAVENDER, LEAF, PLUM, ROSE, PINE, INK, NEUTRAL } from "@/components/portfolio/ledger/kit";
+import { SAGE, CORAL_SOFT, CORAL_MARK, TEAL, MAUVE, INK, NEUTRAL } from "@/components/portfolio/ledger/kit";
 import { pct, rupeesExact } from "@/components/portfolio/ledger/format";
 import { num } from "@/lib/kpiFormat";
 import type { Source, SourceSpec } from "@/components/portfolio/ledger/status";
@@ -11,34 +11,36 @@ import type { OofBucket, OofCoverage, SuggestedBy } from "./api";
 
 export { payerLabel } from "../formulary/api";
 
-// COLOUR LAW on every Spend view, on the kit's chart hues (ledger/kit.tsx) — one job per hue.
+// COLOUR LAW on every Spend view, on the kit's WARM hues (ledger/kit.tsx) — one job per hue.
 // MEASURES, the same on every tile, chart and drawer:
-//   USED_COL     = the brand that was used: the margin it earned, or the spend on it (JADE).
+//   USED_COL     = the brand that was used: the margin it earned, or the spend on it (SAGE).
 //   (LOSS_COL is the missed part where a chart sets it against what was earned or possible: a
 //   bridge's step, a bullet's gap. A chart of the missed rupees alone takes the colour of what it
-//   is broken down by, below, so a page is not one colour.)
-//   PROPOSED_COL = the same quantity at the suggested brand (BLUE).
-//   LOSS_COL     = the margin missed or the extra spent, in rupees (ROSE).
-//   RATE_COL     = the % missed, and only ever a rate (PLUM).
+//   is broken down by, below.)
+//   PROPOSED_COL = the same quantity at the suggested brand (CORAL_SOFT: the pale whole behind
+//                  what was earned, so the gap between them is the missed part).
+//   LOSS_COL     = the margin missed or the extra spent, in rupees (CORAL_MARK).
+//   RATE_COL     = the % missed, and only ever a rate (INK).
 //   COUNT_COL    = quantities and brand counts, never rupees (NEUTRAL).
-// TOPICS, the strip on top of a tile and the colour of a part wherever parts are compared:
-//   CASH_COL = cash & insurance (TPA); OOF_COL = out of formulary (ORANGE, as on the Formulary
-//   page); SCHEME_COL = scheme; ACROSS_COL = across sections.
-export const USED_COL = JADE;
-export const PROPOSED_COL = BLUE;
-export const LOSS_COL = ROSE;
-export const RATE_COL = PLUM;
+// TOPICS, the dot before a tile's title and the colour of a part wherever parts are compared:
+//   CASH_COL = cash & insurance (TPA, TEAL); OOF_COL = out of formulary (CORAL_MARK, as on the
+//   Formulary page); SCHEME_COL = scheme (MAUVE); ACROSS_COL = across sections (INK).
+export const USED_COL = SAGE;
+export const PROPOSED_COL = CORAL_SOFT;
+export const LOSS_COL = CORAL_MARK;
+export const RATE_COL = INK;
 export const COUNT_COL = NEUTRAL;
-export const CASH_COL = BLUE;
+export const CASH_COL = TEAL;
 export { OOF_COL };
-export const SCHEME_COL = PINE;
+export const SCHEME_COL = MAUVE;
 export const ACROSS_COL = INK;
-// BREAKDOWNS: a one-measure chart takes the colour of what its bars are. By month, its
-// section's (sectionCol); by hospital, brand or doctor, these on every Spend and Formulary page;
-// vendors, which have no hue of their own, each take the next hue of the kit's SERIES.
-export const HOSPITAL_COL = LAVENDER;
-export const BRAND_COL = BRONZE;
-export const DOCTOR_COL = LEAF;
+// BREAKDOWNS: a one-measure chart by month takes its section's colour (sectionCol); a one-measure
+// ranking by hospital, brand or doctor is drawn in the coral, as the stock-value page draws its
+// breakdown, on every Spend and Formulary page; vendors, which have no hue of their own, each take
+// the next hue of the kit's SERIES.
+export const HOSPITAL_COL = CORAL_MARK;
+export const BRAND_COL = CORAL_MARK;
+export const DOCTOR_COL = CORAL_MARK;
 
 /** The sections with a loss of their own. */
 export type LossKind = "cash" | "oof" | "scheme";
@@ -56,18 +58,18 @@ export function lossMethod(kind: LossKind, fy?: string | null): LossMethod {
   switch (kind) {
     case "cash":
       return {
-        basis: `Margin per unit = MRP excl GST − HCG Pharma price, both from HCG's ${list} cash & TPA price list, for the brand used and the brand HCG's cash list suggests.`,
-        formula: "Margin earned = units counted × the used brand's unit margin; margin possible = the same units × the suggested brand's; margin missed = margin possible − margin earned; % missed = margin missed ÷ margin possible (HCG's denominator, unlike the scheme %, which divides by spend). For a bifurcated brand only the units above HCG's allowance count.",
+        basis: `Margin per unit = MRP excl GST − Pharma price, both from the ${list} cash & TPA price list, for the brand used and the brand the cash list suggests.`,
+        formula: "Margin earned = units counted × the used brand's unit margin; margin possible = the same units × the suggested brand's; margin missed = margin possible − margin earned; % missed = margin missed ÷ margin possible (the report's denominator, unlike the scheme %, which divides by spend). For a bifurcated brand only the units above the allowance count.",
       };
     case "oof":
       return {
-        basis: "HCG's own method, on purchases: every goods receipt (GRN) of a drug that the month's Item Master flags OUT OF FORMULARY, set against the brand HCG suggests for it: HCG's own worksheet for the month; for a month without one, HCG's pair from another month, then HCG's out-of-formulary list, then the app's match on molecule, strength and form (marked Estimated).",
-        formula: "Margin earned = units × (MRP excl GST − the price paid) of the brand bought; margin possible = the same units × (MRP excl GST − HCG Pharma price) of the suggested brand; margin missed = margin possible − margin earned, added up over every receipt as HCG does, so a brand that earns more than its suggestion lowers it; % missed = margin missed ÷ margin possible. Receipts HCG parked and brands with no suggested brand are listed but add nothing.",
+        basis: "The group's own method, on purchases: every goods receipt (GRN) of a drug that the month's Item Master flags OUT OF FORMULARY, set against the brand the group suggests for it: the group's own worksheet for the month; for a month without one, its pair from another month, then its out-of-formulary list, then the app's match on molecule, strength and form (marked Estimated).",
+        formula: "Margin earned = units × (MRP excl GST − the price paid) of the brand bought; margin possible = the same units × (MRP excl GST − Pharma price) of the suggested brand; margin missed = margin possible − margin earned, added up over every receipt as the group does, so a brand that earns more than its suggestion lowers it; % missed = margin missed ÷ margin possible. Receipts the group parked and brands with no suggested brand are listed but add nothing.",
       };
     case "scheme":
       return {
-        basis: `For scheme (GOV) patients HCG's ${list} scheme list names a cheaper brand for each brand on it. Both sides are valued at HCG's FY list prices, as HCG's report is.`,
-        formula: "Spent = units × the used brand's list price; suggested spend = the same units × the suggested brand's list price; margin missed = spent − suggested spend; % missed = margin missed ÷ spend, as in HCG's 'Scheme Margin Loss' table. Attis and J&J & Covidien → Healthium are HCG's two slices of this loss: parts of it, not added to it.",
+        basis: `For scheme (GOV) patients the ${list} scheme list names a cheaper brand for each brand on it. Both sides are valued at the FY list prices, as the report is.`,
+        formula: "Spent = units × the used brand's list price; suggested spend = the same units × the suggested brand's list price; saving missed = spent − suggested spend; % missed = saving missed ÷ spend, as in the 'Scheme Margin Loss' table. Attis and J&J & Covidien → Healthium are the two slices of this loss: parts of it, not added to it.",
       };
   }
 }
@@ -99,10 +101,10 @@ export const oofSource = (cov: OofCoverage | null | undefined): Source =>
 
 /** Out of formulary's source in words, for its badge: read from purchases, not sales lines. */
 export const OOF_SOURCE: Record<"computed" | "estimate", SourceSpec> = {
-  computed: { kind: "computed", note: "Worked out by the app from HCG's purchases (GRN), HCG's own method, with the brands HCG's worksheets suggest" },
+  computed: { kind: "computed", note: "Worked out by the app from the purchases (GRN), the group's own method, with the brands its worksheets suggest" },
   estimate: {
     kind: "estimate",
-    note: "HCG's purchase (GRN) method with the brands HCG's worksheets suggest; Estimated only where the app matched a brand itself. The (i) says how.",
+    note: "The group's purchase (GRN) method with the brands its worksheets suggest; Estimated only where the app matched a brand itself. The (i) says how.",
   },
 };
 export const oofSourceOf = (cov: OofCoverage | null | undefined): SourceSpec => OOF_SOURCE[oofSource(cov) === "estimate" ? "estimate" : "computed"];
@@ -111,7 +113,7 @@ export const oofSourceOf = (cov: OofCoverage | null | undefined): SourceSpec => 
  *  formulary, read from purchases: the badge says where each part comes from. */
 export const salesAndPurchasesSource = (sales: string, estimated: boolean): SourceSpec => ({
   kind: estimated ? "estimate" : "computed",
-  note: `${sales} recomputed by the app from HCG's HIS sales lines; out of formulary from HCG's purchases (GRN), HCG's own method${estimated ? ", Estimated only where the app matched a brand itself" : ""}`,
+  note: `${sales} recomputed by the app from the HIS sales lines; out of formulary from the purchases (GRN), the group's own method${estimated ? ", Estimated only where the app matched a brand itself" : ""}`,
 });
 
 /** "HCG's worksheet ₹16,88,305.41 (99.83%); No alternative mapped ₹2,865.00 (0.17%)": the

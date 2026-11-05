@@ -10,6 +10,8 @@ import { LinkButton } from "@/components/portfolio/ledger/panel";
 import { lakhs, pct, rupeesExact } from "@/components/portfolio/ledger/format";
 import { useSelectHospital } from "@/context/RegionContext";
 import { MonthTable } from "../Trend";
+import { SPEND_PAGE } from "../DataTable";
+import { DownloadCsv, type CsvColumn } from "@/components/portfolio/table/DownloadCsv";
 import { VIEWS, type Section, type View } from "../api";
 import { LOSS_COL, PROPOSED_COL, RATE_COL, USED_COL } from "../shared";
 import { KIND, type HospitalLoss, type KindWords, type LossKind, type LossRow, type MonthLoss } from "./model";
@@ -19,13 +21,23 @@ export type Go = (loc: { section: Section; view: View }) => void;
 export type GoLink = { label: string; section: Section; view: View };
 
 /** The four figures HCG's tables carry for each row (actual, proposed, loss, % missed), in the
- *  words of the section the rows belong to. A `strong` row is a total. */
-export function LossTable({ rows, words, strong = [] }: { rows: LossRow[]; words: KindWords; strong?: string[] }) {
+ *  words of the section the rows belong to. A `strong` row is a total. `caption` says what the
+ *  rows are and for which selection: the table's name for screen readers and its CSV's. */
+export function LossTable({ rows, words, caption, strong = [] }: { rows: LossRow[]; words: KindWords; caption: string; strong?: string[] }) {
   if (!rows.length) return <p className="text-[12px]" style={{ color: SUB }}>Nothing in this selection.</p>;
   const head = ["", words.actual, words.proposed, words.loss, "% missed"];
+  const csv: CsvColumn<LossRow>[] = [
+    { label: "Part", value: (r) => r.label, text: true },
+    { label: words.actual, value: (r) => rupeesExact(r.actual), raw: (r) => r.actual, unit: "₹" },
+    { label: words.proposed, value: (r) => rupeesExact(r.proposed), raw: (r) => r.proposed, unit: "₹" },
+    { label: words.loss, value: (r) => rupeesExact(r.loss), raw: (r) => r.loss, unit: "₹" },
+    { label: "% missed", value: (r) => pct(r.pct, 2), raw: (r) => r.pct, unit: "%" },
+  ];
   return (
     <div className="overflow-x-auto -mx-1">
+      <DownloadCsv rows={rows} columns={csv} page={SPEND_PAGE} caption={caption} />
       <table className="w-full text-[12.5px] tabular-nums" style={{ borderCollapse: "separate", borderSpacing: 0, minWidth: 560 }}>
+        <caption className="sr-only">{caption}</caption>
         <thead>
           <tr>
             {head.map((h, i) => (
@@ -67,11 +79,11 @@ export function LossTrend({ kind, months, selected, where }: { kind: LossKind; m
         line={{ label: `% missed ${w.pctOf}`, color: RATE_COL, decimals: 1 }}
         months={months.map((m) => ({ key: m.period, label: m.label, pct: m.pct, selected: sel.has(m.period), values: { actual: m.actual, proposed: m.proposed } }))} />
       <div className="mt-5">
-        <MonthTable rows={months} selected={sel} cols={[
-          { label: w.actual, render: (r) => rupeesExact(r.actual) },
-          { label: w.proposed, render: (r) => rupeesExact(r.proposed) },
-          { label: w.loss, render: (r) => <b>{rupeesExact(r.loss)}</b> },
-          { label: "% missed", render: (r) => pct(r.pct, 2) },
+        <MonthTable rows={months} selected={sel} caption={`${w.title} by month, ${where}`} cols={[
+          { label: w.actual, render: (r) => rupeesExact(r.actual), raw: (r) => r.actual, unit: "₹" },
+          { label: w.proposed, render: (r) => rupeesExact(r.proposed), raw: (r) => r.proposed, unit: "₹" },
+          { label: w.loss, render: (r) => <b>{rupeesExact(r.loss)}</b>, raw: (r) => r.loss, unit: "₹" },
+          { label: "% missed", render: (r) => pct(r.pct, 2), raw: (r) => r.pct, unit: "%" },
         ]} />
       </div>
     </>
@@ -90,7 +102,7 @@ export function HospitalShares({ kind, rows }: { kind: LossKind; rows: HospitalL
   const margin = w.whole === "proposed";
   const base = margin ? { label: w.actual, color: USED_COL } : { label: w.proposed, color: PROPOSED_COL };
   return (
-    <StackBars ariaLabel={`${w.title} by hospital, most missed first`} empty="No hospital has margin missed in this selection." asideWidth={84}
+    <StackBars ariaLabel={`${w.title} by hospital, most missed first`} empty={`No hospital has ${w.loss.toLowerCase()} in this selection.`} asideWidth={84}
       onRow={(plant) => { const r = rows.find((x) => x.plant === plant); if (r) selectHospital(r); }}
       segments={[{ key: "loss", label: w.loss, color: LOSS_COL }, { key: "base", label: base.label, color: base.color }]}
       rows={rows.map((r) => ({ key: r.plant, label: r.label, selected: r.selected, aside: lakhs(r.loss), values: { loss: r.loss, base: margin ? r.actual : r.proposed } }))} />

@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { useRegion, displayRegion } from "@/context/RegionContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
+import { useWindows, snapshotLabel } from "@/lib/useWindows";
 import { useDrillBind } from "@/components/portfolio/useDrillBind";
 import { useCardCategory, useCardScopedData } from "@/components/common/CardCategoryFilter";
 import { TbCoins, TbTag, TbArrowUpRight, TbStack2, TbLayersIntersect } from "react-icons/tb";
@@ -285,8 +286,9 @@ function MarkupLeadersCard({ cats }: { cats: any[] }) {
 }
 
 // /kpi/inventory-valuation-table is a flat, snapshot-aware legacy route (kpi_stock_value
-// has no year/month of its own — the backend hardcodes year=2026/period="May" onto every
-// row) and renames its columns; these fields match THAT contract, not the raw parquet.
+// has no year/month of its own — the backend labels every row with the stock count's year and
+// month, read from the data) and renames its columns; these fields match THAT contract, not the
+// raw parquet.
 const COLUMNS = [
   { field: "year", label: "Year" }, { field: "period", label: "Period" }, { field: "materialId", label: "Material" },
   { field: "materialName", label: "Description" }, { field: "materialGroup", label: "Category" },
@@ -297,6 +299,8 @@ export default function ValuationDetail() {
   const { selectedRegion } = useRegion();
   const region = selectedRegion?.name ?? "All Plants";
   const [data, setData] = useState<any>(null);
+  // the stock count's date, from the data (GET /meta/windows) — "" while it loads
+  const asOf = snapshotLabel(useWindows()?.inventory_snapshot);
 
   useEffect(() => {
     fetch(`${DASHBOARD_API_BASE_URL}/kpi/inventory-valuation/insights?Plant=${encodeURIComponent(region)}`).then((r) => r.json()).then((d) => setData(d || null)).catch(() => setData(null));
@@ -319,7 +323,7 @@ export default function ValuationDetail() {
           <h1 className="text-[24px] font-bold leading-tight" style={{ color: INK }}>Inventory valuation</h1>
           <p className="text-[13px] mt-1" style={{ color: SUBTLE }}>what your stock is worth · book cost vs retail · {displayRegion(region)}</p>
         </div>
-        <span className="text-[12px] font-medium px-3.5 py-2 rounded-full bg-white" style={{ color: "#5b6478", boxShadow: "0 4px 14px -8px rgba(46,42,80,0.22)" }}>snapshot · 31 May 2026</span>
+        <span className="text-[12px] font-medium px-3.5 py-2 rounded-full bg-white" style={{ color: "#5b6478", boxShadow: "0 4px 14px -8px rgba(46,42,80,0.22)" }}>snapshot{asOf ? ` · ${asOf}` : ""}</span>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-stretch">

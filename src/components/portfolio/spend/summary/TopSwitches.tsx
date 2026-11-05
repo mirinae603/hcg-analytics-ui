@@ -21,6 +21,8 @@ import type { CashOverview, Filters, Meta, OofOverview, Overview, ScopeEcho } fr
 import { BRAND_COL, salesAndPurchasesSource } from "../shared";
 import { KIND, filterChips, whereOf, type LossKind } from "./model";
 import { GoLinks, MethodText, type Go } from "./pieces";
+import { SPEND_PAGE } from "../DataTable";
+import { DownloadCsv, type CsvColumn } from "@/components/portfolio/table/DownloadCsv";
 
 /** How many switches the panel's accessible name reads out; the drawer lists every one. */
 const SAID = 5;
@@ -132,15 +134,32 @@ export function SwitchesTile({ rows, place, context, missing, onOpen, onInfo }: 
 }
 
 /** A brand switch table. `kind` set: one section's list, in its own words and columns;
- *  unset: every section ranked together, with only the figures that mean the same in each. */
-function SwitchTable({ rows, kind }: { rows: BrandSwitch[]; kind?: LossKind }) {
+ *  unset: every section ranked together, with only the figures that mean the same in each.
+ *  `caption` names it for screen readers and its CSV. */
+function SwitchTable({ rows, kind, caption }: { rows: BrandSwitch[]; kind?: LossKind; caption: string }) {
   if (!rows.length) return <p className="text-[12px]" style={{ color: SUB }}>Nothing in this selection.</p>;
   const w = kind ? KIND[kind] : null;
   const head = ["#", "Brand used → suggested", ...(w ? ["Qty", w.actual, w.proposed] : ["Section"]), "Loss", "% missed", "Share of its section"];
   const td = "px-2 py-[7px] text-right whitespace-nowrap align-top";
+  const ranked = rows.map((r, i) => ({ n: i + 1, r }));
+  const csv: CsvColumn<{ n: number; r: BrandSwitch }>[] = [
+    { label: "#", value: ({ n }) => n },
+    { label: "Brand used", value: ({ r }) => r.used, text: true },
+    { label: "Suggested brand", value: ({ r }) => r.suggested, text: true },
+    ...(w ? [
+      { label: "Qty", value: ({ r }: { r: BrandSwitch }) => num(r.qty, 3), raw: ({ r }: { r: BrandSwitch }) => r.qty },
+      { label: w.actual, value: ({ r }: { r: BrandSwitch }) => rupeesExact(r.actual), raw: ({ r }: { r: BrandSwitch }) => r.actual, unit: "₹" as const },
+      { label: w.proposed, value: ({ r }: { r: BrandSwitch }) => rupeesExact(r.proposed), raw: ({ r }: { r: BrandSwitch }) => r.proposed, unit: "₹" as const },
+    ] : [{ label: "Section", value: ({ r }: { r: BrandSwitch }) => sectionOf(r), text: true }]),
+    { label: "Loss", value: ({ r }) => rupeesExact(r.loss), raw: ({ r }) => r.loss, unit: "₹" },
+    { label: "% missed", value: ({ r }) => pct(r.pct, 2), raw: ({ r }) => r.pct, unit: "%" },
+    { label: "Share of its section", value: ({ r }) => pct(r.share, 1), raw: ({ r }) => r.share, unit: "%" },
+  ];
   return (
     <div className="overflow-x-auto -mx-1">
+      <DownloadCsv rows={ranked} columns={csv} page={SPEND_PAGE} caption={caption} />
       <table className="w-full text-[12px] tabular-nums" style={{ borderCollapse: "separate", borderSpacing: 0, minWidth: 640 }}>
+        <caption className="sr-only">{caption}</caption>
         <thead>
           <tr>
             {head.map((h, i) => (
@@ -192,7 +211,7 @@ export function SwitchesDrawer({ lists, ranked, meta, filters, scope, asOf, open
       key: k, label: w.short, render: () => (
         <DrawerSection title={`${w.short}: top ${rows.length} brands`}
           note={`${w.actual} and ${w.proposed.toLowerCase()} for the units used; % missed is ${w.pctOf}; share is the brand's part of ${k === "oof" ? "what switching would gain in the section (its net loss can be near zero)" : "the section's whole loss"}.`}>
-          <SwitchTable rows={rows} kind={k} />
+          <SwitchTable rows={rows} kind={k} caption={`${w.short}: top brand switches, ${whereOf(scope)}`} />
           <div className="mt-4"><GoLinks onGo={onGo} links={[{ label: `Every ${w.short} brand`, section: w.section, view: "items" }]} /></div>
         </DrawerSection>
       ),
@@ -207,7 +226,7 @@ export function SwitchesDrawer({ lists, ranked, meta, filters, scope, asOf, open
         {
           key: "ranked", label: "All sections", render: () => (
             <DrawerSection title="Ranked together" note="Each section's top ten in one list, most rupees lost first. The losses are each section's own measure, so the list ranks them and never adds them.">
-              <SwitchTable rows={ranked} />
+              <SwitchTable rows={ranked} caption={`Top brand switches, every section ranked together, ${whereOf(scope)}`} />
             </DrawerSection>
           ),
         },
@@ -215,8 +234,8 @@ export function SwitchesDrawer({ lists, ranked, meta, filters, scope, asOf, open
         {
           key: "method", label: "Method", render: () => (
             <MethodText lines={[
-              "Each section's top ten brands by loss, as its overview ranks them (HCG's 'Top 10 materials list contribution in margin missed'), put in one list by rupees lost.",
-              "Scheme: the loss is the spend above the suggested brand's for scheme (GOV) patients. Cash & TPA: the margin the suggested brand would have added for cash and TPA patients. Out of formulary: the margin the brand HCG suggests would have added on the units bought (HCG's purchase method); marked estimated where the suggestion is the app's own match.",
+              "Each section's top ten brands by loss, as its overview ranks them (the report's 'Top 10 materials list contribution in margin missed'), put in one list by rupees lost.",
+              "Scheme: the loss is the spend above the suggested brand's for scheme (GOV) patients. Cash & TPA: the margin the suggested brand would have added for cash and TPA patients. Out of formulary: the margin the suggested brand would have added on the units bought (the group's purchase method); marked estimated where the suggestion is the app's own match.",
               "The lists measure different things for different patients, so they are ranked together and never added.",
             ]} />
           ),

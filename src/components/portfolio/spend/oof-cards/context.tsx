@@ -7,20 +7,22 @@
 // Item Master flags OUT OF FORMULARY, against the brand HCG suggests for it. Purchases have no
 // payer, patient type or doctor; the vendor is who the brand came from. The figures are HCG's
 // (its own worksheet's suggestions) unless part rests on the app's own match: then the tile is
-// marked Estimated. The colours are the Spend pages' own (../shared): the margin on the brands
+// marked Estimated. A month built without HCG's own working at all is an "Estimated month": every
+// tile carries the Estimated badge, with that reason as its tooltip, and the words after its
+// title say so. The colours are the Spend pages' own (../shared): the margin on the brands
 // bought (USED_COL), the margin the suggested brands would make (PROPOSED_COL), the missed part
 // beside them (LOSS_COL), every % (RATE_COL); one-measure charts take the colour of what their
 // bars are: months and material types the section's (OOF_COL), hospitals HOSPITAL_COL, brands
 // BRAND_COL, vendors the kit's SERIES.
 import React from "react";
-import { BRASS, BRONZE, LEAF, SUB } from "@/components/portfolio/ledger/kit";
+import { HONEY_INK, MAUVE, SUB, TEAL } from "@/components/portfolio/ledger/kit";
 import { Swatch } from "@/components/portfolio/ledger/legend";
 import { DrawerSection, type DrawerFilter } from "@/components/portfolio/ledger/DetailDrawer";
-import type { SourceOf } from "@/components/portfolio/ledger/status";
+import type { SourceOf, SourceSpec } from "@/components/portfolio/ledger/status";
 import { dayLabel, isNum, pct } from "@/components/portfolio/ledger/format";
 import { X_COL, NF_COL } from "../../formulary/parts";
 import { monthBefore, monthsLabel } from "../../formulary/api";
-import type { Filters, Meta, OofOverview, OofSwitch, SuggestedBy, View } from "../api";
+import type { Filters, Meta, OofOverview, OofSwitch, OofWaiting, SuggestedBy, View } from "../api";
 import { OOF_COL, PROPOSED_COL, oofSourceOf } from "../shared";
 
 export { USED_COL, PROPOSED_COL, LOSS_COL, RATE_COL, HOSPITAL_COL, BRAND_COL, OOF_COL } from "../shared";
@@ -37,19 +39,27 @@ export const WORDS = {
   none: "No out-of-formulary purchase in this selection",
   rankNote: "Every hospital for the same months and material type: this list ignores the hospital selector. Earned = margin on the brands bought; possible = the margin the suggested brands would make on the same units; % missed = margin missed ÷ margin possible. A hospital whose brands earned more than their suggestions has a negative margin missed, drawn left of zero and ranked last.",
   monthNote: "Margin earned on the out-of-formulary brands bought, the margin the suggested brands would have made on the same units (margin possible), the margin missed and % missed (= margin missed ÷ margin possible), per month.",
+  estimatedMonth: "Estimated month",
 };
 
+/** Why a month is estimated, in plain words: HCG's own working for it was not received. */
+export const estimatedWhy = (labels: string[]) =>
+  `the group's working for ${labels.join(", ")} was not received, so its suggested brands come from the group's other months and lists, then the app's own match`;
+
+/** The badge every tile carries for an estimated month, its tooltip saying why. */
+export const estimatedSource = (labels: string[]): SourceSpec => ({ kind: "estimate", note: `${WORDS.estimatedMonth}: ${estimatedWhy(labels)}.` });
+
 /** How each "suggested by" bucket is named on a chart face and drawn. HCG's own suggestions take
- *  the proposed colour and its neighbours of the validated series (worksheet of the month BLUE,
- *  another month's LEAF, its list BRONZE); the app's own match is the section's colour, hatched
- *  (Estimated); lines left out of the margins are grey, as "outside the ratio" is on the
+ *  the proposed colour and two warm hues beside it (worksheet of the month CORAL_SOFT, another
+ *  month's TEAL, its list MAUVE); the app's own match is the section's colour, hatched
+ *  (Estimated); lines left out of the margins are stone, as "outside the ratio" is on the
  *  Formulary page (parked by HCG hatched). Adjacent pairs checked with the data-viz validator. */
 export const SUGGESTED: Record<SuggestedBy, { short: string; color: string; hatched?: boolean }> = {
-  hcg_sheet: { short: "HCG sheet", color: PROPOSED_COL },
-  hcg_sheet_pair: { short: "HCG sheet, other month", color: LEAF },
-  hcg_list: { short: "HCG list", color: BRONZE },
+  hcg_sheet: { short: "Group sheet", color: PROPOSED_COL },
+  hcg_sheet_pair: { short: "Group sheet, other month", color: TEAL },
+  hcg_list: { short: "Group list", color: MAUVE },
   formulary_rule: { short: "Estimated", color: OOF_COL, hatched: true },
-  parked: { short: "Parked by HCG", color: NF_COL, hatched: true },
+  parked: { short: "Parked by the group", color: NF_COL, hatched: true },
   none: { short: "No alternative", color: X_COL },
 };
 
@@ -64,7 +74,7 @@ export function SourceTag({ by, rule }: { by: SuggestedBy; rule?: string | null 
   const estimated = by === "formulary_rule";
   return (
     <span className="inline-flex items-center gap-1 whitespace-nowrap text-[11px]" title={estimated && rule ? `Estimated: ${rule}` : s?.short}
-      style={{ color: estimated ? BRASS : SUB, fontWeight: estimated ? 600 : undefined }}>
+      style={{ color: estimated ? HONEY_INK : SUB, fontWeight: estimated ? 600 : undefined }}>
       <Swatch color={s?.color ?? SUB} hatched={s?.hatched} />{s?.short ?? by}
     </span>
   );
@@ -83,8 +93,13 @@ export type Ctx = {
   context: string;
   /** All hospitals together, rather than one. */
   network: boolean;
-  /** HCG's purchase method throughout; an estimate where part rests on the app's own match. */
+  /** HCG's purchase method throughout; an estimate where part rests on the app's own match, or
+   *  where a month was built without HCG's own working. */
   source: SourceOf;
+  /** The selected months built without HCG's own working, as labels ("Sep-26"); empty for none. */
+  estimated: string[];
+  /** GRN months whose out-of-formulary rows wait for their Item Master (none on the page yet). */
+  waiting: OofWaiting[];
   asOf: string | null;
   /** The filters, read-only, in every drawer's header. */
   chips: DrawerFilter[];
@@ -100,10 +115,15 @@ export function makeCtx(d: Data, meta: Meta, filters: Filters, params: Record<st
   const when = monthsLabel(meta, d.scope?.months || []);
   const segment = filters.segment === "ALL" ? "All material types"
     : meta.categories?.find((c) => c.key === filters.segment)?.label ?? filters.segment;
+  const estimated = (d.headline.estimated_months ?? []).map((p) => monthsLabel(meta, [p]));
+  // One month: "Estimated month"; a run of months: which of them are estimated.
+  const tag = !estimated.length ? null : (d.scope?.months?.length ?? 0) > 1 ? `${estimated.join(", ")} estimated` : WORDS.estimatedMonth;
   return {
     d, meta, w: WORDS, where, when, network, params,
-    context: `${where} · ${when}`,
-    source: oofSourceOf(d.headline.coverage),
+    context: tag ? `${where} · ${when} · ${tag}` : `${where} · ${when}`,
+    source: estimated.length ? estimatedSource(estimated) : oofSourceOf(d.headline.coverage),
+    estimated,
+    waiting: meta.oof_waiting ?? [],
     asOf: dayLabel(d.data_as_of || meta.oof_built_at),
     chips: [
       { label: "Hospital", value: where },
@@ -123,9 +143,13 @@ export function prevMonth(d: Data): Month | null {
   return prev && prev.lines > 0 ? prev : null;
 }
 
-/** "same as ours", or how far ours is from HCG's own sheet. */
-export const hcgVerdict = (matches: boolean, diff: number, fmt: (v: number) => string) =>
-  matches ? "same as ours" : `ours is ${fmt(Math.abs(diff))} ${diff > 0 ? "more" : "less"}`;
+/** Every hospital with a purchase in the selection, most margin missed first (the API's order),
+ *  numbered 1, 2, 3 … The API's list can also hold a centre found only in HCG's own sheet (for
+ *  the build's check against it): it has no purchase here, so it is left out and the rest are
+ *  numbered again. */
+export function rankedHospitals(rows: Hospital[]): Hospital[] {
+  return [...rows].sort((a, b) => a.rank - b.rank).filter((h) => h.lines > 0).map((h, i) => ({ ...h, rank: i + 1 }));
+}
 
 /** A drawer's Method tab: what this tile's figure is, then how every figure here is built. */
 export function Method({ c, children }: { c: Ctx; children: React.ReactNode }) {
@@ -136,7 +160,7 @@ export function Method({ c, children }: { c: Ctx; children: React.ReactNode }) {
       </DrawerSection>
       <DrawerSection title="How these figures are built">
         <ul className="space-y-1.5 text-[12.5px] leading-relaxed list-disc pl-5" style={{ color: SUB }}>
-          <li>Source: HCG&apos;s GRN (goods receipt) extracts, each month&apos;s Item Master (its OUT OF FORMULARY flag) and HCG&apos;s monthly out-of-formulary workbooks, in HCG&apos;s purchase scope; purchases have no payer, patient type or doctor.</li>
+          <li>Source: the GRN (goods receipt) extracts, each month&apos;s Item Master (its OUT OF FORMULARY flag) and the monthly out-of-formulary workbooks, in the group&apos;s purchase scope; purchases have no payer, patient type or doctor.</li>
           <li>Every figure is summed for the selection and the % is taken once, never an average of hospital or monthly percentages.</li>
           <li>Charts print rupees in lakhs; the drawers print exact rupees with paise.</li>
           {(c.d.notes || []).map((t) => <li key={t}>{t}</li>)}

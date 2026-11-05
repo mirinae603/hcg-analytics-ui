@@ -28,7 +28,7 @@ type Ranked = { n: number; r: OofSwitch };
 
 /** A list of switches with exact rupees: the brand bought → the suggested brand, where the
  *  suggestion came from, and the margins. Shared with the "brand bought earns more" drawer. */
-export function SwitchTable({ rows, caption, empty }: { rows: OofSwitch[]; caption: string; empty?: string }) {
+export function SwitchTable({ rows, caption, context, empty }: { rows: OofSwitch[]; caption: string; context: string; empty?: string }) {
   const cols: Col<Ranked>[] = [
     { label: "#", render: (x) => x.n, align: "left" },
     {
@@ -40,17 +40,18 @@ export function SwitchTable({ rows, caption, empty }: { rows: OofSwitch[]; capti
           </span>
         </span>
       ),
+      raw: ({ r }) => `${brandOf(r)} (${r.material}) → ${switchOf(r)}${r.minor_group ? ` · ${r.minor_group}` : ""}`,
     },
-    { label: "Suggested by", align: "left", render: ({ r }) => <SourceTag by={r.suggested_by} rule={r.rule} /> },
-    { label: "Units", render: ({ r }) => num(r.qty) },
-    { label: "Spent", render: ({ r }) => rupeesExact(r.purchase_value) },
-    { label: "Margin earned", render: ({ r }) => rupeesExact(r.actual_margin) },
-    { label: "Margin possible", render: ({ r }) => rupeesExact(r.potential_margin) },
-    { label: "Margin missed", render: ({ r }) => <b>{rupeesExact(r.margin_loss)}</b> },
-    { label: "% missed", render: ({ r }) => pct(r.loss_pct) },
-    { label: "Share", render: ({ r }) => pct(r.share_of_total_pct, 1) },
+    { label: "Suggested by", align: "left", render: ({ r }) => <SourceTag by={r.suggested_by} rule={r.rule} />, raw: ({ r }) => r.suggested_by_label },
+    { label: "Units", render: ({ r }) => num(r.qty), raw: ({ r }) => r.qty },
+    { label: "Spent", render: ({ r }) => rupeesExact(r.purchase_value), raw: ({ r }) => r.purchase_value, unit: "₹" },
+    { label: "Margin earned", render: ({ r }) => rupeesExact(r.actual_margin), raw: ({ r }) => r.actual_margin, unit: "₹" },
+    { label: "Margin possible", render: ({ r }) => rupeesExact(r.potential_margin), raw: ({ r }) => r.potential_margin, unit: "₹" },
+    { label: "Margin missed", render: ({ r }) => <b>{rupeesExact(r.margin_loss)}</b>, raw: ({ r }) => r.margin_loss, unit: "₹" },
+    { label: "% missed", render: ({ r }) => pct(r.loss_pct), raw: ({ r }) => r.loss_pct, unit: "%" },
+    { label: "Share", render: ({ r }) => pct(r.share_of_total_pct, 1), raw: ({ r }) => r.share_of_total_pct, unit: "%" },
   ];
-  return <DataTable rows={rows.map((r, i) => ({ n: i + 1, r }))} rowKey={(x) => `${x.r.material}|${x.r.suggested_by}|${x.r.suggested_material}`}
+  return <DataTable context={context} rows={rows.map((r, i) => ({ n: i + 1, r }))} rowKey={(x) => `${x.r.material}|${x.r.suggested_by}|${x.r.suggested_material}`}
     cols={cols} caption={caption} minWidth={1000} empty={empty} />;
 }
 
@@ -69,7 +70,7 @@ function SwitchesDrawer({ c, dr, title }: { c: Ctx; dr: DrawerCtl; title: string
             <>
               <DrawerSection title={all.length > 1 ? `The ${all.length} switches with the most margin missed` : "Switches with a margin missed"}
                 note={`${GAIN_SHARE_NOTE} The net margin missed is ${rupeesExact(h.margin_loss)}. "Suggested by" says where the suggested brand comes from; Estimated is the app's own match.`}>
-                <SwitchTable rows={all} caption={`${title} by margin missed`} />
+                <SwitchTable rows={all} caption={`${title} by margin missed`} context={c.context} />
               </DrawerSection>
               <DrawerSection title="Every brand and vendor">
                 <div className="flex flex-wrap gap-2">
@@ -83,7 +84,7 @@ function SwitchesDrawer({ c, dr, title }: { c: Ctx; dr: DrawerCtl; title: string
         {
           key: "method", label: "Method", render: () => (
             <Method c={c}>
-              <p>The brands bought out of formulary whose suggested brand would have earned the most more, for the same units: margin earned = units × (MRP excl GST − the price paid); margin possible = the same units × the suggested brand&apos;s (MRP excl GST − HCG Pharma price); margin missed = possible − earned; share = the switch&apos;s part of what switching would gain in the selection (the margin missed where the suggested brand earns more).</p>
+              <p>The brands bought out of formulary whose suggested brand would have earned the most more, for the same units: margin earned = units × (MRP excl GST − the price paid); margin possible = the same units × the suggested brand&apos;s (MRP excl GST − Pharma price); margin missed = possible − earned; share = the switch&apos;s part of what switching would gain in the selection (the margin missed where the suggested brand earns more).</p>
               <p>On the chart each switch&apos;s margin missed is a bar from zero on one scale, in the brands&apos; colour; a hatched bar is a suggestion the app matched itself (Estimated). Under the brand: its molecule and where the suggestion came from.</p>
             </Method>
           ),
@@ -99,7 +100,8 @@ export function SwitchesTile({ c, place }: { c: Ctx; place: Place }) {
   // A panel half the grid wide or more names both brands on the row; a narrower one puts the
   // suggested brand on the second line.
   const wide = place.span >= GRID_COLS / 2;
-  const source = all.some((r) => r.estimated) ? OOF_SOURCE.estimate : c.source;
+  // An estimated month's badge (why: no HCG working) outranks the rows' own Estimated matches.
+  const source = !c.estimated.length && all.some((r) => r.estimated) ? OOF_SOURCE.estimate : c.source;
   return (
     <>
       <ChartPanel id="brands" title={title} context={c.context} accent={BRAND_COL} place={place} source={source}

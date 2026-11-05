@@ -7,18 +7,21 @@
 //   FilterStrip — one 36px row of compact chip selects ("Month  Aug-26 ▾"), and on the right
 //                 the selection in words. A filter that does not apply to the open tab shows as a
 //                 locked chip whose title says why.
-// Neither wraps: on a narrow screen each row scrolls sideways inside itself.
+// Neither wraps: on a narrow screen each row scrolls sideways inside itself. Both wear the
+// "Current stock value" page's type: a bold charcoal title, the open tab in the coral accent,
+// white pill chips with grey labels.
 import React, { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { TbChevronDown, TbInfoCircle, TbLock } from "react-icons/tb";
-import { CARD, INK, SUB, RULE, LEDGER_2 } from "./kit";
+import { CARD, INK, SUB, RULE, LEDGER_2, CORAL, CORAL_SOFT, CORAL_INK } from "./kit";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // PageBar
 // ─────────────────────────────────────────────────────────────────────────────
 export type BarTab<T extends string> = { key: T; label: string; title?: string };
 
-/** Underline tabs; arrow keys, Home and End move between them, as in the drawer's tabs. */
+/** Underline tabs, the open one in the coral (its words in the coral's text shade); arrow keys,
+ *  Home and End move between them, as in the drawer's tabs. */
 function Tabs<T extends string>({ label, tabs, active, onTab, small = false }: {
   label: string; tabs: BarTab<T>[]; active: T; onTab: (t: T) => void; small?: boolean;
 }) {
@@ -41,9 +44,9 @@ function Tabs<T extends string>({ label, tabs, active, onTab, small = false }: {
           <button key={t.key} ref={(el) => { refs.current[t.key] = el; }} type="button" role="tab" aria-selected={on} tabIndex={on ? 0 : -1}
             title={t.title} onClick={() => { if (!on) onTab(t.key); }}
             className={`hcg-tab relative whitespace-nowrap transition-colors ${small ? "px-2 text-[12px]" : "px-2.5 text-[13px]"}`}
-            style={{ color: on ? INK : SUB, fontWeight: on ? 700 : 500 }}>
+            style={{ color: on ? CORAL_INK : SUB, fontWeight: on ? 700 : 500 }}>
             {t.label}
-            <span aria-hidden="true" className="absolute left-2 right-2 bottom-0 rounded-full" style={{ height: 2, background: on ? INK : "transparent" }} />
+            <span aria-hidden="true" className="absolute left-2 right-2 bottom-0 rounded-full" style={{ height: 2, background: on ? CORAL : "transparent" }} />
           </button>
         );
       })}
@@ -95,7 +98,7 @@ function About({ topic, text }: { topic: string; text: string }) {
       </button>
       {at && typeof document !== "undefined" && createPortal(
         <div ref={pop} id={id} role="note" className="fixed rounded-[10px] px-3.5 py-2.5 text-[12px] leading-relaxed"
-          style={{ top: at.top, left: at.left, width: POP_W, zIndex: 55, background: CARD, color: INK, border: `1px solid ${RULE}`, boxShadow: "0 18px 44px -24px rgba(30,38,34,.4)" }}>
+          style={{ top: at.top, left: at.left, width: POP_W, zIndex: 55, background: CARD, color: INK, border: `1px solid ${RULE}`, boxShadow: "0 18px 50px -20px rgba(99,72,56,.34), 0 4px 14px -6px rgba(99,72,56,.12)" }}>
           {text}
         </div>,
         document.body,
@@ -121,7 +124,7 @@ export function PageBar<T extends string, U extends string = string>({ title, ab
     <div className="flex items-center gap-2.5 h-10 min-w-0 overflow-x-auto no-scrollbar whitespace-nowrap fit:onescreen:pr-11"
       style={{ borderBottom: `1px solid ${RULE}` }}>
       <div className="flex items-center gap-0.5 flex-shrink-0">
-        <h1 className="text-[15px] font-semibold" style={{ color: INK, letterSpacing: "-.01em" }}>{title}</h1>
+        <h1 className="text-[16px] font-bold" style={{ color: INK, letterSpacing: "-.02em" }}>{title}</h1>
         {about && <About topic={title} text={about} />}
       </div>
       <Tabs label={`${title} views`} tabs={tabs} active={active} onTab={onTab} />
@@ -191,7 +194,7 @@ export function FilterStrip({ controls, selection, children }: {
       <div className="ml-auto pl-2 min-w-0 truncate text-[11.5px]" style={{ color: SUB }}>{selection}</div>
       <style jsx global>{`
         .hcg-chip{transition:border-color .15s ease}
-        .hcg-chip:hover:not(:has(select:disabled)){border-color:${INK}55!important}
+        .hcg-chip:hover:not(:has(select:disabled)){border-color:${CORAL_SOFT}!important}
         .hcg-chip:has(select:focus-visible){outline:2px solid ${INK};outline-offset:1px}
       `}</style>
     </div>

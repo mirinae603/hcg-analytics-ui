@@ -11,6 +11,7 @@ import type { Col } from "@/lib/kpiRegistry";
 import { inr, num, pct } from "@/lib/kpiFormat";
 import { inrAbbr, countAbbr, useMount } from "@/components/portfolio/kit";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
+import { readJson, unbrand } from "@/utils/brand";
 import { SlideOver } from "../formulary/parts";
 
 const KpiTable = dynamic(() => import("../KpiTable"), { ssr: false, loading: () => <div className="p-6">{Array.from({ length: 6 }).map((_, i) => <div key={i} className="h-10 rounded-lg bg-gray-50 animate-pulse mb-2" />)}</div> });
@@ -104,7 +105,7 @@ export default function ConsumablesDepartments({ region }: { region: string }) {
     setLoading(true); setFailed(false);
     const ac = new AbortController();
     fetch(`${DASHBOARD_API_BASE_URL}${API}/overview?Plant=${encodeURIComponent(region)}`, { signal: ac.signal })
-      .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
+      .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return readJson<Overview>(r); })
       .then((d) => { setData(d); setLoading(false); })
       .catch((e) => { if (e?.name !== "AbortError") { setData(null); setFailed(true); setLoading(false); } });
     return () => ac.abort();
@@ -130,10 +131,10 @@ export default function ConsumablesDepartments({ region }: { region: string }) {
       <div className="flex items-start justify-between flex-wrap gap-2">
         <div className="min-w-0">
           <h3 className="text-[16px] font-semibold flex items-center gap-2" style={{ color: INK }}><TbFirstAidKit size={17} style={{ color: PLUM }} />Consumables · department consumption</h3>
-          <p className="text-[12px] mt-0.5" style={{ color: SUB }}>{data?.note ?? "Consumables (HCG 3-series) issued to each department's cost centre."}</p>
+          <p className="text-[12px] mt-0.5" style={{ color: SUB }}>{data?.note ?? "Consumables (3-series) issued to each department's cost centre."}</p>
         </div>
         {namesPending && !busy && (
-          <span className="text-[11px] font-medium px-2.5 py-1 rounded-full whitespace-nowrap" style={{ background: `${PLUM}14`, color: PLUM_DEEP }}>cost-centre codes · department names pending from HCG</span>
+          <span className="text-[11px] font-medium px-2.5 py-1 rounded-full whitespace-nowrap" style={{ background: `${PLUM}14`, color: PLUM_DEEP }}>cost-centre codes · no department names in the data</span>
         )}
       </div>
 
@@ -166,7 +167,7 @@ export default function ConsumablesDepartments({ region }: { region: string }) {
 
       <SlideOver open={open} onClose={close} eyebrow="Consumables issued to this department"
         title={dept ? deptTitle(dept) : ""}
-        sub={dept ? `${dept.hospital || dept.plant} · ${inr(dept.cost)} · ${num(dept.items)} consumables · ${pct(dept.share_pct)} of the consumables total` : undefined}>
+        sub={dept ? `${unbrand(dept.hospital) || dept.plant} · ${inr(dept.cost)} · ${num(dept.items)} consumables · ${pct(dept.share_pct)} of the consumables total` : undefined}>
         {dept && (
           // The department's own plant code, not the page's region: exact even under All Hospitals.
           <KpiTable key={`${dept.plant}|${dept.cost_ctr}`} kpiKey="consumables-dept-items"

@@ -18,14 +18,14 @@ import { SHARES_NOTE } from "../table/query";
 
 const KpiTable = dynamic(() => import("../KpiTable"), { ssr: false, loading: () => <div className="p-6">{Array.from({ length: 6 }).map((_, i) => <div key={i} className="h-10 rounded-lg bg-gray-50 animate-pulse mb-2" />)}</div> });
 
-// Margin missed and its % sit right after the two brand names, in HCG's words: for scheme
-// patients the margin HCG loses is the extra it pays for the brand used (spent − with the
-// suggested brand), the 'Margin missed' of HCG's Scheme Margin Loss table.
+// The saving missed and its % sit right after the two brand names: for scheme patients what HCG
+// loses is the extra it pays for the brand used (spent − with the suggested brand), the 'Margin
+// loss' of HCG's Scheme Margin Loss table, named "saving missed" across the app.
 const schemeCols = (suggested: string): Col[] => [
   { field: "material_desc", label: "Brand used" },
   { field: "material", label: "Material" },
   { field: "suggested_desc", label: suggested },
-  { field: "saving_missed", label: "Margin missed", kind: "inr" },
+  { field: "saving_missed", label: "Saving missed", kind: "inr" },
   { field: "saving_pct", label: "% missed", kind: "pct2" },
   { field: "category", label: "Category" },
   { field: "hcg_category", label: "FY class" },
@@ -82,8 +82,8 @@ const GROUPS: { key: SchemeGroup; label: string }[] = [
 ];
 
 const NOTE: Record<PatientSection, string> = {
-  scheme: "Scheme (GOV) patients only. Spent = quantity × the brand's list price; With suggested = the same quantity × the price of the brand HCG's scheme list suggests (FY price list, excl GST); Margin missed = spend − with suggested (HCG's scheme margin missed); % missed = margin missed ÷ spend. Click a brand to see the doctors who prescribed it.",
-  cash: "Cash and TPA patients only. Margin earned = qty counted × the used brand's margin per unit; Margin possible = the same qty × the suggested brand's; Margin missed = margin possible − margin earned; % missed = margin missed ÷ margin possible (HCG's %). Margin per unit = MRP excl GST − HCG Pharma price (FY list) for the brand used and the suggested one; margin % = that margin ÷ MRP excl GST (HCG's S6 column). Qty counted is the cash + TPA quantity, less HCG's allowance for bifurcated brands: allowed = SHARING × the molecule group's quantity at the hospital, and only the excess counts. SHARING, Group, Allowed and Excess qty are worked out per hospital and month on the whole brand (IP + OP, cash + TPA together, as HCG does), so they do not follow the Patient type, Payer or doctor filters; Qty counted does. Click a brand to see the doctors who prescribed it.",
+  scheme: "Scheme (GOV) patients only. Spent = quantity × the brand's list price; With suggested = the same quantity × the price of the brand the scheme list suggests (FY price list, excl GST); Saving missed = spend − with suggested (the Scheme Margin Loss); % missed = saving missed ÷ spend. Click a brand to see the doctors who prescribed it.",
+  cash: "Cash and TPA patients only. Margin earned = qty counted × the used brand's margin per unit; Margin possible = the same qty × the suggested brand's; Margin missed = margin possible − margin earned; % missed = margin missed ÷ margin possible (the report's %). Margin per unit = MRP excl GST − Pharma price (FY list) for the brand used and the suggested one; margin % = that margin ÷ MRP excl GST (the S6 column). Qty counted is the cash + TPA quantity, less the allowance for bifurcated brands: allowed = SHARING × the molecule group's quantity at the hospital, and only the excess counts. SHARING, Group, Allowed and Excess qty are worked out per hospital and month on the whole brand (IP + OP, cash + TPA together, as the group does), so they do not follow the Patient type, Payer or doctor filters; Qty counted does. Click a brand to see the doctors who prescribed it.",
 };
 
 type BrandRow = { material: string; material_desc: string | null; suggested_desc: string | null; bifurcated?: boolean };
@@ -106,12 +106,12 @@ export default function Items({ section, filters, plant }: { section: PatientSec
         {section === "scheme" && (
           <div className="flex items-center justify-between gap-3 flex-wrap mb-4">
             <Pills value={group} options={GROUPS} onChange={(g) => { setGroup(g); setOpen(false); }} />
-            <span className="text-[11.5px]" style={{ color: SUB }}>HCG&apos;s report shows the Attis and Healthium slices under the scheme total</span>
+            <span className="text-[11.5px]" style={{ color: SUB }}>The report shows the Attis and Healthium slices under the scheme total</span>
           </div>
         )}
         <Head label={section === "cash" ? "Brands with a higher-margin suggestion" : "Brands to switch for scheme patients"}
           note={`${NOTE[section]} ${SHARES_NOTE}`}
-          badge={`${section === "cash" ? "cash + TPA · list prices" : "scheme patients · list prices"}${total != null ? ` · ${inr(total)} margin missed in total` : ""}`} />
+          badge={`${section === "cash" ? "cash + TPA · list prices" : "scheme patients · list prices"}${total != null ? ` · ${inr(total)} ${section === "cash" ? "margin" : "saving"} missed in total` : ""}`} />
         <KpiTable key={`${section}|${group}`} kpiKey={`spend-${section}-items`} endpoint={`${base}/items`} plant={plant}
           columns={brandCols(section)} extraParams={params}
           onRowClick={(r: BrandRow) => { setItem(r); setOpen(true); }} />
@@ -119,7 +119,7 @@ export default function Items({ section, filters, plant }: { section: PatientSec
 
       <SlideOver open={open} onClose={close} eyebrow={section === "cash" ? "Brand used for cash & TPA patients" : "Brand used for scheme patients"}
         title={item?.material_desc || item?.material || ""}
-        sub={item ? `Material ${item.material} · suggested brand ${item.suggested_desc ?? "—"}${item.bifurcated ? " · bifurcated: only use above HCG's allowance counts" : ""} · doctors who prescribed it` : undefined}>
+        sub={item ? `Material ${item.material} · suggested brand ${item.suggested_desc ?? "—"}${item.bifurcated ? " · bifurcated: only use above the allowance counts" : ""} · doctors who prescribed it` : undefined}>
         {item && (
           <KpiTable key={`${section}|${item.material}|${plant}|${group}`} kpiKey={`spend-${section}-item-doctors`}
             endpoint={`${base}/doctors`} plant={plant} columns={doctorCols(section)}

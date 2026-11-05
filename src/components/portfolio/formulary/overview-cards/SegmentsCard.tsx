@@ -8,6 +8,8 @@ import DetailDrawer, { DrawerSection } from "@/components/portfolio/ledger/Detai
 import { INK, SUB, LINE, RULE } from "@/components/portfolio/ledger/kit";
 import { isNum, pct, pts, withSign } from "@/components/portfolio/ledger/format";
 import { HowBuilt, MethodText, SplitRows, filterChips, type OverviewScope } from "./shared";
+import { FORMULARY_PAGE } from "../parts";
+import { DownloadCsv, type CsvColumn } from "@/components/portfolio/table/DownloadCsv";
 
 type SegmentView = { key: string; label: string; now: number | null; before: number | null };
 
@@ -31,10 +33,10 @@ export function SegmentsDrawer({ s, open, first, onClose }: { s: OverviewScope; 
           key: "segments", label: "Onco vs non-onco", render: () => (
             <>
               <DrawerSection title={prev ? `Against ${prev.label}` : "Each segment"} note={noCompare ?? undefined}>
-                <CompareTable rows={rows} now={s.when} before={prev?.label ?? null} />
+                <CompareTable rows={rows} now={s.when} before={prev?.label ?? null} where={s.where} />
               </DrawerSection>
-              <DrawerSection title="The spend behind each ratio">
-                <SplitRows rows={(d.segments || []).map((g) => ({ key: g.key, label: g.label, s: g }))} />
+              <DrawerSection title={`The ${s.m.noun} behind each ratio`}>
+                <SplitRows m={s.m} rows={(d.segments || []).map((g) => ({ key: g.key, label: g.label, s: g }))} />
               </DrawerSection>
             </>
           ),
@@ -42,7 +44,7 @@ export function SegmentsDrawer({ s, open, first, onClose }: { s: OverviewScope; 
         {
           key: "type", label: "IP vs OP", render: () => (
             <DrawerSection title="Inpatient vs outpatient" note="The same ratio per patient type, by the selected method.">
-              <SplitRows rows={(d.by_type || []).map((t) => ({ key: t.type, label: t.type === "IP" ? "Inpatient (IP)" : t.type === "OP" ? "Outpatient (OP)" : t.type, s: t }))} />
+              <SplitRows m={s.m} rows={(d.by_type || []).map((t) => ({ key: t.type, label: t.type === "IP" ? "Inpatient (IP)" : t.type === "OP" ? "Outpatient (OP)" : t.type, s: t }))} />
             </DrawerSection>
           ),
         },
@@ -50,8 +52,9 @@ export function SegmentsDrawer({ s, open, first, onClose }: { s: OverviewScope; 
           key: "method", label: "Method", render: () => (
             <>
               <MethodText>
-                <p>Each segment&apos;s ratio is its own Formulary ÷ (Formulary + Out of formulary). Pooled ({pct(d.headline.pooled_pct)}) adds the two segments&apos; amounts before dividing: HCG&apos;s current method. The mean of the two ratios ({pct(d.headline.mean_pct)}) was its earlier one.</p>
-                <p>HCG&apos;s budget is set for the pooled figure, so the segments are compared with the month before, not with a budget. On the Overview they are dots in ink on the compliance panel&apos;s axis, which does not start at zero; the grey tick is the month before.</p>
+                <p>Each segment&apos;s ratio is its own Formulary ÷ (Formulary + Out of formulary). Pooled ({pct(d.headline.pooled_pct)}) adds the two segments&apos; amounts before dividing: the current method. The mean of the two ratios ({pct(d.headline.mean_pct)}) was the earlier one.</p>
+                <p>The budget is set for the pooled figure, so the segments are compared with the month before, not with a budget. On the Overview they are bars on the compliance panel&apos;s axis from 0 to 100%; the grey tick is the month before.</p>
+                {s.m.units && <p>Quantity view: each ratio is taken over units sold (tablets, vials and bottles added together), and nothing on quantity is set against the budget.</p>}
               </MethodText>
               <HowBuilt s={s} />
             </>
@@ -62,12 +65,23 @@ export function SegmentsDrawer({ s, open, first, onClose }: { s: OverviewScope; 
 }
 
 /** Each segment's compliance, and beside it the month before and the change when there is one. */
-function CompareTable({ rows, now, before }: { rows: SegmentView[]; now: string; before: string | null }) {
+function CompareTable({ rows, now, before, where }: { rows: SegmentView[]; now: string; before: string | null; where: string }) {
   const th = "px-3 py-2 text-[10.5px] font-semibold uppercase text-right whitespace-nowrap";
+  const caption = `Onco and non-onco compliance, ${where}, ${now}${before ? ` against ${before}` : ""}`;
+  const change = (r: SegmentView) => (isNum(r.now) && isNum(r.before) ? r.now - r.before : null);
+  const csv: CsvColumn<SegmentView>[] = [
+    { label: "Segment", value: (r) => r.label, text: true },
+    { label: `Compliance ${now}`, value: (r) => pct(r.now), raw: (r) => r.now, unit: "%" },
+    ...(before ? [
+      { label: `Compliance ${before}`, value: (r: SegmentView) => pct(r.before), raw: (r: SegmentView) => r.before, unit: "%" as const },
+      { label: "Change", value: (r: SegmentView) => { const d = change(r); return isNum(d) ? withSign(d, pts) : "—"; }, raw: change, unit: "pts" as const },
+    ] : []),
+  ];
   return (
     <div className="overflow-x-auto">
+      <DownloadCsv rows={rows} columns={csv} page={FORMULARY_PAGE} caption={caption} />
       <table className="min-w-full border-collapse">
-        <caption className="sr-only">Onco and non-onco compliance, {now}{before ? ` against ${before}` : ""}</caption>
+        <caption className="sr-only">{caption}</caption>
         <thead>
           <tr style={{ color: SUB, borderBottom: `1px solid ${RULE}` }}>
             <th scope="col" className={`${th} text-left`} style={{ letterSpacing: ".08em" }}>Segment</th>

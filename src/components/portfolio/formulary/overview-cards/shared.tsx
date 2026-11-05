@@ -1,14 +1,17 @@
 "use client";
 // What every panel on the Formulary Overview shares: the selection it answers (hospital, months,
-// filters, the month before) worked out once, and the pieces several drawers print (a month
-// table, the split rows, the method notes). A panel's drawer state is the ledger's useDrawer.
+// filters, the month before, what the amounts count) worked out once, and the pieces several
+// drawers print (a month table, the split rows, the method notes). A panel's drawer state is the
+// ledger's useDrawer.
 import React from "react";
 import { useArmed, INK, SUB, LINE, RULE, TRACK, EASE, SEL_BG } from "@/components/portfolio/ledger/kit";
 import { DrawerSection, type DrawerFilter } from "@/components/portfolio/ledger/DetailDrawer";
-import { dayLabel, pct, rupeesExact } from "@/components/portfolio/ledger/format";
+import { dayLabel, pct } from "@/components/portfolio/ledger/format";
 import { num } from "@/lib/kpiFormat";
-import { F_COL, OOF_COL, NF_COL, Swatch, fmtPts, RATE_COL } from "../parts";
+import { F_COL, OOF_COL, NF_COL, Swatch, fmtPts, RATE_COL, FORMULARY_PAGE } from "../parts";
+import { DownloadCsv, type CsvColumn } from "@/components/portfolio/table/DownloadCsv";
 import { complianceMonths, type CompMonth } from "../HcgTables";
+import { measureOf, type Measure } from "../measure";
 import {
   effectiveMethod, filterParams, gapOf, inRatioOf, monthBefore, monthLabel, monthsLabel, niceMax, payerLabel, useOverview,
   type Filters, type Meta, type Overview as OverviewData, type Split, type TrendRow, type View,
@@ -46,6 +49,9 @@ export type OverviewScope = {
   months: CompMonth[];
   /** Set when exactly one month is selected and a month precedes it. */
   prev: MonthBefore | null;
+  /** What the answer's amounts count (rupees or units) and how they print. `filters.basis` is
+   *  the same basis, so a panel's own request (a top-five list) asks in the unit on screen. */
+  m: Measure;
   /** Moves to another tab of the page. */
   onOpen: (v: View) => void;
 };
@@ -73,14 +79,19 @@ export function overviewScope(
   const when = monthsLabel(meta, sel);
   const trend = [...(d.trend || [])].sort((a, b) => a.period.localeCompare(b.period));
   const row = monthBefore(trend, sel);
+  // The answer's basis, not the switch's: just after the switch moves, the answer on screen is
+  // still the one before it, and its figures keep their own unit until the new one lands.
+  const m = measureOf(d);
+  const shown: Filters = (filters.basis ?? "value") === m.basis ? filters : { ...filters, basis: m.basis };
   return {
-    d, meta, filters, plant, where, when, network, onOpen,
+    d, meta, filters: shown, plant, where, when, network, onOpen, m,
     context: `${where} · ${when}`,
     asOf: dayLabel(d.data_as_of || meta.built_at),
-    months: complianceMonths(d, meta, filters),
+    months: complianceMonths(d, meta, shown),
     prev: row ? {
       period: row.period, label: row.label || monthLabel(meta, row.period), row,
-      data: before?.scope?.months?.[0] === row.period ? before : null,
+      // Only an answer for that month in the same unit: a rupee figure is no month before a count.
+      data: before?.scope?.months?.[0] === row.period && measureOf(before).basis === m.basis ? before : null,
     } : null,
   };
 }
@@ -104,22 +115,28 @@ export type BudgetView = {
   value: number | null;
   /** True when the figure on screen is the one the budget was set for. */
   applies: boolean;
-  /** Why it is not compared: all hospitals have none, HCG set none for this unit, or a filter
-   *  narrows the figure. */
-  why: "network" | "unit" | "filters" | null;
+  /** Why it is not compared: the figure counts units sold (the budget is a drug-cost target),
+   *  all hospitals have none, HCG set none for this unit, HCG set it different budgets in the
+   *  months selected (no one budget for the span), or a filter narrows the figure. */
+  why: "units" | "network" | "unit" | "differs" | "filters" | null;
 };
 
 export function budgetOf(s: OverviewScope): BudgetView {
+  // Units are never judged: there is no budget to show, whatever HCG set for the unit.
+  if (!s.m.budgetJudged) return { value: null, applies: false, why: "units" };
   const b = s.d.headline.budget_pct;
   // An API that sends no budget field at all predates the PAN MIS: the default target.
   const value = b === undefined ? (s.meta.target_pct ?? null) : b;
-  const why = value == null ? (s.network ? "network" : "unit") : !wholeSpend(s.filters) ? "filters" : null;
+  const why = value == null
+    ? (s.network ? "network" : s.d.headline.budget_source === "differs" ? "differs" : "unit")
+    : !wholeSpend(s.filters) ? "filters" : null;
   return { value, applies: value != null && why == null, why };
 }
 
 /** The filters a figure was computed under, for a drawer's header. A figure that ignores a
  *  filter says what it uses instead (`payer`, `material`); a list of every unit leaves the
- *  hospital out, and an amount no compliance method touches leaves Method out. */
+ *  hospital out, and an amount no compliance method touches leaves Method out. On units a
+ *  "Counted in: Units" chip says so, as the list endpoints' own scope chips do. */
 export function filterChips(s: OverviewScope, o: { payer?: string; material?: string; hospital?: boolean; method?: boolean } = {}): DrawerFilter[] {
   const f = s.filters;
   return [
@@ -129,22 +146,41 @@ export function filterChips(s: OverviewScope, o: { payer?: string; material?: st
     { label: "Material", value: o.material ?? (f.segment === "ALL" ? "Onco + non-onco" : f.segment === "onco" ? "Onco" : "Non-onco") },
     { label: "Payer", value: o.payer ?? (f.payer === "ALL" ? "All payers" : payerLabel(f.payer)) },
     ...(o.method === false ? [] : [{ label: "Method", value: effectiveMethod(f) === "mean" ? "Mean of onco & non-onco" : "Pooled" }]),
+    ...(s.m.units ? [{ label: "Counted in", value: s.m.label }] : []),
   ];
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Drawer pieces
 // ─────────────────────────────────────────────────────────────────────────────
-export type MonthColumn = { key: string; label: string; value: (r: TrendRow, before: TrendRow | null) => string; strong?: boolean };
+/** One column of a month table: what it prints from the month's trend row and the one before it,
+ *  and (`raw`, `unit`) the figure its CSV holds: exact rupees or units, a % as a number. */
+export type MonthColumn = {
+  key: string; label: string; value: (r: TrendRow, before: TrendRow | null) => string; strong?: boolean;
+  raw?: (r: TrendRow, before: TrendRow | null) => number | string | null | undefined;
+  unit?: CsvColumn<unknown>["unit"];
+};
 
 /** Every published month as a row (the months in the selection shaded), for a drawer's "By
- *  month" tab. Each column prints from the month's trend row and the one before it. */
+ *  month" tab. Each column prints from the month's trend row and the one before it; the table
+ *  downloads as CSV (table/DownloadCsv). */
 export function MonthTable({ s, columns, caption }: { s: OverviewScope; columns: MonthColumn[]; caption: string }) {
   const rows = [...(s.d.trend || [])].sort((a, b) => a.period.localeCompare(b.period));
   const sel = new Set(s.d.scope?.months || []);
   if (!rows.length) return <p className="text-[12px]" style={{ color: SUB }}>No months in this selection.</p>;
+  // Each row with the month before it, so a change column writes the same figure it prints.
+  const paired = rows.map((r, i) => ({ r, before: i ? rows[i - 1] : null }));
+  const csv: CsvColumn<(typeof paired)[number]>[] = [
+    { label: "Month", value: ({ r }) => r.label || monthLabel(s.meta, r.period), text: true },
+    { label: "Period", value: ({ r }) => r.period, text: true },
+    ...columns.map((c): CsvColumn<(typeof paired)[number]> => {
+      const raw = c.raw;
+      return { label: c.label, value: ({ r, before }) => c.value(r, before), raw: raw && (({ r, before }) => raw(r, before)), unit: c.unit };
+    }),
+  ];
   return (
     <div className="overflow-x-auto">
+      <DownloadCsv rows={paired} columns={csv} page={FORMULARY_PAGE} caption={caption} />
       <table className="min-w-full border-collapse">
         <caption className="sr-only">{caption}</caption>
         <thead>
@@ -178,8 +214,8 @@ export function MonthTable({ s, columns, caption }: { s: OverviewScope; columns:
 }
 
 /** One row per slice (segment, patient type): its own compliance, the gap from 100% as a bar
- *  from zero on one shared scale, and the exact amounts behind it. */
-export function SplitRows({ rows }: { rows: { key: string; label: string; s: Split }[] }) {
+ *  from zero on one shared scale, and the exact amounts behind it, in `m`'s unit. */
+export function SplitRows({ rows, m }: { rows: { key: string; label: string; s: Split }[]; m: Measure }) {
   const on = useArmed();
   const gmax = niceMax(Math.max(0.5, ...rows.map((r) => gapOf(r.s.compliance_pct) ?? 0)));
   if (!rows.length) return <p className="text-[12px]" style={{ color: SUB }}>Nothing in this selection.</p>;
@@ -198,10 +234,10 @@ export function SplitRows({ rows }: { rows: { key: string; label: string; s: Spl
                 style={{ width: on && g != null ? `${(g / gmax) * 100}%` : "0%", background: OOF_COL, transition: `width 620ms ${EASE} ${140 + i * 80}ms` }} />
             </div>
             <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-[11.5px] tabular-nums" style={{ color: SUB }}>
-              <span className="inline-flex items-center gap-1.5"><Swatch color={F_COL} />Formulary <b style={{ color: INK }}>{rupeesExact(r.s.formulary)}</b></span>
-              <span className="inline-flex items-center gap-1.5"><Swatch color={OOF_COL} />Out of formulary <b style={{ color: INK }}>{rupeesExact(r.s.out_of_formulary)}</b></span>
-              <span className="inline-flex items-center gap-1.5"><Swatch color={NF_COL} hatched />Non formulary {rupeesExact(r.s.non_formulary)}</span>
-              <span>in the ratio <b style={{ color: INK }}>{rupeesExact(inRatioOf(r.s))}</b></span>
+              <span className="inline-flex items-center gap-1.5"><Swatch color={F_COL} />Formulary <b style={{ color: INK }}>{m.exact(r.s.formulary)}</b></span>
+              <span className="inline-flex items-center gap-1.5"><Swatch color={OOF_COL} />Out of formulary <b style={{ color: INK }}>{m.exact(r.s.out_of_formulary)}</b></span>
+              <span className="inline-flex items-center gap-1.5"><Swatch color={NF_COL} hatched />Non formulary {m.exact(r.s.non_formulary)}</span>
+              <span>in the ratio <b style={{ color: INK }}>{m.exact(inRatioOf(r.s))}</b>{m.units ? " units" : null}</span>
               <span>{num(r.s.lines)} lines</span>
             </div>
           </div>
@@ -212,14 +248,21 @@ export function SplitRows({ rows }: { rows: { key: string; label: string; s: Spl
   );
 }
 
-/** "How these figures are built": the method notes every Overview drawer ends its Method tab on. */
+/** "How these figures are built": the method notes every Overview drawer ends its Method tab on.
+ *  The answer's own notes are worded for its basis; the page's general notes (meta) are worded
+ *  for value ("on drug cost"), so on units only the answer's are shown. */
 export function HowBuilt({ s }: { s: OverviewScope }) {
-  const notes = Array.from(new Set([...(s.d.notes || []), ...(s.meta.notes || [])]));
+  const notes = Array.from(new Set([...(s.d.notes || []), ...(s.m.units ? [] : s.meta.notes || [])]));
   return (
     <DrawerSection title="How these figures are built">
       <ul className="space-y-1.5 text-[12px] leading-relaxed list-disc pl-5" style={{ color: SUB }}>
         <li>Source: HIS IP + OP pharmacy sales lines, one consolidated file per month. Each month is classified with that month&apos;s Item Master, and payers are bucketed with the Payer Master.</li>
-        <li>Values are cost (TOTALCOSTPRICE). Every percentage is a ratio of sums, recomputed for the selection — never an average of hospital or monthly percentages.</li>
+        <li>
+          {s.m.units
+            ? <>Amounts are units sold (QTY): tablets, vials and bottles added together, because the sales files keep no unit of measure. A quantity figure is never set against the budget, which is a drug-cost target; switch the header to Value for the budgeted figures.</>
+            : <>Values are cost (TOTALCOSTPRICE).</>}
+          {" "}Every percentage is a ratio of sums, recomputed for the selection — never an average of hospital or monthly percentages.
+        </li>
         {notes.map((t) => <li key={t}>{t}</li>)}
       </ul>
     </DrawerSection>

@@ -8,6 +8,7 @@ import { useCardCategory, useCardScopedData } from "@/components/common/CardCate
 import { useDrillBind } from "@/components/portfolio/useDrillBind";
 import { fetchReorderBandDrill } from "@/lib/drilldown";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
+import { monthsText } from "@/lib/useWindows";
 import { inrAbbr, countAbbr, useMount, CountUp, smoothPath } from "@/components/portfolio/kit";
 import { TbTargetArrow, TbArrowUpRight as TbUp, TbArrowDownRight } from "react-icons/tb";
 import { Kpi } from "@/lib/kpiRegistry";
@@ -79,6 +80,10 @@ function Info({ how, means, act, align = "left" }: { how: React.ReactNode; means
 // the real figure, so the number and the bar agree on sight. The track carries no border
 // — a 1px inset shrinks the box the fill is a percentage OF, which put the bar ~0.7%
 // short of the label on a control whose whole justification is that it reads exactly.
+// The back-test hides the latest months of real usage and forecasts each from only the months
+// before it (app/forecast/engine.py build_backtest): a hold-out of those months, not of the whole
+// history the forecast is built from, so the words name no month count of their own (the API
+// does not send which months were held out).
 function Reliability({ pct }: { pct: number }) {
   const on = useMount(160);
   const v = Math.max(0, Math.min(100, pct));
@@ -88,7 +93,7 @@ function Reliability({ pct }: { pct: number }) {
         <div className="flex items-baseline gap-1">
           <span className="text-[11px] font-semibold uppercase tracking-[0.12em]" style={{ color: MUT }}>Forecast reliability</span>
           <Info align="right"
-            how="We re-ran this forecast against the last 6 months that have already happened, and compared what it predicted with what was really used."
+            how="We hid the latest months that have already happened, forecast each one from only the months before it, and compared what it predicted with what was really used."
             means={<>It got it right <b style={{ color: INK }}>{v.toFixed(0)}% of the time</b> when looking at a whole category, like all injections together.</>}
             act="Trust it for planning totals and budgets. For one single product, treat it as a guide and check with your team." />
         </div>
@@ -630,6 +635,9 @@ export default function ForecastingOverview() {
 
   const t = data?.totals || {};
   const tl = data?.timeline || [];
+  // The months of real usage the forecast is built from: the actual (not forecast) points of its
+  // own timeline, so the words follow the forecast build rather than a fixed "6 months".
+  const usage = monthsText(tl.filter((d: any) => !d.is_forecast).length);
   const cfVals = (data?.cashflow || []).map((d: any) => d.forecast);
   const radar = data?.radar || [], aging = data?.aging || [];
   const radarSegs = radar.map((r: any) => ({ ...r, color: r.status === "Healthy" ? GREEN : r.status.includes("Out") ? RED : AMBER }));
@@ -705,7 +713,7 @@ export default function ForecastingOverview() {
       } },
     { label: "Expected use · next month", value: countAbbr(Number((m3Scoped.data?.totals || {}).next_demand ?? 0)), unit: "units", delta: demandDelta, spark: [...m3Acts, ...m3Fcs], fcFrom: m3Acts.length, cat: m3Cat, empty: !m3Scoped.loading && !Number((m3Scoped.data?.totals || {}).next_demand),
       info: {
-        how: "We take the last 6 months of real usage and carry that same monthly rate forward. It does not try to guess ups and downs month to month.",
+        how: `We take the last ${usage || "months"} of real usage and carry that same monthly rate forward. It does not try to guess ups and downs month to month.`,
         means: "How much we expect to get through next month — units means individual things: tablets, bottles, gloves.",
         act: "This number drives how much to order. The solid line is what actually happened; the dashed part has not happened yet.",
       } },
@@ -855,7 +863,7 @@ export default function ForecastingOverview() {
                 key={s.kpi.key}
                 className="relative flex justify-center items-center p-6 transition duration-300"
                 style={{ background: "rgba(255,255,255,0.9)", opacity: 0.6, filter: "saturate(0.72)" }}
-                title="Simulated preview — activates the moment HCG shares the source"
+                title="Simulated preview — activates the moment the source data is shared"
                 onMouseEnter={(e) => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.filter = "none"; }}
                 onMouseLeave={(e) => { e.currentTarget.style.opacity = "0.6"; e.currentTarget.style.filter = "saturate(0.72)"; }}
               >
@@ -870,7 +878,7 @@ export default function ForecastingOverview() {
       </div>
 
       <div className="mt-6 rounded-[14px] px-4 py-3 text-[12px] leading-relaxed" style={{ background: CARD, border: `1px solid ${BORDER}`, color: MUT }}>
-        <b style={{ color: INK }}>How to read this:</b> forecasts are built from your last 6 months of actual usage. They're <b style={{ color: INK }}>reliable for planning</b> your overall and category-wise needs — the range shows best- and worst-case. For a single item, treat the number as a guide and confirm critical medicines with your team. Accuracy improves as more months of usage build up.
+        <b style={{ color: INK }}>How to read this:</b> forecasts are built from your last {usage || "months"} of actual usage. They're <b style={{ color: INK }}>reliable for planning</b> your overall and category-wise needs — the range shows best- and worst-case. For a single item, treat the number as a guide and confirm critical medicines with your team. Accuracy improves as more months of usage build up.
       </div>
     </div>
   );

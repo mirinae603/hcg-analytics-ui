@@ -1,9 +1,9 @@
 "use client";
-// Spend Analysis (Prices) — the products with the most paid above their cheapest price, as bars
-// from zero in the products' colour, the cheapest-to-dearest ratio and the number of suppliers
-// under each figure. A product's bar shows it in detail (its prices by supplier, on the tile
-// below); the chosen one is highlighted. The drawer (shared with the scatter) lists the products
-// the chart holds with exact rupees, and opens the Products tab, which has them all.
+// Spend Analysis (Prices) — the products with the most paid above their usual cheapest price, as
+// bars from zero in the products' colour, the dearest ÷ usual cheapest ratio and the number of
+// suppliers under each figure. A product's bar shows it in detail (its prices by supplier, on the
+// tile below); the chosen one is highlighted. The drawer (shared with the scatter) lists the
+// products the chart holds with exact rupees, and opens the Products tab, which has them all.
 import React from "react";
 import { ChartPanel, LinkButton } from "@/components/portfolio/ledger/panel";
 import type { Place } from "@/components/portfolio/ledger/onescreen";
@@ -18,7 +18,7 @@ import { PRODUCT_COL, PRICES_SOURCE, Method, type Ctx, type Product } from "./co
 
 type Ranked = { n: number; p: Product };
 
-/** The products the overview holds, most paid above the cheapest first, exact rupees; a
+/** The products the overview holds, most paid above the usual cheapest first, exact rupees; a
  *  product's name shows it in detail. */
 export function ProductTable({ c, onPicked }: { c: Ctx; onPicked?: () => void }) {
   const rows = (c.d.molecules || []).map((p, i) => ({ n: i + 1, p }));
@@ -30,21 +30,22 @@ export function ProductTable({ c, onPicked }: { c: Ctx; onPicked?: () => void })
           aria-label={p.molecule_key === c.chosen ? `${productName(p)}, shown in detail` : `Show ${productName(p)} in detail`}
           className="text-left underline decoration-dotted underline-offset-2" style={{ color: INK }}>{productName(p)}</button>
       ),
+      raw: ({ p }) => productName(p),
     },
-    { label: "Spent", render: ({ p }) => rupeesExact(p.value) },
-    { label: "Paid above the cheapest", render: ({ p }) => <b>{rupeesExact(p.extra_paid)}</b> },
-    { label: "% above", render: ({ p }) => pct(p.extra_pct) },
-    { label: "Cheapest", render: ({ p }) => unitPrice(p.cheapest_price) },
-    { label: "Dearest", render: ({ p }) => unitPrice(p.max_price) },
-    { label: "Dearest ÷ cheapest", render: ({ p }) => times(p.spread_ratio) },
-    { label: "Price index", render: ({ p }) => times(p.price_index) },
-    { label: "Suppliers", render: ({ p }) => num(p.vendors) },
-    { label: "Hospitals", render: ({ p }) => num(p.plants) },
-    { label: "Brands", render: ({ p }) => num(p.brands) },
+    { label: "Spent", render: ({ p }) => rupeesExact(p.value), raw: ({ p }) => p.value, unit: "₹" },
+    { label: "Paid above the usual cheapest", render: ({ p }) => <b>{rupeesExact(p.extra_paid)}</b>, raw: ({ p }) => p.extra_paid, unit: "₹" },
+    { label: "% above", render: ({ p }) => pct(p.extra_pct), raw: ({ p }) => p.extra_pct, unit: "%" },
+    { label: "Usual cheapest", render: ({ p }) => unitPrice(p.cheapest_price), raw: ({ p }) => p.cheapest_price, unit: "₹" },
+    { label: "Dearest", render: ({ p }) => unitPrice(p.max_price), raw: ({ p }) => p.max_price, unit: "₹" },
+    { label: "Dearest ÷ usual cheapest", render: ({ p }) => times(p.spread_ratio), raw: ({ p }) => p.spread_ratio },
+    { label: "Price index", render: ({ p }) => times(p.price_index), raw: ({ p }) => p.price_index },
+    { label: "Suppliers", render: ({ p }) => num(p.vendors), raw: ({ p }) => p.vendors },
+    { label: "Hospitals", render: ({ p }) => num(p.plants), raw: ({ p }) => p.plants },
+    { label: "Brands", render: ({ p }) => num(p.brands), raw: ({ p }) => p.brands },
   ];
   return (
-    <DataTable rows={rows} rowKey={(x) => x.p.molecule_key} cols={cols} strong={(x) => x.p.molecule_key === c.chosen}
-      caption="Products by what was paid above their cheapest price" minWidth={1080} empty={`${c.w.none}.`} />
+    <DataTable context={c.context} rows={rows} rowKey={(x) => x.p.molecule_key} cols={cols} strong={(x) => x.p.molecule_key === c.chosen}
+      caption="Products by what was paid above their usual cheapest price" minWidth={1080} empty={`${c.w.none}.`} />
   );
 }
 
@@ -55,17 +56,17 @@ export function ProductsDrawer({ c, dr, title, method }: { c: Ctx; dr: DrawerCtl
   return (
     <DetailDrawer open={dr.open} onClose={dr.close} initialTab={dr.tab} size="wide"
       eyebrow={`${c.w.section} · Overview`} title={`${title} · ${c.where}`}
-      kpi={{ value: rupeesExact(h.extra_paid_vs_cheapest), comparator: `paid above the cheapest across ${plural(h.molecules, "product")}, ${c.when}` }}
+      kpi={{ value: rupeesExact(h.extra_paid_vs_cheapest), comparator: `paid above the usual cheapest across ${plural(h.molecules, "product")}, ${c.when}` }}
       source={PRICES_SOURCE} asOf={c.asOf} filters={c.chips}
       tabs={[
         {
           key: "products", label: n > 1 ? `Top ${n}` : "Products", render: () => (
             <>
-              <DrawerSection title={n < c.d.molecules_total ? `The ${n} products with the most paid above the cheapest, of ${num(c.d.molecules_total)}` : "Products by what was paid above the cheapest"}
-                note={`Click a product to see its prices by supplier on the overview. The Products tab has every one, with its share of the ${rupeesExact(h.extra_paid_vs_cheapest)} paid above the cheapest in this selection.`}>
+              <DrawerSection title={n < c.d.molecules_total ? `The ${n} products with the most paid above the usual cheapest, of ${num(c.d.molecules_total)}` : "Products by what was paid above the usual cheapest"}
+                note={`Click a product to see its prices by supplier on the overview. The Products tab has every one, with its share of the ${rupeesExact(h.extra_paid_vs_cheapest)} paid above the usual cheapest in this selection.`}>
                 <ProductTable c={c} onPicked={dr.close} />
               </DrawerSection>
-              <DrawerSection title="Every product" note="The Products tab lists them all: searchable, filtered by category, form and whether it was bought at more than one price, with a Total row and a CSV.">
+              <DrawerSection title="Every product" note="The Products tab lists them all: searchable, filtered by category, form and whether its dearest price is above the usual cheapest, with a Total row and a CSV.">
                 <LinkButton onClick={() => { dr.close(); c.onOpen("products"); }}>All products</LinkButton>
               </DrawerSection>
             </>
@@ -83,11 +84,11 @@ export function TopProductsTile({ c, place }: { c: Ctx; place: Place }) {
   return (
     <>
       <ChartPanel id="top" title={title} context={c.context} accent={PRODUCT_COL} place={place}
-        label={[title, c.context, ...all.slice(0, 5).map((p, i) => `${i + 1}. ${productName(p)}: ${lakhs(p.extra_paid)} above the cheapest, dearest ${times(p.spread_ratio)} the cheapest`)].join(". ")}
+        label={[title, c.context, ...all.slice(0, 5).map((p, i) => `${i + 1}. ${productName(p)}: ${lakhs(p.extra_paid)} above the usual cheapest, dearest ${times(p.spread_ratio)} the usual cheapest`)].join(". ")}
         interactive onOpen={() => dr.show("products")} onInfo={() => dr.show("method")}>
         <RankBars format={lakhs} color={PRODUCT_COL} onMore={() => dr.show("products")} ariaLabel={`${title}, ${c.context}`} empty={`${c.w.none}.`}
           rows={all.map((p) => ({
-            key: p.molecule_key, label: productName(p), sub: `${times(p.spread_ratio)} cheapest to dearest · ${plural(p.vendors, "supplier")}`,
+            key: p.molecule_key, label: productName(p), sub: `dearest ${times(p.spread_ratio)} the usual cheapest · ${plural(p.vendors, "supplier")}`,
             value: p.extra_paid, valueLabel: lakhs(p.extra_paid), aside: `${pct(p.extra_pct, 1)} above`,
             selected: p.molecule_key === c.chosen, onClick: () => c.choose(p.molecule_key),
           }))} />
@@ -95,8 +96,8 @@ export function TopProductsTile({ c, place }: { c: Ctx; place: Place }) {
       <ProductsDrawer c={c} dr={dr} title={title} method={(
         <>
           <p>{c.w.extraNote}</p>
-          <p>Each product&apos;s bar runs from zero on one scale: what was paid above its cheapest unit price in the selection. Under it, how many times its cheapest the dearest price was, and how many suppliers sold it. Click a product to see its prices by supplier.</p>
-          <p style={{ color: SUB }}>The chart holds the products with the most paid above the cheapest; the Products tab has every one.</p>
+          <p>Each product&apos;s bar runs from zero on one scale: what was paid above its usual cheapest unit price in the selection. Under it, how many times its usual cheapest the dearest price was, and how many suppliers sold it. Click a product to see its prices by supplier.</p>
+          <p style={{ color: SUB }}>The chart holds the products with the most paid above the usual cheapest; the Products tab has every one.</p>
         </>
       )} />
     </>

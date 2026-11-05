@@ -8,7 +8,9 @@
 // page refresh reopens the same conversation instead of always landing on the newest.
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { apiFetch, streamFetch, ApiError } from "@/utils/api";
+import { unbrand } from "@/utils/brand";
 import { getUser } from "@/utils/auth";
+import { BASIS_OPTIONS, type Basis } from "@/context/BasisContext";
 
 const ACTIVE_KEY = "hcg_ai_active_session_v3"; // which tab was open — NOT chat content
 /** How long a FAST turn may go without a single event before it is called hung. Every step,
@@ -56,9 +58,11 @@ export type AiMsg = {
 /** What the user is looking at when they ask, sent with the question as `context`. The
  *  backend (chat.py PageContext) whitelists exactly these keys and treats them as soft
  *  defaults for the Jun–Aug 2026 report tools only, so a sales question asked from the
- *  Formulary page is not clamped to a month the sales tables do not have. */
+ *  Formulary page is not clamped to a month the sales tables do not have. `filters.basis` is
+ *  the Value ↔ Quantity switch as the screen applies it: "value" on a tab that is rupees only
+ *  whatever the switch says (Brand rules, a list ranked by rupees). */
 export type AiPageContext = {
-  page: "formulary" | "spend";
+  page: "formulary" | "spend" | "executive" | "revenue";
   label: string;
   section?: string;
   view?: string;
@@ -66,13 +70,24 @@ export type AiPageContext = {
   monthLabel?: string;
   plant?: string;
   hospital?: string;
-  filters?: { type?: string; segment?: string; payer?: string; method?: string };
+  filters?: { type?: string; segment?: string; payer?: string; method?: string; basis?: Basis };
 };
 
-// The backend validates every context string against ^[A-Za-z0-9 ()&·,.:/_+-]{1,80}$ (filter
-// values 40) and rejects the whole request when one fails. Hospital names and month spans
-// come from data ("Jun-26 – Aug-26" has an en dash), so they are cleaned here rather than
-// trusted to fit: a hint must never be the reason a question fails.
+/** Each page's name, for a context sent without a label of its own: the chat's pill and its
+ *  "Asked on" line print the label. One entry per page the context allows (the Record makes a
+ *  new page a type error until it is named here), so no page is ever called another's name. */
+const PAGE_LABELS: Record<AiPageContext["page"], string> = {
+  formulary: "Formulary compliance",
+  spend: "Spend analysis",
+  executive: "Executive overview",
+  revenue: "Revenue & margin",
+};
+
+// The backend keeps only fixed values from the context (app/ai/page_context.py normalise drops
+// an unknown or invalid value key by key and never fails the question) and discards the label,
+// month label and hospital, which only this chat prints. Every string is still cleaned to a
+// short plain line here: hospital names and month spans come from data ("Jun-26 – Aug-26" has an
+// en dash), and a hint must never be the reason a question fails or reads oddly.
 const CTX_BAD = /[^A-Za-z0-9 ()&·,.:\/_+-]/g;
 function ctxText(v: unknown, max: number, span = false): string | undefined {
   if (typeof v !== "string") return undefined;
@@ -83,7 +98,8 @@ function ctxText(v: unknown, max: number, span = false): string | undefined {
   return s || undefined;
 }
 function cleanPageContext(c: AiPageContext): AiPageContext {
-  const out: AiPageContext = { page: c.page, label: ctxText(c.label, 80) || (c.page === "formulary" ? "Formulary compliance" : "Spend analysis") };
+  // The label is always a string: the chat splits it to word its prompt.
+  const out: AiPageContext = { page: c.page, label: ctxText(c.label, 80) || PAGE_LABELS[c.page] || "This page" };
   for (const k of ["section", "view", "month", "monthLabel", "plant", "hospital"] as const) {
     const v = ctxText(c[k], 80, k === "monthLabel");
     if (v) out[k] = v;
@@ -94,6 +110,10 @@ function cleanPageContext(c: AiPageContext): AiPageContext {
       const v = ctxText(c.filters[k], 40);
       if (v) f[k] = v;
     }
+    // The basis is one of the switch's own keys, so it is matched, not cleaned: any other
+    // value is left out rather than sent as something it is not.
+    const basis = BASIS_OPTIONS.find((o) => o.key === c.filters?.basis)?.key;
+    if (basis) f.basis = basis;
     if (Object.keys(f).length) out.filters = f;
   }
   return out;
@@ -217,6 +237,9 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
 
   /** Buffer + frame handle for the paced token stream (see the `answer_delta` branch). */
   const pendingRef = useRef("");
+  /** The streamed text so far, as it came: shown through the build's brand as a whole,
+   *  since a delta can end partway through a name. */
+  const streamedRef = useRef("");
   const rafRef = useRef<number | null>(null);
   useEffect(() => () => { if (rafRef.current != null) cancelAnimationFrame(rafRef.current); }, []);
   const [activeId, setActiveId] = useState<string>("");
@@ -381,7 +404,7 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
   const send = useCallback(async (q: string): Promise<boolean> => {
     const query = q.trim();
     if (!query || busyRef.current) return false;
-    busyRef.current = true; setBusy(true); setStep("Consulting HCG data");
+    busyRef.current = true; setBusy(true); setStep("Consulting your data");
     // Captured now: the user may navigate away from the page while the answer streams.
     const ctx = pageCtxRef.current;
     // Captured now too: flipping Deep mid-turn must not change how this turn is sent or watched.
@@ -481,22 +504,25 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
         pendingRef.current += ev.text || "";
         if (!turnMsgIds.has(id)) {
           turnMsgIds.add(id);
+          streamedRef.current = "";
           setStep("");
           writeMsgs(sid, (m) => [...m, { id, role: "bot", kind: "text", text: "", streaming: true, at: Date.now() }]);
         }
         // Nobody is watching a hidden tab, and rAF does not run in one — pacing there
         // would just stall the text until the tab came back. Write it straight through.
         if (typeof document !== "undefined" && document.hidden) {
-          const all = pendingRef.current; pendingRef.current = "";
-          writeMsgs(sid, (m) => m.map((x) => (x.id === id ? { ...x, text: (x.text || "") + all } : x)), undefined, false);
+          streamedRef.current += pendingRef.current; pendingRef.current = "";
+          const shown = unbrand(streamedRef.current);
+          writeMsgs(sid, (m) => m.map((x) => (x.id === id ? { ...x, text: shown } : x)), undefined, false);
         } else if (rafRef.current == null) {
           const drain = () => {
             const buf = pendingRef.current;
             if (!buf) { rafRef.current = null; return; }
             const take = Math.max(2, Math.ceil(buf.length / 8));
-            const slice = buf.slice(0, take);
+            streamedRef.current += buf.slice(0, take);
             pendingRef.current = buf.slice(take);
-            writeMsgs(sid, (m) => m.map((x) => (x.id === id ? { ...x, text: (x.text || "") + slice } : x)), undefined, false);
+            const shown = unbrand(streamedRef.current);
+            writeMsgs(sid, (m) => m.map((x) => (x.id === id ? { ...x, text: shown } : x)), undefined, false);
             rafRef.current = requestAnimationFrame(drain);
           };
           rafRef.current = requestAnimationFrame(drain);
@@ -599,10 +625,10 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
       // after tokens started. Whatever is still marked streaming is finished now. Flush
       // the paced buffer into it and clear the flag, or the caret blinks forever and the
       // footer (Copy, Export, Try again) never appears for exactly the turn that needs it.
-      const rest = pendingRef.current;
+      const full = unbrand(streamedRef.current + pendingRef.current);
       stopDrain();
       if (sessionsRef.current.find((s) => s.id === sid)?.messages.some((x) => x.streaming)) {
-        writeMsgs(sid, (m) => m.map((x) => (x.streaming ? { ...x, text: (x.text || "") + (x.id === textId ? rest : ""), streaming: false } : x)), undefined, false);
+        writeMsgs(sid, (m) => m.map((x) => (x.streaming ? { ...x, text: x.id === textId ? full : x.text, streaming: false } : x)), undefined, false);
       }
       busyRef.current = false; setBusy(false); setStep("");
       abortRef.current = null;

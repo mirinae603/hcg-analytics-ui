@@ -53,7 +53,7 @@ export default function AiFloater() {
                 <button onClick={() => setShowHistory(false)} aria-label="Back" className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-gray-100 transition-colors" style={{ color: "#42485a" }}><TbChevronLeft size={18} /></button>
               ) : <AnalystMark size={32} />}
               <div className="min-w-0">
-                <div className="text-[13px] font-semibold leading-tight truncate" style={{ color: "#1a1f36" }}>{showHistory ? "Conversations" : "HCG AI Analyst"}</div>
+                <div className="text-[13px] font-semibold leading-tight truncate" style={{ color: "#1a1f36" }}>{showHistory ? "Conversations" : "AI Analyst"}</div>
                 {!showHistory && <div className="text-[10.5px] leading-tight" style={{ color: "#8a91a3" }}>grounded in your real data</div>}
               </div>
             </div>

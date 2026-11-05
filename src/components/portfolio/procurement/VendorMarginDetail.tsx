@@ -21,10 +21,12 @@ import { inrAbbr, countAbbr, useMount } from "@/components/portfolio/kit";
 import { useCardCategory } from "@/components/common/CardCategoryFilter";
 import { ProcShell, ProcHero, TableCard, Panel, DetailSkeleton, INK, SUBTLE, INDIGO, TEAL, AMBER } from "./parts";
 import { TbBuildingFactory2, TbPercentage, TbAlertTriangle } from "react-icons/tb";
+import { unbrand } from "@/utils/brand";
 
 const KpiTable = dynamic(() => import("../KpiTable"), { ssr: false, loading: () => <div className="p-6">{Array.from({ length: 6 }).map((_, i) => <div key={i} className="h-10 rounded-lg bg-gray-50 animate-pulse mb-2" />)}</div> });
 
-const vName = (s: string, n = 20) => (s && s.length > n ? s.slice(0, n - 1) + "…" : s || "—");
+// vendor names are shown under the build's brand (src/utils/brand.ts); drills keep the raw name
+const vName = (raw: string, n = 20) => { const s = unbrand(raw); return s && s.length > n ? s.slice(0, n - 1) + "…" : s || "—"; };
 
 type ChartRow = {
   Year: number; Month: string; "Vendor Name": string; "GRN Volume": number;
@@ -65,7 +67,7 @@ function RankBars({ title, sub, rows, accent, icon: Icon, delay, cat }: any) {
             <div className="flex items-center justify-between mb-1.5 gap-2">
               <div className="flex items-center gap-2 min-w-0">
                 <span className="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: `${accent}14`, color: accent }}><Icon size={13} /></span>
-                <span className="text-[12.5px] font-medium truncate" style={{ color: "#3c465c" }} title={r.name}>{r.name}</span>
+                <span className="text-[12.5px] font-medium truncate" style={{ color: "#3c465c" }} title={unbrand(r.name)}>{unbrand(r.name)}</span>
                 {r.thin && <span title="Fewer than 5 clean GRN lines this vendor-month — low confidence" className="text-[9.5px] font-semibold px-1.5 py-0.5 rounded-full flex-shrink-0" style={{ background: `${AMBER}1c`, color: AMBER }}>n={r.n}</span>}
               </div>
               <span className="text-[12.5px] font-bold tabular-nums flex-shrink-0" style={{ color: INK }}>{r.value.toFixed(1)}%</span>
@@ -188,7 +190,7 @@ export default function VendorMarginDetail() {
 
   if (!chart || !agg) {
     return (
-      <ProcShell title="Vendor Volume vs Margin" subtitle="MRP-proxy margin, value-weighted, on outlier-clean GRN lines" region={region}>
+      <ProcShell title="Vendor Volume vs Margin" subtitle="MRP-proxy margin, value-weighted, on outlier-clean GRN lines" region={region} source="grn">
         <DetailSkeleton />
       </ProcShell>
     );
@@ -216,7 +218,7 @@ export default function VendorMarginDetail() {
   }));
 
   return (
-    <ProcShell title="Vendor Volume vs Margin" subtitle="MRP-proxy margin, value-weighted, on outlier-clean GRN lines" region={region}>
+    <ProcShell title="Vendor Volume vs Margin" subtitle="MRP-proxy margin, value-weighted, on outlier-clean GRN lines" region={region} source="grn">
       <ProcHero
         eyebrow="Overall margin — value-weighted" icon={TbPercentage} value={overallMarginPct}
         format={(n: number) => `${n.toFixed(1)}%`}
