@@ -12,6 +12,7 @@ import { getUser } from "@/utils/auth";
 import { fmtValue as fmt, hospitalise, humanLabel, humanLabels, kindOf } from "@/lib/aiFormat";
 import { groupTurns, exportExcel, exportPdf, Turn, tableLayout, copyTable, downloadTableCsv, shareTable, canShareFiles } from "@/lib/aiExport";
 import MentionTextarea from "./MentionTextarea";
+import VoiceButton from "./VoiceButton";
 
 const PlotlyChart = dynamic(() => import("./PlotlyChart"), { ssr: false });
 
@@ -1139,6 +1140,12 @@ export default function AiChat({ variant = "floater", onOpenSessions }: { varian
                     <kbd className="ai-kbd">Enter</kbd> {busy ? "to send next" : "to send"}
                   </span>
                 ) : null}
+                {/* Voice: the words heard join what is already typed, for the user to check. */}
+                <VoiceButton onError={setSendErr}
+                  onText={(heard) => {
+                    setInput((cur) => (cur.trim() ? `${cur.trimEnd()} ${heard}` : heard));
+                    composerRef.current?.querySelector("textarea")?.focus({ preventScroll: true });
+                  }} />
                 {busy ? (
                   <button onClick={() => { setQueued(null); stop(); }} title="Stop generating" aria-label="Stop generating"
                     className="ai-send w-[34px] h-[34px] rounded-full flex items-center justify-center flex-shrink-0"
