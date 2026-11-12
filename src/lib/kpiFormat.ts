@@ -1,5 +1,4 @@
 import { Kind } from "./kpiRegistry";
-import { unbrand } from "@/utils/brand";
 
 export const inr = (v: number | null | undefined) => {
   if (v == null || isNaN(v as number)) return "—";
@@ -23,8 +22,6 @@ export const fmt = (v: any, kind?: Kind) => {
     case "num": return num(Number(v), 2);
     case "date": return String(v).slice(0, 10);
     case "bool": return v === true || v === "true" ? "Yes" : "No";
-    // text is shown under the build's brand (src/utils/brand.ts): table cells hold the raw
-    // value, which filters and row clicks send back as it is
-    default: return unbrand(Array.isArray(v) ? v.join(", ") : String(v));
+    default: return Array.isArray(v) ? v.join(", ") : String(v);
   }
 };

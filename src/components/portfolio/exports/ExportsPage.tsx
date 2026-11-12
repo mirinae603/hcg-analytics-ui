@@ -30,7 +30,7 @@ import {
 } from "./api";
 
 const TITLE = "Data exports";
-const ABOUT = "IP & OP sales by item and GRN purchases as CSV files, a tab each. Pick the hospital in the header and the month and filters here: the table shows the rows, and its Export button writes every row it matches.";
+const ABOUT = "HCG's IP & OP sales by item and its GRN purchases as CSV files, a tab each. Pick the hospital in the header and the month and filters here: the table shows the rows, and its Export button writes every row it matches.";
 
 export default function ExportsPage() {
   const { selectedRegion } = useRegion();

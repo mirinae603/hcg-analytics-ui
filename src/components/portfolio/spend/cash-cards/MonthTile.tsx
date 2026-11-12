@@ -70,7 +70,7 @@ function MonthDrawer({ c, dr, title }: { c: Ctx; dr: DrawerCtl; title: string })
         {
           key: "pair", label: "Earned vs possible", render: () => (
             <DrawerSection title="Actual and margin possible by month"
-              note="The actual vs budget pairing: the margin the brands used made beside the margin the suggested brands would have made, from zero (left scale), under the same % missed line (right axis). Months in your selection are shaded.">
+              note="HCG's actual vs budget pairing: the margin the brands used made beside the margin the suggested brands would have made, from zero (left scale), under the same % missed line (right axis). Months in your selection are shaded.">
               <MonthCombo months={comboMonths(c)} layout="alternatives" series={PAIR_SERIES} line={PCT_LINE}
                 ariaLabel={`Actual and margin possible by month, ${c.where}, with the % missed as a line`} />
             </DrawerSection>

@@ -70,8 +70,8 @@ export default function Scheme({ filters, plant }: { filters: Filters; plant: st
 
       {s?.restricted_cash_tpa && (
         <Card delay={120}>
-          <Head label="Also reported: restricted brands for cash & TPA patients"
-            note="The third brand figure in the MIS report: restricted classes (FORMULARYR + FORMULARYR-OPD) billed to cash and insurance (TPA) patients. A figure to watch, not counted as a breach. Details in the Brand rules tab."
+          <Head label="HCG also reports: restricted brands for cash & TPA patients"
+            note="The third brand figure in HCG's report: restricted classes (FORMULARYR + FORMULARYR-OPD) billed to cash and insurance (TPA) patients. A figure HCG watches, not counted as a breach. Details in the Brand rules tab."
             badge="cash + TPA · drugs" />
           <Total title="Restricted for cash & TPA" classes="FORMULARYR + FORMULARYR-OPD" b={s.restricted_cash_tpa} base={s.base} m={m} />
         </Card>

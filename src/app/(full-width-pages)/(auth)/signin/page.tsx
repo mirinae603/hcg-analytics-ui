@@ -1,10 +1,9 @@
 import SignInForm from "@/components/auth/SignInForm";
 import { Metadata } from "next";
-import { OWNER, PRODUCT } from "@/utils/brand";
 
 export const metadata: Metadata = {
   title: "Sign in",
-  description: `${OWNER} ${PRODUCT.name}.`,
+  description: "HCG Hospitals Supply Chain Analytics.",
 };
 
 export default function SignIn() {

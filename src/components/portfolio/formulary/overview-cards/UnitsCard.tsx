@@ -145,12 +145,12 @@ export function UnitsDrawer({ s, title, open, first, onClose }: { s: OverviewSco
             <>
               <MethodText>
                 <p>Every unit for the same months, patient type, material type and payer, whatever the hospital selector says, lowest compliance first. A unit with no formulary or out-of-formulary {s.m.noun} has no ratio and is listed last, unranked.</p>
-                <p>Each unit is a dot on one axis fitted to every unit&apos;s figure, which does not start at zero{s.m.budgetJudged ? <>; the black marker is the unit&apos;s own budget from the PAN MIS</> : null}{mean
+                <p>Each unit is a dot on one axis fitted to every unit&apos;s figure, which does not start at zero{s.m.budgetJudged ? <>; the black marker is the unit&apos;s own budget from HCG&apos;s PAN MIS</> : null}{mean
                   ? <>. Under the mean method each figure, and the order, are the mean of the unit&apos;s onco and non-onco ratios</> : null}. With one unit selected, the dashed line is all units together, a ratio of their sums, when the API sends it.</p>
                 <p>{s.m.budgetJudged
-                  ? <>Status compares the whole percentage the MIS would print with the unit&apos;s budget: met at or above it, within {WITHIN_PTS} pts up to {WITHIN_PTS} points below, otherwise more than {WITHIN_PTS} pts below. Budgets are set for a unit&apos;s whole drug spend, pooled, so no unit is judged under a patient-type, payer, material or mean filter.</>
-                  : <>No budget on quantity: each unit&apos;s budget is set on drug cost, so on quantity no budget is marked and no unit is judged. Switch the header to Value for the budgets.</>}</p>
-                <p>Mix by unit: each unit&apos;s drug consumption (formulary + out of formulary + non formulary{s.m.units ? ", in units sold" : ", at cost"}) as one bar of 100%, with each part&apos;s share of it, lowest formulary share first. These shares follow the same filters as the ranking. Non formulary is inside them, unlike the compliance ratio, and no budget is ticked on them: the budget is set for the ratio, not for these shares.</p>
+                  ? <>Status compares the whole percentage HCG&apos;s MIS would print with the unit&apos;s budget: met at or above it, within {WITHIN_PTS} pts up to {WITHIN_PTS} points below, otherwise more than {WITHIN_PTS} pts below. Budgets are set for a unit&apos;s whole drug spend, pooled, so no unit is judged under a patient-type, payer, material or mean filter.</>
+                  : <>No budget on quantity: HCG sets each unit&apos;s budget on drug cost, so on quantity no budget is marked and no unit is judged. Switch the header to Value for HCG&apos;s budgets.</>}</p>
+                <p>Mix by unit: each unit&apos;s drug consumption (formulary + out of formulary + non formulary{s.m.units ? ", in units sold" : ", at cost"}) as one bar of 100%, with each part&apos;s share of it, lowest formulary share first. These shares follow the same filters as the ranking. Non formulary is inside them, unlike the compliance ratio, and no budget is ticked on them: HCG&apos;s budget is set for the ratio, not for these shares.</p>
               </MethodText>
               <HowBuilt s={s} />
             </>
@@ -267,7 +267,7 @@ function UnitMix({ s, units }: { s: OverviewScope; units: Unit[] }) {
 
   return (
     <DrawerSection title={`Each unit's drug ${m.noun}, split three ways`}
-      note={`One bar per unit: formulary, out of formulary and non formulary as parts of the unit's total${m.units ? " units sold" : " drug spend at cost"}, adding to 100%. The figure after each bar is that total. Same months, patients, material and payer as the page; every hospital whatever the selector says. Lowest formulary share first. No budget is ticked on these shares: the budget is set for the compliance ratio, Formulary ÷ (Formulary + Out of formulary).`}>
+      note={`One bar per unit: formulary, out of formulary and non formulary as parts of the unit's total${m.units ? " units sold" : " drug spend at cost"}, adding to 100%. The figure after each bar is that total. Same months, patients, material and payer as the page; every hospital whatever the selector says. Lowest formulary share first. No budget is ticked on these shares: HCG's budget is set for the compliance ratio, Formulary ÷ (Formulary + Out of formulary).`}>
       <StackBars ariaLabel={`Formulary, out-of-formulary and non formulary share of each unit's drug ${m.noun}, ${s.when}`}
         segments={MIX_SEGMENTS} rows={rows} format={m.short} asideWidth={84} maxHeight={rows.length * 30 + 24}
         empty={`No unit has drug ${m.noun} in this selection.`} />

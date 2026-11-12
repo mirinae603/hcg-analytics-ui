@@ -1,12 +1,9 @@
 // src/utils/api.ts — small authenticated-fetch helper shared by the admin page and the
 // shared-chat context. Attaches the bearer token from src/utils/auth.ts to every call,
 // and on a 401 (expired/invalid/missing token) clears the stale session and bounces to
-// /signin rather than leaving the caller to figure out what a raw 401 means. What comes
-// back is passed through the build's brand (src/utils/brand.ts), so a build without a client
-// brand never shows the client's name.
+// /signin rather than leaving the caller to figure out what a raw 401 means.
 import { DASHBOARD_API_BASE_URL } from "./config";
 import { authHeader, clearSession } from "./auth";
-import { unbrandDeep } from "./brand";
 
 export class ApiError extends Error {
   status: number;
@@ -45,10 +42,10 @@ export async function apiFetch<T = unknown>(path: string, options: RequestInit =
     const detail = (body as { detail?: unknown; message?: unknown })?.detail
       ?? (body as { message?: unknown })?.message
       ?? `Request failed (${res.status})`;
-    throw new ApiError(res.status, unbrandDeep(detail));
+    throw new ApiError(res.status, detail);
   }
 
-  return unbrandDeep(body) as T;
+  return body as T;
 }
 
 /**
@@ -58,9 +55,7 @@ export async function apiFetch<T = unknown>(path: string, options: RequestInit =
  * blank-line delimiter, and calls `onEvent` for every `data: {...}` payload in order.
  * `{"type":"end"}` is the wire-level stream terminator (see chat.py) and is swallowed
  * here rather than handed to the caller, so callers only ever see real orchestrator
- * events (step/sql/answer/chart/table/persisted/error/done). Every event but a token delta
- * goes through the build's brand here; deltas are pieces of words, so the chat brands the
- * text they add up to instead (AiChatContext).
+ * events (step/sql/answer/chart/table/persisted/error/done).
  */
 export async function streamFetch(
   path: string,
@@ -87,7 +82,7 @@ export async function streamFetch(
         window.location.href = "/signin";
       }
     }
-    throw new ApiError(res.status, unbrandDeep(detail));
+    throw new ApiError(res.status, detail);
   }
 
   const reader = res.body?.getReader();
@@ -108,10 +103,7 @@ export async function streamFetch(
       if (!line) continue;
       const payload = line.slice("data: ".length);
       if (payload.trim() === '{"type": "end"}') continue;
-      try {
-        const ev = JSON.parse(payload);
-        onEvent(ev?.type === "answer_delta" ? ev : unbrandDeep(ev));
-      } catch { /* malformed frame — skip, don't kill the stream */ }
+      try { onEvent(JSON.parse(payload)); } catch { /* malformed frame — skip, don't kill the stream */ }
     }
   }
 }

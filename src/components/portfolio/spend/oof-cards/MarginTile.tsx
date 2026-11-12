@@ -30,9 +30,9 @@ function brief(c: Ctx, prev: Month | null): string[] {
   if (!h.lines) return [`${c.w.none} at ${c.where}, ${c.when}.`, ...estimated, ...waiting];
   return [
     ...estimated,
-    `At ${c.where}, ${c.when}, the group spent ${rupeesExact(h.purchase_value)} on ${plural(h.brands, "brand")} the Item Master flags out of formulary, from ${plural(h.vendors, "vendor")}${c.network ? ` at ${plural(h.hospitals, "hospital")}` : ""}.`,
-    `Those brands earn ${rupeesExact(h.actual_margin)} of margin; the suggested brands would earn ${rupeesExact(h.potential_margin)} on the same units. The margin missed is ${rupeesExact(h.margin_loss)}, ${pct(h.loss_pct)} of the margin possible.`,
-    ...(h.better_loss < 0 ? [`That is net, as the group counts it: ${rupeesExact(h.gain_loss)} missed where the suggested brand earns more, less ${rupeesExact(-h.better_loss)} where the brand bought earns more.`] : []),
+    `At ${c.where}, ${c.when}, HCG spent ${rupeesExact(h.purchase_value)} on ${plural(h.brands, "brand")} the Item Master flags out of formulary, from ${plural(h.vendors, "vendor")}${c.network ? ` at ${plural(h.hospitals, "hospital")}` : ""}.`,
+    `Those brands earn ${rupeesExact(h.actual_margin)} of margin; the brands HCG suggests would earn ${rupeesExact(h.potential_margin)} on the same units. The margin missed is ${rupeesExact(h.margin_loss)}, ${pct(h.loss_pct)} of the margin possible.`,
+    ...(h.better_loss < 0 ? [`That is net, as HCG counts it: ${rupeesExact(h.gain_loss)} missed where the suggested brand earns more, less ${rupeesExact(-h.better_loss)} where the brand bought earns more.`] : []),
     ...(prev ? [`In ${prev.label} it was ${rupeesExact(prev.margin_loss)}, ${pct(prev.loss_pct)} of the margin possible.`] : []),
     ...waiting,
   ];
@@ -81,7 +81,7 @@ function MarginDrawer({ c, dr }: { c: Ctx; dr: DrawerCtl }) {
                   {brief(c, prev).map((t) => <p key={t}>{t}</p>)}
                 </div>
               </DrawerSection>
-              <DrawerSection title="Key figures" note="Exact rupees for the selection, as the source sheets carry them.">
+              <DrawerSection title="Key figures" note="Exact rupees for the selection, as HCG's sheets carry them.">
                 <KeyFigures figures={figures(c)} />
               </DrawerSection>
               <DrawerSection title="Behind the figures">
@@ -100,7 +100,7 @@ function MarginDrawer({ c, dr }: { c: Ctx; dr: DrawerCtl }) {
             <Method c={c}>
               <p>{method.basis}</p>
               <p>{method.formula}</p>
-              <p>Spent = Base Price × units of every receipt, whether or not it has a suggested brand (the purchase value); the margins count only the receipts with one.</p>
+              <p>Spent = Base Price × units of every receipt, whether or not it has a suggested brand (HCG&apos;s purchase value); the margins count only the receipts with one.</p>
               <p>There is no budget for this figure: the margin possible is what it is compared with. On the chart the margin possible runs from zero, the margin missed is taken off it, and what is left is the margin earned (a negative margin missed adds, in green). With one month selected, the header compares with the month before.</p>
             </Method>
           ),
@@ -124,7 +124,7 @@ function SpentLine({ c }: { c: Ctx }) {
 function EstimatedLine({ c }: { c: Ctx }) {
   return (
     <p className="flex-shrink-0 truncate text-[11.5px] pt-1" style={{ color: SUB }} title={`${c.w.estimatedMonth}: ${estimatedWhy(c.estimated)}`}>
-      <b style={{ color: INK }}>{c.w.estimatedMonth}</b> · working for {c.estimated.join(", ")} not received
+      <b style={{ color: INK }}>{c.w.estimatedMonth}</b> · HCG&apos;s working for {c.estimated.join(", ")} not received
     </p>
   );
 }

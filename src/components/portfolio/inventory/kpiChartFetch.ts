@@ -1,6 +1,5 @@
 import { Kpi, simulatedByPortfolio } from "@/lib/kpiRegistry";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
-import { readJson } from "@/utils/brand";
 import { fmt } from "@/lib/kpiFormat";
 import { getSimulated } from "@/lib/simulatedKpi";
 
@@ -65,7 +64,7 @@ export async function fetchKpiChart(
   if (kpi.chart?.top) params.set("top", String(kpi.chart.top));
   const res = await fetch(`${DASHBOARD_API_BASE_URL}/kpi/${kpi.key}?${params.toString()}`, { signal });
   if (!res.ok) throw new Error(`${kpi.key} ${res.status}`);
-  const json = await readJson(res);
+  const json = await res.json();
   return Array.isArray(json) ? json : (json?.data ?? []);
 }
 
