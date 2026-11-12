@@ -113,10 +113,10 @@ function SummaryTab({ d, meta, scope, prev, onOpen }: {
   const fy = d.scheme_list?.financial_year || meta.scheme_list?.financial_year;
   const listed = meta.scheme_list?.switches;
   const lines: React.ReactNode[] = [
-    <>For scheme (GOV) patients the scheme list names a cheaper brand
+    <>For scheme (GOV) patients HCG&apos;s scheme list names a cheaper brand
       {listed != null ? <> for {num(listed)} brands</> : null}. {scope.network ? "Across all hospitals" : `At ${scope.where}`}, {scope.when}, {num(h.brands)} of them were used:
       {" "}{num(h.qty)} units, by {num(h.doctors)} doctor{h.doctors === 1 ? "" : "s"}{scope.network ? <> at {num(h.hospitals)} hospitals</> : null}.</>,
-    <>At the {fy ? `FY ${fy} ` : ""}list prices they cost {rupeesExact(h.used_value)}; the {w.sug} brands would have cost
+    <>At HCG&apos;s {fy ? `FY ${fy} ` : ""}list prices they cost {rupeesExact(h.used_value)}; the {w.sug} brands would have cost
       {" "}{rupeesExact(h.suggested_value)}. {w.loss}: <b style={{ color: INK }}>{rupeesExact(h.saving_missed)}</b>
       {isNum(h.saving_pct) ? <> ({pct(h.saving_pct)} of the spend)</> : null}.</>,
     ...(prev ? [<>{prev.label}, the month before: {w.loss.toLowerCase()} {rupeesExact(prev.loss)}, {pct(prev.pct)} of {rupeesExact(prev.actual)}.</>] : []),
@@ -137,7 +137,7 @@ function SummaryTab({ d, meta, scope, prev, onOpen }: {
           {lines.map((t, i) => <p key={i}>{t}</p>)}
         </div>
       </DrawerSection>
-      <DrawerSection title="Key figures" note="Exact rupees at the FY list prices.">
+      <DrawerSection title="Key figures" note="Exact rupees at HCG's FY list prices.">
         <KeyFigures figures={figures} />
       </DrawerSection>
       <DrawerSection title="Behind this figure">

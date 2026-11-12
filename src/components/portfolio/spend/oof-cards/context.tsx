@@ -44,7 +44,7 @@ export const WORDS = {
 
 /** Why a month is estimated, in plain words: HCG's own working for it was not received. */
 export const estimatedWhy = (labels: string[]) =>
-  `the group's working for ${labels.join(", ")} was not received, so its suggested brands come from the group's other months and lists, then the app's own match`;
+  `HCG's working for ${labels.join(", ")} was not received, so its suggested brands come from HCG's other months and lists, then the app's own match`;
 
 /** The badge every tile carries for an estimated month, its tooltip saying why. */
 export const estimatedSource = (labels: string[]): SourceSpec => ({ kind: "estimate", note: `${WORDS.estimatedMonth}: ${estimatedWhy(labels)}.` });
@@ -55,11 +55,11 @@ export const estimatedSource = (labels: string[]): SourceSpec => ({ kind: "estim
  *  (Estimated); lines left out of the margins are stone, as "outside the ratio" is on the
  *  Formulary page (parked by HCG hatched). Adjacent pairs checked with the data-viz validator. */
 export const SUGGESTED: Record<SuggestedBy, { short: string; color: string; hatched?: boolean }> = {
-  hcg_sheet: { short: "Group sheet", color: PROPOSED_COL },
-  hcg_sheet_pair: { short: "Group sheet, other month", color: TEAL },
-  hcg_list: { short: "Group list", color: MAUVE },
+  hcg_sheet: { short: "HCG sheet", color: PROPOSED_COL },
+  hcg_sheet_pair: { short: "HCG sheet, other month", color: TEAL },
+  hcg_list: { short: "HCG list", color: MAUVE },
   formulary_rule: { short: "Estimated", color: OOF_COL, hatched: true },
-  parked: { short: "Parked by the group", color: NF_COL, hatched: true },
+  parked: { short: "Parked by HCG", color: NF_COL, hatched: true },
   none: { short: "No alternative", color: X_COL },
 };
 
@@ -160,7 +160,7 @@ export function Method({ c, children }: { c: Ctx; children: React.ReactNode }) {
       </DrawerSection>
       <DrawerSection title="How these figures are built">
         <ul className="space-y-1.5 text-[12.5px] leading-relaxed list-disc pl-5" style={{ color: SUB }}>
-          <li>Source: the GRN (goods receipt) extracts, each month&apos;s Item Master (its OUT OF FORMULARY flag) and the monthly out-of-formulary workbooks, in the group&apos;s purchase scope; purchases have no payer, patient type or doctor.</li>
+          <li>Source: HCG&apos;s GRN (goods receipt) extracts, each month&apos;s Item Master (its OUT OF FORMULARY flag) and HCG&apos;s monthly out-of-formulary workbooks, in HCG&apos;s purchase scope; purchases have no payer, patient type or doctor.</li>
           <li>Every figure is summed for the selection and the % is taken once, never an average of hospital or monthly percentages.</li>
           <li>Charts print rupees in lakhs; the drawers print exact rupees with paise.</li>
           {(c.d.notes || []).map((t) => <li key={t}>{t}</li>)}

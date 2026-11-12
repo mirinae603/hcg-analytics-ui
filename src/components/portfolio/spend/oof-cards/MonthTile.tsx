@@ -51,7 +51,7 @@ const TABLE_COLS: MonthCol<Month>[] = [
   { label: "% missed", render: (r) => pct(r.loss_pct ?? r.pct), raw: (r) => r.loss_pct ?? r.pct, unit: "%" },
 ];
 /** Shown only when some month was built without HCG's own working. */
-const SOURCE_COL: MonthCol<Month> = { label: "Suggestions from", render: (r) => (r.estimated ? "Estimated (no working received)" : "The group's working") };
+const SOURCE_COL: MonthCol<Month> = { label: "Suggestions from", render: (r) => (r.estimated ? "Estimated (no HCG working)" : "HCG's working") };
 
 /** "Sep-26 waits for its Item Master": the months not drawn yet, for the words after the title. */
 const waitingTag = (c: Ctx) =>

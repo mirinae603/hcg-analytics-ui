@@ -76,7 +76,7 @@ export function DoctorsTile({ c, place }: { c: Ctx; place: Place }) {
         linkLabel="All doctors" onOpenTab={() => go("doctors")}
         method={(
           <Method c={c}>
-            <p>Doctors are the treating doctor on each HIS sales line, keyed by their HIS ID within a hospital. Each doctor&apos;s margin missed is summed over the selection; the five with the most are shown, the same first page the Doctors tab opens on. For a bifurcated brand, the allowance is shared across its doctors in proportion to their quantity.</p>
+            <p>Doctors are the treating doctor on each HIS sales line, keyed by their HIS ID within a hospital. Each doctor&apos;s margin missed is summed over the selection; the five with the most are shown, the same first page the Doctors tab opens on. For a bifurcated brand, HCG&apos;s allowance is shared across its doctors in proportion to their quantity.</p>
             <p>On the chart each doctor&apos;s margin missed is a bar from zero on one scale.</p>
           </Method>
         )} />

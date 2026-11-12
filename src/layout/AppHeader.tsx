@@ -10,7 +10,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { useState ,useEffect,useRef} from "react";
 import { parentOf } from "@/lib/nav";
-import { CLIENT, OWNER, PRODUCT } from "@/utils/brand";
 
 const AppHeader: React.FC = () => {
   const [isApplicationMenuOpen, setApplicationMenuOpen] = useState(false);
@@ -128,14 +127,12 @@ const AppHeader: React.FC = () => {
           </button>
 
           <Link href="/" className="lg:hidden">
-            {CLIENT ? (
-              <Image width={154} height={32} src={CLIENT.logo} alt={`${OWNER} ${PRODUCT.name}`} unoptimized />
-            ) : (
-              <span className="flex items-center gap-2">
-                <Image width={32} height={32} src={PRODUCT.icon} alt={PRODUCT.vendor} className="rounded-lg" unoptimized />
-                <span className="text-[13px] font-semibold" style={{ color: "#6b7280" }}>{PRODUCT.name}</span>
-              </span>
-            )}
+            <Image
+              width={154}
+              height={32}
+              src="/images/logo/logo.svg"
+              alt="HCG Supply Chain Analytics"
+            />
           </Link>
 
           <button
@@ -223,12 +220,11 @@ const AppHeader: React.FC = () => {
            
               <span className="flex items-center gap-3.5 select-none">
                 {/* Bidezy — the platform that built it (actual brand icon) */}
-                <Image src={PRODUCT.icon} alt={PRODUCT.vendor} width={34} height={34} className="rounded-lg shrink-0" unoptimized />
-                {/* built for: the client's logo, in a build with a client brand (src/utils/brand.ts) */}
-                {CLIENT && (<>
-                  <span className="text-[17px] font-normal" style={{ color: "#c6cad8" }}>×</span>
-                  <Image src={CLIENT.logo} alt={CLIENT.logoAlt} width={94} height={47} className="shrink-0" unoptimized />
-                </>)}
+                <Image src="/images/logo/logo-icon.jpg" alt="Bidezy" width={34} height={34} className="rounded-lg shrink-0" unoptimized />
+                {/* built for */}
+                <span className="text-[17px] font-normal" style={{ color: "#c6cad8" }}>×</span>
+                {/* HCG — real brand logo */}
+                <Image src="/images/logo/hcg-logo.svg" alt="HCG — adding life to years" width={94} height={47} className="shrink-0" unoptimized />
                 {/* product name */}
                 <span className="hidden xl:flex items-center gap-2.5 pl-0.5">
                   <span className="w-px h-7" style={{ background: "#e5e7eb" }} />

@@ -38,7 +38,7 @@ export const WORDS = {
 };
 
 /** Where every price figure comes from, in the badge's words: purchases, not sales lines. */
-export const PRICES_SOURCE: SourceSpec = { kind: "computed", note: "Computed by the app from the group's purchases (GRN extracts): unit price after discount" };
+export const PRICES_SOURCE: SourceSpec = { kind: "computed", note: "Computed by the app from HCG's purchases (GRN extracts): unit price after discount" };
 
 /** A supplier outside the series' eight hues: one muted colour, its row names it. */
 export const OTHER_VENDOR_COL = tint(INK, 0.35);
@@ -89,7 +89,7 @@ export function Method({ c, children }: { c: Ctx; children: React.ReactNode }) {
   return (
     <InsightMethod base={c} notes={c.d.notes || []} basis={(
       <>
-        <li>Source: the GRN (goods receipt) extracts, in the scope the out-of-formulary workings count, every month with a GRN file and every formulary class; purchases have no payer, patient type or doctor.</li>
+        <li>Source: HCG&apos;s GRN (goods receipt) extracts, in the scope HCG&apos;s out-of-formulary workings count, every month with a GRN file and every formulary class; purchases have no payer, patient type or doctor.</li>
         <li>A product is one molecule, strength, form and kind, read from the brand&apos;s description: its brands are the same medicine, so their unit prices can be compared. Unit price = the price after discount (Total Amount without tax ÷ GR Qty).</li>
         <li>{c.rule} {c.low ? `A purchase under ${c.low}` : "A purchase far under it"} is unusually low: it stays in the figures and is listed to check (the To check tab).</li>
         <li>{WORDS.extraNote}</li>

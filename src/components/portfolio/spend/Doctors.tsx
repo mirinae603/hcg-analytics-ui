@@ -50,8 +50,8 @@ export const doctorCols = (section: PatientSection): Col[] =>
   section === "cash" ? CASH_COLS : schemeCols("suggested");
 
 const NOTE: Record<PatientSection, string> = {
-  scheme: "Scheme (GOV) patients only: per treating doctor, what the brands they prescribed cost against the cheaper brand the scheme list suggests. Click a doctor to see the brands.",
-  cash: "Cash and TPA patients only: per treating doctor, the margin lost against the brand the cash list suggests. For a bifurcated brand, the allowance is shared across its doctors in proportion to their quantity. Click a doctor to see the brands.",
+  scheme: "Scheme (GOV) patients only: per treating doctor, what the brands they prescribed cost against the cheaper brand HCG's scheme list suggests. Click a doctor to see the brands.",
+  cash: "Cash and TPA patients only: per treating doctor, the margin lost against the brand HCG's cash list suggests. For a bifurcated brand, HCG's allowance is shared across its doctors in proportion to their quantity. Click a doctor to see the brands.",
 };
 
 type DoctorRow = { doctor_id: string; doctor_name: string; plant: string; hospital_name: string };

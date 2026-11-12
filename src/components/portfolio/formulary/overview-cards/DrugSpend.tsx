@@ -62,8 +62,8 @@ const GROUPS: Record<SpendGroup, {
   non_formulary: {
     label: "Non formulary", color: NF_COL, hatched: true, goodWhen: "neutral",
     what: (m) => m.units
-      ? "Units sold of group C items, non formulary. They sit outside the compliance ratio, so they never move the compliance %."
-      : "Drug spend on group C items, non formulary. It is real money but sits outside the compliance ratio, so it never moves the compliance %.",
+      ? "Units sold of group C items, non formulary. They sit outside HCG's ratio, so they never move the compliance %."
+      : "Drug spend on group C items, non formulary. It is real money but sits outside HCG's ratio, so it never moves the compliance %.",
     links: [{ view: "items", label: "Items tab · Non formulary" }],
   },
 };
@@ -317,11 +317,11 @@ export function DrugSpendDrawer({ s, open, first, onClose }: { s: OverviewScope;
                 <p>Every drug line is put in a group by its class in that month&apos;s Item Master: group A is formulary, group B is out of formulary, group C is non formulary.</p>
                 <p>Compliance % = Formulary ÷ (Formulary + Out of formulary){effectiveMethod(s.filters) === "mean"
                   ? <>, taken for onco and for non-onco and averaged under the mean method; the pooled % is the one ratio of the two amounts</> : null}{m.units ? <>, here on units sold</> : null}. {m.units
-                  ? <>Non formulary units are outside the ratio; consumables are not drugs at all.</>
-                  : <>Non formulary spend is real money but outside the ratio; consumables are not drug spend at all.</>}</p>
+                  ? <>Non formulary units are outside HCG&apos;s ratio; consumables are not drugs at all.</>
+                  : <>Non formulary spend is real money but outside HCG&apos;s ratio; consumables are not drug spend at all.</>}</p>
                 <p>The month chart stacks both amounts into one bar per month, from zero; the line joins the bar tops and each point is labelled with that month's compliance %, fitted to the months shown and labelled. {m.budgetJudged
                   ? <>The dashed budget line is drawn only when one budget covers every month shown and the figure is the one it was set for (all patients, all payers, pooled); otherwise each month&apos;s budget is in the By month table.</>
-                  : <>No budget line on quantity: the budget is a drug-cost target, so a quantity figure is never set against it.</>}</p>
+                  : <>No budget line on quantity: HCG&apos;s budget is a drug-cost target, so a quantity figure is never set against it.</>}</p>
                 <p>The class chart draws each class&apos;s {m.noun} as a bar from zero on one scale, coloured by its group; the classes that do not fit are listed under By Item Master class.</p>
                 {m.units && <p>Quantity adds tablets, vials and bottles together (the sales files keep no unit of measure), so these amounts compare like with like only within one item.</p>}
               </MethodText>

@@ -11,7 +11,6 @@ import { useWindows, windowLabel } from "@/lib/useWindows";
 import { countAbbr, useMount, CountUp, smoothPath } from "@/components/portfolio/kit";
 import { TbTruckDelivery, TbRocket, TbAlertTriangle } from "react-icons/tb";
 import { DetailSkeleton } from "./parts";
-import { unbrand } from "@/utils/brand";
 
 const KpiTable = dynamic(() => import("../KpiTable"), { ssr: false, loading: () => <div className="p-6">{Array.from({ length: 6 }).map((_, i) => <div key={i} className="h-10 rounded-lg bg-gray-50 animate-pulse mb-2" />)}</div> });
 
@@ -21,8 +20,7 @@ const VIOLET = "#7c5cf0", DEEP = "#6a3fd6", LILAC = "#c4b5fd";
 const SPEED = ["#12b886", "#4cc38a", "#e0a838", "#ec7a45", "#e8556a"]; // ≤2 · 3–5 · 6–10 · 11–20 · 20+
 const SH = "0 22px 46px -28px rgba(58,44,110,0.30), 0 4px 12px -8px rgba(58,44,110,0.08)";
 const dfmt = (n: number) => `${n.toFixed(1)}d`;
-// vendor names are shown under the build's brand (src/utils/brand.ts); drills keep the raw name
-const vName = (raw: string, n = 16) => { const s = unbrand(raw); return s && s.length > n ? s.slice(0, n - 1) + "…" : s || "—"; };
+const vName = (s: string, n = 16) => (s && s.length > n ? s.slice(0, n - 1) + "…" : s || "—");
 const speedByDays = (d: number) => (d <= 2 ? SPEED[0] : d <= 5 ? SPEED[1] : d <= 10 ? SPEED[2] : d <= 20 ? SPEED[3] : SPEED[4]);
 
 function Shell({ region, children }: any) {
