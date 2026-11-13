@@ -29,14 +29,14 @@ const rx = rupeesExact;
 const EVERY_FIGURE = "Every figure is summed for the selection and the % is taken once: never an average of hospital or monthly percentages.";
 
 const NONE: Record<LossKind, string> = {
-  cash: "no cash or TPA patient got a brand that HCG's cash list has a suggestion for.",
+  cash: "no cash or TPA patient got a brand that the cash list has a suggestion for.",
   oof: "no out-of-formulary brand with a suggested brand was bought.",
-  scheme: "no scheme patient got a brand that HCG's scheme list has a suggestion for.",
+  scheme: "no scheme patient got a brand that the scheme list has a suggestion for.",
 };
 const LEAD: Record<LossKind, (h: SectionLoss["head"]) => string> = {
-  cash: (h) => `cash & TPA patients got brands that earned ${rx(h.actual)} in margin, where the brands HCG's cash list suggests would have earned ${rx(h.proposed)}.`,
-  oof: (h) => `the brands HCG bought out of formulary earn ${rx(h.actual)} in margin, where the brands HCG suggests for them would earn ${rx(h.proposed)} on the same units.`,
-  scheme: (h) => `scheme (GOV) patients got brands that cost ${rx(h.actual)}, where the cheaper brands HCG's scheme list suggests would have cost ${rx(h.proposed)}.`,
+  cash: (h) => `cash & TPA patients got brands that earned ${rx(h.actual)} in margin, where the brands the cash list suggests would have earned ${rx(h.proposed)}.`,
+  oof: (h) => `the brands bought out of formulary earn ${rx(h.actual)} in margin, where the brands suggested for them would earn ${rx(h.proposed)} on the same units.`,
+  scheme: (h) => `scheme (GOV) patients got brands that cost ${rx(h.actual)}, where the cheaper brands the scheme list suggests would have cost ${rx(h.proposed)}.`,
 };
 
 const count = (n: number, one: string, many: string) => `${num(n)} ${n === 1 ? one : many}`;
@@ -94,7 +94,7 @@ export function SectionDrawer({ sec, meta, filters, open, initialTab, onClose, o
               <DrawerSection title="In brief">
                 <div className="space-y-2 text-[13.5px] leading-relaxed" style={{ color: INK }}>{brief(sec, where, when, prev).map((t, i) => <p key={i}>{t}</p>)}</div>
               </DrawerSection>
-              <DrawerSection title="Key figures" note="Exact rupees, as HCG's sheets carry them.">
+              <DrawerSection title="Key figures" note="Exact rupees, as the source sheets carry them.">
                 <KeyFigures figures={[
                   { label: w.actual, value: rx(h.actual) },
                   { label: w.proposed, value: rx(h.proposed) },

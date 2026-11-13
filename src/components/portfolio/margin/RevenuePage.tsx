@@ -43,7 +43,7 @@ import {
 } from "./api";
 
 const TITLE = "Revenue & margin · IP and OP";
-const ABOUT = "Pharmacy sales at MRP (revenue), their cost and the margin between, for inpatients and outpatients: HIS IP + OP sales lines, drugs and consumables, in HCG's formulary buckets from each month's Item Master. Margin = MRP − cost; margin % = margin ÷ MRP.";
+const ABOUT = "Pharmacy sales at MRP (revenue), their cost and the margin between, for inpatients and outpatients: HIS IP + OP sales lines, drugs and consumables, in the formulary buckets from each month's Item Master. Margin = MRP − cost; margin % = margin ÷ MRP.";
 
 /** The material types a link can narrow the page to: revenue counts consumables too. */
 const LINK_SEGMENTS: readonly Exclude<Segment, "ALL">[] = ["onco", "non-onco", "consumables"];

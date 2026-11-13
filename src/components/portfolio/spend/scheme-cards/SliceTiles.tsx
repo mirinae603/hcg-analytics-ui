@@ -95,7 +95,7 @@ export function SlicesDrawer({ d, meta, filters, scope, drawer }: {
   const parts = healthiumParts(g);
   return (
     <DetailDrawer open={drawer.open} onClose={drawer.close} initialTab={drawer.tab}
-      eyebrow="Scheme · Overview" title={`HCG's slices of the scheme ${w.loss.toLowerCase()} · ${scope.where}`}
+      eyebrow="Scheme · Overview" title={`Slices of the scheme ${w.loss.toLowerCase()} · ${scope.where}`}
       kpi={{ value: rupeesExact(d.headline.saving_missed), comparator: `scheme ${w.loss.toLowerCase()}; the slices are parts of it, not added to it` }}
       source="computed" asOf={scope.asOf} filters={filterChips(filters, scope, meta)}
       tabs={[
@@ -105,7 +105,7 @@ export function SlicesDrawer({ d, meta, filters, scope, drawer }: {
             <>
               <SliceFigures b={g.healthium} slice="healthium" />
               {parts.length > 0 && (
-                <DrawerSection title={`${g.healthium.label}, by group`} note="The scheme list's SUTURES and Endo rows, as HCG's S6 Summary shows them.">
+                <DrawerSection title={`${g.healthium.label}, by group`} note="The scheme list's SUTURES and Endo rows, as the S6 Summary shows them.">
                   <SliceTable rows={parts} />
                 </DrawerSection>
               )}
@@ -115,7 +115,7 @@ export function SlicesDrawer({ d, meta, filters, scope, drawer }: {
         {
           key: "method", label: "Method", render: () => (
             <MethodTab d={d} meta={meta} lines={[
-              "The two lines HCG's report shows under the scheme total. They are parts of it, not added to it.",
+              "The two lines the report shows under the scheme total. They are parts of it, not added to it.",
               `Each slice: ${SLICE.attis.used.toLowerCase()} (qty × list price), the same quantity at the suggested brand's price, the ${w.loss.toLowerCase()} between them and its % of the spend; share = the slice's part of the scheme ${w.loss.toLowerCase()}.`,
             ]} />
           ),
@@ -136,7 +136,7 @@ function SliceFigures({ b, slice }: { b: Block & { share_pct: number | null }; s
     { label: "Billed", value: rupeesExact(b.bill_cost), note: "the bills' cost for these lines" },
   ];
   return (
-    <DrawerSection title="Key figures" note="Exact rupees at HCG's FY list prices.">
+    <DrawerSection title="Key figures" note="Exact rupees at the FY list prices.">
       <KeyFigures figures={figures} />
     </DrawerSection>
   );

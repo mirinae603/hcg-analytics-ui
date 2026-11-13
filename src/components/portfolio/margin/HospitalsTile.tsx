@@ -155,7 +155,7 @@ function HospitalsDrawer({ s, title, dr }: { s: RevScope; title: string; dr: Dra
                 <p>Every hospital with pharmacy sales in the selected months, whatever the hospital selector says, for the same patient type, material type and payer: a hospital can show nothing under a filter. Each hospital&apos;s margin % is its own margin ÷ its own MRP; its share is its MRP ÷ the MRP of every hospital listed.</p>
                 <p>The switch orders the hospitals by revenue (units sold under the Quantity switch), by margin % or by margin, largest first; a hospital with no MRP has no margin % and is listed last. Bars run from zero on one scale; a negative margin runs left of it.</p>
                 <p>With one hospital selected, every hospital is a dot on one axis — from zero for an amount, fitted to the hospitals for a margin % — and the selected one is drawn large with its place in the order. Clicking a hospital selects it for the whole app; clicking the selected one again goes back to all hospitals.</p>
-                <p>By bucket: each hospital&apos;s revenue (MRP) and margin % in each of HCG&apos;s buckets — formulary, out of formulary and non-formulary from each month&apos;s Item Master, and consumables, whatever their class — taken on the same sales lines as the hospital&apos;s own figures, so its buckets add up to its revenue. Each margin % is the bucket&apos;s own margin ÷ its own MRP. With all hospitals selected the last row is every hospital together, as the API sums it.</p>
+                <p>By bucket: each hospital&apos;s revenue (MRP) and margin % in each of the buckets — formulary, out of formulary and non-formulary from each month&apos;s Item Master, and consumables, whatever their class — taken on the same sales lines as the hospital&apos;s own figures, so its buckets add up to its revenue. Each margin % is the bucket&apos;s own margin ÷ its own MRP. With all hospitals selected the last row is every hospital together, as the API sums it.</p>
                 <p>Each table downloads as CSV: exactly its rows and columns, with exact rupees and each % as a number.</p>
               </MethodText>
               <HowBuilt s={s} />
@@ -253,7 +253,7 @@ function UnitTable({ s, onPicked }: { s: RevScope; onPicked: () => void }) {
           </tbody>
         </table>
       </div>
-      <p className="text-[11px] mt-2" style={{ color: SUB }}>Shaded = the hospital selected. Exact rupees, as HCG&apos;s sheets carry them.</p>
+      <p className="text-[11px] mt-2" style={{ color: SUB }}>Shaded = the hospital selected. Exact rupees, as the group&apos;s sheets carry them.</p>
     </DrawerSection>
   );
 }
@@ -311,7 +311,7 @@ function UnitBucketTable({ s, onPicked }: { s: RevScope; onPicked: () => void })
   const group = "px-3 pt-2 text-[10.5px] font-semibold uppercase text-center whitespace-nowrap";
   return (
     <DrawerSection title="Every hospital by bucket"
-      note={`HCG's unit × category view: each hospital's revenue (MRP) and margin % in each bucket, ${who}, ${s.when}. A hospital's buckets add up to its revenue; each margin % is the bucket's own margin ÷ its own MRP. Click a hospital to select it.`}>
+      note={`Unit × category view: each hospital's revenue (MRP) and margin % in each bucket, ${who}, ${s.when}. A hospital's buckets add up to its revenue; each margin % is the bucket's own margin ÷ its own MRP. Click a hospital to select it.`}>
       <div className="flex items-center justify-between gap-3 mb-1">
         {both ? (
           <Pills value={shown} onChange={setSide} title="Patients the table counts"
@@ -367,7 +367,7 @@ function UnitBucketTable({ s, onPicked }: { s: RevScope; onPicked: () => void })
           </tbody>
         </table>
       </div>
-      <p className="text-[11px] mt-2" style={{ color: SUB }}>Shaded = the hospital selected{s.network ? ", and every hospital together" : ""}. Exact rupees, as HCG&apos;s sheets carry them; a margin % is — where the bucket has no MRP.</p>
+      <p className="text-[11px] mt-2" style={{ color: SUB }}>Shaded = the hospital selected{s.network ? ", and every hospital together" : ""}. Exact rupees, as the group&apos;s sheets carry them; a margin % is — where the bucket has no MRP.</p>
     </DrawerSection>
   );
 }

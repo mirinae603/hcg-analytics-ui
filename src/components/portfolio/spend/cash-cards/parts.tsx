@@ -19,7 +19,7 @@ export function Method({ c, children }: { c: Ctx; children: React.ReactNode }) {
       <DrawerSection title="How these figures are built">
         <ul className="space-y-1.5 text-[12.5px] leading-relaxed list-disc pl-5" style={{ color: SUB }}>
           <li>Source: HIS IP + OP pharmacy sales lines (the same monthly files as Formulary Compliance) and
-            HCG&apos;s cash &amp; TPA suggested-brand list
+            the cash &amp; TPA suggested-brand list
             {list?.file ? <> ({list.file}, sheet CASH&amp;TPA{list.financial_year ? `, FY ${list.financial_year}` : ""})</> : null}.</li>
           <li>Every figure is summed for the selection and the % is taken once, never an average of hospital or monthly percentages.</li>
           <li>Charts print rupees in lakhs; the drawers print exact rupees with paise.</li>

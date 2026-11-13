@@ -41,7 +41,7 @@ import { PAGES, QUANTITY_LC, SEGMENT_LABEL, spanOf, useExecCtx, type ExecCtx } f
 import { DEFAULT_FILTERS, overviewParams, useExecOverview, type ExecOverview, type Filters, type LoadError } from "./api";
 
 const TITLE = "Executive overview";
-const ABOUT = "HCG's pharmacy on one page: revenue and margin from the HIS sales lines, formulary compliance, the margin and saving missed, what was paid above the usual cheapest on purchases, every unit side by side, and the insights and actions those figures support. Each figure is its own section's, and its link opens that page.";
+const ABOUT = "The pharmacy on one page: revenue and margin from the HIS sales lines, formulary compliance, the margin and saving missed, what was paid above the usual cheapest on purchases, every unit side by side, and the insights and actions those figures support. Each figure is its own section's, and its link opens that page.";
 
 /** The hospital in words: HCG's own (HIS) name where the answer has one. */
 function whereOf(d: ExecOverview): string {

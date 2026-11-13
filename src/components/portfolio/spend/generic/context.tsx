@@ -38,7 +38,7 @@ export const WORDS = {
 /** Every figure here rests on the estimated definition: the badge says so in its own words. */
 export const GENERIC_SOURCE: SourceSpec = {
   kind: "estimate",
-  note: "Estimated definition: branded = a product of the company that invented the medicine (an originator), the app's own reading; the values are HCG's purchases (GRN). The (i) says how.",
+  note: "Estimated definition: branded = a product of the company that invented the medicine (an originator), the app's own reading; the values are the group's purchases (GRN). The (i) says how.",
 };
 
 /** The Item Master's flags in the Formulary page's colours: formulary SAGE, non formulary
@@ -68,7 +68,7 @@ export function Method({ c, children }: { c: Ctx; children: React.ReactNode }) {
   return (
     <InsightMethod base={c} notes={c.d.notes || []} basis={(
       <>
-        <li>Source: HCG&apos;s GRN (goods receipt) extracts, in the scope HCG&apos;s out-of-formulary workings count, every month with a GRN file; value = Total Amount without tax (the price after discount). Purchases have no payer, patient type or doctor.</li>
+        <li>Source: the GRN (goods receipt) extracts, in the scope the out-of-formulary workings count, every month with a GRN file; value = Total Amount without tax (the price after discount). Purchases have no payer, patient type or doctor.</li>
         <li>{c.d.definition?.label ?? "Estimated definition"}: {WORDS.plain} In the build&apos;s words: {c.d.definition?.text}</li>
         <li>{c.rule}</li>
         <li>{WORDS.extraNote}</li>

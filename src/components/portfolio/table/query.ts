@@ -8,6 +8,7 @@
 // An endpoint that has not adopted the contract ignores the new params and sends no `facets`,
 // so the table simply shows no filter buttons.
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
+import { unbrand } from "@/utils/brand";
 
 /** One option of a facet; `count` = the rows it would match given every OTHER filter. */
 export type FacetValue = { value: string; label: string; count: number };
@@ -90,7 +91,20 @@ export async function getTable(base: string, params: Params, signal?: AbortSigna
     try { detail = (await res.json())?.detail; } catch { /* not JSON */ }
     throw new TableError(res.status, typeof detail === "string" ? detail : `HTTP ${res.status}`);
   }
-  return (await res.json()) as TableAnswer;
+  return shownLabels((await res.json()) as TableAnswer);
+}
+
+/** The answer with the words of its filters and scope as this build's brand shows them
+ *  (a Hospital option is named without the client's name, see utils/brand). Only labels change:
+ *  option values, selections, scope values and tokens go back to the server and into file
+ *  names exactly as sent, and rows stay whole because a row click can send its own fields. */
+function shownLabels(a: TableAnswer): TableAnswer {
+  if (!a.facets && !a.scope) return a;
+  return {
+    ...a,
+    facets: a.facets?.map((f) => ({ ...f, label: unbrand(f.label), values: f.values?.map((o) => ({ ...o, label: unbrand(o.label) })) })),
+    scope: a.scope?.map((c) => ({ ...c, label: unbrand(c.label), value_label: unbrand(c.value_label) })),
+  };
 }
 
 export const isAbort = (e: unknown): boolean => (e as { name?: unknown } | null)?.name === "AbortError";

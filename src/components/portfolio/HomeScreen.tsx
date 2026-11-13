@@ -156,7 +156,7 @@ export default function HomeScreen() {
       <div className="max-w-[1200px] mx-auto">
         {/* editorial header (no gradients) */}
         <header className="hm-in mb-8" style={{ animationDelay: "30ms" }}>
-          <div className="text-[11px] font-semibold uppercase tracking-[0.16em] mb-2" style={{ color: MUT }}>HCG Hospitals · Supply Chain</div>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.16em] mb-2" style={{ color: MUT }}>Hospitals · Supply Chain</div>
           <h1 className="text-[30px] md:text-[34px] font-extrabold leading-none tracking-tight" style={{ color: INK }}>Analytics Home</h1>
           <p className="text-[13.5px] mt-2.5" style={{ color: MUT }}>Pick a domain to open its KPI overview.</p>
           {/* Each fact shows once its figure has arrived; the separators join only the ones shown.
@@ -216,7 +216,7 @@ export default function HomeScreen() {
         </div>
 
         <div className="hm-in mt-10 pt-6 flex items-center justify-between flex-wrap gap-2" style={{ borderTop: "1px solid #e0e3eb", animationDelay: "720ms" }}>
-          <span className="text-[11.5px]" style={{ color: "#9aa0b0" }}>HCG Hospitals · Supply Chain Analytics</span>
+          <span className="text-[11.5px]" style={{ color: "#9aa0b0" }}>Hospitals · Supply Chain Analytics</span>
           <span className="text-[11.5px]" style={{ color: "#b3b8c6" }}>Powered by Bidezy</span>
         </div>
       </div>

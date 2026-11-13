@@ -84,7 +84,7 @@ function SwitchesDrawer({ c, dr, title }: { c: Ctx; dr: DrawerCtl; title: string
         {
           key: "method", label: "Method", render: () => (
             <Method c={c}>
-              <p>The brands bought out of formulary whose suggested brand would have earned the most more, for the same units: margin earned = units × (MRP excl GST − the price paid); margin possible = the same units × the suggested brand&apos;s (MRP excl GST − HCG Pharma price); margin missed = possible − earned; share = the switch&apos;s part of what switching would gain in the selection (the margin missed where the suggested brand earns more).</p>
+              <p>The brands bought out of formulary whose suggested brand would have earned the most more, for the same units: margin earned = units × (MRP excl GST − the price paid); margin possible = the same units × the suggested brand&apos;s (MRP excl GST − Pharma price); margin missed = possible − earned; share = the switch&apos;s part of what switching would gain in the selection (the margin missed where the suggested brand earns more).</p>
               <p>On the chart each switch&apos;s margin missed is a bar from zero on one scale, in the brands&apos; colour; a hatched bar is a suggestion the app matched itself (Estimated). Under the brand: its molecule and where the suggestion came from.</p>
             </Method>
           ),

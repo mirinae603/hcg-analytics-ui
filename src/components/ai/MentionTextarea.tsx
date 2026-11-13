@@ -6,6 +6,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { TbPill, TbTruck, TbBuildingFactory2, TbCategory2, TbBuildingHospital, TbChevronRight, TbChevronLeft, TbSearch } from "react-icons/tb";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
+import { unbrand } from "@/utils/brand";
 import { T } from "./theme";
 import GlobalStyle from "./GlobalStyle";
 
@@ -151,7 +152,7 @@ export default function MentionTextarea({ value, onChange, onSubmit, disabled, p
                     <button key={`${m.type}-${m.label}`} data-idx={i} type="button" onMouseDown={(e) => { e.preventDefault(); pickValue(m); }} onMouseEnter={() => { if (!kbRef.current) setIdx(i); }}
                       className="w-full flex items-center gap-2.5 px-3 py-1.5 text-left transition-colors" style={{ background: i === idx ? "#f4f5f8" : "transparent" }}>
                       <span className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0" style={{ background: meta.bg, color: meta.color }}><Icon size={13} /></span>
-                      <span className="flex-1 min-w-0 truncate text-[12.5px]" style={{ color: "#2b3040" }} title={m.label}>{m.label}</span>
+                      <span className="flex-1 min-w-0 truncate text-[12.5px]" style={{ color: "#2b3040" }} title={unbrand(m.label)}>{unbrand(m.label)}</span>
                       {!activeType ? <span className="text-[9.5px] font-semibold uppercase tracking-wide flex-shrink-0" style={{ color: meta.color }}>{TYPE_META[m.type]?.label?.replace(/s$/, "") || m.type}</span> : null}
                     </button>
                   );

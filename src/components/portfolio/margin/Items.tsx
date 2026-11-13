@@ -45,7 +45,7 @@ export default function Items({ d, filters, plant }: {
   return (
     <Card delay={80}>
       <Head label="Items: revenue and margin"
-        note={`Every item sold in the selection, drugs and consumables, largest revenue first. Revenue is MRP; margin is MRP − cost; margin % is margin ÷ MRP, per row. ${blank ? `${blank}, as HCG's sheet does. ` : ""}The filters above the table narrow its rows and its Total row.`}
+        note={`Every item sold in the selection, drugs and consumables, largest revenue first. Revenue is MRP; margin is MRP − cost; margin % is margin ÷ MRP, per row. ${blank ? `${blank}, as the group's sheet does. ` : ""}The filters above the table narrow its rows and its Total row.`}
         badge={h ? `Revenue ${lakhs(h.mrp)} · margin ${lakhs(h.margin)} (${pct(h.margin_pct, 1)})` : undefined} />
       <KpiTable kpiKey="revenue-margin-items" endpoint={MATERIALS_PATH} plant={plant} columns={ITEM_COLS} extraParams={filterParams(filters)} />
     </Card>

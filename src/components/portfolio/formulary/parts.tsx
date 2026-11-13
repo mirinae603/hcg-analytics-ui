@@ -35,8 +35,8 @@ export const GROUP_LABEL: Record<string, string> = { A: "Formulary", B: "Out of 
 /** Brand-rule verdicts (Brand rules tab and its HCG guidelines card). `color` fills a verdict's
  *  bar; `ink` is the shade its words wear (4.5:1 on white). */
 export const VERDICT: Record<string, { label: string; color: string; ink: string; note: string }> = {
-  breach: { label: "Breach", color: OOF_COL, ink: CORAL_INK, note: "against HCG's guidelines" },
-  watch: { label: "Watch", color: HONEY, ink: HONEY_INK, note: "a figure HCG reports" },
+  breach: { label: "Breach", color: OOF_COL, ink: CORAL_INK, note: "against the guidelines" },
+  watch: { label: "Watch", color: HONEY, ink: HONEY_INK, note: "a figure the MIS reports" },
   info: { label: "Info", color: NF_COL, ink: SUB, note: "shown for information" },
 };
 

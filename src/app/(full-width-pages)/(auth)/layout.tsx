@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/context/ThemeContext";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
+import { CLIENT, PRODUCT } from "@/utils/brand";
 
 export default function AuthLayout({
   children,
@@ -22,12 +23,9 @@ export default function AuthLayout({
               <GridShape />
               <div className="flex flex-col items-center max-w-xs">
                 <Link href="/" className="block mb-4">
-                  <Image
-                    width={231}
-                    height={48}
-                    src="./images/logo/logo.svg"
-                    alt="Logo"
-                  />
+                  {CLIENT
+                    ? <Image width={231} height={48} src={CLIENT.logo} alt={CLIENT.logoAlt} unoptimized />
+                    : <Image width={72} height={72} src={PRODUCT.icon} alt={PRODUCT.vendor} className="rounded-2xl" unoptimized />}
                 </Link>
                 <p className="text-center text-gray-400 dark:text-white/60">
                   BidEasy AI Analytics Dashboard and Assistant

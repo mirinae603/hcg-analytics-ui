@@ -102,7 +102,7 @@ export async function exportPdf(turns: Turn[], title: string) {
   const ensure = (h: number) => { if (y + h > doc.internal.pageSize.getHeight() - M) { doc.addPage(); y = M; } };
 
   doc.setFont("helvetica", "bold"); doc.setFontSize(16); doc.setTextColor(31, 35, 51);
-  doc.text("HCG AI Analyst", M, y); y += 18;
+  doc.text("AI Analyst", M, y); y += 18;
   doc.setFont("helvetica", "normal"); doc.setFontSize(9); doc.setTextColor(140, 145, 160);
   doc.text(new Date().toLocaleString(), M, y); y += 20;
 

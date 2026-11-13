@@ -31,7 +31,7 @@ export const MIX_PARTS = [
 const SEGMENTS: StackSegment[] = MIX_PARTS.map((p) => ({ key: p.key, label: p.label, color: p.color, hatched: "hatched" in p ? p.hatched : undefined }));
 
 type Order = "pan" | "oof";
-const ORDERS: { key: Order; label: string }[] = [{ key: "pan", label: "HCG order" }, { key: "oof", label: "Highest OOF first" }];
+const ORDERS: { key: Order; label: string }[] = [{ key: "pan", label: "Group order" }, { key: "oof", label: "Highest OOF first" }];
 
 const hasMix = (u: UnitRow) => isNum(u.formulary_share_pct) || isNum(u.oof_share_pct) || isNum(u.nf_share_pct);
 
@@ -92,7 +92,7 @@ export function MixView({ c }: { c: ExecCtx }) {
             ]} />
         </DrawerSection>
       )}
-      <DrawerSection title="Every unit, exact" note="In HCG's own order. Shaded = the hospital selected in the header; — = no drug consumption in this selection.">
+      <DrawerSection title="Every unit, exact" note="In the group's own order. Shaded = the hospital selected in the header; — = no drug consumption in this selection.">
         <ExactTable rows={c.d.units} rowKey={(u) => u.plant} caption={`Consumption mix by unit, ${c.when}`} selected={(u) => u.selected}
           columns={[
             { label: "Unit", value: (u) => unitName(u), text: true },
@@ -109,9 +109,9 @@ export function MixView({ c }: { c: ExecCtx }) {
 export function MixMethod({ c }: { c: ExecCtx }) {
   return (
     <MethodText>
-      <p>Each unit&apos;s drug consumption (formulary + out of formulary + non-formulary{c.units ? ", in units sold" : ", at cost"}) as one bar of 100%, with each part&apos;s share of it as the server works it out. The shares follow the page&apos;s filters, like the units table. Non-formulary is inside these shares, unlike the compliance ratio (formulary ÷ formulary + out of formulary), so it is hatched; no budget is ticked, because HCG&apos;s budget is set for the ratio, not for these shares.</p>
+      <p>Each unit&apos;s drug consumption (formulary + out of formulary + non-formulary{c.units ? ", in units sold" : ", at cost"}) as one bar of 100%, with each part&apos;s share of it as the server works it out. The shares follow the page&apos;s filters, like the units table. Non-formulary is inside these shares, unlike the compliance ratio (formulary ÷ formulary + out of formulary), so it is hatched; no budget is ticked, because the budget is set for the ratio, not for these shares.</p>
       <p>The three figures after each bar — and the three columns beside the mini bar on the page — are its shares to one decimal, in the bar&apos;s order: formulary, out of formulary, non-formulary (they add up to 100, give or take the rounding).</p>
-      <p>&quot;HCG order&quot; lists the units as HCG&apos;s own reports do; &quot;Highest OOF first&quot; puts the largest out-of-formulary share at the top. Units with no drug consumption in the selection are counted beside the switch, not drawn.</p>
+      <p>&quot;Group order&quot; lists the units as the group&apos;s own reports do; &quot;Highest OOF first&quot; puts the largest out-of-formulary share at the top. Units with no drug consumption in the selection are counted beside the switch, not drawn.</p>
     </MethodText>
   );
 }
