@@ -1,7 +1,6 @@
 // src/context/RegionContext.tsx
 'use client'
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
-import { unbrand } from '@/utils/brand'
 
 export interface Region {
   id: number
@@ -25,11 +24,8 @@ export const defaultRegion: Region = {
 // code should never render `region.name`/`selectedRegion.name` directly — call this
 // instead, so the SCREEN says "Hospital" (per the client's terminology ask) while the
 // value that actually goes over the wire stays byte-identical to what the backend expects.
-// The name is shown under the build's brand (src/utils/brand.ts): "HCG KR, Bangalore" reads
-// "KR, Bangalore" in a build without a client brand, while the name itself is kept whole,
-// because the older pages load per-hospital files by it.
 export const displayRegion = (name?: string | null) =>
-  name === 'All Plants' ? 'All Hospitals' : (unbrand(name) ?? 'All Hospitals')
+  name === 'All Plants' ? 'All Hospitals' : (name ?? 'All Hospitals')
 
 const RegionContext = createContext<RegionContextType | undefined>(undefined)
 

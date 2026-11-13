@@ -48,7 +48,7 @@ function SplitDrawer({ c, dr, title }: { c: Ctx; dr: DrawerCtl; title: string })
         {
           key: "method", label: "Method", render: () => (
             <Method c={c}>
-              <p>The material type is the first digit of the material code: 1 onco drugs, 2 other (non-onco) drugs. The out-of-formulary workings cover drugs only, so purchases have no consumables.</p>
+              <p>The material type is the first digit of the material code: 1 onco drugs, 2 other (non-onco) drugs. HCG&apos;s out-of-formulary workings cover drugs only, so purchases have no consumables.</p>
               <p>{IGNORES} Each type&apos;s margin missed = its margin possible − its margin earned, net; its % missed = its margin missed ÷ its margin possible. The bars share one scale from zero.</p>
             </Method>
           ),

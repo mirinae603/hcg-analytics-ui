@@ -67,8 +67,8 @@ export function SchemeDrawer({ s, open, first, onClose }: { s: OverviewScope; op
             <>
               <MethodText>
                 <p>Restricted for scheme = drugs in the FORMULARYR and FORMULARYR-OPD classes billed to GOV schemes; preferred for scheme = FORMULARYP billed to GOV schemes. Only GOV-billed lines count for these two, whatever the Payer filter says.</p>
-                <p>Restricted, cash &amp; TPA = the same restricted classes billed to cash and insurance (TPA) patients: the MIS report&apos;s third brand figure.</p>
-                <p>All three are formulary classes, so they sit inside formulary {m.noun} and inside the compliance ratio. Their shares divide by the drug {m.noun} of every payer in the same selection, as the MIS report does{m.units ? <>; here every figure is units sold</> : null}.</p>
+                <p>Restricted, cash &amp; TPA = the same restricted classes billed to cash and insurance (TPA) patients: HCG&apos;s third brand figure.</p>
+                <p>All three are formulary classes, so they sit inside formulary {m.noun} and inside the compliance ratio. Their shares divide by the drug {m.noun} of every payer in the same selection, as HCG&apos;s report does{m.units ? <>; here every figure is units sold</> : null}.</p>
               </MethodText>
               <HowBuilt s={s} />
             </>

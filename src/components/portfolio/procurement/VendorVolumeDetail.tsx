@@ -14,7 +14,6 @@ import { useWindows, windowLabel, windowPill } from "@/lib/useWindows";
 import { inrAbbr, countAbbr, useMount, CountUp, smoothPath } from "@/components/portfolio/kit";
 import { TbChartArcs3, TbBuildingFactory2 } from "react-icons/tb";
 import { DetailSkeleton } from "./parts";
-import { unbrand } from "@/utils/brand";
 
 const KpiTable = dynamic(() => import("../KpiTable"), { ssr: false, loading: () => <div className="p-6">{Array.from({ length: 6 }).map((_, i) => <div key={i} className="h-10 rounded-lg bg-gray-50 animate-pulse mb-2" />)}</div> });
 
@@ -22,8 +21,7 @@ const KpiTable = dynamic(() => import("../KpiTable"), { ssr: false, loading: () 
 const PAGE = "#F1F2FA", INK = "#272c42", SUB = "#8a90a6";
 const DEEP = "#6d6ef0", INDIGO = "#818cf8", PERI = "#a5b4fc", SKY = "#93c5fd", SLATE = "#7a8098";
 const SH = "0 22px 46px -28px rgba(70,70,130,0.34), 0 4px 12px -8px rgba(70,70,130,0.08)";
-// vendor names are shown under the build's brand (src/utils/brand.ts); drills keep the raw name
-const vName = (raw: string, n = 16) => { const s = unbrand(raw); return s && s.length > n ? s.slice(0, n - 1) + "…" : s || "—"; };
+const vName = (s: string, n = 16) => (s && s.length > n ? s.slice(0, n - 1) + "…" : s || "—");
 
 function Shell({ region, children }: any) {
   const po = useWindows()?.windows.po;   // the purchase-order months this page is cut from

@@ -78,7 +78,7 @@ export default function Rules({ meta, filters, plant }: { meta: Meta; filters: F
     <div className="grid grid-cols-1 gap-5 md:gap-6">
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <Pills value={sub} onChange={setSub} options={[{ key: "breaches", label: "Rule breaches" }, { key: "book", label: "Rule book" }]} />
-        <span className="text-[11.5px]" style={{ color: SUB }}>Brand letters per payer · rules in brand_rules.csv</span>
+        <span className="text-[11.5px]" style={{ color: SUB }}>HCG&apos;s brand letters per payer · rules in brand_rules.csv</span>
       </div>
       {sub === "breaches" ? <Breaches meta={meta} filters={filters} plant={plant} /> : <Book meta={meta} filters={filters} />}
     </div>
@@ -110,7 +110,7 @@ function Breaches({ meta, filters, plant }: { meta: Meta; filters: Filters; plan
             {data.measures.map((m) => <MeasureCard key={m.measure} m={m} spend={data.drug_spend} active={m.measure === sel.measure} onClick={() => setMeasure(m.measure)} />)}
           </div>
           <p className="text-[11px] mt-4 leading-relaxed max-w-4xl" style={{ color: SUB }}>
-            Each share is the measure&apos;s value ÷ all drug spend in the selection (every payer), as the MIS report divides it.
+            Each share is the measure&apos;s value ÷ all drug spend in the selection (every payer), as HCG&apos;s report divides it.
             A sale can count in more than one measure, so they are never added up. Click a measure for its trend, hospitals, brands and doctors.
           </p>
         </HeroShell>
@@ -128,7 +128,7 @@ function Breaches({ meta, filters, plant }: { meta: Meta; filters: Filters; plan
         <Card delay={300}>
           <Head label="How these figures are built" badge={data.data_as_of ? `data as of ${dayLabel(data.data_as_of)}` : undefined} />
           <ul className="space-y-1.5 text-[12px] leading-relaxed list-disc pl-5" style={{ color: SUB }}>
-            <li>Every sale carries its brand&apos;s letter from that month&apos;s Item Master (the same tag as the group&apos;s own sales sheets) and its payer bucket.</li>
+            <li>Every sale carries its brand&apos;s letter from that month&apos;s Item Master (the same tag as HCG&apos;s own sales sheets) and its payer bucket.</li>
             <li>{sel.label}: letters {sel.letters.join(", ")} · payers {sel.payers.join(", ")}{sel.patient_types[0] !== "*" ? ` · ${sel.patient_types.join("/")} only` : ""} · {VERDICT[sel.verdict].label.toLowerCase()} ({VERDICT[sel.verdict].note}){sel.rule_ref ? ` · ${sel.rule_ref}` : ""}.{sel.note ? ` ${sel.note}` : ""}</li>
             {(data.notes || []).map((t, i) => <li key={i}>{t}</li>)}
           </ul>
@@ -265,7 +265,7 @@ function Brands({ m, params, plant }: { m: RuleMeasure; params: Record<string, s
     <>
       <Card delay={240}>
         <Head label={`Brands · ${m.label}`}
-          note={`Brands this measure counts, most value first, with their block of interchangeable brands from the Main Sheet (letter and SHARING) and its P1 brand — P1/P2 are a proposed ranking. "Share of measure" = the brand's value ÷ the measure total. ${SHARES_NOTE}${m.by_doctor ? " Click a brand to see the doctors who prescribed it." : ""}`}
+          note={`Brands this measure counts, most value first, with their block of interchangeable brands from HCG's Main Sheet (letter and SHARING) and its P1 brand — P1/P2 are a proposed ranking. "Share of measure" = the brand's value ÷ the measure total. ${SHARES_NOTE}${m.by_doctor ? " Click a brand to see the doctors who prescribed it." : ""}`}
           badge={`measure total ${inr(m.cost)}`} />
         <KpiTable key={m.measure} kpiKey="rules-items" endpoint="/formulary/rules/items" plant={plant} columns={ITEM_COLS}
           extraParams={params} onRowClick={m.by_doctor ? (r: ItemRow) => { setItem(r); setOpen(true); } : undefined} />
@@ -286,7 +286,7 @@ function Doctors({ m, params, plant }: { m: RuleMeasure; params: Record<string, 
   return (
     <>
       <Card delay={280}>
-        <Head label={`Doctors · ${m.label}`} note={`Guideline 6: monitor consultants who prescribe these brands to scheme patients. "Share of measure" = the doctor's value ÷ the measure total. ${SHARES_NOTE} Click a doctor to see the brands.`} badge={`per treating doctor · measure total ${inr(m.cost)}`} />
+        <Head label={`Doctors · ${m.label}`} note={`HCG's guideline 6: monitor consultants who prescribe these brands to scheme patients. "Share of measure" = the doctor's value ÷ the measure total. ${SHARES_NOTE} Click a doctor to see the brands.`} badge={`per treating doctor · measure total ${inr(m.cost)}`} />
         <KpiTable key={m.measure} kpiKey="rules-doctors" endpoint="/formulary/rules/doctors" plant={plant} columns={DOCTOR_COLS}
           extraParams={params} onRowClick={(r: DoctorRow) => { setDoc(r); setOpen(true); }} />
       </Card>
@@ -315,7 +315,7 @@ function Book({ meta, filters }: { meta: Meta; filters: Filters }) {
         <span className="text-[11.5px]" style={{ color: SUB }}>{monthLabel(meta, month)} Item Master{filters.month === "ALL" ? " (latest month — the rule book is per month)" : ""} · all hospitals</span>
       </div>
       <Head label="Rule book"
-        note="Every formulary brand in the month's Item Master: its letter, what the rules say for each payer (breach / watch / info / ok), and its block of interchangeable brands in the FY Main Sheet with SHARING and rank — rank 1 is the proposed P1. 'Main Sheet differs' flags the few brands whose Main Sheet letter disagrees with the month's Item Master. Search by molecule or brand." />
+        note="Every formulary brand in the month's Item Master: its letter, what the rules say for each payer (breach / watch / info / ok), and its block of interchangeable brands in HCG's FY Main Sheet with SHARING and rank — rank 1 is the proposed P1. 'Main Sheet differs' flags the few brands whose Main Sheet letter disagrees with the month's Item Master. Search by molecule or brand." />
       <KpiTable key={`${month}|${letter}|${filters.segment}`} kpiKey="rules-book" endpoint="/formulary/rules/book" columns={BOOK_COLS} extraParams={params} />
       <p className="text-[11px] mt-3" style={{ color: SUB }}>
         Verdicts come from brand_rules.csv (backend). Letters: P = preferred for cash &amp; TPA · P-SCH = preferred for everyone · SCH = scheme brand · R / R-OPD = restricted · -OPD = outpatient.

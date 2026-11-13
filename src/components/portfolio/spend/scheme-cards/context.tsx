@@ -98,7 +98,7 @@ export function MethodTab({ d, meta, lines }: { d: Overview; meta: Meta; lines: 
       <DrawerSection title="This figure">{list(lines)}</DrawerSection>
       <DrawerSection title="How these figures are built">
         {list([
-          <>Source: HIS IP + OP pharmacy sales lines (the same monthly files as Formulary Compliance) and the scheme suggested-brand list
+          <>Source: HIS IP + OP pharmacy sales lines (the same monthly files as Formulary Compliance) and HCG&apos;s scheme suggested-brand list
             {sl?.file ? <> ({sl.file}, sheet SCHEME{sl.financial_year ? `, FY ${sl.financial_year}` : ""})</> : null}
             {sl?.switches != null ? <>, which names a cheaper brand for {num(sl.switches)} brands{sl.attis_switches != null ? <> ({num(sl.attis_switches)} of them Attis)</> : null}</> : null}.</>,
           "Every figure is summed for the selection and the % is taken once — never an average of hospital or monthly percentages.",

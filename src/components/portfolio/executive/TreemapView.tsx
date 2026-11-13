@@ -69,7 +69,7 @@ export function TreemapView({ c }: { c: ExecCtx }) {
 export function TreemapMethod({ c }: { c: ExecCtx }) {
   return (
     <MethodText>
-      <p>Every block&apos;s area is its share of the selection&apos;s sales {c.units ? "in units sold" : "at MRP"}: each material type a block with its name over it, split into the formulary buckets as each month&apos;s Item Master classes the item (formulary, out of formulary, non-formulary; consumables are their own bucket). The blocks are laid out largest first, kept as square as they can be (a squarified treemap) so their areas compare. A block too small for its name prints its figure alone, or nothing; its tooltip and the table have every figure.</p>
+      <p>Every block&apos;s area is its share of the selection&apos;s sales {c.units ? "in units sold" : "at MRP"}: each material type a block with its name over it, split into HCG&apos;s formulary buckets as each month&apos;s Item Master classes the item (formulary, out of formulary, non-formulary; consumables are their own bucket). The blocks are laid out largest first, kept as square as they can be (a squarified treemap) so their areas compare. A block too small for its name prints its figure alone, or nothing; its tooltip and the table have every figure.</p>
       <p>The colours are the Formulary page&apos;s buckets; the material types are neutral, so the buckets they split into keep the colour.</p>
       <p>Click a block (or Tab to it and press Enter) to narrow the whole page to its material type with the Material filter, and again for every type. The buckets have no filter of their own, so a block always narrows to its type.</p>
     </MethodText>

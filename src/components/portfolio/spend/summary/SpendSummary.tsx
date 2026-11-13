@@ -98,14 +98,14 @@ export default function SpendSummary({ meta, filters, plant, onGo }: { meta: Met
   const slicesTab: DrawerTab[] = groups ? [{
     key: "slices", label: "Attis & Healthium", render: () => (
       <>
-        <DrawerSection title="The two slices of the scheme saving missed" note="Parts of the scheme saving missed, not added to it; each label says its share of the scheme saving missed.">
-          <LossTable words={KIND.scheme} caption={`Slices of the scheme saving missed, ${where} · ${when}`} rows={[
+        <DrawerSection title="HCG's two slices of the scheme saving missed" note="Parts of the scheme saving missed, not added to it; each label says its share of the scheme saving missed.">
+          <LossTable words={KIND.scheme} caption={`HCG's slices of the scheme saving missed, ${where} · ${when}`} rows={[
             { key: "attis", label: `${groups.attis.label} (${pct(groups.attis.share_pct, 1)})`, ...spendLoss(groups.attis) },
             { key: "healthium", label: `${groups.healthium.label} (${pct(groups.healthium.share_pct, 1)})`, ...spendLoss(groups.healthium) },
           ]} />
         </DrawerSection>
         {healthiumParts.length > 0 && (
-          <DrawerSection title={`${groups.healthium.label}, by group`} note="As the S6 Summary splits the Healthium line.">
+          <DrawerSection title={`${groups.healthium.label}, by group`} note="As HCG's S6 Summary splits the Healthium line.">
             <LossTable words={KIND.scheme} rows={healthiumParts} caption={`${groups.healthium.label} by group, ${where} · ${when}`} />
           </DrawerSection>
         )}

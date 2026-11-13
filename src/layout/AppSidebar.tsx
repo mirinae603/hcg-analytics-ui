@@ -19,7 +19,6 @@ import {
 import type { IconType } from "react-icons";
 import { useAuth } from "@/hooks/useAuth";
 import { monthLabel, useWindows, windowLabel, type Window } from "@/lib/useWindows";
-import { CLIENT, OWNER, PRODUCT } from "@/utils/brand";
 
 // ── Two-level navigation: a slim icon rail + a fluid flyout panel that slides out to the
 //    right with the selected portfolio's KPIs. Custom line icons, per-portfolio overview. ──
@@ -74,7 +73,7 @@ const FORMULARY_EXTRA: PanelItem[] = [
   { name: "Doctors", title: "Out-of-formulary spend by doctor", path: "/formulary?view=doctors", Icon: TbStethoscope },
   { name: "Items", title: "Out of / Non / Formulary items", path: "/formulary?view=items", Icon: TbPill },
   { name: "Scheme brands", title: "Restricted & preferred brands billed to GOV schemes", path: "/formulary?view=scheme", Icon: TbBuildingBank },
-  { name: "Brand rules", title: "Brand rules per payer: breaches, doctors and the rule book", path: "/formulary?view=rules", Icon: TbListCheck },
+  { name: "Brand rules", title: "HCG's brand rules per payer: breaches, doctors and the rule book", path: "/formulary?view=rules", Icon: TbListCheck },
 ];
 
 // Spend Analysis — the same one-page shape as Formulary Compliance: sections in ?section=.
@@ -221,10 +220,8 @@ const AppSidebar: React.FC = () => {
         {/* ── RAIL ── */}
         <div className="relative z-10 h-full flex flex-col items-center bg-white dark:bg-gray-900" style={{ width: RAIL_W, borderRight: `1px solid ${BORDER}` }}>
           <Link href="/" className="mt-5 mb-4 flex items-center justify-center rounded-[12px]"
-            style={{ width: 40, height: 40, background: "#f4f6fb", border: `1px solid ${BORDER}` }} title={`${OWNER} — Home`}>
-            {CLIENT
-              ? <img src={CLIENT.mark} alt={CLIENT.name} style={{ width: 26, height: 24 }} />
-              : <img src={PRODUCT.icon} alt={PRODUCT.vendor} className="rounded-[7px]" style={{ width: 28, height: 28 }} />}
+            style={{ width: 40, height: 40, background: "#f4f6fb", border: `1px solid ${BORDER}` }} title="HCG — Home">
+            <img src="/images/logo/hcg-butterfly.svg" alt="HCG" style={{ width: 26, height: 24 }} />
           </Link>
 
           {/* Home, and the Executive overview: HCG's first screen, across every portfolio */}

@@ -73,7 +73,7 @@ function VendorsDrawer({ c, dr, title }: { c: Ctx; dr: DrawerCtl; title: string 
         {
           key: "method", label: "Method", render: () => (
             <Method c={c}>
-              <p>A vendor is the GRN&apos;s goods supplier by name: one supplier can hold several SAP codes (one per region), and they count as one vendor. Each vendor&apos;s margin missed is summed over the out-of-formulary brands bought from it, net as the group counts it.</p>
+              <p>A vendor is the GRN&apos;s goods supplier by name: one supplier can hold several SAP codes (one per region), and they count as one vendor. Each vendor&apos;s margin missed is summed over the out-of-formulary brands bought from it, net as HCG counts it.</p>
               <p>On the chart each vendor&apos;s margin missed is a bar from zero on one scale; the vendors take the series colours in order, so each bar can be told apart (their names say who they are).</p>
             </Method>
           ),
