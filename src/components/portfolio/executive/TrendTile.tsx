@@ -75,7 +75,7 @@ function TrendDrawer({ c, dr }: { c: ExecCtx; dr: DrawerCtl }) {
               <DrawerSection title="IP and OP sales, with the margin %" note="Bars from ₹0, IP below OP; the line joins the bar tops and each point is that month's margin %.">
                 <MonthCombo ariaLabel={`${TITLE}, ${c.where}`} series={series} months={months} line={{ label: "Margin %", color: RATE_COL, decimals: 2 }} height={300} />
               </DrawerSection>
-              <DrawerSection title="Every month" note="Exact rupees, as the group's sheets carry them; shaded = your selection.">
+              <DrawerSection title="Every month" note="Exact rupees, as HCG's sheets carry them; shaded = your selection.">
                 <ExactTable rows={rows} rowKey={(r) => r.period} caption={`Sales and margin by month, ${c.where}`}
                   selected={(r) => inSelection(c, r.period)}
                   columns={[

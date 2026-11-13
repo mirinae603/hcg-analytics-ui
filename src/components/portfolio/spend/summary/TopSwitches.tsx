@@ -234,8 +234,8 @@ export function SwitchesDrawer({ lists, ranked, meta, filters, scope, asOf, open
         {
           key: "method", label: "Method", render: () => (
             <MethodText lines={[
-              "Each section's top ten brands by loss, as its overview ranks them (the report's 'Top 10 materials list contribution in margin missed'), put in one list by rupees lost.",
-              "Scheme: the loss is the spend above the suggested brand's for scheme (GOV) patients. Cash & TPA: the margin the suggested brand would have added for cash and TPA patients. Out of formulary: the margin the suggested brand would have added on the units bought (the group's purchase method); marked estimated where the suggestion is the app's own match.",
+              "Each section's top ten brands by loss, as its overview ranks them (HCG's 'Top 10 materials list contribution in margin missed'), put in one list by rupees lost.",
+              "Scheme: the loss is the spend above the suggested brand's for scheme (GOV) patients. Cash & TPA: the margin the suggested brand would have added for cash and TPA patients. Out of formulary: the margin the brand HCG suggests would have added on the units bought (HCG's purchase method); marked estimated where the suggestion is the app's own match.",
               "The lists measure different things for different patients, so they are ranked together and never added.",
             ]} />
           ),

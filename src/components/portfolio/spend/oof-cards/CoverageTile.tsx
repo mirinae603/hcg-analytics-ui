@@ -60,7 +60,7 @@ function CoverageDrawer({ c, dr, title }: { c: Ctx; dr: DrawerCtl; title: string
         },
         {
           key: "none", label: "No alternative", render: () => (
-            <DrawerSection title="The biggest brands bought with no alternative" note="By money spent. They are shown, as the group asked, but add nothing to the margins. Every brand is in the Brands tab.">
+            <DrawerSection title="The biggest brands bought with no alternative" note="By money spent. They are shown, as HCG asked, but add nothing to the margins. Every brand is in the Brands tab.">
               <DataTable context={c.context} rows={none} rowKey={(u) => `${u.material}|${u.status}`} cols={cols} caption="Out-of-formulary brands bought with no alternative mapped, by money spent" minWidth={720}
                 empty="Every out-of-formulary brand bought in this selection has a suggested brand." />
               <div className="mt-4"><LinkButton onClick={() => goTo("items")}>All brands</LinkButton></div>
@@ -71,7 +71,7 @@ function CoverageDrawer({ c, dr, title }: { c: Ctx; dr: DrawerCtl; title: string
           key: "method", label: "Method", render: () => (
             <Method c={c}>
               <p>{lossMethod("oof").basis}</p>
-              <p>Counted: the group&apos;s worksheet, its pair from another month, its list and the app&apos;s match (Estimated). Not counted: receipts the group parked (it doubts the Item Master&apos;s flag) and brands with no suggested brand, or one with no price; they are shown, and add nothing to the margins.</p>
+              <p>Counted: HCG&apos;s worksheet, HCG&apos;s pair from another month, HCG&apos;s list and the app&apos;s match (Estimated). Not counted: receipts HCG parked (it doubts the Item Master&apos;s flag) and brands with no suggested brand, or one with no price; they are shown, and add nothing to the margins.</p>
               <p>On the chart the whole bar is the money spent; under it, the biggest brands with no alternative, as bars from zero on their own scale.</p>
             </Method>
           ),

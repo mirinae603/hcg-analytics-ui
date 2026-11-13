@@ -259,7 +259,7 @@ export function HowBuilt({ s }: { s: OverviewScope }) {
         <li>Source: HIS IP + OP pharmacy sales lines, one consolidated file per month. Each month is classified with that month&apos;s Item Master, and payers are bucketed with the Payer Master.</li>
         <li>
           {s.m.units
-            ? <>Amounts are units sold (QTY): tablets, vials and bottles added together, because the sales files keep no unit of measure. A quantity figure is never set against the budget, which is a drug-cost target; switch the header to Value for the budgeted figures.</>
+            ? <>Amounts are units sold (QTY): tablets, vials and bottles added together, because the sales files keep no unit of measure. A quantity figure is never set against HCG&apos;s budget, which is a drug-cost target; switch the header to Value for the figures HCG budgets.</>
             : <>Values are cost (TOTALCOSTPRICE).</>}
           {" "}Every percentage is a ratio of sums, recomputed for the selection — never an average of hospital or monthly percentages.
         </li>

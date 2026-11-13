@@ -7,7 +7,6 @@
 //   text that a spreadsheet would run as a formula (= + - @, tab, CR) gets a leading apostrophe
 //   (OWASP CSV injection).
 import type { Col } from "@/lib/kpiRegistry";
-import { unbrand } from "@/utils/brand";
 import { getTable, type Params, type Row } from "./query";
 
 /** Rows per request: 1.7 lakh rows take ~35 requests, and one answer stays a few MB. */
@@ -24,13 +23,12 @@ const NEEDS_QUOTES = /[",\r\n]/;
 const FORMULA = /^[=+\-@\t\r]/;
 const ISO_DATETIME = /^\d{4}-\d{2}-\d{2}[T ]/;
 
-/** One CSV cell by the rules above, its text as the screen shows it (the build's brand,
- *  src/utils/brand.ts). Shared with the AI Analyst's table files (lib/aiExport). */
+/** One CSV cell by the rules above. Shared with the AI Analyst's table files (lib/aiExport). */
 export function csvCell(v: unknown, kind?: Col["kind"]): string {
   if (v == null || v === "") return "";
   if (typeof v === "number") return Number.isFinite(v) ? String(v) : "";
   if (typeof v === "boolean") return v ? "Yes" : "No";
-  let s = unbrand(String(v));
+  let s = String(v);
   if (kind === "bool" && (s === "true" || s === "false")) return s === "true" ? "Yes" : "No";
   if (kind === "date" && ISO_DATETIME.test(s)) s = s.slice(0, 10);
   if (FORMULA.test(s)) s = `'${s}`;
