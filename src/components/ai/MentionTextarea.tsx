@@ -5,7 +5,7 @@
 // everything. Selecting inserts the exact quoted name into the question.
 import React, { useEffect, useRef, useState } from "react";
 import { TbPill, TbTruck, TbBuildingFactory2, TbCategory2, TbBuildingHospital, TbChevronRight, TbChevronLeft, TbSearch } from "react-icons/tb";
-import { DASHBOARD_API_BASE_URL } from "@/utils/config";
+import { apiFetch } from "@/utils/api";
 import { T } from "./theme";
 import GlobalStyle from "./GlobalStyle";
 
@@ -40,13 +40,14 @@ export default function MentionTextarea({ value, onChange, onSubmit, disabled, p
 
   useEffect(() => { const ta = taRef.current; if (!ta) return; ta.style.height = "auto"; ta.style.height = Math.min(ta.scrollHeight, 128) + "px"; }, [value]);
 
-  // fetch values (browse when query empty + a type is active; search otherwise)
+  // fetch values (browse when query empty + a type is active; search otherwise). Through
+  // apiFetch, which signs the call in: /ai/mentions needs a login, and the bare fetch this
+  // used was answered 401 every time, so the picker only ever said "No matches".
   useEffect(() => {
     if (!open || phase === "types") { return; }
     const seq = ++seqRef.current; setLoading(true);
     const t = setTimeout(() => {
-      fetch(`${DASHBOARD_API_BASE_URL}/ai/mentions?q=${encodeURIComponent(query)}${activeType ? `&type=${activeType}` : ""}&limit=40`)
-        .then((r) => r.json())
+      apiFetch<{ items?: Mention[] }>(`/ai/mentions?q=${encodeURIComponent(query)}${activeType ? `&type=${activeType}` : ""}&limit=40`)
         .then((d) => { if (seq === seqRef.current) { setItems(d.items || []); setIdx(0); setLoading(false); } })
         .catch(() => { if (seq === seqRef.current) { setItems([]); setLoading(false); } });
     }, 140);
