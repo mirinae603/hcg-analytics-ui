@@ -30,7 +30,7 @@ export type Payer = "ALL" | "CASH" | "CASH(TPA)" | "GOV";
 // Attis line is a slice of the scheme section (and an option of its Brands tab); any one brand,
 // Attis or not, is the page's Brand filter.
 export const SECTIONS: { key: Section; label: string; title: string }[] = [
-  { key: "scheme", label: "Scheme", title: "Scheme (govt) patients: saving missed when a costlier brand was used than the one HCG suggests" },
+  { key: "scheme", label: "Scheme", title: "Scheme (govt) patients: saving missed when a costlier brand was used than the one the scheme list suggests" },
   { key: "cash", label: "Cash & TPA", title: "Cash and insurance (TPA) patients: margin missed when a lower-margin brand was used" },
   { key: "oof", label: "Out of formulary", title: "Out of formulary purchases: margin missed by buying brands outside the formulary" },
 ];
@@ -78,7 +78,7 @@ export const isInsight = (s: string | null): s is InsightSection => s === "price
  *  on it need no Summary or purchase-analysis entry. */
 export type PageSection = "summary" | Section | InsightSection;
 export const PAGE_SECTIONS: { key: PageSection; label: string; title: string }[] = [
-  { key: "summary", label: "Summary", title: "Every part of HCG's spend margin missed report, on one screen" },
+  { key: "summary", label: "Summary", title: "Every part of the spend margin missed report, on one screen" },
   ...SECTIONS,
   ...INSIGHT_SECTIONS,
 ];

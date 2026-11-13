@@ -52,8 +52,8 @@ export function SegmentsDrawer({ s, open, first, onClose }: { s: OverviewScope; 
           key: "method", label: "Method", render: () => (
             <>
               <MethodText>
-                <p>Each segment&apos;s ratio is its own Formulary ÷ (Formulary + Out of formulary). Pooled ({pct(d.headline.pooled_pct)}) adds the two segments&apos; amounts before dividing: HCG&apos;s current method. The mean of the two ratios ({pct(d.headline.mean_pct)}) was its earlier one.</p>
-                <p>HCG&apos;s budget is set for the pooled figure, so the segments are compared with the month before, not with a budget. On the Overview they are bars on the compliance panel&apos;s axis from 0 to 100%; the grey tick is the month before.</p>
+                <p>Each segment&apos;s ratio is its own Formulary ÷ (Formulary + Out of formulary). Pooled ({pct(d.headline.pooled_pct)}) adds the two segments&apos; amounts before dividing: the current method. The mean of the two ratios ({pct(d.headline.mean_pct)}) was the earlier one.</p>
+                <p>The budget is set for the pooled figure, so the segments are compared with the month before, not with a budget. On the Overview they are bars on the compliance panel&apos;s axis from 0 to 100%; the grey tick is the month before.</p>
                 {s.m.units && <p>Quantity view: each ratio is taken over units sold (tablets, vials and bottles added together), and nothing on quantity is set against the budget.</p>}
               </MethodText>
               <HowBuilt s={s} />

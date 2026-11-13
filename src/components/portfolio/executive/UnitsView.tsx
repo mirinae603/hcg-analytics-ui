@@ -61,7 +61,7 @@ function columnsOf(c: ExecCtx): UnitCol[] {
     { key: "mrp", get: field("mrp"), label: "Revenue", title: `Revenue at MRP${c.units ? ` (${RUPEES_ONLY})` : ""}`, format: lakhs, exact: rupeesExact, unit: "₹", good: null, color: KPI_COL.sales, width: 60 },
     rate("margin_pct", "Margin %", "Margin ÷ MRP", "up", 52),
     rate("compliance_pct", "Compliance", `Formulary compliance, pooled, ${c.units ? "on quantity (units sold)" : "on drug cost"}${statuses ? `: ✓ met budget, ~ within ${WITHIN_PTS} pts, ✕ below` : ""}`, "up", 78, { toneOnly: statuses }),
-    rate("budget_pct", "Budget", "HCG's compliance budget for the unit (its PAN MIS)", null, 52, { format: (v) => pct(v, 0) }),
+    rate("budget_pct", "Budget", "Compliance budget for the unit (its PAN MIS)", null, 52, { format: (v) => pct(v, 0) }),
     rate("formulary_share_pct", "Formulary %", `Formulary's share ${share}`, "up", 72),
     rate("oof_share_pct", "OOF %", `Out of formulary's share ${share}`, "down", 48),
     rate("nf_share_pct", "Non-form. %", `Non-formulary's share ${share}`, "down", 56),
@@ -89,10 +89,10 @@ export function statusLegend(c: ExecCtx): LegendItem[] {
  *  selected have different budgets), else the page's. */
 function noBudget(c: ExecCtx, u: UnitRow): string {
   if (u.budget_note) return u.budget_note;
-  if (c.units) return `No budget on ${QUANTITY_LC}: HCG's budget is a drug-cost target`;
-  if (!c.judged) return "Not compared under the Patients or Material filter: HCG sets the budget for the whole drug spend";
-  if (u.pan_order == null) return "Not in HCG's unit list, so it has no budget";
-  return "HCG's MIS sets no budget for this unit";
+  if (c.units) return `No budget on ${QUANTITY_LC}: the budget is a drug-cost target`;
+  if (!c.judged) return "Not compared under the Patients or Material filter: the budget is set for the whole drug spend";
+  if (u.pan_order == null) return "Not in the unit list, so it has no budget";
+  return "The MIS sets no budget for this unit";
 }
 
 /** Why any other cell is blank. */
@@ -148,7 +148,7 @@ export function UnitsView({ c }: { c: ExecCtx }) {
         <div className="mb-2"><Legend items={legendOf(c)} /></div>
         <Heatmap columns={cols} rows={unitRows(c, cols)} ariaLabel={`Every unit, ${c.when}`} maxHeight={520} empty="No units in this selection." />
       </DrawerSection>
-      <DrawerSection title="Every unit, exact" note="In HCG's own order, exact figures. Shaded = the hospital selected in the header.">
+      <DrawerSection title="Every unit, exact" note="In the group's own order, exact figures. Shaded = the hospital selected in the header.">
         <ExactTable rows={units} rowKey={(u) => u.plant} caption={`Every unit, ${c.when}`} selected={(u) => u.selected}
           columns={[
             { label: "Unit", value: (u) => unitName(u), text: true },
@@ -167,13 +167,13 @@ export function UnitsView({ c }: { c: ExecCtx }) {
 export function UnitsMethod({ c }: { c: ExecCtx }) {
   return (
     <MethodText>
-      <p>One row per unit: every unit in HCG&apos;s unit list and every unit with sales, in HCG&apos;s own order. The table ignores the hospital selector (the selected unit is shaded) and follows the other filters.</p>
+      <p>One row per unit: every unit in the unit list and every unit with sales, in the group&apos;s own order. The table ignores the hospital selector (the selected unit is shaded) and follows the other filters.</p>
       <p>Each rate column is washed on its own scale, by where a unit stands among the others: the best value in the column the deepest green, the worst the deepest red, the middle nearly white. Higher is better for margin %, compliance and the formulary share; lower is better for the out-of-formulary and non-formulary shares.</p>
       <p>The rupee columns — revenue, each amount missed and extra paid — are washed by size alone, in their own colour: the deepest is the most rupees. A bigger hospital buys and sells more, so it misses more rupees too; a green-to-red wash would paint it the worst run for its size. Compare the rates, or open a unit, to judge how it is run. The budget is not washed.</p>
-      <p>Where compliance is judged against HCG&apos;s budget it shows the unit&apos;s status instead: a mark before the figure (✓ met, ~ within {WITHIN_PTS} pts, ✕ below) on a tint of its status colour; a unit with no budget is left unwashed, so it never reads as judged. Every cell prints its figure, so the colour is never the only cue.</p>
+      <p>Where compliance is judged against the budget it shows the unit&apos;s status instead: a mark before the figure (✓ met, ~ within {WITHIN_PTS} pts, ✕ below) on a tint of its status colour; a unit with no budget is left unwashed, so it never reads as judged. Every cell prints its figure, so the colour is never the only cue.</p>
       <p>A blank cell (—) has a reason in its tooltip: {[
         "a unit with no drug consumption in the selection has no compliance or split",
-        `a unit HCG sets no budget for, or whose months selected have different budgets, has no budget, and so has every unit on the ${QUANTITY} basis or with Consumables picked`,
+        `a unit the MIS sets no budget for, or whose months selected have different budgets, has no budget, and so has every unit on the ${QUANTITY} basis or with Consumables picked`,
         "a section without figures for the month leaves its column blank for every unit",
       ].join("; ")}. A money column is ₹ 0 where the section has the month and the unit has nothing in it.</p>
       <p>Revenue is sales at MRP; the shares are of drug consumption ({c.units ? "units sold" : "drug cost"}); out of formulary and extra paid are counted on purchases. A unit&apos;s extra paid is set against the usual cheapest of all hospitals, as its header says, so that every row is on one yardstick; with one hospital selected, the Extra paid KPI above sets it against that hospital&apos;s own usual cheapest instead, a different figure. Margin and every amount missed stay in rupees on the {QUANTITY} basis.</p>

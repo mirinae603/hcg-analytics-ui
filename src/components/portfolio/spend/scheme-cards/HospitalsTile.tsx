@@ -93,7 +93,7 @@ export function HospitalsTile({ d, meta, filters, scope, place }: {
           {
             key: "split", label: "Spend split", render: () => (
               <DrawerSection title="Spend on these brands, hospital by hospital"
-                note={`HCG's Unit Inventory Distribution: each bar is one hospital's spend on these brands (100%), split into the ${w.loss.toLowerCase()} (from the left: its ${w.pct}) and what the ${w.sug} brands would have cost. The figure after it is the ${w.loss.toLowerCase()}. Click a hospital to select it.`}>
+                note={`The Unit Inventory Distribution: each bar is one hospital's spend on these brands (100%), split into the ${w.loss.toLowerCase()} (from the left: its ${w.pct}) and what the ${w.sug} brands would have cost. The figure after it is the ${w.loss.toLowerCase()}. Click a hospital to select it.`}>
                 <StackBars ariaLabel={`${w.loss} by hospital, ${scope.when}, most first`} empty={empty} asideWidth={84}
                   onRow={(plant) => { const r = rows.find((x) => x.plant === plant); if (r) { drawer.close(); selectHospital(r); } }}
                   segments={[{ key: "loss", label: w.loss, color: LOSS_COL }, { key: "base", label: w.proposed, color: PROPOSED_COL }]}
@@ -129,7 +129,7 @@ export function HospitalTable({ d, context, onPicked }: { d: Overview; context: 
     { label: w.loss, value: (r) => rupeesExact(r.saving_missed), raw: (r) => r.saving_missed, unit: "₹" },
   ];
   return (
-    <DrawerSection title="Every hospital" note={`Exact rupees at HCG's FY list prices. The bar is the ${w.loss.toLowerCase()}, on one scale from 0 to ${lakhs(vmax)}.`}>
+    <DrawerSection title="Every hospital" note={`Exact rupees at the FY list prices. The bar is the ${w.loss.toLowerCase()}, on one scale from 0 to ${lakhs(vmax)}.`}>
       <DownloadCsv rows={rows} columns={csv} page={SPEND_PAGE} caption={`${w.title} by hospital, ${context}`} />
       <div className="overflow-x-auto -mx-1"><div className="flex flex-col" style={{ minWidth: 760 }}>
         <div className="grid gap-3 px-2 pb-2 text-[10px] font-semibold uppercase" style={{ gridTemplateColumns: cols, color: SUB, letterSpacing: ".08em" }}>

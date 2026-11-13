@@ -10,6 +10,7 @@ import { inrAbbr, countAbbr, catName, useMount } from "@/components/portfolio/ki
 import { ProcShell, TableCard, Panel, DetailSkeleton, INK, SUBTLE, EMER, TEAL, INDIGO } from "./parts";
 import { WaveHero, DonutCard } from "./ExecCards";
 import { TbCoin, TbBuildingFactory2, TbMapPin, TbChartTreemap } from "react-icons/tb";
+import { unbrand } from "@/utils/brand";
 
 const KpiTable = dynamic(() => import("../KpiTable"), { ssr: false, loading: () => <div className="p-6">{Array.from({ length: 6 }).map((_, i) => <div key={i} className="h-10 rounded-lg bg-gray-50 animate-pulse mb-2" />)}</div> });
 
@@ -118,7 +119,7 @@ function RankBars({ title, sub, rows, accent, icon: Icon, delay, cat }: any) {
             <div className="flex items-center justify-between mb-1.5 gap-2">
               <div className="flex items-center gap-2 min-w-0">
                 <span className="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: `${accent}14`, color: accent }}><Icon size={13} /></span>
-                <span className="text-[12.5px] font-medium truncate" style={{ color: "#3c465c" }} title={r.name}>{r.name}</span>
+                <span className="text-[12.5px] font-medium truncate" style={{ color: "#3c465c" }} title={unbrand(r.name)}>{unbrand(r.name)}</span>
               </div>
               <span className="text-[12.5px] font-bold tabular-nums flex-shrink-0" style={{ color: INK }}>{inrAbbr(r.value)}</span>
             </div>

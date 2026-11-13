@@ -67,7 +67,7 @@ function TrendDrawer({ s, dr }: { s: RevScope; dr: DrawerCtl }) {
                 <MonthCombo ariaLabel={`Revenue by month, IP and OP, with margin %, ${s.where}`} series={series} months={months}
                   line={{ label: "Margin %", color: RATE_COL, decimals: 2 }} height={300} />
               </DrawerSection>
-              <DrawerSection title="Every month" note="Exact rupees, as HCG's sheets carry them.">
+              <DrawerSection title="Every month" note="Exact rupees, as the group's sheets carry them.">
                 <MonthTable s={s} caption={`Revenue and margin by month, ${s.where}`} columns={[
                   ...s.types.map((t) => ({ key: t, label: `${t} revenue`, value: (r: TrendRow) => rupeesExact(t === "IP" ? r.ip.mrp : r.op.mrp) })),
                   { key: "mrp", label: "Revenue", value: (r) => rupeesExact(r.mrp), strong: true },

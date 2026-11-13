@@ -36,10 +36,10 @@ const GUIDELINES: Guideline[] = [
     note: "Pick either measure: its Doctors table (below the brands) is the consultant-wise view." },
   { n: 7, text: "Increased usage of Out-of-Formulary and Restricted brands appears to be a key contributor to the lower compliance levels.",
     measures: [], oof: true,
-    note: "HCG's own compliance formula counts restricted brands (FORMULARYR, FORMULARYR-OPD) inside Formulary (A) — in its S5 Summary sheet the FORMULARY* rows add up to the A column. So restricted use does not lower the compliance %; only out-of-formulary spend does." },
+    note: "The MIS compliance formula counts restricted brands (FORMULARYR, FORMULARYR-OPD) inside Formulary (A) — in its S5 Summary sheet the FORMULARY* rows add up to the A column. So restricted use does not lower the compliance %; only out-of-formulary spend does." },
   { n: 8, text: "Strengthening adherence to formulary guidelines across all patient categories can help achieve budget targets and improve cost efficiency.",
     measures: [],
-    note: "Commentary — no figure of its own. Compliance against HCG's budget is on the Overview tab (Budget vs Actual)." },
+    note: "Commentary — no figure of its own. Compliance against the budget is on the Overview tab (Budget vs Actual)." },
 ];
 
 export default function Guidelines({ d, filters, plant, selected, onPick }: {
@@ -54,8 +54,8 @@ export default function Guidelines({ d, filters, plant, selected, onPick }: {
 
   return (
     <Card delay={120}>
-      <Head label="HCG guidelines"
-        note="The eight guidelines in every HCG compliance MIS mail (the spend mail repeats 1–6), each with the measure that puts a figure on it for this selection. Shares are of all drug spend in the selection, every payer, as HCG divides them. Click a measure to open its trend, hospitals, brands and doctors below."
+      <Head label="Guidelines"
+        note="The eight guidelines in every compliance MIS mail (the spend mail repeats 1–6), each with the measure that puts a figure on it for this selection. Shares are of all drug spend in the selection, every payer, as the MIS divides them. Click a measure to open its trend, hospitals, brands and doctors below."
         badge={`drug spend ${inr(d.drug_spend.total)}`} />
       <ol className="flex flex-col">
         {GUIDELINES.map((g) => {

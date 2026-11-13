@@ -107,7 +107,7 @@ export function HcgChart({ months, m }: { months: CompMonth[]; m: Measure }) {
         <FyPills fys={fys} cur={cur} onChange={setFy} />
       </div>
       <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ height: "auto", marginTop: 6, cursor: "crosshair" }} preserveAspectRatio="xMidYMid meet"
-        onMouseMove={onMove} onMouseLeave={onLeave} role="img" aria-label={budgeted ? "Formulary compliance budget against actual, by month, as in HCG's MIS chart" : "Formulary compliance on quantity by month, as in HCG's MIS chart; no budget on quantity"}>
+        onMouseMove={onMove} onMouseLeave={onLeave} role="img" aria-label={budgeted ? "Formulary compliance budget against actual, by month, as in the MIS chart" : "Formulary compliance on quantity by month, as in the MIS chart; no budget on quantity"}>
         {rows.map((r, i) => r.selected && (
           <rect key={`s-${r.period}`} x={PL + i * slotW + 3} y={PT - 22} width={slotW - 6} height={PH + 22 + 52} rx={10} fill={SEL_BG} />
         ))}
@@ -150,7 +150,7 @@ export function HcgChart({ months, m }: { months: CompMonth[]; m: Measure }) {
             <span style={{ color: SUB }}> · non formulary {amount(a.nonFormulary)} (outside the ratio)</span></span>
         ) : (
           <span style={{ color: SUB }}>
-            HCG&apos;s chart: axis from {lo}%, not zero, so a one-point gap looks large · labels are whole % like HCG&apos;s · under each month: F = formulary {unit}, A+B = formulary + out of formulary {unit}
+            MIS chart: axis from {lo}%, not zero, so a one-point gap looks large · labels are whole %, as in the MIS · under each month: F = formulary {unit}, A+B = formulary + out of formulary {unit}
           </span>
         )}
       </Readout>

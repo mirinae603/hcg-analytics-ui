@@ -86,7 +86,7 @@ export function FlowView({ c }: { c: ExecCtx }) {
 export function FlowMethod({ c }: { c: ExecCtx }) {
   return (
     <MethodText>
-      <p>The selection&apos;s pharmacy sales {c.units ? "in units sold" : "at MRP"} followed from left to right: from each unit (the five biggest by name, the rest together as Other units; one unit when a hospital is selected) into its material types, and from each material type into HCG&apos;s formulary buckets as each month&apos;s Item Master classes the item. A band is as wide as what it carries, on one scale for the whole chart, and every node is named with its figure.</p>
+      <p>The selection&apos;s pharmacy sales {c.units ? "in units sold" : "at MRP"} followed from left to right: from each unit (the five biggest by name, the rest together as Other units; one unit when a hospital is selected) into its material types, and from each material type into the formulary buckets as each month&apos;s Item Master classes the item. A band is as wide as what it carries, on one scale for the whole chart, and every node is named with its figure.</p>
       <p>Hover a unit, a material type or a bucket to light the bands that touch it, or a band to light it and its two ends. The middle column is where a unit&apos;s sales meet everyone else&apos;s, so the right half is the mix of the whole selection, not of one unit.</p>
       <p>Click a unit (or Tab to it and press Enter) to select that hospital in the header, and again to go back to all hospitals; click a material type to narrow the whole page to it with the Material filter, and again for every type. &quot;Other units&quot; and the buckets have no filter of their own, so they only light up.</p>
     </MethodText>

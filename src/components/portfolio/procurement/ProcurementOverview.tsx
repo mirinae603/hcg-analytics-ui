@@ -11,6 +11,7 @@ import { TbTrendingDown, TbBuildingFactory2, TbTruckDelivery } from "react-icons
 import { KPIS, Kpi } from "@/lib/kpiRegistry";
 import InventoryGlassKpiCard from "@/components/portfolio/inventory/InventoryGlassKpiCard";
 import { fetchKpiChart, computeInsights, buildSimTiles } from "@/components/portfolio/inventory/kpiChartFetch";
+import { unbrand } from "@/utils/brand";
 
 // Procurement KPIs from registry — same pattern as /inventory's grid.
 const procurementKpis: Kpi[] = KPIS.filter((k) => k.portfolio === "procurement");
@@ -111,7 +112,7 @@ function VendorsCard({ vendors, top5, cat }: { vendors: any[]; top5: number; cat
         {vendors.slice(0, 7).map((v, i) => (
           <div key={i} className="flex items-center justify-between py-2.5">
             <div className="flex items-center gap-3 min-w-0"><span className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: `${INDIGO}12`, color: INDIGO }}><TbBuildingFactory2 size={15} /></span>
-              <div className="min-w-0"><div className="text-[12.5px] font-medium truncate" style={{ color: "#3c465c" }} title={v.name}>{v.name}</div><div className="text-[11px]" style={{ color: SUBTLE }}>{inrAbbr(v.value)} · {countAbbr(v.lines)} lines</div></div></div>
+              <div className="min-w-0"><div className="text-[12.5px] font-medium truncate" style={{ color: "#3c465c" }} title={unbrand(v.name)}>{unbrand(v.name)}</div><div className="text-[11px]" style={{ color: SUBTLE }}>{inrAbbr(v.value)} · {countAbbr(v.lines)} lines</div></div></div>
             <span className="text-[12.5px] font-bold tabular-nums flex-shrink-0" style={{ color: INK }}>{v.share.toFixed(1)}%</span>
           </div>
         ))}
@@ -401,7 +402,7 @@ export default function ProcurementOverview() {
                   key={s.kpi.key}
                   className="relative flex justify-center items-center p-6 transition duration-300"
                   style={{ background: "rgba(255,255,255,0.9)", opacity: 0.6, filter: "saturate(0.72)" }}
-                  title="Simulated preview — activates the moment HCG shares the source"
+                  title="Simulated preview — activates the moment the source data is shared"
                   onMouseEnter={(e) => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.filter = "none"; }}
                   onMouseLeave={(e) => { e.currentTarget.style.opacity = "0.6"; e.currentTarget.style.filter = "saturate(0.72)"; }}
                 >

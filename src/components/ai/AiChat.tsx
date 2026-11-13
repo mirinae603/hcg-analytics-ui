@@ -295,7 +295,7 @@ const ChartCard = React.memo(function ChartCard({ figure }: { figure: { data: an
       const mod: any = await import("plotly.js-dist-min");
       const Plotly = mod.default ?? mod;
       const gd = wrapRef.current?.querySelector(".js-plotly-plot");
-      if (gd) await Plotly.downloadImage(gd, { format: "png", height: 720, width: 1280, scale: 2, filename: `hcg-${String(title).replace(/[^a-z0-9]+/gi, "-").toLowerCase().slice(0, 40)}` });
+      if (gd) await Plotly.downloadImage(gd, { format: "png", height: 720, width: 1280, scale: 2, filename: `chart-${String(title).replace(/[^a-z0-9]+/gi, "-").toLowerCase().slice(0, 40)}` });
     } catch { /* noop */ }
   };
   return (
@@ -920,15 +920,15 @@ export default function AiChat({ variant = "floater", onOpenSessions }: { varian
   /** Export just this turn — the question, its answer, and the charts/tables it rests on. */
   const exportTurn = async (msgId: string, kind: "excel" | "pdf") => {
     const turn = buildTurnAt(messages, msgId);
-    if (kind === "excel") await exportExcel([turn], "hcg-ai-answer");
-    else await exportPdf([turn], turn.question || "HCG AI Answer");
+    if (kind === "excel") await exportExcel([turn], "ai-answer");
+    else await exportPdf([turn], turn.question || "AI Answer");
   };
 
   const exportAll = async (kind: "excel" | "pdf") => {
     const turns = groupTurns(messages);
     if (!turns.length) return;
-    if (kind === "excel") await exportExcel(turns, "hcg-ai-conversation");
-    else await exportPdf(turns, "HCG AI Conversation");
+    if (kind === "excel") await exportExcel(turns, "ai-conversation");
+    else await exportPdf(turns, "AI Conversation");
   };
 
   return (

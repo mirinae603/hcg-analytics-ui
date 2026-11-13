@@ -39,7 +39,7 @@ import { effectiveMethod, gapOf, inRatioOf, monthLabel, niceMax, type View } fro
 /** Why the overall figure carries no budget marker, beside its label. */
 const NO_BUDGET: Record<NonNullable<BudgetView["why"]>, string> = {
   units: "no budget on quantity",
-  network: "HCG budgets each unit",
+  network: "budgets are set per unit",
   unit: "no budget set for this unit",
   differs: "budgets differ across these months",
   filters: "budget is for all patients, pooled",
@@ -182,7 +182,7 @@ function BreakdownTab({ s, onOpen }: { s: OverviewScope; onOpen: (v: View) => vo
     <>
       <DrawerSection title="Onco vs non-onco"
         note={filters.segment === "ALL"
-          ? <>Each segment&apos;s own ratio. Pooled {pct(h.pooled_pct)} is HCG&apos;s current method; the mean of the two segments ({pct(h.mean_pct)}) was its earlier one.</>
+          ? <>Each segment&apos;s own ratio. Pooled {pct(h.pooled_pct)} is the current method; the mean of the two segments ({pct(h.mean_pct)}) was the earlier one.</>
           : "Material type is filtered to one segment, so only that segment has spend here."}>
         <SplitRows m={s.m} rows={(d.segments || []).map((g) => ({ key: g.key, label: g.label, s: g }))} />
       </DrawerSection>
@@ -209,10 +209,10 @@ function MethodTab({ s, budget }: { s: OverviewScope; budget: BudgetView }) {
       <MethodText>
         <p>
           {method === "mean" ? (
-            <>Mean = the average of the onco ratio and the non-onco ratio, each Formulary ÷ (Formulary + Out of formulary): HCG&apos;s earlier method. A segment with nothing in its ratio is skipped.</>
+            <>Mean = the average of the onco ratio and the non-onco ratio, each Formulary ÷ (Formulary + Out of formulary): the earlier method. A segment with nothing in its ratio is skipped.</>
           ) : (
             <>Pooled = Formulary ÷ (Formulary + Out of formulary){s.filters.segment === "ALL"
-              ? <> over onco and non-onco drugs together: HCG&apos;s current method.</>
+              ? <> over onco and non-onco drugs together: the current method.</>
               : <> for the selected material type.</>}
               {gap != null && (s.m.units
                 ? <> Of every 100 units in the ratio, <b style={{ color: INK }}>{gap.toFixed(2)}</b> were out-of-formulary items.</>
@@ -223,26 +223,26 @@ function MethodTab({ s, budget }: { s: OverviewScope; budget: BudgetView }) {
         {s.m.units && (
           <p>
             Quantity view: the same ratio over units sold instead of cost. Quantity adds tablets, vials and bottles together (the sales
-            files keep no unit of measure), so a cheap tablet weighs as much as a costly vial; it is a second lens, not the figure HCG budgets.
+            files keep no unit of measure), so a cheap tablet weighs as much as a costly vial; it is a second lens, not the budgeted figure.
           </p>
         )}
         <p>
           {budget.why === "units"
-            ? <>Budget: none on quantity. HCG&apos;s compliance budget is set on drug cost, so a quantity figure is never set against it and
-                no status is shown. Switch the header to Value for the figure HCG budgets.{s.prev && <> The chart compares the figure with {s.prev.label} instead, the grey tick.</>}</>
+            ? <>Budget: none on quantity. The compliance budget is set on drug cost, so a quantity figure is never set against it and
+                no status is shown. Switch the header to Value for the budgeted figure.{s.prev && <> The chart compares the figure with {s.prev.label} instead, the grey tick.</>}</>
             : budget.value == null
             ? <>{budget.why === "network"
-                ? <>Budget: HCG sets a compliance budget for each hospital, so all hospitals together have none.</>
+                ? <>Budget: each hospital has its own compliance budget, so all hospitals together have none.</>
                 : budget.why === "differs"
-                ? <>Budget: HCG&apos;s PAN MIS sets this hospital different budgets in the months selected (each month&apos;s is named under How these figures are built), so the span is not set against one budget and no status is shown. Pick one month to see it against its own budget.</>
-                : <>Budget: HCG&apos;s PAN MIS sets no budget for this hospital.</>}
+                ? <>Budget: the PAN MIS sets this hospital different budgets in the months selected (each month&apos;s is named under How these figures are built), so the span is not set against one budget and no status is shown. Pick one month to see it against its own budget.</>
+                : <>Budget: the PAN MIS sets no budget for this hospital.</>}
                 {s.prev && <> The chart compares the figure with {s.prev.label} instead, the grey tick.</>}</>
             : h.budget_source === "hcg_mis"
-              ? <>Budget = {budget.value}%, this hospital&apos;s FY budget in HCG&apos;s PAN MIS{hcgMis ? <> ({hcgMis})</> : null}.</>
-              : <>Budget = {budget.value}%, the default target: HCG&apos;s PAN MIS, which sets each hospital&apos;s own, has not been read yet.</>}
+              ? <>Budget = {budget.value}%, this hospital&apos;s FY budget in the PAN MIS{hcgMis ? <> ({hcgMis})</> : null}.</>
+              : <>Budget = {budget.value}%, the default target: the PAN MIS, which sets each hospital&apos;s own, has not been read yet.</>}
           {budget.why !== "units" && (
             <>
-              {" "}The status compares the whole percentage HCG&apos;s MIS would print with the budget: met when it prints at or above it,
+              {" "}The status compares the whole percentage the MIS would print with the budget: met when it prints at or above it,
               within {WITHIN_PTS} pts when it prints up to {WITHIN_PTS} points below, otherwise more than {WITHIN_PTS} pts below. The budget is set for
               a hospital&apos;s whole drug spend, pooled, so no status is shown under a patient-type, payer, material or mean filter.
             </>
@@ -273,7 +273,7 @@ function TrendPanel({ s }: { s: OverviewScope }) {
       <div className="flex items-center justify-end mb-2">
         <Pills value={view} onChange={setView} options={[
           { key: "gap", label: "Gap from 100%", title: "Points short of 100%, on an axis from zero" },
-          { key: "hcg", label: "HCG view", title: s.m.budgetJudged ? "Budget vs Actual bars per month, as in HCG's MIS chart" : "Actual bars per month, as in HCG's MIS chart (no budget on quantity)" },
+          { key: "hcg", label: "MIS view", title: s.m.budgetJudged ? "Budget vs Actual bars per month, as in the MIS chart" : "Actual bars per month, as in the MIS chart (no budget on quantity)" },
         ]} />
       </div>
       {view === "hcg" ? <HcgChart months={s.months} m={s.m} /> : <Trend s={s} />}

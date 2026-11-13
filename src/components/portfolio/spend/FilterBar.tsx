@@ -24,15 +24,15 @@ export type PayerMode = "gov" | "cash" | "section" | "purchases";
 
 // The locked payer chips: what the figures count, and why it cannot be changed here.
 const LOCKED: Partial<Record<PayerMode, { label: string; title: string }>> = {
-  gov: { label: "Scheme patients (GOV)", title: "HCG's scheme rules are for scheme (GOV) patients, so these views count GOV-billed lines only." },
+  gov: { label: "Scheme patients (GOV)", title: "The scheme rules are for scheme (GOV) patients, so these views count GOV-billed lines only." },
   section: {
     label: "Each section's own",
-    title: "Scheme (with HCG's Attis and Healthium slices) counts scheme (GOV) patients; Cash & TPA counts cash and TPA patients; out of formulary counts purchases, which have no payer. Pick a payer in the Cash & TPA section.",
+    title: "Scheme (with its Attis and Healthium slices) counts scheme (GOV) patients; Cash & TPA counts cash and TPA patients; out of formulary counts purchases, which have no payer. Pick a payer in the Cash & TPA section.",
   },
-  purchases: { label: "Not for purchases", title: "Out of formulary, Prices and Generic vs branded are read from HCG's purchases (GRN): a purchase has no payer." },
+  purchases: { label: "Not for purchases", title: "Out of formulary, Prices and Generic vs branded are read from the purchases (GRN): a purchase has no payer." },
 };
 // The purchase tabs' patient-type chip: purchases have none.
-const NO_TYPE = { label: "Not for purchases", title: "Out of formulary, Prices and Generic vs branded are read from HCG's purchases (GRN): a purchase has no patient type." };
+const NO_TYPE = { label: "Not for purchases", title: "Out of formulary, Prices and Generic vs branded are read from the purchases (GRN): a purchase has no patient type." };
 // The purchase analyses' brand chip: they compare products and suppliers, not one brand's switch.
 const NO_BRAND = { title: "Prices and Generic vs branded compare products and suppliers: the Brand filter applies to Scheme, Cash & TPA and Out of formulary. Pick a product on the Prices tab instead." };
 

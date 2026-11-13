@@ -6,6 +6,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRegion, displayRegion } from "@/context/RegionContext";
 import { DASHBOARD_API_BASE_URL } from "@/utils/config";
+import { unbrand } from "@/utils/brand";
 import { useWindows, windowLabel, windowPill } from "@/lib/useWindows";
 import { inrAbbr, countAbbr, catName, useMount, smoothPath, CountUp } from "@/components/portfolio/kit";
 import { GaugeCard, DonutCard, BrandPanel, type Tab } from "./ExecCards";
@@ -145,7 +146,7 @@ function BillableSplitCard({ cat }: { cat: ReturnType<typeof useCardCategory> })
         <div className="text-[34px] leading-none font-bold tabular-nums tracking-tight" style={{ color: INK }}>
           {loading ? "···" : <CountUp value={total} format={inrAbbr} />}
         </div>
-        <div className="text-[12.5px]" style={{ color: SUB }}>total material usage HCG-wide{cat.active ? ` · ${cat.category}` : ""}</div>
+        <div className="text-[12.5px]" style={{ color: SUB }}>total material usage across all hospitals{cat.active ? ` · ${cat.category}` : ""}</div>
       </div>
 
       <div className="mt-3 h-2.5 rounded-full overflow-hidden flex" style={{ background: "#f0eef0" }}>
@@ -263,7 +264,7 @@ function DepartmentsCard({ departments }: { departments: any[] }) {
               <span className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: `${PLUM}14`, color: PLUM }}><TbReportMedical size={15} /></span>
               <div className="min-w-0">
                 <div className="text-[12.5px] font-medium tabular-nums" style={{ color: "#3c2f36" }}>{r.code}</div>
-                <div className="text-[11px] truncate" style={{ color: SUB }} title={r.hospital}>{r.hospital || "—"} · {countAbbr(r.qty)} units</div>
+                <div className="text-[11px] truncate" style={{ color: SUB }} title={unbrand(r.hospital)}>{unbrand(r.hospital) || "—"} · {countAbbr(r.qty)} units</div>
               </div>
             </div>
             <span className="text-[12.5px] font-bold tabular-nums flex-shrink-0" style={{ color: INK }}>{inrAbbr(r.value)}</span>
@@ -449,7 +450,7 @@ export default function ConsumptionOverview() {
                   key={s.kpi.key}
                   className="relative flex justify-center items-center p-6 transition duration-300"
                   style={{ background: "rgba(255,255,255,0.9)", opacity: 0.6, filter: "saturate(0.72)" }}
-                  title="Simulated preview — activates the moment HCG shares the source"
+                  title="Simulated preview — activates the moment the source data is shared"
                   onMouseEnter={(e) => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.filter = "none"; }}
                   onMouseLeave={(e) => { e.currentTarget.style.opacity = "0.6"; e.currentTarget.style.filter = "saturate(0.72)"; }}
                 >

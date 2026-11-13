@@ -22,9 +22,9 @@ const gapOf = (u: Judged) => u.compliance_pct - u.budget_pct;
 
 /** Why there is nothing to judge, or null when there is. */
 export function whyNoBudget(c: ExecCtx): string | null {
-  if (c.units) return `No budget on ${QUANTITY_LC}: HCG's compliance budget is a drug-cost target. Switch the header to Value to compare.`;
-  if (!c.judged) return "HCG sets each unit's budget for its whole drug spend, so it is not compared under the Patients or Material filter. Choose IP + OP and All materials to compare.";
-  if (!c.d.units.some(isJudged)) return "No unit has a budget in HCG's MIS for this selection.";
+  if (c.units) return `No budget on ${QUANTITY_LC}: the compliance budget is a drug-cost target. Switch the header to Value to compare.`;
+  if (!c.judged) return "Each unit's budget is set for its whole drug spend, so it is not compared under the Patients or Material filter. Choose IP + OP and All materials to compare.";
+  if (!c.d.units.some(isJudged)) return "No unit has a budget in the MIS for this selection.";
   return null;
 }
 
@@ -72,9 +72,9 @@ export function BudgetView({ c }: { c: ExecCtx }) {
 export function BudgetMethod() {
   return (
     <MethodText>
-      <p>Formulary compliance is formulary ÷ (formulary + out of formulary), pooled on drug cost; non-formulary is outside the ratio. Each unit&apos;s bar runs from 0 to its compliance on a 0–100% scale, coloured by its status against HCG&apos;s budget for it (the black mark): met when it prints at or above the budget (HCG&apos;s MIS prints whole %), within when up to {WITHIN_PTS} pts below that, below beyond it. The grey tick is the month before, from the change the server sends.</p>
-      <p>Every unit with a budget is listed, the furthest below its budget first; a unit at 99.9% against a 100% budget has met it (HCG&apos;s whole-% rule). On the page, each unit&apos;s compliance carries the same status: its mark (✓ met, ~ within {WITHIN_PTS} pts, ✕ below) and a tint of its colour.</p>
-      <p>Budgets are HCG&apos;s, set per unit for its whole drug spend, so they are compared only on the Value basis with every patient type and material. All hospitals together have no budget.</p>
+      <p>Formulary compliance is formulary ÷ (formulary + out of formulary), pooled on drug cost; non-formulary is outside the ratio. Each unit&apos;s bar runs from 0 to its compliance on a 0–100% scale, coloured by its status against the budget for it (the black mark): met when it prints at or above the budget (the MIS prints whole %), within when up to {WITHIN_PTS} pts below that, below beyond it. The grey tick is the month before, from the change the server sends.</p>
+      <p>Every unit with a budget is listed, the furthest below its budget first; a unit at 99.9% against a 100% budget has met it (the MIS&apos;s whole-% rule). On the page, each unit&apos;s compliance carries the same status: its mark (✓ met, ~ within {WITHIN_PTS} pts, ✕ below) and a tint of its colour.</p>
+      <p>Budgets are set per unit for its whole drug spend, so they are compared only on the Value basis with every patient type and material. All hospitals together have no budget.</p>
     </MethodText>
   );
 }
