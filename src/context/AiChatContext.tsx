@@ -47,6 +47,9 @@ export type AiMsg = {
   /** The turn failed (backend error, dropped connection, no response). Shows a visible
    *  "Try again" — the only retry used to be a hover-only Regenerate. */
   error?: boolean;
+  /** Part of the turn failed AFTER its answer was written (a chart or table could not be
+   *  built). The answer stands as it is; this one line under it says what may be missing. */
+  notice?: string;
   /** The page the question was asked from (live turns only; the backend does not store it). */
   ctx?: AiPageContext;
   /** The id this user message was first drawn with. The backend's real id replaces `id`
@@ -177,6 +180,18 @@ const toMs = (iso?: string) => { const t = Date.parse(iso || ""); return Number.
 
 // ---------- backend <-> frontend message/session shape mapping ----------
 
+/** The id of a turn's n-th chart (0 = the first). Live turns and saved ones use the same
+ *  scheme, so a turn with two charts never gives them one id between them. */
+const chartId = (baseId: string, n: number) => `${baseId}-chart-${n}`;
+
+/** Every chart a saved reply holds, in order. Replies saved since a turn could draw more
+ *  than one carry them all in `charts`; older ones only have `chart`, the last of them. */
+type Figure = NonNullable<AiMsg["figure"]>;
+function savedCharts(c: { charts?: unknown; chart?: unknown }): Figure[] {
+  const list: unknown[] = Array.isArray(c.charts) && c.charts.length ? c.charts : c.chart ? [c.chart] : [];
+  return list.filter((f): f is Figure => !!f && typeof f === "object");
+}
+
 function assistantContentToMsgs(baseId: string, content: any): AiMsg[] {
   const c = content && typeof content === "object" ? content : { text: String(content ?? "") };
   const isError = c.kind === "error";
@@ -188,14 +203,23 @@ function assistantContentToMsgs(baseId: string, content: any): AiMsg[] {
     kind: "text",
     text,
     // Backend now persists the orchestrator's own "ok" | "corrected" | "flagged" | null
-    // signal verbatim — same shape the live SSE /ai/chat stream has always sent.
-    verified: c.verified ?? null,
+    // signal verbatim — same shape the live SSE /ai/chat stream has always sent. A failed
+    // turn never carries one: nothing in an error was checked, whatever was saved with it.
+    verified: isError ? null : c.verified ?? null,
     options: c.options || [],
     queries: c.queries || [],
     error: isError,
+    ...(typeof c.notice === "string" && c.notice.trim() ? { notice: c.notice } : {}),
   }];
-  if (c.chart) out.push({ id: `${baseId}-chart`, role: "bot", kind: "plotly", figure: c.chart });
+  savedCharts(c).forEach((figure, n) => out.push({ id: chartId(baseId, n), role: "bot", kind: "plotly", figure }));
   if (c.table) out.push({ id: `${baseId}-table`, role: "bot", kind: "table", table: c.table });
+  return out;
+}
+
+/** A turn's messages split by kind, each list in its original order. */
+function byKind(msgs: AiMsg[]): Map<AiMsg["kind"], AiMsg[]> {
+  const out = new Map<AiMsg["kind"], AiMsg[]>();
+  for (const x of msgs) out.set(x.kind, [...(out.get(x.kind) || []), x]);
   return out;
 }
 
@@ -438,6 +462,7 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
     const turnBaseId = uid();
     const textId = `${turnBaseId}-text`;
     const turnMsgIds = new Set<string>();
+    let turnCharts = 0;
     const turnQueries: AiQuery[] = [];
     traceRef.current = [];
     const ac = new AbortController();
@@ -549,7 +574,9 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
         // show them as soon as they exist instead of waiting for "persisted" to swap them in.
         writeMsgs(sid, (m) => m.map((x) => (x.id === textId ? { ...x, options: ev.options } : x)));
       } else if (t === "chart" && ev.plotly) {
-        const id = `${turnBaseId}-chart`; turnMsgIds.add(id);
+        // Each chart its own id: a turn can draw more than one, and a shared id let the
+        // second collide with the first as one React key.
+        const id = chartId(turnBaseId, turnCharts++); turnMsgIds.add(id);
         writeMsgs(sid, (m) => [...m, { id, role: "bot", kind: "plotly", figure: ev.plotly }]);
       } else if (t === "table" && ev.table) {
         const id = `${turnBaseId}-table`; turnMsgIds.add(id);
@@ -559,23 +586,36 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
         setStep("");
         putText({ text: ev.text || "", options: ev.options || [] });
       } else if (t === "error") {
-        // An error after tokens streamed replaces the partial answer (it is not one), and
-        // the drain must stop first or it keeps typing the old tokens onto the error.
         stopDrain();
         setStep("");
         const raw = ev.text || "Something went wrong answering that.";
-        putText({ text: raw.trim().startsWith("⚠️") ? raw : `⚠️ ${raw}`, error: true });
+        if (ev.partial && turnMsgIds.has(textId)) {
+          // The answer was already written and checked; only a later step (building a
+          // chart or table) failed. The answer, its badge and the evidence that did arrive
+          // all stand, and one line under them says what may be missing.
+          writeMsgs(sid, (m) => m.map((x) => (x.id === textId ? { ...x, notice: raw, streaming: false } : x)));
+        } else {
+          // Before any answer: an error after tokens streamed replaces the partial text (it
+          // is not an answer), and the drain must stop first or it keeps typing the old
+          // tokens onto the error. It carries no trust badge — nothing in it was checked.
+          putText({ text: raw.trim().startsWith("⚠️") ? raw : `⚠️ ${raw}`, error: true, verified: null });
+        }
       } else if (t === "persisted" && ev.assistant_message) {
         // Swap in the canonical messages but KEEP the live ids and the live chart/table
         // objects. New ids changed every React key in the turn, so the chart was purged
         // and redrawn from an empty div and the table lost its scroll position — a flash
-        // and a jump at the end of every answer.
+        // and a jump at the end of every answer. Each saved message is paired with the live
+        // one of its kind in the same place (second chart with second chart); when the
+        // counts differ the saved copy is taken as it is, since pairing by place would then
+        // draw one chart under another's id.
         const canonical = backendMsgToFrontend(ev.assistant_message);
         writeMsgs(sid, (m) => {
-          const live = m.filter((x) => turnMsgIds.has(x.id));
-          const byKind = new Map(live.map((x) => [x.kind, x] as const));
+          const live = byKind(m.filter((x) => turnMsgIds.has(x.id)));
+          const saved = byKind(canonical);
           const merged = canonical.map((c) => {
-            const l = byKind.get(c.kind);
+            const ls = live.get(c.kind) || [];
+            const cs = saved.get(c.kind) || [];
+            const l = ls.length === cs.length ? ls[cs.indexOf(c)] : undefined;
             return l ? { ...c, id: l.id, figure: l.figure ?? c.figure, table: l.table ?? c.table } : c;
           });
           return [...m.filter((x) => !turnMsgIds.has(x.id)), ...merged];

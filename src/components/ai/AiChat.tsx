@@ -458,8 +458,10 @@ function TurnFooter({ m, onOption, onExport, onRegenerate }: {
             ok and corrected rendered, which meant "canonical" — the STRONGEST guarantee we
             have, the same calculation the dashboard card uses — showed no badge at all,
             while "flagged" also showed nothing and so was indistinguishable from a clean
-            answer. Both silences were misleading, in opposite directions. */}
-        {m.verified === "canonical" ? (
+            answer. Both silences were misleading, in opposite directions. A failed turn
+            never shows one, whatever `verified` it carries: nothing in an error was
+            checked, and a green "Same as your dashboard" on a ⚠️ message is a false claim. */}
+        {m.error ? null : m.verified === "canonical" ? (
           <span className="inline-flex items-center gap-1.5 text-[11px] font-medium px-2 py-[3px]"
                 title="This figure comes from the same calculation the dashboard card uses — not re-derived by the assistant."
                 style={{ background: T.goodBg, color: T.good, borderRadius: T.r }}><TbShieldCheck size={12} /> Same as your dashboard</span>
@@ -532,6 +534,9 @@ function Brief({ turn, onOption, onExport, onRegenerate }: {
   const stats = headlineStats(turn.tables[0]?.table);
   const streaming = turn.texts.some((t) => t.streaming);
   const showEvidence = turn.figures.length > 0 || (turn.tables.length > 0 && !stats);
+  // Set when part of the turn failed after its answer was written: the answer stands, and
+  // this says a chart or table may be missing from under it.
+  const notice = [...turn.texts].reverse().find((t) => t.notice)?.notice;
 
   return (
     <article className="ai-turn group">
@@ -577,6 +582,10 @@ function Brief({ turn, onOption, onExport, onRegenerate }: {
           {turn.figures.map((f) => f.figure ? <ChartCard key={f.id} figure={f.figure} /> : null)}
           {turn.tables.map((t) => t.table && !stats ? <TableView key={t.id} table={t.table} question={turn.question} /> : null)}
         </div>
+      ) : null}
+
+      {notice ? (
+        <p className="mt-3 text-[12px] leading-relaxed" style={{ color: T.mut }}>{notice}</p>
       ) : null}
 
       {meta ? (
